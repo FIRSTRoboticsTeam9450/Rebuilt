@@ -9,12 +9,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.RobotConstants.LimeLightConstants.FrontLeft;
-import frc.robot.Constants.RobotConstants.LimeLightConstants.FrontRight;
-import frc.robot.Constants.RobotConstants.LimeLightConstants.Pillar;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
-import frc.robot.Constants.RobotConstants.TargetConstants;
-import frc.robot.subsystems.CoordinationSubsystem.ScoringLocation;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightObject;
@@ -78,22 +73,13 @@ public class VisionSubsystem extends SubsystemBase {
     private double maxTranslationDiff = 0.5; // meters
     private double maxRotationDiff = Math.toRadians(10); // radians
 
-    // Placeholder linear model for shooter if vision is unavailable
-    private double fallbackRPMIntercept = 1500.0;
-    private double fallbackHoodIntercept = 5.0;
-
     // Limelight camera objects
     private final List<LimelightObject> limelightList = new ArrayList<>();
-    private LimelightObject limelightFL; // Front-left camera
-    private LimelightObject limelightFR; // Front-right camera
-    private LimelightObject limelightP;
 
     // Logging
     private volatile double lastFLConfidence = 0.0; // Last confidence reading from front-left camera
     private volatile double lastFRConfidence = 0.0; // Last confidence reading from front-right camera
     private volatile Pose2d lastFusedPose = null;   // Last fused pose from vision
-    private volatile Pose2d lastFLPose = null;      // Last known pose from only FL data
-    private volatile Pose2d lastFRPose = null;      // Last known pose from only FR data
     private volatile Pose2d lastTargetPose = null;
 
 
@@ -116,36 +102,7 @@ public class VisionSubsystem extends SubsystemBase {
      * Ensures that all camera poses are correctly transformed to robot frame.
      */
     private void configureLimelights() {
-        limelightFL = new LimelightObject(FrontLeft.NAME)
-                .withOffsetX(FrontLeft.LOCATION_X)
-                .withOffsetY(FrontLeft.LOCATION_Y)
-                .withOffsetZ(FrontLeft.LOCATION_Z)
-                .withOffsetPitch(FrontLeft.PITCH)
-                .withOffsetRoll(FrontLeft.ROLL)
-                .withOffsetYaw(FrontLeft.YAW);
-        limelightFL.location = Location.FRONT_LEFT;
-
-        limelightFR = new LimelightObject(FrontRight.NAME)
-                .withOffsetX(FrontRight.LOCATION_X)
-                .withOffsetY(FrontRight.LOCATION_Y)
-                .withOffsetZ(FrontRight.LOCATION_Z)
-                .withOffsetPitch(FrontRight.PITCH)
-                .withOffsetRoll(FrontRight.ROLL)
-                .withOffsetYaw(FrontRight.YAW);
-        limelightFR.location = Location.FRONT_RIGHT;
-
-        limelightP = new LimelightObject(Pillar.NAME)
-                .withOffsetX(Pillar.LOCATION_X)
-                .withOffsetY(Pillar.LOCATION_Y)
-                .withOffsetZ(Pillar.LOCATION_Z)
-                .withOffsetPitch(Pillar.PITCH)
-                .withOffsetRoll(Pillar.ROLL)
-                .withOffsetYaw(Pillar.YAW);
-        limelightP.location = Location.PILLAR;
-
-
-
-        limelightList.add(limelightP);
+    
     }
 
     /**
@@ -257,9 +214,11 @@ public class VisionSubsystem extends SubsystemBase {
      * If both measurements are valid and within allowed thresholds, returns confidence-weighted fusion.
      * Otherwise, returns the measurement with higher confidence.
      */
-    private Optional<Pose2d> fuseVision(VisionMeasurement vmFL, VisionMeasurement vmFR) {
-        boolean flGood = vmFL.isValid();
-        boolean frGood = vmFR.isValid();
+    private Optional<Pose2d> fuseVision(VisionMeasurement[] measurements) {
+        boolean[] areMeasurementsValid = new boolean[measurements.length];
+        for (int i = 0; i < measurements.length; i++) {
+            areMeasurementsValid[i] = measurements[i].isValid();
+        }
 
         if (flGood && !frGood) return Optional.of(vmFL.pose());
         if (!flGood && frGood) return Optional.of(vmFR.pose());

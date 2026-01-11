@@ -6,6 +6,16 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/**
+ * Subsystem which controls the handoff from Intake to Shooter.
+ * 
+ * <p> To-Do:
+ *  <p> - Make Base Code </p>
+ *  <p> - Get Actual Values </p>
+ *  <p> - Add Logging </p>
+ * </p>
+ *  
+ */
 public class TransferSubsystem extends SubsystemBase {
     enum State {
         RUN_IN,
@@ -17,12 +27,8 @@ public class TransferSubsystem extends SubsystemBase {
     private static TransferSubsystem instance;
 
     // TODO: Motor IDs
-    private final TalonFX lowerMotor = new TalonFX(-1, "CantDrive");
-    private final TalonFX leftWallMotor = new TalonFX(-1, "CantDrive");
-    private final TalonFX rightWallMotor = new TalonFX(-1, "CantDrive");
-    private final TalonFX exitMotor = new TalonFX(-1, "CantDrive");
-    
-    private final TalonFXConfiguration config = new TalonFXConfiguration();
+    private final TalonFX motor = new TalonFX(-1, "CantDrive");
+
     private double voltageSetpoint = 0.0;
 
     public TransferSubsystem() {
@@ -35,18 +41,14 @@ public class TransferSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        lowerMotor.setVoltage(voltageSetpoint);
-        leftWallMotor.setVoltage(voltageSetpoint);
-        rightWallMotor.setVoltage(voltageSetpoint);
-        exitMotor.setVoltage(voltageSetpoint);
+
     }
 
     private void configure() {
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;//InvertedValue.CounterClockwise_Positive;;
-        lowerMotor.getConfigurator().apply(config);
-        leftWallMotor.getConfigurator().apply(config);
-        rightWallMotor.getConfigurator().apply(config);
-        exitMotor.getConfigurator().apply(config);
+        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        
+        motor.getConfigurator().apply(motorConfig);
     }
 
     public void setVoltageSetpoint(double volts) {
