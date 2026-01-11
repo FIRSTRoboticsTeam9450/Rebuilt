@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj.DriverStation;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -13,8 +18,78 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
+
+  public static final int DRIVER_CONTROLLER_PORT = 0;
+
+  public static final class RobotConstants {
+
+    public static final class ClimberConstants {
+
+      public static final class MotorIDs {
+        
+      }
+
+    }
+
+    public static final class IntakeConstants {
+
+      public static final class MotorIDs {
+        
+      }
+
+    }
+
+    public static final class ShooterConstants {
+
+      public static final class MotorIDs {
+        
+      }
+
+    }
+
+    public static final class TransferConstants {
+
+      public static final class MotorIDs {
+        
+      }
+
+    }
+
+    public static final class TurretConstants {
+
+      public static final class MotorIDs {
+        
+      }
+
+    }
+
+  }
+
+  public static final class FieldConstants {
+
+    public static boolean isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+
+    public static AprilTagFieldLayout FIELD_LAYOUT;
+
+    static {
+      // FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2026Rebuilt);
+      FIELD_LAYOUT.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+    }
+
+    public static final class AprilTagIDs {
+
+    }
+
+        public static Pose3d getTag3dPose(int tagID) {
+      // if (tagID < AprilTagIDs.RED_LEFT_CORAL_STATION || tagID > AprilTagIDs.BLUE_REEF_LEFT_BARGE) {
+      //   throw new IllegalArgumentException("Error: Given Tag ID must be between 1 and 22 (inclusive).");
+      // }
+
+      return FIELD_LAYOUT.getTagPose(tagID).orElseThrow(() -> {
+        final String errorMsg = String.format("getTagPose called for unexpected tag, %d", tagID);
+        return new RuntimeException(errorMsg);
+      });
+    }
   }
 
   public static class ShooterConstants {

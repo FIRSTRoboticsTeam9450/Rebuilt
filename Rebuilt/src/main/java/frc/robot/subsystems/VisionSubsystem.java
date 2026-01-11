@@ -1,5 +1,445 @@
 package frc.robot.subsystems;
 
-public class VisionSubsystem {
+
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
+import frc.robot.RobotContainer;
+import frc.robot.Constants.RobotConstants.ShooterConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.util.LimelightHelpers;
+import frc.robot.util.LimelightObject;
+import frc.robot.util.LimelightObject.Location;
+
+import com.ctre.phoenix6.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.littletonrobotics.junction.Logger;
+
+/**
+ * VisionSubsystem using Limelights with:
+ *  - Fusion of multiple cameras
+ *  - Singleton pattern
+ *  - Integration with drivetrain for pose estimation
+ *
+ * This subsystem reads Limelight data, fuses multiple camera poses,
+ * and provides utility functions like distance to target and shooter recommendations.
+ */
+public class VisionSubsystem extends SubsystemBase {
+
+    // -------------------------
+    // Singleton instance
+    // -------------------------
+    private static VisionSubsystem instance = null;
+
+    /**
+     * Singleton accessor method.
+     * Ensures only one instance exists and is globally accessible.
+     *
+     * @param drivetrain Drivetrain instance for updating pose with vision
+     * @return VisionSubsystem instance
+     */
+    public static synchronized VisionSubsystem getInstance(CommandSwerveDrivetrain drivetrain) {
+        if (instance == null) {
+            instance = new VisionSubsystem(drivetrain);
+        }
+        return instance;
+    }
+
+    // -------------------------
+    // Core subsystem fields
+    // -------------------------
+    private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
+
+    private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
+    private volatile Pose2d tag19Pose = new Pose2d(new Translation2d(4.0739, 4.7455), new Rotation2d(2 * Math.PI / 3.0));
+    private final double distanceOffsetFromRobotCenterToLLLocation = 0.241;
+    private final Translation2d rotationAimTarget = new Translation2d(4.475, 4.145);
+    private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
+
+    // Standard deviations for vision measurements (for filtering/fusion)
+    private double visionStdDevX = 0.7;
+    private double visionStdDevY = 0.7;
+    private double visionStdDevTheta = 9999999.0;
+
+    // Maximum allowed differences for fusion; if exceeded, fallback to higher confidence camera
+    private double maxTranslationDiff = 0.5; // meters
+    private double maxRotationDiff = Math.toRadians(10); // radians
+
+    // Limelight camera objects
+    private final List<LimelightObject> limelightList = new ArrayList<>();
+
+    // Logging
+    private volatile double lastFLConfidence = 0.0; // Last confidence reading from front-left camera
+    private volatile double lastFRConfidence = 0.0; // Last confidence reading from front-right camera
+    private volatile Pose2d lastFusedPose = null;   // Last fused pose from vision
+    private volatile Pose2d lastTargetPose = null;
+
+
+    // -------------------------
+    // Constructor (private for singleton)
+    // -------------------------
+    @SuppressWarnings("static-access")
+    private VisionSubsystem(CommandSwerveDrivetrain drivetrain) {
+        this.drivetrain = drivetrain;
+
+        // Configure camera offsets and add to internal list
+        configureLimelights();
+
+        // Initialize drivetrain vision standard deviations
+        drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+    }
+
+    /**
+     * Initializes LimelightObject instances with physical offsets and names.
+     * Ensures that all camera poses are correctly transformed to robot frame.
+     */
+    private void configureLimelights() {
     
+    }
+
+    /**
+     * Periodic method called every ~20ms by the scheduler.
+     * Updates vision data and logs key metrics.
+     */
+    @Override
+    public void periodic() {
+        updateVision();  // Compute fused vision pose
+        // publishLogs();   // Print/log fusion confidence and pose
+    }
+
+    // -------------------------
+    // Vision update + fusion
+    // -------------------------
+
+    /**
+     * Updates pose estimates from both Limelight cameras and fuses them.
+     * Sends fused pose to drivetrain for odometry correction.
+     */
+    // private void updateVision() {
+    //     // Get robot yaw from drivetrain's Pigeon2 sensor, applying offset
+    //     double robotYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
+
+    //     // Update each Limelight with current robot yaw
+    //     LimelightHelpers.SetRobotOrientation(limelightFL.getName(), robotYaw, 0, 0, 0, 0, 0);
+    //     LimelightHelpers.PoseEstimate peFL = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightFL.getName());
+    //     lastFLPose = peFL.pose;
+
+    //     LimelightHelpers.SetRobotOrientation(limelightFR.getName(), robotYaw, 0, 0, 0, 0, 0);
+    //     LimelightHelpers.PoseEstimate peFR = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightFR.getName());
+    //     lastFRPose = peFR.pose;
+
+    //     // Convert raw Limelight data into VisionMeasurement objects
+    //     VisionMeasurement vmFL = createVisionMeasurement(peFL, limelightFL.getName());
+    //     VisionMeasurement vmFR = createVisionMeasurement(peFR, limelightFR.getName());
+
+    //     // Update logging confidence values
+    //     lastFLConfidence = vmFL.confidence;
+    //     lastFRConfidence = vmFR.confidence;
+
+    //     // Fuse camera measurements
+    //     Optional<Pose2d> fusedPose = fuseVision(vmFL, vmFR);
+
+    //     // If valid, update lastVisionPose and send to drivetrain
+    //     fusedPose.ifPresent(pose -> {
+    //         lastVisionPose = pose;
+    //         lastFusedPose = pose;
+    //         lastVisionTimestamp = Math.max(vmFL.timestamp, vmFR.timestamp);
+    //         drivetrain.addVisionMeasurement(pose, lastVisionTimestamp);
+    //     });
+    // }
+
+    private void updateVision() {
+        double robotYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
+        LimelightHelpers.SetRobotOrientation(limelightP.getName(), robotYaw, 0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate peP = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightP.getName());
+        drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+        if (peP.tagCount != 0) {
+            lastVisionPose = peP.pose;
+            lastVisionTimestamp = peP.timestampSeconds;
+
+            Logger.recordOutput("HeroHeist/Vision/Pose", lastVisionPose);
+
+            drivetrain.addVisionMeasurement(peP.pose, lastVisionTimestamp);
+        }
+    }
+
+    /**
+     * Converts a Limelight PoseEstimate into a VisionMeasurement.
+     * Includes confidence calculation and validity check.
+     */
+    private VisionMeasurement createVisionMeasurement(LimelightHelpers.PoseEstimate pe, String limelightName) {
+        if (pe == null || pe.pose == null) return VisionMeasurement.invalid();
+
+        double ambiguity = computeAmbiguity(limelightName);
+        double timestamp = Utils.fpgaToCurrentTime(pe.timestampSeconds);
+        Pose2d pose = (Pose2d) pe.pose;
+        int tagCount = pe.tagCount;
+
+        // Consider measurement valid if at least 1 tag and ambiguity is low
+        boolean valid = tagCount > 0 && ambiguity < 0.35;
+
+        // Confidence weighted: 70% ambiguity, 30% tag count
+        double tagFactor = Math.min(tagCount / 2.0, 1.0);
+        double confidence = (1.0 - ambiguity) * 0.7 + tagFactor * 0.3;
+
+        return new VisionMeasurement(pose, confidence, timestamp, valid);
+    }
+
+    /**
+     * Computes the best (lowest) ambiguity among all fiducials seen by a Limelight.
+     * @Returns 1.0 if no fiducials detected (completely ambiguous).
+     */
+    private double computeAmbiguity(String limelightName) {
+        LimelightHelpers.RawFiducial[] fiducials = LimelightHelpers.getRawFiducials(limelightName);
+        if (fiducials == null || fiducials.length == 0) return 1.0;
+
+        double best = 1.0;
+        for (LimelightHelpers.RawFiducial f : fiducials) {
+            if (f == null) continue;
+            best = Math.min(best, f.ambiguity);
+        }
+        return best;
+    }
+
+    /**
+     * Fuses two VisionMeasurements into a single Pose2d.
+     * If both measurements are valid and within allowed thresholds, returns confidence-weighted fusion.
+     * Otherwise, returns the measurement with higher confidence.
+     */
+    private Optional<Pose2d> fuseVision(VisionMeasurement[] measurements) {
+        boolean[] areMeasurementsValid = new boolean[measurements.length];
+        for (int i = 0; i < measurements.length; i++) {
+            areMeasurementsValid[i] = measurements[i].isValid();
+        }
+
+        if (flGood && !frGood) return Optional.of(vmFL.pose());
+        if (!flGood && frGood) return Optional.of(vmFR.pose());
+        if (!flGood && !frGood) return Optional.empty();
+
+        // Compute translation and rotation differences
+        double translationDiff = vmFL.pose().getTranslation().getDistance(vmFR.pose().getTranslation());
+        double rotationDiff = Math.abs(vmFL.pose().getRotation().minus(vmFR.pose().getRotation()).getRadians());
+
+        // If cameras largely agree, perform confidence-weighted fusion
+        if (translationDiff < maxTranslationDiff && rotationDiff < maxRotationDiff) {
+            double totalConfidence = vmFL.confidence + vmFR.confidence;
+            double wFL = vmFL.confidence / totalConfidence;
+            double wFR = vmFR.confidence / totalConfidence;
+
+            Translation2d fusedTranslation = new Translation2d(
+                    vmFL.pose().getX() * wFL + vmFR.pose().getX() * wFR,
+                    vmFL.pose().getY() * wFL + vmFR.pose().getY() * wFR
+            );
+            double fusedRotation = vmFL.pose().getRotation().getRadians() * wFL +
+                    vmFR.pose().getRotation().getRadians() * wFR;
+
+            return Optional.of(new Pose2d(fusedTranslation, new Rotation2d(fusedRotation)));
+        } else {
+            // If disagreement too large, fallback to higher-confidence camera
+            return vmFL.confidence >= vmFR.confidence ? Optional.of(vmFL.pose()) : Optional.of(vmFR.pose());
+        }
+    }
+
+    // -------------------------
+    // Logging
+    // -------------------------
+    private void publishLogs() {
+        Logger.recordOutput("HeroHeist/Vision/Total/Last Vision Pose", lastVisionPose);
+        Logger.recordOutput("HeroHeist/Vision/Total/Last Fused Pose", lastFusedPose);
+        Logger.recordOutput("HeroHeist/Vision/Total/Last Target Pose", lastTargetPose);
+
+        Logger.recordOutput("HeroHeist/Vision/FL/Last FL-Data only Pose", lastFLPose);
+        Logger.recordOutput("HeroHeist/Vision/FL/Last FL Confidence", lastFLConfidence);
+
+        Logger.recordOutput("HeroHeist/Vision/FR/Last FR-Data only Pose", lastFRPose);
+        Logger.recordOutput("HeroHeist/Vision/FR/Last FR Confidence", lastFRConfidence);
+
+        Logger.recordOutput("HeroHeist/Vision/Faults/Drivetrain instance null?", drivetrain == null);
+
+        Logger.recordOutput("HeroHeist/Vision/FR/Distance", getDistanceToTarget(lastTargetPose));
+    }
+
+    // -------------------------
+    // Public API
+    // -------------------------
+    public Pose2d getLastFusedPose() { return lastFusedPose; }
+    public double getLastFLConfidence() { return lastFLConfidence; }
+    public double getLastFRConfidence() { return lastFRConfidence; }
+    public Pose2d getLastVisionPose() { return lastVisionPose; }
+
+    /**
+     * Computes the distance from robot to a target pose.
+     */
+    public double getDistanceToTarget(Pose2d target) {
+        if (lastVisionPose == null) return Double.POSITIVE_INFINITY;
+        lastTargetPose = target;
+        return lastVisionPose.getTranslation().getDistance(target.getTranslation());
+    }
+
+    public double getDistanceToTag19() {
+        if (drivetrain.getState().Pose == null) return Double.POSITIVE_INFINITY;
+        return (drivetrain.getState().Pose.getTranslation().getDistance(tag19Pose.getTranslation()) - distanceOffsetFromRobotCenterToLLLocation); //On low hood rev system, subtracting this by 0.5 made it a lot more accurate
+    }
+
+    public Translation2d getRotationTarget() {
+        return rotationAimTarget;
+    }
+
+    public targetData getTargetData(ScoringLocation town) {
+        switch (town) {
+            case DOWNTOWN:
+                return new targetData(TargetConstants.DOWNTOWN_ANGLE, TargetConstants.DOWNTOWN_HEIGHT, TargetConstants.DOWNTOWN_OFFSET);
+
+            case UPTOWN:
+                return new targetData(TargetConstants.UPTOWN_ANGLE, TargetConstants.UPTOWN_HEIGHT, TargetConstants.UPTOWN_OFFSET);
+
+            case FOOTHILLS_HIGH:
+                return new targetData(TargetConstants.FOOTHILLS_ANGLE, TargetConstants.FOOTHILLS_HEIGHT_HIGH, TargetConstants.FOOTHILLS_OFFSET);
+
+            case FOOTHILLS_LOW:
+                return new targetData(TargetConstants.FOOTHILLS_ANGLE, TargetConstants.FOOTHILLS_HEIGHT_LOW, TargetConstants.FOOTHILLS_OFFSET);
+
+        }
+        return null;
+    }
+    
+    /**
+     * Computes the robot-to-target transform in robot frame.
+     */
+    public Transform2d getRobotToTarget(Pose2d target) {
+        if (lastVisionPose == null) return null;
+
+        lastTargetPose = target;
+
+        Translation2d deltaField = target.getTranslation().minus(lastVisionPose.getTranslation());
+        Translation2d translationRobotFrame = deltaField.rotateBy(lastVisionPose.getRotation().unaryMinus());
+        Rotation2d rotationRobotToTarget = target.getRotation().minus(lastVisionPose.getRotation());
+
+        return new Transform2d(translationRobotFrame, rotationRobotToTarget);
+    }
+
+
+    public Pose2d getTargetPose() {
+        return lastTargetPose;
+    }
+
+    public Pose2d getTag19Pose() {
+        return tag19Pose;
+    }
+
+    /**
+     * Provides shooter hood angle and wheel RPM recommendations based on distance.
+     * Uses fallback linear model if vision unavailable.
+     * 
+     */
+    public ShooterSettings recommendShooterForTarget(Pose2d target, ScoringLocation town) {
+
+        lastTargetPose = target;
+
+        targetData targetData = getTargetData(town);
+  
+        double targetHeight = targetData.height;
+        double targetAngle = targetData.angle;
+        double distOffset = targetData.distanceOffset;
+
+        Pose2d modifiedTargetPose = target;
+
+        switch (town) {
+            case UPTOWN:
+                modifiedTargetPose = new Pose2d(new Translation2d(target.getX(), target.getY() + distOffset), new Rotation2d(0));
+                break;
+            
+            case DOWNTOWN:
+                modifiedTargetPose = new Pose2d(new Translation2d(target.getX(), target.getY() - distOffset), new Rotation2d(0));
+                break;
+            default:
+                break;
+        }
+        target = modifiedTargetPose;
+
+        double dist = getDistanceToTarget(target);
+
+        if (!Double.isFinite(dist)) return new ShooterSettings(fallbackHoodIntercept, fallbackRPMIntercept);
+        double hood = Math.atan(2 * (targetHeight - ShooterConstants.SHOOTER_HEIGHT)/dist - Math.tan(targetAngle));
+        double rpm = 1/Math.cos(targetAngle) * Math.sqrt(9.81 * dist/ Math.abs(Math.tan(targetAngle) - Math.tan(hood)));
+
+        return new ShooterSettings(hood, rpm);
+    }
+
+    /**
+     * Updates vision measurement standard deviations for fusion/filtering.
+     */
+    public void setVisionMeasurementStdDevs(double xMeters, double yMeters, double thetaRadians) {
+        this.visionStdDevX = xMeters;
+        this.visionStdDevY = yMeters;
+        this.visionStdDevTheta = thetaRadians;
+
+        drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+    }
+
+    public void setFallbackShooterLinear(double rpmPerMeter, double rpmIntercept, double hoodPerMeter, double hoodIntercept) {
+        this.fallbackRPMIntercept = rpmIntercept;
+        this.fallbackHoodIntercept = hoodIntercept;
+    }
+
+    public void setMaxDiffForFusion(double translationMeters, double rotationRadians) {
+        this.maxTranslationDiff = translationMeters;
+        this.maxRotationDiff = rotationRadians;
+    }
+
+    @SuppressWarnings("static-access")
+    public void setDrivetrainInstance(CommandSwerveDrivetrain drivetrain) {
+        this.drivetrain = drivetrain;
+    }
+
+    // -------------------------
+    // Inner classes
+    // -------------------------
+    public static class ShooterSettings {
+        public final double hoodDegrees;
+        public final double wheelRPM;
+
+        public ShooterSettings(double hoodDegrees, double wheelRPM) {
+            this.hoodDegrees = hoodDegrees;
+            this.wheelRPM = wheelRPM;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Hood=%.2fdeg, RPM=%.0f", hoodDegrees, wheelRPM);
+        }
+    }
+
+    public static class targetData {
+        public double angle;
+        public double height;
+        public double distanceOffset;
+        public targetData(double targetAngle, double targetHeight, double distOffset) {
+            angle = targetAngle;
+            height = targetHeight;
+            distanceOffset = distOffset;
+        }
+    }
+
+    /**
+     * Wrapper class for vision measurements.
+     * Contains pose, confidence, timestamp, and validity flag.
+     */
+    private record VisionMeasurement(Pose2d pose, double confidence, double timestamp, boolean valid) {
+        static VisionMeasurement invalid() {
+            return new VisionMeasurement(null, 0.0, 0.0, false);
+        }
+
+        boolean isValid() {
+            return valid && pose != null;
+        }
+    }
 }
