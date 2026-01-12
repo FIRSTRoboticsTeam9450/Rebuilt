@@ -35,6 +35,7 @@ public class TurretSubsystem extends SubsystemBase {
     private UsableStates previousState = currentState;
 
     private TalonFX turretMotor = new TalonFX(TurretConstants.MotorIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
+    TalonFXConfiguration motorConfig;
 
     private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Turret/Velocity", 0.1);
     private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Turret/Velocity", 1);
@@ -67,7 +68,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     private void configureMotors() {
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+        motorConfig = new TalonFXConfiguration();
 
         motorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
         motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Get through CAD, this is a place holder.
@@ -94,8 +95,12 @@ public class TurretSubsystem extends SubsystemBase {
         turretMotor.getConfigurator().apply(motorConfig);
     }
 
+
     @Override
     public void periodic() {
+        currentMotorRevs = turretMotor.getPosition().getValueAsDouble();
+        currentTurretAngle = currentMotorRevs * 1.5;
+
         applyStates();
         publishLogs();
     }
@@ -162,6 +167,22 @@ public class TurretSubsystem extends SubsystemBase {
         stateNewlyChanged = true;
     }
 
+    public void setAimingTargetMotorRevs(double motorRevs) {
+        if (motorRevs < 0) motorRevs = 0;
+        if (motorRevs > 180) motorRevs = 180;
+
+        targetAimingMotorRevs = motorRevs;
+        targetAimingAngle = motorRevs * 1.5;
+    }
+
+    public void setAimingTargetAngle(double angle) {
+        if (angle < 0) angle = 0;
+        if (angle > 180) angle = 180;
+
+        targetAimingAngle = angle;
+        targetAimingMotorRevs = angle / 1.5;
+    }
+
     public UsableStates getCurrentState() {
         return currentState;
     }
@@ -187,5 +208,40 @@ public class TurretSubsystem extends SubsystemBase {
     public static TurretSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new TurretSubsystem();
         return INSTANCE;
+    }
+
+    /*  =================================
+     *  |           Updaters            |
+     *  =================================
+     */
+
+    /**
+     * Checks the values of both motion magic and slot 0 configs, if any value is new, then update them.
+     */
+    public void updateMotionMagicConstants() {
+        if (motorConfig.MotionMagic.MotionMagicAcceleration != logMMAcceleration.get()
+            || motorConfig.MotionMagic.MotionMagicCruiseVelocity != logMMVelocity.get()
+            || motorConfig.MotionMagic.MotionMagicJerk != logMMJerk.get()) {
+
+            controlRequest = new DynamicMotionMagicVoltage(0, logMMVelocity.get(), logMMAcceleration.get()).withJerk(logMMJerk.get()).withSlot(0);
+            configureMotors();
+        }
+
+        if (motorConfig.Slot0.kS != logMMKS.get()
+            || motorConfig.Slot0.kV != logMMKV.get()
+            || motorConfig.Slot0.kA != logMMKA.get()
+            || motorConfig.Slot0.kP != logMMKP.get()
+            || motorConfig.Slot0.kI != logMMKI.get()
+            || motorConfig.Slot0.kD != logMMKD.get()) {
+
+            motorConfig.Slot0.kV = logMMKV.get();
+            motorConfig.Slot0.kA = logMMKA.get();
+            motorConfig.Slot0.kP = logMMKP.get();
+            motorConfig.Slot0.kI = logMMKI.get();
+            motorConfig.Slot0.kD = logMMKD.get();
+
+            configureMotors();
+        }
+        
     }
 }

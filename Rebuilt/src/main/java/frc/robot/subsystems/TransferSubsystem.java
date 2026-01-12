@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
@@ -12,6 +13,7 @@ import frc.robot.Constants.RobotConstants.TransferConstants;
  * Subsystem which controls the handoff from Intake to Shooter.
  * 
  * <p> To-Do:
+ *  <p> - Motor IDs </p>
  *  <p> - Make Base Code </p>
  *  <p> - Get Actual Values </p>
  *  <p> - Add Logging </p>
@@ -19,19 +21,18 @@ import frc.robot.Constants.RobotConstants.TransferConstants;
  *  
  */
 public class TransferSubsystem extends SubsystemBase {
-    enum State {
+    enum UsableState {
         RUN_IN,
         RUN_OUT,
         NO_RUN
     }
-    private State state = State.NO_RUN;
+    private UsableState currentState = UsableState.NO_RUN;
 
     private static TransferSubsystem instance;
 
-    // TODO: Motor IDs
     private final TalonFX motor = new TalonFX(TransferConstants.MotorIDs.kDrivingMotorID, RobotConstants.CANIVORE_BUS);
 
-    private double voltageSetpoint = 0.0;
+    private VoltageOut voltageRequest = new VoltageOut(0);
 
     public TransferSubsystem() {
         configure();
@@ -43,7 +44,24 @@ public class TransferSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        applyState();
+    }
 
+    private void applyState() {
+        switch (currentState) {
+            case RUN_IN:
+                voltageRequest.Output = 1;
+                break;
+            
+            case RUN_OUT:
+                voltageRequest.Output = -1;
+                break;
+            
+            case NO_RUN:
+                voltageRequest.Output = 0;
+                break;
+        }
+        motor.setControl(voltageRequest);
     }
 
     private void configure() {
@@ -51,12 +69,5 @@ public class TransferSubsystem extends SubsystemBase {
         motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         
         motor.getConfigurator().apply(motorConfig);
-    }
-
-    public void setVoltageSetpoint(double volts) {
-        voltageSetpoint = volts;
-    }
-    public double getVoltageSetpoint() {
-        return voltageSetpoint;
     }
 }

@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.TurretSubsystem;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -18,6 +19,7 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+  private TurretSubsystem turretSub = TurretSubsystem.getInstance();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -50,7 +52,9 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    turretSub.updateMotionMagicConstants();
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override

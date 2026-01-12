@@ -6,10 +6,14 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.TurretSubsystem;
 
 
 public class RobotContainer {
 
+  public static double pigeonOffset = 0;
+
+  private TurretSubsystem turretSub = TurretSubsystem.getInstance();
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
 
