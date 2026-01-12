@@ -107,4 +107,9 @@ public final class Constants {
       });
     }
   }
+
+  public static class ShooterConstants {
+    public static final int kAngleMotorID = -1;
+    public static final int kShooterMotorID = -1;
+  }
 }
