@@ -6,7 +6,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.RobotConstants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -25,8 +26,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private AngleState currentAngleState;
     private ShooterState currentShooterState;
 
-    private TalonFX angleMotor = new TalonFX(ShooterConstants.kAngleMotorID, "CantDrive");
-    private TalonFX shooterMotor = new TalonFX(ShooterConstants.kShooterMotorID, "CantDrive");
+    private TalonFX angleMotor = new TalonFX(ShooterConstants.MotorIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
+    private TalonFX shooterMotor = new TalonFX(ShooterConstants.MotorIDs.kShooterMotorID, RobotConstants.CANIVORE_BUS);
 
 
     public ShooterSubsystem() {

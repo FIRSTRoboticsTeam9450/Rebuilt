@@ -54,7 +54,8 @@ public final class Constants {
     public static final class ShooterConstants {
 
       public static final class MotorIDs {
-        
+        public static final int kAngleMotorID = -1;
+        public static final int kShooterMotorID = -1;
       }
 
     }
@@ -62,7 +63,7 @@ public final class Constants {
     public static final class TransferConstants {
 
       public static final class MotorIDs {
-        public static final int drivingMotor = -1;
+        public static final int kDrivingMotorID = -1;
       }
 
     }
@@ -70,11 +71,12 @@ public final class Constants {
     public static final class TurretConstants {
 
       public static final class MotorIDs {
-        public static final int angleMotor = -1;
+        public static final int kAngleMotorID = -1;
       }
 
       public static final double TOTAL_TURRET_ROTATION_DEGREES = 270;
       public static final double TOTAL_TURRET_ROTATION_RADIANS = 3 / (2 * Math.PI);
+      public static final double TURRET_DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1.5;
 
     }
 
@@ -106,10 +108,5 @@ public final class Constants {
         return new RuntimeException(errorMsg);
       });
     }
-  }
-
-  public static class ShooterConstants {
-    public static final int kAngleMotorID = -1;
-    public static final int kShooterMotorID = -1;
   }
 }

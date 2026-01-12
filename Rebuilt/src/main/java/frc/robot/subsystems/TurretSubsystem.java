@@ -34,7 +34,7 @@ public class TurretSubsystem extends SubsystemBase {
     private UsableStates currentState = UsableStates.ZEROING;
     private UsableStates previousState = currentState;
 
-    private TalonFX turretMotor = new TalonFX(TurretConstants.MotorIDs.angleMotor, RobotConstants.CANIVORE_BUS);
+    private TalonFX turretMotor = new TalonFX(TurretConstants.MotorIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
 
     private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Turret/Velocity", 0.1);
     private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Turret/Velocity", 1);
