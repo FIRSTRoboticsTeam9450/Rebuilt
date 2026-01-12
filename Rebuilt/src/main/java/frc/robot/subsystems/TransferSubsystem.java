@@ -5,6 +5,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.RobotConstants.TransferConstants;
 
 /**
  * Subsystem which controls the handoff from Intake to Shooter.
@@ -27,7 +29,7 @@ public class TransferSubsystem extends SubsystemBase {
     private static TransferSubsystem instance;
 
     // TODO: Motor IDs
-    private final TalonFX motor = new TalonFX(-1, "CantDrive");
+    private final TalonFX motor = new TalonFX(TransferConstants.MotorIDs.drivingMotor, RobotConstants.CANIVORE_BUS);
 
     private double voltageSetpoint = 0.0;
 

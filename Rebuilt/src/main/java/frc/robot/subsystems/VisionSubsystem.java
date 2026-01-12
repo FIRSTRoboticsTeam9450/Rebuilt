@@ -31,6 +31,12 @@ import org.littletonrobotics.junction.Logger;
  *
  * This subsystem reads Limelight data, fuses multiple camera poses,
  * and provides utility functions like distance to target and shooter recommendations.
+ * 
+ * To Do:
+ *  - Make work with any amount of limelight
+ *  - Use tolerances to determine if a vision pose is valid (look at if value is off by a tolerance. (except x and y (Pose3d)))
+ *  - Lessen the Standard deviation for rotation, is to high. Good ballpark: 999
+ *  - Other std deviations could also be lessened
  */
 public class VisionSubsystem extends SubsystemBase {
 
@@ -67,7 +73,7 @@ public class VisionSubsystem extends SubsystemBase {
     // Standard deviations for vision measurements (for filtering/fusion)
     private double visionStdDevX = 0.7;
     private double visionStdDevY = 0.7;
-    private double visionStdDevTheta = 9999999.0;
+    private double visionStdDevTheta = 999.0;
 
     // Maximum allowed differences for fusion; if exceeded, fallback to higher confidence camera
     private double maxTranslationDiff = 0.5; // meters
@@ -77,8 +83,6 @@ public class VisionSubsystem extends SubsystemBase {
     private final List<LimelightObject> limelightList = new ArrayList<>();
 
     // Logging
-    private volatile double lastFLConfidence = 0.0; // Last confidence reading from front-left camera
-    private volatile double lastFRConfidence = 0.0; // Last confidence reading from front-right camera
     private volatile Pose2d lastFusedPose = null;   // Last fused pose from vision
     private volatile Pose2d lastTargetPose = null;
 
@@ -256,12 +260,6 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("HeroHeist/Vision/Total/Last Fused Pose", lastFusedPose);
         Logger.recordOutput("HeroHeist/Vision/Total/Last Target Pose", lastTargetPose);
 
-        Logger.recordOutput("HeroHeist/Vision/FL/Last FL-Data only Pose", lastFLPose);
-        Logger.recordOutput("HeroHeist/Vision/FL/Last FL Confidence", lastFLConfidence);
-
-        Logger.recordOutput("HeroHeist/Vision/FR/Last FR-Data only Pose", lastFRPose);
-        Logger.recordOutput("HeroHeist/Vision/FR/Last FR Confidence", lastFRConfidence);
-
         Logger.recordOutput("HeroHeist/Vision/Faults/Drivetrain instance null?", drivetrain == null);
 
         Logger.recordOutput("HeroHeist/Vision/FR/Distance", getDistanceToTarget(lastTargetPose));
@@ -271,8 +269,6 @@ public class VisionSubsystem extends SubsystemBase {
     // Public API
     // -------------------------
     public Pose2d getLastFusedPose() { return lastFusedPose; }
-    public double getLastFLConfidence() { return lastFLConfidence; }
-    public double getLastFRConfidence() { return lastFRConfidence; }
     public Pose2d getLastVisionPose() { return lastVisionPose; }
 
     /**
@@ -282,33 +278,6 @@ public class VisionSubsystem extends SubsystemBase {
         if (lastVisionPose == null) return Double.POSITIVE_INFINITY;
         lastTargetPose = target;
         return lastVisionPose.getTranslation().getDistance(target.getTranslation());
-    }
-
-    public double getDistanceToTag19() {
-        if (drivetrain.getState().Pose == null) return Double.POSITIVE_INFINITY;
-        return (drivetrain.getState().Pose.getTranslation().getDistance(tag19Pose.getTranslation()) - distanceOffsetFromRobotCenterToLLLocation); //On low hood rev system, subtracting this by 0.5 made it a lot more accurate
-    }
-
-    public Translation2d getRotationTarget() {
-        return rotationAimTarget;
-    }
-
-    public targetData getTargetData(ScoringLocation town) {
-        switch (town) {
-            case DOWNTOWN:
-                return new targetData(TargetConstants.DOWNTOWN_ANGLE, TargetConstants.DOWNTOWN_HEIGHT, TargetConstants.DOWNTOWN_OFFSET);
-
-            case UPTOWN:
-                return new targetData(TargetConstants.UPTOWN_ANGLE, TargetConstants.UPTOWN_HEIGHT, TargetConstants.UPTOWN_OFFSET);
-
-            case FOOTHILLS_HIGH:
-                return new targetData(TargetConstants.FOOTHILLS_ANGLE, TargetConstants.FOOTHILLS_HEIGHT_HIGH, TargetConstants.FOOTHILLS_OFFSET);
-
-            case FOOTHILLS_LOW:
-                return new targetData(TargetConstants.FOOTHILLS_ANGLE, TargetConstants.FOOTHILLS_HEIGHT_LOW, TargetConstants.FOOTHILLS_OFFSET);
-
-        }
-        return null;
     }
     
     /**
