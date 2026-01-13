@@ -49,11 +49,13 @@ public class ClimberSubsystem extends SubsystemBase {
     // MotionMagic type may change
 
     public enum UsableStates{
-        Zeroing,
-        Climb
+        ZERO,
+        EXTENDCLIMB, // All before match
+        RETRACTCLIMB
+        
     };
 
-    private UsableStates currentState = UsableStates.Zeroing;
+    private UsableStates currentState = UsableStates.ZERO;
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
@@ -90,20 +92,27 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void setMaxVoltage(double maxVoltage) {}
 
-    public void updatePIDs() {}
+    public void setPosition(double position) {
+        climbMotor.setControl(controlRequest.withPosition(position));
+    }
 
-    public void resetEncoders() {}
+    public void resetEncoders() {
+        climbMotor.setVoltage(0);
+        climbMotor.setPosition(0);
+    }
 
-    public void periodic() {}
+    public void periodic() {
+        applyStates();
+    }
 
     public void applyStates() {
         switch (currentState) {
-            case Zeroing:
+            case ZERO:
                 climbMotor.setVoltage(-1);
-                if (climbMotor.getMotorVoltage().getValueAsDouble() > 0.8 && climbMotor.getVelocity().getValueAsDouble() < 0.1) {
-                    climbMotor.setVoltage(0);
-                    climbMotor.setPosition(0);
-                    currentState = UsableStates.Climb;
+                if (Math.abs(climbMotor.getMotorVoltage().getValueAsDouble()) > 0.8 && climbMotor.getVelocity().getValueAsDouble() < 0.1) {
+                    resetEncoders();
+
+                    currentState = UsableStates.EXTENDCLIMB;
                 }
                 break;
         
