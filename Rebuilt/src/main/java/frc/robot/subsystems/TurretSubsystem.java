@@ -60,6 +60,8 @@ public class TurretSubsystem extends SubsystemBase {
     private double targetIdleAngle = 0;
     private double targetIdleMotorRevs = 0;
 
+    private double trueTargetAimingAngle = 0;
+
     private boolean isCurrentlyZeroing = true;
     private boolean stateNewlyChanged = true;
 
@@ -168,6 +170,8 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public void setAimingTargetMotorRevs(double motorRevs) {
+        trueTargetAimingAngle = motorRevs * 1.5;
+
         if (motorRevs < 0) motorRevs = 0;
         if (motorRevs > 180) motorRevs = 180;
 
@@ -176,6 +180,8 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public void setAimingTargetAngle(double angle) {
+        trueTargetAimingAngle = angle;
+
         if (angle < 0) angle = 0;
         if (angle > 180) angle = 180;
 
@@ -203,6 +209,14 @@ public class TurretSubsystem extends SubsystemBase {
     public double getTargetMotorRevs() {
         if (currentState == UsableStates.IDLING) return targetIdleMotorRevs;
         return targetAimingMotorRevs;
+    }
+
+    public double getTrueTargetAngle() {
+        return trueTargetAimingAngle;
+    }
+
+    public double getDegreesPastAvaliableTurretRange() {
+        return trueTargetAimingAngle - currentTurretAngle;
     }
 
     public static TurretSubsystem getInstance() {

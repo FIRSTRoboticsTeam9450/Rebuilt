@@ -9,6 +9,8 @@ public class LimelightObject {
     public enum Location {
         FRONT_LEFT,
         FRONT_RIGHT,
+        BACK_LEFT,
+        BACK_RIGHT,
         PILLAR,
         NONE
     }
