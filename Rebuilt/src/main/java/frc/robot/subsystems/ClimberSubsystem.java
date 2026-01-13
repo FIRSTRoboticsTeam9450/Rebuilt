@@ -9,6 +9,7 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.CANdi;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -20,6 +21,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants;
+import frc.robot.subsystems.TransferSubsystem.UsableState;
 import frc.robot.subsystems.TurretSubsystem.UsableStates;
 
 public class ClimberSubsystem extends SubsystemBase {
@@ -34,10 +36,20 @@ public class ClimberSubsystem extends SubsystemBase {
     private TalonFX climbMotor = new TalonFX(ClimberConstants.MotorIDs.kElevatorMotorID, RobotConstants.CANIVORE_BUS_NAME);
     PIDController pid = new PIDController(0, 0, 0);
 
+    private CANdi candi = new CANdi(0, "CantDrive");
+
     private TalonFXConfiguration climbConfig;
 
     MotionMagicConfigs climbConfigs = new MotionMagicConfigs();
     // MotionMagic type may change
+
+    public enum ClimberStates {
+        CLIMBING,
+        EXTENDING
+        //zeroing can be simply a method
+    }
+
+    //UsableState currentState = CLIMBING;
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
@@ -56,6 +68,8 @@ public class ClimberSubsystem extends SubsystemBase {
         motionMagicConfigs.MotionMagicAcceleration = 160; // Target acceleration of 160 rps/s (0.5 seconds)
         motionMagicConfigs.MotionMagicJerk = 1600; // Target jerk of 1600 rps/s/s (0.1 seconds)
 
+        //NOT ACTUAL VALUES. RUNNING IT WITH THESE NUMBERS WILL CAUSE CATASTROPHIC DAMAGE
+
         climbConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         climbConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
@@ -67,20 +81,29 @@ public class ClimberSubsystem extends SubsystemBase {
     public void setSetpoint(double setpoint) {
         pid.setSetpoint(setpoint);
         this.setpoint = setpoint;
-        climbMotor.setControl(new DynamicMotionMagicVoltage(null, null, null).withPosition(setpoint + offset - 0.25));
+        climbMotor.setControl(new DynamicMotionMagicVoltage(null, null, null)
+                                    .withJerk(null).withPosition(setpoint + offset - 0.25));
+        //new DynamicMotionMagic will have its own variable later
+        //currently it is just here temporarily
     }
 
     public void setMaxVoltage(double maxVoltage) {
-        this.maxVoltage = 12;
+        this.maxVoltage = 12; //will be changed to maxVoltage
     }
 
-    public void setPosition(double position) {
+    /*
+        public void setPosition(double position) {
         climbMotor.setControl(controlRequest.withPosition(position));
     }
+    */
 
     public void resetEncoders() {
         climbMotor.setVoltage(0);
         climbMotor.setPosition(0);
+    }
+
+    public void applyStates() {
+
     }
 
     public void periodic() {
