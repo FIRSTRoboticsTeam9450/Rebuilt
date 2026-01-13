@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants;
+import frc.robot.subsystems.TurretSubsystem.UsableStates;
 
 public class ClimberSubsystem extends SubsystemBase {
 
@@ -46,6 +47,13 @@ public class ClimberSubsystem extends SubsystemBase {
     private DynamicMotionMagicVoltage controlRequest = new DynamicMotionMagicVoltage(0, logMMVelocity.get(), logMMAcceleration.get()).withJerk(logMMJerk.get())
                                                                                                                                               .withSlot(0);
     // MotionMagic type may change
+
+    public enum UsableStates{
+        Zeroing,
+        Climb
+    };
+
+    private UsableStates currentState = UsableStates.Zeroing;
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
@@ -87,6 +95,22 @@ public class ClimberSubsystem extends SubsystemBase {
     public void resetEncoders() {}
 
     public void periodic() {}
+
+    public void applyStates() {
+        switch (currentState) {
+            case Zeroing:
+                climbMotor.setVoltage(-1);
+                if (climbMotor.getMotorVoltage().getValueAsDouble() > 0.8 && climbMotor.getVelocity().getValueAsDouble() < 0.1) {
+                    climbMotor.setVoltage(0);
+                    climbMotor.setPosition(0);
+                    currentState = UsableStates.Climb;
+                }
+                break;
+        
+            default:
+                break;
+        }
+    }
 
     public double getPosition() {
         return climbEncoder.getPosition().getValueAsDouble();
