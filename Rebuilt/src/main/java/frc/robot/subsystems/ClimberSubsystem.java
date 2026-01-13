@@ -74,11 +74,18 @@ public class ClimberSubsystem extends SubsystemBase {
         this.maxVoltage = 12;
     }
 
-    public void updatePIDs() {}
+    public void setPosition(double position) {
+        climbMotor.setControl(controlRequest.withPosition(position));
+    }
 
-    public void resetEncoders() {}
+    public void resetEncoders() {
+        climbMotor.setVoltage(0);
+        climbMotor.setPosition(0);
+    }
 
-    public void periodic() {}
+    public void periodic() {
+        applyStates();
+    }
 
     /*
     public double getPosition() {
