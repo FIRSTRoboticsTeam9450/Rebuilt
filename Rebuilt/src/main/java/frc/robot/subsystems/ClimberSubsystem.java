@@ -1,13 +1,24 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.RobotConstants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
 
@@ -16,16 +27,57 @@ public class ClimberSubsystem extends SubsystemBase {
     private double voltage;
     private double maxVoltage;
 
-    private TalonFX climbMotor = new TalonFX(0, RobotConstants.CANIVORE_BUS_NAME);
+    private TalonFX climbMotor = new TalonFX(ClimberConstants.MotorIDs.kElevatorMotorID, RobotConstants.CANIVORE_BUS_NAME);
 
-    private CANcoder climbEncoder = new CANcoder(0, RobotConstants.CANIVORE_BUS_NAME);
+    private CANcoder climbEncoder = new CANcoder(ClimberConstants.MotorIDs.kElevatorMotorID, RobotConstants.CANIVORE_BUS_NAME);
+
+    private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Velocity", 0.1);
+    private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Velocity", 1);
+    private LoggedNetworkNumber logMMJerk = new LoggedNetworkNumber("/Tuning/Climb/Velocity", 1000);
+    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Climb/kS", 0.24);
+    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Climb/kV", 0.33);
+    private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Climb/kS", 0.1);
+    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Climb/kS", 0.5);
+    private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Climb/kS", 0.0);
+    private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Climb/kS", 0.0);
+
+    private TalonFXConfiguration climbConfig;
+
+    private DynamicMotionMagicVoltage controlRequest = new DynamicMotionMagicVoltage(0, logMMVelocity.get(), logMMAcceleration.get()).withJerk(logMMJerk.get())
+                                                                                                                                              .withSlot(0);
+    // MotionMagic type may change
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
-        TalonFXConfigurator climbConfig = climbMotor.getConfigurator();
+        configureMotors();
     }
 
     /* ----------- Updaters ----------- */
+    public void configureMotors() {
+        climbConfig = new TalonFXConfiguration();
+
+        climbConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
+        climbConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        Slot0Configs slot0Configs = new Slot0Configs().withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+                                                      .withKS(logMMKS.get())
+                                                      .withKV(logMMKV.get())
+                                                      .withKA(logMMKA.get())
+                                                      .withKP(logMMKP.get())
+                                                      .withKI(logMMKI.get())
+                                                      .withKD(logMMKD.get());
+
+        climbConfig.Slot0 = slot0Configs;
+
+        MotionMagicConfigs mmConfigs = new MotionMagicConfigs().withMotionMagicAcceleration(logMMAcceleration.get())
+                                                               .withMotionMagicCruiseVelocity(logMMVelocity.get())
+                                                               .withMotionMagicJerk(logMMJerk.get());
+
+        climbConfig.MotionMagic = mmConfigs;
+
+        climbMotor.getConfigurator().apply(climbConfig);
+    }
+    
     public void setVoltage(double voltage) {}
 
     public void setMaxVoltage(double maxVoltage) {}
@@ -36,7 +88,9 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void periodic() {}
 
-    public void getPosition() {} //change return type to "double" after encoders are instantiated
+    public double getPosition() {
+        return climbEncoder.getPosition().getValueAsDouble();
+    } //change return type to "double" after encoders are instantiated
 
     public static ClimberSubsystem getInstance() {
         if (climber == null) {

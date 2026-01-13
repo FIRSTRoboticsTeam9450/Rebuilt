@@ -38,7 +38,7 @@ public final class Constants {
     public static final class ClimberConstants {
 
       public static final class MotorIDs {
-        
+       public static final int kElevatorMotorID = -1; 
       }
 
     }
