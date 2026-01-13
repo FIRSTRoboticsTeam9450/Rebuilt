@@ -60,31 +60,35 @@ public class ClimberSubsystem extends SubsystemBase {
         configureMotors();
     }
 
-    /* ----------- Updaters ----------- */
     public void configureMotors() {
         climbConfig = new TalonFXConfiguration();
 
         climbConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
         climbConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        Slot0Configs slot0Configs = new Slot0Configs().withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-                                                      .withKS(logMMKS.get())
-                                                      .withKV(logMMKV.get())
-                                                      .withKA(logMMKA.get())
-                                                      .withKP(logMMKP.get())
-                                                      .withKI(logMMKI.get())
-                                                      .withKD(logMMKD.get());
+        Slot0Configs slot0Configs = 
+                     new Slot0Configs().withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+                                .withKS(logMMKS.get())
+                                .withKV(logMMKV.get())
+                                .withKA(logMMKA.get())
+                                .withKP(logMMKP.get())
+                                .withKI(logMMKI.get())
+                                .withKD(logMMKD.get());
 
         climbConfig.Slot0 = slot0Configs;
 
-        MotionMagicConfigs mmConfigs = new MotionMagicConfigs().withMotionMagicAcceleration(logMMAcceleration.get())
-                                                               .withMotionMagicCruiseVelocity(logMMVelocity.get())
-                                                               .withMotionMagicJerk(logMMJerk.get());
+        MotionMagicConfigs mmConfigs = 
+                           new MotionMagicConfigs()
+                                .withMotionMagicAcceleration(logMMAcceleration.get())
+                                .withMotionMagicCruiseVelocity(logMMVelocity.get())
+                                .withMotionMagicJerk(logMMJerk.get());
 
         climbConfig.MotionMagic = mmConfigs;
 
         climbMotor.getConfigurator().apply(climbConfig);
     }
+
+    /* ----------- Updaters ----------- */
     
     public void setVoltage(double voltage) {}
 
@@ -100,7 +104,8 @@ public class ClimberSubsystem extends SubsystemBase {
         switch (currentState) {
             case Zeroing:
                 climbMotor.setVoltage(-1);
-                if (climbMotor.getMotorVoltage().getValueAsDouble() > 0.8 && climbMotor.getVelocity().getValueAsDouble() < 0.1) {
+                if (Math.abs(climbMotor.getMotorVoltage().getValueAsDouble()) > 0.8 && 
+                        climbMotor.getVelocity().getValueAsDouble() < 0.1) {
                     climbMotor.setVoltage(0);
                     climbMotor.setPosition(0);
                     currentState = UsableStates.Climb;
@@ -108,13 +113,14 @@ public class ClimberSubsystem extends SubsystemBase {
                 break;
         
             default:
+                climbMotor.setVoltage(0);
                 break;
         }
     }
 
     public double getPosition() {
         return climbEncoder.getPosition().getValueAsDouble();
-    } //change return type to "double" after encoders are instantiated
+    }
 
     public static ClimberSubsystem getInstance() {
         if (climber == null) {
