@@ -48,8 +48,8 @@ public class TransferSubsystem extends SubsystemBase {
     public void periodic() {
         applyState();
 
-        Logger.recordOutput("Rebuilt/TransferSubsystem/State", currentState);
-        Logger.recordOutput("Rebuilt/TransferSubsystem/SetSpeed", voltageRequest.Output);
+        Logger.recordOutput("Rebuilt/Transfer/Current State", currentState);
+        Logger.recordOutput("Rebuilt/Transfer/Set Speed", voltageRequest.Output);
     }
 
     private void applyState() {
