@@ -1,10 +1,16 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ClimberSubsystem extends SubsystemBase {
 
-    public ClimberSubsystem climber;
+    private static ClimberSubsystem climber;
+
+    private double voltage;
+    private double maxVoltage;
+
+    private PIDController climbPIDController = new PIDController(0, 0, 0);
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem(){}
@@ -20,7 +26,9 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void periodic() {}
 
-    public ClimberSubsystem getInstance() {
+    public void getPosition() {} //change return type to "double" after encoders are instantiated
+
+    public static ClimberSubsystem getInstance() {
         if (climber == null) {
             climber = new ClimberSubsystem();
         }
