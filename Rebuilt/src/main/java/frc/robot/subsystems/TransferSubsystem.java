@@ -15,10 +15,7 @@ import frc.robot.Constants.RobotConstants.TransferConstants;
  * Subsystem which controls the handoff from Intake to Shooter.
  * 
  * <p>
- *  <p> TODO: Motor IDs </p>
- *  <p> TODO: Get Actual Values (Voltage, Motor Direction) </p>
- *  <p> TODO: Make Base Code </p>
- *  <p> TODO: Add Logging </p>
+ *  <p> TODO: Get actual values (Motor ID, direction, and voltages) </p>
  * </p>
  */
 public class TransferSubsystem extends SubsystemBase {
@@ -34,12 +31,13 @@ public class TransferSubsystem extends SubsystemBase {
         NO_RUN
     }
     private UsableState currentState = UsableState.NO_RUN;
+    private UsableState previousState = currentState;
 
     /** TalonFX motor controller for transfer movement */
     private final TalonFX motor = new TalonFX(TransferConstants.MotorIDs.kDrivingMotorID, RobotConstants.CANIVORE_BUS);
 
     /** Voltage request */
-    private VoltageOut voltageRequest = new VoltageOut(0);
+    private VoltageOut voltageRequest = new VoltageOut(0.0);
 
     /**
      * Constructor - initializes the transfer subsystem and configures the motor
@@ -61,7 +59,7 @@ public class TransferSubsystem extends SubsystemBase {
      * Configures the TalonFX motor
      */
     private void configure() {
-        // Config
+        // Create config
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
         // Set motor direction
@@ -111,7 +109,8 @@ public class TransferSubsystem extends SubsystemBase {
      * @param wantedState The desired state to transition to
      */
     public void setState(UsableState wantedState) {
-        // Set state
+        // Set states
+        previousState = currentState;
         currentState = wantedState;
     }
 
@@ -121,8 +120,9 @@ public class TransferSubsystem extends SubsystemBase {
     private void publishLogs() {
         // Log state data
         Logger.recordOutput("Rebuilt/Transfer/Current State", currentState);
+        Logger.recordOutput("Rebuilt/Transfer/Previous State", previousState);
 
         // Log motor data
-        Logger.recordOutput("Rebuilt/Transfer/Set Speed", voltageRequest.Output);
+        Logger.recordOutput("Rebuilt/Transfer/Target Speed", voltageRequest.Output);
     }
 }
