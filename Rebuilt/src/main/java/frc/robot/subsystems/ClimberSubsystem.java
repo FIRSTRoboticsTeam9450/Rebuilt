@@ -44,6 +44,7 @@ public class ClimberSubsystem extends SubsystemBase {
     // MotionMagic type may change
 
     public enum ClimberStates {
+        STANDBY,
         CLIMBING,
         EXTENDING
         //zeroing can be simply a method
