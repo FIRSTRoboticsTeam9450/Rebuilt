@@ -34,13 +34,17 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private CANcoder climbEncoder = new CANcoder(ClimberConstants.MotorIDs.kElevatorMotorID, RobotConstants.CANIVORE_BUS_NAME);
 
+    // --------- all of these should be in a command ----------
+
     // Placeholder name and used to say how many bars the bot will climb up
-    private LoggedNetworkNumber Lclimbs = new LoggedNetworkNumber("/Tuning/Climb/Lclimbs", 0.0);
+    // private LoggedNetworkNumber Lclimbs = new LoggedNetworkNumber("/Tuning/Climb/Lclimbs", 1);
      
-    // Each one says 
-    private LoggedNetworkNumber L3Climb = new LoggedNetworkNumber("/Tuning/Climb/L3Climb", 0.0);
-    private LoggedNetworkNumber L2Climb = new LoggedNetworkNumber("/Tuning/Climb/L2Climb", 0.0);
-    private LoggedNetworkNumber L1Climb = new LoggedNetworkNumber("/Tuning/Climb/L1Climb", 0.0);
+    // Each one says the distance the motor should move to the next climb 
+    // private LoggedNetworkNumber L3Climb = new LoggedNetworkNumber("/Tuning/Climb/L3Climb", 0.0);
+    // private LoggedNetworkNumber L2Climb = new LoggedNetworkNumber("/Tuning/Climb/L2Climb", 0.0);
+    // private LoggedNetworkNumber L1Climb = new LoggedNetworkNumber("/Tuning/Climb/L1Climb", 0.0);
+
+    // private int currentClimb = 0;
 
     private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Velocity", 0.1);
     private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Velocity", 1);
@@ -104,6 +108,7 @@ public class ClimberSubsystem extends SubsystemBase {
         climbMotor.getConfigurator().apply(climbConfig);
     }
     
+    // probably won't use
     public void setVoltage(double voltage) {
         climbMotor.setControl(controlRequest.withVelocity(voltage));
     }
@@ -127,23 +132,15 @@ public class ClimberSubsystem extends SubsystemBase {
         applyStates();
     }
 
-    public void changeState(ClimberStates state) {
-        currentState = state;
-    }
-
-
-
     public void applyStates() {
         switch (currentState) {
             case STANDBY:
                 break;
             case EXTENDCLIMB:
-                Setpoint(-1);
                 break;
             case GRAB:
                 break;
             case RETRACTCLIMB:
-                Setpoint(1);
                 break;
             default:
                 break;
