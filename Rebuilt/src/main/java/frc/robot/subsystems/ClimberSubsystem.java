@@ -34,6 +34,14 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private CANcoder climbEncoder = new CANcoder(ClimberConstants.MotorIDs.kElevatorMotorID, RobotConstants.CANIVORE_BUS_NAME);
 
+    // Placeholder name and used to say how many bars the bot will climb up
+    private LoggedNetworkNumber Lclimbs = new LoggedNetworkNumber("/Tuning/Climb/Lclimbs", 0.0);
+     
+    // Each one says 
+    private LoggedNetworkNumber L3Climb = new LoggedNetworkNumber("/Tuning/Climb/L3Climb", 0.0);
+    private LoggedNetworkNumber L2Climb = new LoggedNetworkNumber("/Tuning/Climb/L2Climb", 0.0);
+    private LoggedNetworkNumber L1Climb = new LoggedNetworkNumber("/Tuning/Climb/L1Climb", 0.0);
+
     private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Velocity", 0.1);
     private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Velocity", 1);
     private LoggedNetworkNumber logMMJerk = new LoggedNetworkNumber("/Tuning/Climb/Velocity", 1000);
@@ -52,12 +60,12 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public enum ClimberStates {
         STANDBY,
-        CLIMBING,
-        EXTENDING
-        //zeroing can be simply a method
+        EXTENDCLIMB,
+        GRAB,
+        RETRACTCLIMB    
     }
 
-    private UsableStates currentState = UsableStates.Zeroing;
+    private ClimberStates currentState = ClimberStates.STANDBY;
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
@@ -94,7 +102,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
 
     public void setMaxVoltage(double maxVoltage) {
-        this.maxVoltage = 12; //will be changed to maxVoltage
+        this.maxVoltage = maxVoltage; //will be changed to maxVoltage
     }
 
     public void setPoint(double setpoint) {
@@ -111,17 +119,22 @@ public class ClimberSubsystem extends SubsystemBase {
         applyStates();
     }
 
+    public void changeState(ClimberStates state) {
+        currentState = state;
+    }
+
+
+
     public void applyStates() {
         switch (currentState) {
-            case Zeroing:
-                climbMotor.setVoltage(-1);
-                if (climbMotor.getMotorVoltage().getValueAsDouble() > 0.8 && climbMotor.getVelocity().getValueAsDouble() < 0.1) {
-                    climbMotor.setVoltage(0);
-                    climbMotor.setPosition(0);
-                    currentState = UsableStates.Climb;
-                }
+            case STANDBY:
                 break;
-        
+            case EXTENDCLIMB:
+                break;
+            case GRAB:
+                break;
+            case RETRACTCLIMB:
+                break;
             default:
                 break;
         }
