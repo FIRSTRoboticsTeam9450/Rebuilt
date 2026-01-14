@@ -80,6 +80,60 @@ public final class Constants {
 
     }
 
+    public static final class LimelightConstants {
+
+      public static final class FrontLeft {
+        public static final String NAME = "limelight-fl";
+        public static final double LOCATION_X = 0;
+        public static final double LOCATION_Y = 0;
+        public static final double LOCATION_Z = 0;
+        public static final double PITCH = 0;
+        public static final double ROLL = 0;
+        public static final double YAW = 0;
+      }
+
+      public static final class FrontRight {
+        public static final String NAME = "limelight-fr";
+        public static final double LOCATION_X = 0;
+        public static final double LOCATION_Y = 0;
+        public static final double LOCATION_Z = 0;
+        public static final double PITCH = 0;
+        public static final double ROLL = 0;
+        public static final double YAW = 0;
+      }
+
+      public static final class BackLeft {
+        public static final String NAME = "limelight-bl";
+        public static final double LOCATION_X = 0;
+        public static final double LOCATION_Y = 0;
+        public static final double LOCATION_Z = 0;
+        public static final double PITCH = 0;
+        public static final double ROLL = 0;
+        public static final double YAW = 0;
+      }
+
+      public static final class BackRight {
+        public static final String NAME = "limelight-br";
+        public static final double LOCATION_X = 0;
+        public static final double LOCATION_Y = 0;
+        public static final double LOCATION_Z = 0;
+        public static final double PITCH = 0;
+        public static final double ROLL = 0;
+        public static final double YAW = 0;
+      }
+
+      public static final class Pillar {
+        public static final String NAME = "limelight-pillar";
+        public static final double LOCATION_X = 0;
+        public static final double LOCATION_Y = 0;
+        public static final double LOCATION_Z = 0;
+        public static final double PITCH = 0;
+        public static final double ROLL = 0;
+        public static final double YAW = 0;
+      }
+
+    }
+
   }
 
   public static final class FieldConstants {

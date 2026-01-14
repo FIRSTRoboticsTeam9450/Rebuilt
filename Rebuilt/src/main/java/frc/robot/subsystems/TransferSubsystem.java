@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -45,6 +47,9 @@ public class TransferSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         applyState();
+
+        Logger.recordOutput("Rebuilt/Transfer/Current State", currentState);
+        Logger.recordOutput("Rebuilt/Transfer/Set Speed", voltageRequest.Output);
     }
 
     private void applyState() {
@@ -62,6 +67,9 @@ public class TransferSubsystem extends SubsystemBase {
                 break;
         }
         motor.setControl(voltageRequest);
+    }
+    public void setState(UsableState state) {
+        currentState = state;
     }
 
     private void configure() {

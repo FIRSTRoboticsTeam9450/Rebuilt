@@ -22,6 +22,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static ShooterSubsystem instance;
 
     public enum AngleState {
+        ZEROING,
         SHOOTING,
         FERRYING
     }
@@ -33,6 +34,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private AngleState currentAngleState;
     private ShooterState currentShooterState;
+
+    private double targetHoodHeight = 0;
+    private double targetShooterVeloc = 0;
 
     private TalonFX angleMotor = new TalonFX(ShooterConstants.MotorIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
     private TalonFX shooterLeaderMotor = new TalonFX(ShooterConstants.MotorIDs.kShooterMotorID, RobotConstants.CANIVORE_BUS);
