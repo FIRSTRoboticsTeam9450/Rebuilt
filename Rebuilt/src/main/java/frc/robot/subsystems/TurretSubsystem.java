@@ -11,6 +11,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.TurretConstants;
@@ -236,8 +237,7 @@ public class TurretSubsystem extends SubsystemBase {
         trueTargetAimingAngle = motorRevs * 1.5;
 
         // Clamp to valid range
-        if (motorRevs < 0) motorRevs = 0;
-        if (motorRevs > 180) motorRevs = 180;
+        motorRevs = MathUtil.clamp(motorRevs, 0, 180);
 
         targetAimingMotorRevs = motorRevs;
         targetAimingAngle = motorRevs * 1.5;
@@ -252,8 +252,7 @@ public class TurretSubsystem extends SubsystemBase {
         trueTargetAimingAngle = angle;
 
         // Clamp to valid range
-        if (angle < 0) angle = 0;
-        if (angle > 180) angle = 180;
+        angle = MathUtil.clamp(angle, 0, 180);
 
         targetAimingAngle = angle;
         targetAimingMotorRevs = angle / 1.5;
@@ -309,7 +308,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return Difference between true target and current angle
      */
     public double getDegreesPastAvaliableTurretRange() {
-        return trueTargetAimingAngle - currentTurretAngle;
+        return trueTargetAimingAngle - targetAimingAngle;
     }
 
     /**

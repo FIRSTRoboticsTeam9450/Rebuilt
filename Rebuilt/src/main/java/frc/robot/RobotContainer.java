@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -36,10 +38,18 @@ public class RobotContainer {
         .withRotationalDeadband(rotateBezier.getDeadband())    
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
+  public LoggedDashboardChooser<Command> autoChooser;
+
   public static double pigeonOffset = 0;
 
   public RobotContainer() {
+    autoChooser = new LoggedDashboardChooser<>("Rebuilt/Auto Chooser");
+
     configureBindings();
+  }
+
+  private void configureAutos() {
+    
   }
 
   private void configureBindings() {
