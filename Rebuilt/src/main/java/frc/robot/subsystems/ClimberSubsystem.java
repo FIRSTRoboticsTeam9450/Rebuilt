@@ -45,8 +45,13 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Climb/kS", 0.0);
 
     private TalonFXConfiguration climbConfig;
+    boolean atTarget;
 
-    private DynamicMotionMagicVoltage controlRequest = new DynamicMotionMagicVoltage(0, logMMVelocity.get(), logMMAcceleration.get()).withJerk(logMMJerk.get())
+    private DynamicMotionMagicVoltage controlRequest = 
+                        new DynamicMotionMagicVoltage(0, 
+                            logMMVelocity.get(), 
+                            logMMAcceleration.get())
+                            .withJerk(logMMJerk.get())
                                                                                                                                               .withSlot(0);
     // MotionMagic type may change
 
@@ -57,7 +62,9 @@ public class ClimberSubsystem extends SubsystemBase {
         //zeroing can be simply a method
     }
 
-    private UsableStates currentState = UsableStates.Zeroing;
+    private ClimberStates currentState = ClimberStates.STANDBY;
+
+    //private UsableStates currentState = UsableStates.Zeroing;
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
@@ -71,13 +78,14 @@ public class ClimberSubsystem extends SubsystemBase {
         climbConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
         climbConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        Slot0Configs slot0Configs = new Slot0Configs().withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-                                                      .withKS(logMMKS.get())
-                                                      .withKV(logMMKV.get())
-                                                      .withKA(logMMKA.get())
-                                                      .withKP(logMMKP.get())
-                                                      .withKI(logMMKI.get())
-                                                      .withKD(logMMKD.get());
+        Slot0Configs slot0Configs = new Slot0Configs()
+                                        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+                                        .withKS(logMMKS.get())
+                                        .withKV(logMMKV.get())
+                                        .withKA(logMMKA.get())
+                                        .withKP(logMMKP.get())
+                                        .withKI(logMMKI.get())
+                                        .withKD(logMMKD.get());
 
         climbConfig.Slot0 = slot0Configs;
 
@@ -90,14 +98,16 @@ public class ClimberSubsystem extends SubsystemBase {
         climbMotor.getConfigurator().apply(climbConfig);
     }
     
-    public void setVoltage(double voltage) {}
+    public void setVoltage(double voltage) {
+        climbMotor.setControl(controlRequest.withVelocity(voltage));
+    }
 
 
     public void setMaxVoltage(double maxVoltage) {
         this.maxVoltage = 12; //will be changed to maxVoltage
     }
 
-    public void setPoint(double setpoint) {
+    public void setSetpoint(double setpoint) {
         climbMotor.setControl(controlRequest.withPosition(setpoint));
     }
 
@@ -113,16 +123,12 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void applyStates() {
         switch (currentState) {
-            case Zeroing:
-                climbMotor.setVoltage(-1);
-                if (climbMotor.getMotorVoltage().getValueAsDouble() > 0.8 && climbMotor.getVelocity().getValueAsDouble() < 0.1) {
-                    climbMotor.setVoltage(0);
-                    climbMotor.setPosition(0);
-                    currentState = UsableStates.Climb;
-                }
+            case CLIMBING:
+                setSetpoint(-1);
                 break;
-        
-            default:
+
+            case EXTENDING:
+                setSetpoint(1);
                 break;
         }
     }
