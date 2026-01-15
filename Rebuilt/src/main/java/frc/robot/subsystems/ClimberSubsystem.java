@@ -16,6 +16,7 @@ import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants;
@@ -59,6 +60,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private TalonFXConfiguration climbConfig;
     boolean atTarget;
+
+    private Servo axon = new Servo(-1);
 
     private DynamicMotionMagicVoltage controlRequest = 
                         new DynamicMotionMagicVoltage(0, 
