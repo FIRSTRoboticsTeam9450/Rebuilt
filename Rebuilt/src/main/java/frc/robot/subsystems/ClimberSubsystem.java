@@ -16,6 +16,8 @@ import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants;
@@ -26,14 +28,13 @@ public class ClimberSubsystem extends SubsystemBase {
     private static ClimberSubsystem climber;
 
     private double voltage;
-    private double maxVoltage;
 
-    private double offset;
+    //private double offset;
 
     private TalonFX climbMotor = new TalonFX(ClimberConstants.MotorIDs.kElevatorMotorID, RobotConstants.CANIVORE_BUS_NAME);
+    private Servo axon;
 
     private CANcoder climbEncoder = new CANcoder(ClimberConstants.MotorIDs.kElevatorMotorID, RobotConstants.CANIVORE_BUS_NAME);
-
 
     // --------- all of these should be in a command ----------
 
@@ -65,7 +66,7 @@ public class ClimberSubsystem extends SubsystemBase {
                             logMMVelocity.get(), 
                             logMMAcceleration.get())
                             .withJerk(logMMJerk.get())
-                                                                                                                                              .withSlot(0);
+                            .withSlot(0);
     // MotionMagic type may change
 
     public enum ClimberStates {
@@ -78,11 +79,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
-        configureMotors();
-    }
-
-    /* ----------- Updaters ----------- */
-    public void configureMotors() {
         climbConfig = new TalonFXConfiguration();
 
         climbConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
@@ -106,25 +102,22 @@ public class ClimberSubsystem extends SubsystemBase {
         climbConfig.MotionMagic = mmConfigs;
 
         climbMotor.getConfigurator().apply(climbConfig);
-    }
-    
-    // probably won't use
-    public void setVoltage(double voltage) {
-        climbMotor.setControl(controlRequest.withVelocity(voltage));
+
+        axon = new Servo(0);
     }
 
+    /* ----------- Updaters ----------- */
 
-    public void setMaxVoltage(double maxVoltage) {
-        this.maxVoltage = maxVoltage; //will be changed to maxVoltage
+    public void setAxonAngle(double degrees) {
+        axon.setAngle(degrees);
     }
 
-    public void Setpoint(double setpoint) {
+    public void setTarget(double setpoint) {
         climbMotor.setControl(controlRequest.withPosition(setpoint));
     }
 
 
     public void resetEncoders() {
-        climbMotor.setVoltage(0);
         climbMotor.setPosition(0);
     }
 
