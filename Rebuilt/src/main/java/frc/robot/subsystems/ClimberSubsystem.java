@@ -71,7 +71,6 @@ public class ClimberSubsystem extends SubsystemBase {
     public enum ClimberStates {
         STANDBY,
         EXTENDCLIMB,
-        GRAB,
         RETRACTCLIMB    
     }
 
@@ -138,8 +137,6 @@ public class ClimberSubsystem extends SubsystemBase {
             case STANDBY:
                 break;
             case EXTENDCLIMB:
-                break;
-            case GRAB:
                 break;
             case RETRACTCLIMB:
                 break;
