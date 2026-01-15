@@ -102,7 +102,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 rps = -50;
                 break;
             case ZEROING:
-                //Lazy zeroing mechanism
+                //Lazy zeroing mechanism 🙏its so bad
                 resetEncoders();
                 arm_angle = -0.2;
                 break;
