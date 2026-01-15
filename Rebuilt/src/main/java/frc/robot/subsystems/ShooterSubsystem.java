@@ -8,12 +8,10 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,7 +20,7 @@ import frc.robot.Constants.RobotConstants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-    private static ShooterSubsystem INSTANCE;
+    private static ShooterSubsystem instance;
 
     public enum AngleState {
         ZEROING,
@@ -149,7 +147,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterLeaderMotor.getConfigurator().apply(shooterMotorsConfig);
         shooterFollowerMotor.getConfigurator().apply(shooterMotorsConfig);
 
-        shooterFollowerMotor.setControl(new Follower(shooterLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+        shooterFollowerMotor.setControl(new StrictFollower(shooterLeaderMotor.getDeviceID()));
     }
     public boolean zeroEncoder() {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
@@ -290,10 +288,10 @@ public class ShooterSubsystem extends SubsystemBase {
         currentAngleState = wantedAngleState;
     }
 
-    public ShooterSubsystem getINSTANCE() {
-        if(INSTANCE == null) {
-            INSTANCE = new ShooterSubsystem();
+    public ShooterSubsystem getInstance() {
+        if(instance == null) {
+            instance = new ShooterSubsystem();
         }
-        return INSTANCE;
+        return instance;
     }
 }
