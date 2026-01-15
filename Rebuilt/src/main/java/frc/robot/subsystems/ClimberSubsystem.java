@@ -34,6 +34,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private CANcoder climbEncoder = new CANcoder(ClimberConstants.MotorIDs.kElevatorMotorID, RobotConstants.CANIVORE_BUS_NAME);
 
+
     // --------- all of these should be in a command ----------
 
     // Placeholder name and used to say how many bars the bot will climb up
