@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -24,12 +25,15 @@ public class ShooterSubsystem extends SubsystemBase {
     public enum AngleState {
         ZEROING,
         SHOOTING,
-        FERRYING
+        FERRYING,
+        STORING
     }
 
     public enum ShooterState {
         SHOOTING,
-        NOT_SHOOTING
+        RAMP_UP,
+        NOT_SHOOTING,
+
     }
 
     private AngleState currentAngleState;
@@ -74,7 +78,7 @@ public class ShooterSubsystem extends SubsystemBase {
     TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
     TalonFXConfiguration shooterMotorsConfig = new TalonFXConfiguration();
 
-    private boolean updateOuttakeVals = false;
+    private boolean isZeroingDone = false;
 
     public ShooterSubsystem() {
         configureAngleMotors();
@@ -145,16 +149,42 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterFollowerMotor.setControl(new StrictFollower(shooterLeaderMotor.getDeviceID()));
     }
+    public boolean zeroEncoder() {
+        if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
+            angleMotor.setPosition(0);
+            angleMotor.setVoltage(0);
+            currentAngleState = AngleState.STORING;
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public void periodic() {
+        if (!isZeroingDone) {
+            currentAngleState = AngleState.ZEROING;
+            isZeroingDone = zeroEncoder();
+        }
         applyState();
+        publishLogs();
+    }
+
+    public void publishLogs() {
+        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpoint", targetHoodHeight);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Shooter/Hood/currentState", currentAngleState);
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc);
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
+        
     }
 
     public void applyState() {
         switch (currentShooterState) {
             case SHOOTING:
-                
+                shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(targetShooterVeloc));
+                break;
+            case NOT_SHOOTING:
+                shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(0));
                 break;
         
             default:
@@ -171,6 +201,11 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
         }
     }
+
+    public double getTargetShooterVeloc() {
+        
+    }
+
     public void updateShooterConstants() {
         boolean updateOuttakeVals = false;
         boolean updateAngleVals = false;
