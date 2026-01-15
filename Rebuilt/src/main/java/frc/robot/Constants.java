@@ -76,8 +76,8 @@ public final class Constants {
         public static final int kAbsEncoderID = -1;
       }
 
-      public static final double ROTOR_TO_SENSOR_RATIO = -1;
-      public static final double SENSIOR_TO_MECHANISM_RATIO = -1;
+      public static final double ROTOR_TO_SENSOR_RATIO = 0.001890359168;
+      public static final double SENSIOR_TO_MECHANISM_RATIO = 0.4565217391;
 
       public static final double TURRET_OFFSET_TO_ZERO = 135;
 

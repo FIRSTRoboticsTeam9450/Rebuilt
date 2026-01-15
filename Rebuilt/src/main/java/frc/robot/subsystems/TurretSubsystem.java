@@ -28,7 +28,7 @@ import frc.robot.Constants.RobotConstants.TurretConstants;
  * The turret rotates independently of the robot chassis to aim at targets.
  * 
  * Gear Ratio: Every motor revolution = 1.5 degrees of turret rotation
- * Range: 0 to 270 degrees (0 to 180 motor revolutions)
+ * Range: 0 to 270 degrees (-90 to 90 motor revolutions)
  */
 public class TurretSubsystem extends SubsystemBase {
     
@@ -157,8 +157,9 @@ public class TurretSubsystem extends SubsystemBase {
         // Update current position from encoder
         currentTurretAngle = turretEncoder.getPosition().getValueAsDouble() * encdrToAngleMulti;
 
-        trueTurretAngleWRTFieldOrigin = currentRobotRotation.getDegrees() - currentTurretAngle;
-
+        trueTurretAngleWRTFieldOrigin = (currentRobotRotation.getDegrees() - trueTargetAimingAngle) % 360;
+        currentTurretRotationWRTFieldOrigin = (currentRobotRotation.getDegrees() - currentTurretAngle) % 360;
+        
         if (driverController != null) {
             if (currentState == UsableStates.AIMING && targetAngleOutsideOfRange()) {
                 driverController.setRumble(RumbleType.kBothRumble, 0.1);
@@ -185,12 +186,12 @@ public class TurretSubsystem extends SubsystemBase {
                     targetIdleAngle = currentTurretAngle;
                 }
                 // Hold current position using Motion Magic
-                turretMotor.setControl(controlRequest.withPosition((targetIdleAngle / degreePerMotorRev) + (angleOffsetToZero / degreePerMotorRev)));
+                turretMotor.setControl(controlRequest.withPosition(((targetIdleAngle / degreePerMotorRev) + (angleOffsetToZero / degreePerMotorRev)) / encdrToAngleMulti));
                 break;
 
             case AIMING:
                 // Track target position using Motion Magic
-                turretMotor.setControl(controlRequest.withPosition((targetAimingAngle / degreePerMotorRev) + (angleOffsetToZero / degreePerMotorRev)));
+                turretMotor.setControl(controlRequest.withPosition(((targetAimingAngle / degreePerMotorRev) + (angleOffsetToZero / degreePerMotorRev)) / encdrToAngleMulti));
                 break;
 
             case STORING:
@@ -258,14 +259,14 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * Sets the aiming target in degrees
-     * Clamps value to valid range [0, 180] degrees
+     * Clamps value to valid range [-90, 90] degrees
      * @param angle Target angle in degrees
      */
     public void setAimingTargetAngle(double angle) {
         trueTargetAimingAngle = angle;
 
         // Clamp to valid range
-        angle = MathUtil.clamp(angle, 0, 180);
+        angle = MathUtil.clamp(angle, -90, 90);
 
         targetAimingAngle = angle;
     }

@@ -5,12 +5,12 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
-import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -19,7 +19,7 @@ import frc.robot.Constants.RobotConstants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-    private static ShooterSubsystem instance;
+    private static ShooterSubsystem INSTANCE;
 
     public enum AngleState {
         ZEROING,
@@ -143,7 +143,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterLeaderMotor.getConfigurator().apply(shooterMotorsConfig);
         shooterFollowerMotor.getConfigurator().apply(shooterMotorsConfig);
 
-        shooterFollowerMotor.setControl(new StrictFollower(shooterLeaderMotor.getDeviceID()));
+        shooterFollowerMotor.setControl(new Follower(shooterLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     @Override
@@ -171,6 +171,27 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
         }
     }
+
+    public boolean isAngleWithinTolerance() {
+        return isAngleWithinTolerance(0.1);
+    }
+
+    public boolean isAngleWithinTolerance(double tolerance) {
+        return Math.abs(targetHoodHeight - angleMotor.getPosition().getValueAsDouble()) < tolerance;
+    }
+
+    public boolean isVelocityWithinTolerance() {
+        return isVelocityWithinTolerance(0.5);
+    }
+
+    public boolean isVelocityWithinTolerance(double tolerance) {
+        return Math.abs(targetShooterVeloc - shooterLeaderMotor.getVelocity().getValueAsDouble()) < tolerance;
+    }
+
+    public boolean isShooterReady() {
+        return (isAngleWithinTolerance() && isVelocityWithinTolerance());
+    }
+
     public void updateShooterConstants() {
         boolean updateOuttakeVals = false;
         boolean updateAngleVals = false;
@@ -253,10 +274,10 @@ public class ShooterSubsystem extends SubsystemBase {
         currentAngleState = wantedAngleState;
     }
 
-    public ShooterSubsystem getInstance() {
-        if(instance == null) {
-            instance = new ShooterSubsystem();
+    public static ShooterSubsystem getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new ShooterSubsystem();
         }
-        return instance;
+        return INSTANCE;
     }
 }
