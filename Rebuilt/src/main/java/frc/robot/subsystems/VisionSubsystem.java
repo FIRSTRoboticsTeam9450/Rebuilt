@@ -55,9 +55,9 @@ public class VisionSubsystem extends SubsystemBase {
      * @param drivetrain Drivetrain instance for updating pose with vision
      * @return VisionSubsystem instance
      */
-    public static synchronized VisionSubsystem getInstance(CommandSwerveDrivetrain drivetrain) {
+    public static synchronized VisionSubsystem getInstance() {
         if (instance == null) {
-            instance = new VisionSubsystem(drivetrain);
+            instance = new VisionSubsystem();
         }
         return instance;
     }
@@ -66,6 +66,7 @@ public class VisionSubsystem extends SubsystemBase {
     // Core subsystem fields
     // -------------------------
     private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
+    private static TurretSubsystem turretSub = RobotContainer.turretSub;
 
     private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
@@ -96,8 +97,7 @@ public class VisionSubsystem extends SubsystemBase {
     // Constructor (private for singleton)
     // -------------------------
     @SuppressWarnings("static-access")
-    private VisionSubsystem(CommandSwerveDrivetrain drivetrain) {
-        this.drivetrain = drivetrain;
+    private VisionSubsystem() {
 
         // Configure camera offsets and add to internal list
         configureLimelights();
@@ -173,8 +173,14 @@ public class VisionSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
+        updateTurret();
         updateVision();  // Compute fused vision pose
-        // publishLogs();   // Print/log fusion confidence and pose
+        publishLogs();   // Print/log fusion confidence and pose
+    }
+
+    private void updateTurret() {
+        turretSub.updateRobotRotation(drivetrain.getState().Pose.getRotation());
+        
     }
 
     // -------------------------

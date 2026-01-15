@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 public final class Constants {
 
   public static final int DRIVER_CONTROLLER_PORT = 0;
+  public static final int OPERATOR_CONTROLLER_PORT = 1;
 
   public static final class RobotConstants {
 
@@ -37,7 +38,7 @@ public final class Constants {
 
     public static final class ClimberConstants {
 
-      public static final class MotorIDs {
+      public static final class DeviceIDs {
         
       }
 
@@ -45,7 +46,7 @@ public final class Constants {
 
     public static final class IntakeConstants {
 
-      public static final class MotorIDs {
+      public static final class DeviceIDs {
         
       }
 
@@ -53,7 +54,7 @@ public final class Constants {
 
     public static final class ShooterConstants {
 
-      public static final class MotorIDs {
+      public static final class DeviceIDs {
         public static final int kAngleMotorID = -1;
         public static final int kShooterMotorID = -1;
       }
@@ -62,7 +63,7 @@ public final class Constants {
 
     public static final class TransferConstants {
 
-      public static final class MotorIDs {
+      public static final class DeviceIDs {
         public static final int kDrivingMotorID = -1;
       }
 
@@ -70,13 +71,20 @@ public final class Constants {
 
     public static final class TurretConstants {
 
-      public static final class MotorIDs {
-        public static final int kAngleMotorID = -1;
+      public static final class DeviceIDs {
+        public static final int kMotorID = -1;
+        public static final int kAbsEncoderID = -1;
       }
 
-      public static final double TOTAL_TURRET_ROTATION_DEGREES = 270;
-      public static final double TOTAL_TURRET_ROTATION_RADIANS = 3 / (2 * Math.PI);
-      public static final double TURRET_DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1.5;
+      public static final double ROTOR_TO_SENSOR_RATIO = -1;
+      public static final double SENSIOR_TO_MECHANISM_RATIO = -1;
+
+      public static final double TURRET_OFFSET_TO_ZERO = 135;
+
+      public static final double TOTAL_ROTATION_DEGREES = 270;
+      public static final double TOTAL_ROTATION_RADIANS = 3 / (2 * Math.PI);
+      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1.5;
+      public static final double ABS_ENCDR_POS_TO_ANGLE = 480;
 
     }
 

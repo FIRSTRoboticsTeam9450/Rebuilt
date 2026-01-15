@@ -32,7 +32,7 @@ public class TransferSubsystem extends SubsystemBase {
 
     private static TransferSubsystem instance;
 
-    private final TalonFX motor = new TalonFX(TransferConstants.MotorIDs.kDrivingMotorID, RobotConstants.CANIVORE_BUS);
+    private final TalonFX motor = new TalonFX(TransferConstants.DeviceIDs.kDrivingMotorID, RobotConstants.CANIVORE_BUS);
 
     private VoltageOut voltageRequest = new VoltageOut(0);
 

@@ -20,7 +20,7 @@ import frc.robot.util.BezierCurve;
 
 
 public class RobotContainer {
-  private TurretSubsystem turretSub = TurretSubsystem.getInstance();
+  public static TurretSubsystem turretSub = TurretSubsystem.getInstance();
 
   public BezierCurve driveBezier = new BezierCurve("drive", 117.4, 0.054, 91.4, 0.76, 0.1, 0.01);
   public BezierCurve rotateBezier = new BezierCurve("rotate", 120.1, 0.145, 92.2, 0.362, 0.035, 0.03);
@@ -32,6 +32,7 @@ public class RobotContainer {
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE;
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
+  private final CommandXboxController OPERATOR = new CommandXboxController(Constants.OPERATOR_CONTROLLER_PORT);
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(driveBezier.getDeadband())
@@ -43,6 +44,9 @@ public class RobotContainer {
   public static double pigeonOffset = 0;
 
   public RobotContainer() {
+
+    turretSub.setDriverController(DRIVER);
+
     autoChooser = new LoggedDashboardChooser<>("Rebuilt/Auto Chooser");
 
     configureBindings();

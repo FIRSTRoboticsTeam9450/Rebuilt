@@ -38,9 +38,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodHeight = 0;
     private double targetShooterVeloc = 0;
 
-    private TalonFX angleMotor = new TalonFX(ShooterConstants.MotorIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
-    private TalonFX shooterLeaderMotor = new TalonFX(ShooterConstants.MotorIDs.kShooterMotorID, RobotConstants.CANIVORE_BUS);
-    private TalonFX shooterFollowerMotor = new TalonFX(ShooterConstants.MotorIDs.kShooterMotorID, RobotConstants.CANIVORE_BUS);
+    private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
+    private TalonFX shooterLeaderMotor = new TalonFX(ShooterConstants.DeviceIDs.kShooterMotorID, RobotConstants.CANIVORE_BUS);
+    private TalonFX shooterFollowerMotor = new TalonFX(ShooterConstants.DeviceIDs.kShooterMotorID, RobotConstants.CANIVORE_BUS);
 
     // Hood Motion Magic parameters
     private LoggedNetworkNumber logHoodMMVeloc = new LoggedNetworkNumber("/Tunable/Shooter/Angle/Velocity", 4);
