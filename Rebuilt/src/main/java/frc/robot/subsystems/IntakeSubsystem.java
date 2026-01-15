@@ -14,7 +14,8 @@ public final class IntakeSubsystem extends SubsystemBase{
         HOLD,
         INTAKE,
         WAITING,
-        SPITOUT
+        SPITOUT,
+        ZEROING
     }
 
     //Set the current state of the robot to be idle
@@ -99,6 +100,11 @@ public final class IntakeSubsystem extends SubsystemBase{
             case SPITOUT:
                 arm_angle = 0.5;
                 rps = -50;
+                break;
+            case ZEROING:
+                //Lazy zeroing mechanism
+                resetEncoders();
+                arm_angle = -0.2;
                 break;
         }
     }
