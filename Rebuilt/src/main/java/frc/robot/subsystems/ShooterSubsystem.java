@@ -1,13 +1,16 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -19,17 +22,20 @@ import frc.robot.Constants.RobotConstants.ShooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-    private static ShooterSubsystem INSTANCE;
+    private static ShooterSubsystem instance;
 
     public enum AngleState {
         ZEROING,
         SHOOTING,
-        FERRYING
+        FERRYING,
+        STORING
     }
 
     public enum ShooterState {
         SHOOTING,
-        NOT_SHOOTING
+        RAMP_UP,
+        NOT_SHOOTING,
+
     }
 
     private AngleState currentAngleState;
@@ -74,7 +80,7 @@ public class ShooterSubsystem extends SubsystemBase {
     TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
     TalonFXConfiguration shooterMotorsConfig = new TalonFXConfiguration();
 
-    private boolean updateOuttakeVals = false;
+    private boolean isZeroingDone = false;
 
     public ShooterSubsystem() {
         configureAngleMotors();
@@ -145,16 +151,42 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterFollowerMotor.setControl(new Follower(shooterLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
+    public boolean zeroEncoder() {
+        if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
+            angleMotor.setPosition(0);
+            angleMotor.setVoltage(0);
+            currentAngleState = AngleState.STORING;
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public void periodic() {
+        if (!isZeroingDone) {
+            currentAngleState = AngleState.ZEROING;
+            isZeroingDone = zeroEncoder();
+        }
         applyState();
+        publishLogs();
+    }
+
+    public void publishLogs() {
+        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpoint", targetHoodHeight);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Shooter/Hood/currentState", currentAngleState);
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc);
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
+        
     }
 
     public void applyState() {
         switch (currentShooterState) {
             case SHOOTING:
-                
+                shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(targetShooterVeloc));
+                break;
+            case NOT_SHOOTING:
+                shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(0));
                 break;
         
             default:
@@ -172,6 +204,10 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
+    public double getTargetShooterVeloc() {
+        
+    }
+    
     public boolean isAngleWithinTolerance() {
         return isAngleWithinTolerance(0.1);
     }
@@ -274,10 +310,10 @@ public class ShooterSubsystem extends SubsystemBase {
         currentAngleState = wantedAngleState;
     }
 
-    public static ShooterSubsystem getInstance() {
-        if(INSTANCE == null) {
-            INSTANCE = new ShooterSubsystem();
+    public ShooterSubsystem getInstance() {
+        if(instance == null) {
+            instance = new ShooterSubsystem();
         }
-        return INSTANCE;
+        return instance;
     }
 }
