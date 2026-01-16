@@ -10,7 +10,7 @@ import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 
 public final class IntakeSubsystem extends SubsystemBase{
     //List the states the intake will use
-    enum UsableState {
+    enum IntakeState {
         HOLD,
         INTAKE,
         WAITING,
@@ -19,11 +19,11 @@ public final class IntakeSubsystem extends SubsystemBase{
     }
 
     //Set the current state of the robot to be idle
-    private UsableState currentState = UsableState.WAITING;
+    private IntakeState currentState = IntakeState.WAITING;
     
     //Set up motors
     TalonFX Intake_Arm = new TalonFX(5,"CantDrive");
-    TalonFX Intake = new TalonFX(6,"CantDrive");
+    TalonFX Intake_Wheels = new TalonFX(6,"CantDrive");
     
     //Velocity Motion Magic set up (Speed of intake rollers)
     private final MotionMagicVelocityVoltage Intake_Velocity = new MotionMagicVelocityVoltage(0);
@@ -74,7 +74,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         slot0.kV = 0.12;
         slot0.kA = 0.01;
         slot0.kP = 0.11;
-        Intake.getConfigurator().apply(IntakeConfig);
+        Intake_Wheels.getConfigurator().apply(IntakeConfig);
     }
     
     public void resetEncoders() {
@@ -82,7 +82,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         Intake_Arm.setPosition(0);
     }
     
-    private void setState(UsableState state) {
+    private void setState(IntakeState state) {
         currentState = state;
         switch (currentState) {
             case WAITING:
@@ -112,7 +112,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     @Override
     public void periodic() {
         //Sets the intake and arm to specified amounts
-        Intake.setControl(Intake_Velocity.withVelocity(rps));
+        Intake_Wheels.setControl(Intake_Velocity.withVelocity(rps));
         Intake_Arm.setControl(request.withPosition(arm_angle));
     }
 }

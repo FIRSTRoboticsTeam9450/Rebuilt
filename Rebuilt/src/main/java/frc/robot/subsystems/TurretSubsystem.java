@@ -39,19 +39,20 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * State machine for turret operation modes
      */
-    public enum UsableStates{
+    public enum TurretStates{
         IDLING,   // Holding current position
         AIMING,   // Actively tracking/aiming at a target
         STORING   // Moving to storage/safe position
     }
 
     // Current and previous states for state machine logic
-    private UsableStates currentState = UsableStates.STORING;
-    private UsableStates previousState = currentState;
+    private TurretStates currentState = TurretStates.STORING;
+    private TurretStates previousState = currentState;
 
     // TalonFX motor controller for turret rotation
     private TalonFX turretMotor = new TalonFX(TurretConstants.DeviceIDs.kMotorID, RobotConstants.CANIVORE_BUS);
     private CANcoder turretEncoder = new CANcoder(TurretConstants.DeviceIDs.kAbsEncoderID, RobotConstants.CANIVORE_BUS);
+
     private double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
     private double encdrToAngleMulti = TurretConstants.ABS_ENCDR_POS_TO_ANGLE;
     private double degreePerMotorRev = TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
@@ -84,7 +85,7 @@ public class TurretSubsystem extends SubsystemBase {
     // Target positions for idling state
     private double targetIdleAngle = 0;
 
-    // Unclamped target angle (may exceed turret limits)
+    /**Unclamped target angle (may exceed turret limits) */
     private double trueTargetAimingAngle = 0;
 
     private double currentTurretRotationWRTFieldOrigin;
@@ -143,7 +144,7 @@ public class TurretSubsystem extends SubsystemBase {
         motorConfig.Feedback.FeedbackRemoteSensorID = turretEncoder.getDeviceID();
         motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         motorConfig.Feedback.RotorToSensorRatio = TurretConstants.ROTOR_TO_SENSOR_RATIO;
-        motorConfig.Feedback.SensorToMechanismRatio = TurretConstants.SENSIOR_TO_MECHANISM_RATIO;
+        motorConfig.Feedback.SensorToMechanismRatio = TurretConstants.SENSOR_TO_MECHANISM_RATIO;
 
         // Apply configuration to the motor
         turretMotor.getConfigurator().apply(motorConfig);
@@ -157,16 +158,17 @@ public class TurretSubsystem extends SubsystemBase {
         // Update current position from encoder
         currentTurretAngle = turretEncoder.getPosition().getValueAsDouble() * encdrToAngleMulti;
 
+        //TODO: Do better (Get difference of robot degree to turret degree)
         trueTurretAngleWRTFieldOrigin = (currentRobotRotation.getDegrees() - trueTargetAimingAngle) % 360;
         currentTurretRotationWRTFieldOrigin = (currentRobotRotation.getDegrees() - currentTurretAngle) % 360;
         
-        if (driverController != null) {
-            if (currentState == UsableStates.AIMING && targetAngleOutsideOfRange()) {
-                driverController.setRumble(RumbleType.kBothRumble, 0.1);
-            } else {
-                driverController.setRumble(RumbleType.kBothRumble, 0);
-            }
-        }
+        // if (driverController != null) {
+        //     if (currentState == TurretStates.AIMING && targetAngleOutsideOfRange()) {
+        //         driverController.setRumble(RumbleType.kBothRumble, 0.1);
+        //     } else {
+        //         driverController.setRumble(RumbleType.kBothRumble, 0);
+        //     }
+        // }
 
         // Execute current state logic
         applyStates();
@@ -183,6 +185,7 @@ public class TurretSubsystem extends SubsystemBase {
             case IDLING:
                 // On first entry to idle state, capture current position as target
                 if (stateNewlyChanged) {
+                    stateNewlyChanged = false;
                     targetIdleAngle = currentTurretAngle;
                 }
                 // Hold current position using Motion Magic
@@ -233,7 +236,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return true if within tolerance
      */
     public boolean turretWithTolerance(double tolerance) {
-        if (currentState == UsableStates.IDLING) return Math.abs(targetIdleAngle - currentTurretAngle) < tolerance;
+        if (currentState == TurretStates.IDLING) return Math.abs(targetIdleAngle - currentTurretAngle) < tolerance;
         return Math.abs(targetAimingAngle - currentTurretAngle) < tolerance;
     }
 
@@ -249,8 +252,7 @@ public class TurretSubsystem extends SubsystemBase {
      * Changes the current state of the turret (blocked during zeroing)
      * @param wantedState The desired state to transition to
      */
-    public void setState(UsableStates wantedState) {
-
+    public void setState(TurretStates wantedState) {
         previousState = currentState;
         currentState = wantedState;
         stateNewlyChanged = true;
@@ -266,7 +268,7 @@ public class TurretSubsystem extends SubsystemBase {
         trueTargetAimingAngle = angle;
 
         // Clamp to valid range
-        angle = MathUtil.clamp(angle, -90, 90);
+        angle = MathUtil.clamp(angle, -135, 135);
 
         targetAimingAngle = angle;
     }
@@ -278,7 +280,7 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * @return Current state of the turret
      */
-    public UsableStates getCurrentState() {
+    public TurretStates getCurrentState() {
         return currentState;
     }
 
@@ -294,7 +296,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return Target angle based on current state (idle or aiming)
      */
     public double getTargetAngle() {
-        if (currentState == UsableStates.IDLING) return targetIdleAngle;
+        if (currentState == TurretStates.IDLING) return targetIdleAngle;
         return targetAimingAngle;
     }
 

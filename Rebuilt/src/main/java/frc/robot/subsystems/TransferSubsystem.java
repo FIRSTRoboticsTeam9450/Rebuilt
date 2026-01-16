@@ -25,13 +25,13 @@ public class TransferSubsystem extends SubsystemBase {
     /**
      * State machine for transfer operation modes
      */
-    enum UsableState {
+    enum TransferState {
         RUN_IN,
         RUN_OUT,
         NO_RUN
     }
-    private UsableState currentState = UsableState.NO_RUN;
-    private UsableState previousState = currentState;
+    private TransferState currentState = TransferState.NO_RUN;
+    private TransferState previousState = currentState;
 
     private final TalonFX motor = new TalonFX(TransferConstants.DeviceIDs.kDrivingMotorID, RobotConstants.CANIVORE_BUS);
 
@@ -62,7 +62,7 @@ public class TransferSubsystem extends SubsystemBase {
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
         // Set motor direction
-        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         
         // Apply config
         motor.getConfigurator().apply(motorConfig);
@@ -107,7 +107,7 @@ public class TransferSubsystem extends SubsystemBase {
      * Changes the current state of the transfer
      * @param wantedState The desired state to transition to
      */
-    public void setState(UsableState wantedState) {
+    public void setState(TransferState wantedState) {
         // Set states
         previousState = currentState;
         currentState = wantedState;

@@ -151,6 +151,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterFollowerMotor.setControl(new Follower(shooterLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
+
     public boolean zeroEncoder() {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
@@ -204,8 +205,9 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
+    //TODO: FIX THIS CURT :)
     public double getTargetShooterVeloc() {
-        
+        return 0;
     }
     
     public boolean isAngleWithinTolerance() {
@@ -310,7 +312,7 @@ public class ShooterSubsystem extends SubsystemBase {
         currentAngleState = wantedAngleState;
     }
 
-    public ShooterSubsystem getInstance() {
+    public static ShooterSubsystem getInstance() {
         if(instance == null) {
             instance = new ShooterSubsystem();
         }

@@ -35,7 +35,7 @@ import org.littletonrobotics.junction.Logger;
  * This subsystem reads Limelight data, fuses multiple camera poses,
  * and provides utility functions like distance to target and shooter recommendations.
  * 
- * To Do:
+ * To-Do:
  *  - Make work with any amount of limelight
  *  - Use tolerances to determine if a vision pose is valid (look at if value is off by a tolerance. (except x and y (Pose3d)))
  *  - Lessen the Standard deviation for rotation, is to high. Good ballpark: 999
@@ -72,8 +72,8 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    private double visionStdDevX = 0.7;
-    private double visionStdDevY = 0.7;
+    private double visionStdDevX = 0.1;
+    private double visionStdDevY = 0.1;
     private double visionStdDevTheta = 999.0;
 
     // Maximum allowed differences for fusion; if exceeded, fallback to higher confidence camera
@@ -81,10 +81,10 @@ public class VisionSubsystem extends SubsystemBase {
     private double maxRotationDiff = Math.toRadians(10); // radians
 
     // Validation thresholds for pose filtering
-    private static final double MAX_Z_THRESHOLD = 0.0; // Robot must be on ground
-    private static final double MAX_PITCH_THRESHOLD = 0.0; // Robot must not be tilted forward/back
-    private static final double MAX_ROLL_THRESHOLD = 0.0; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 0.01; // Vision yaw must match Pigeon within 0.01 degrees
+    private static final double MAX_Z_THRESHOLD = 1000; // Robot must be on ground
+    private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
+    private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
+    private static final double MAX_YAW_DIFF_DEGREES = 0.1; // Vision yaw must match Pigeon within 0.01 degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -299,7 +299,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         // Consider measurement valid if at least 1 tag, low ambiguity, AND pose validation passes
-        boolean valid = tagCount > 0 && ambiguity < 0.35 && poseValid;
+        boolean valid = tagCount > 0 && poseValid;
 
         // Confidence weighted: 70% ambiguity, 30% tag count
         double tagFactor = Math.min(tagCount / 2.0, 1.0);
@@ -364,11 +364,18 @@ public class VisionSubsystem extends SubsystemBase {
             .mapToDouble(m -> m.pose().getY())
             .average()
             .orElse(0.0);
+
         
-        double meanRotation = validMeasurements.stream()
-            .mapToDouble(m -> m.pose().getRotation().getRadians())
-            .average()
-            .orElse(0.0);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //TODO: Actually average together
+        // double meanRotation = validMeasurements.stream()
+        //     .mapToDouble(m -> m.pose().getRotation().getRadians())
+        //     .average()
+        //     .orElse(0.0);
+
+        double meanRotation = validMeasurements.get(0).pose.getRotation().getRadians();
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         
         Pose2d meanPose = new Pose2d(meanX, meanY, new Rotation2d(meanRotation));
         
@@ -393,6 +400,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (inliers.size() == 1) {
             return Optional.of(inliers.get(0).pose());
         }
+        // TODO: Log number of outliers
         
         // Fuse inliers using confidence-weighted average
         double totalConfidence = inliers.stream()
@@ -407,10 +415,10 @@ public class VisionSubsystem extends SubsystemBase {
             .mapToDouble(m -> m.pose().getY() * m.confidence())
             .sum() / totalConfidence;
         
-        double fusedRotation = inliers.stream()
-            .mapToDouble(m -> m.pose().getRotation().getRadians() * m.confidence())
-            .sum() / totalConfidence;
-        
+        // double fusedRotation = inliers.stream()
+        //     .mapToDouble(m -> m.pose().getRotation().getRadians() * m.confidence())
+        //     .sum() / totalConfidence;
+        double fusedRotation = inliers.get(0).pose().getRotation().getRadians();
         return Optional.of(new Pose2d(fusedX, fusedY, new Rotation2d(fusedRotation)));
     }
 
@@ -487,6 +495,7 @@ public class VisionSubsystem extends SubsystemBase {
     
     /**
      * Computes the robot-to-target transform in robot frame.
+     * TODO: Rewrite
      */
     public Transform2d getRobotToTarget(Pose2d target) {
         if (lastVisionPose == null) return null;
