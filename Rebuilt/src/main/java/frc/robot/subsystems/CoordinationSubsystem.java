@@ -1,7 +1,78 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class CoordinationSubsystem extends SubsystemBase {
+
+    private static CoordinationSubsystem INSTANCE;
+
+    private TurretSubsystem turretSub = TurretSubsystem.getInstance();
+    private ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
+
+
+    public enum AbsoluteStates {
+        STORING,
+        IDLING,
+        PREPARING_FOR_SHOOTING,
+        SHOOTING,
+        TRENCH
+    }
+
+    private AbsoluteStates currentState = AbsoluteStates.STORING;
+    private AbsoluteStates previousState = currentState;
+
+    private boolean driverAllowingShooting = false;
     
+
+    public boolean isShooterReady() {
+        return shooterSub.isShooterReady();
+    }
+
+    public boolean isTurretReady() {
+        return turretSub.turretWithinTolerance();
+    }
+
+    public boolean areShooterAndTurretReady() {
+        return (isShooterReady() && isTurretReady());
+    }
+
+    public boolean isDriverWantingToShoot() {
+        return driverAllowingShooting;
+    }
+
+    public boolean goodToFire() {
+        return (driverAllowingShooting && areShooterAndTurretReady());
+    }
+
+    public Command setFireCommand(boolean value) {
+        return new InstantCommand(() -> driverAllowingShooting = value);
+    }
+
+    public static CoordinationSubsystem getInstance() {
+        if (INSTANCE == null) INSTANCE = new CoordinationSubsystem();
+        return INSTANCE;
+    }
+
+    public static class GameData {
+        private String gameData;
+        private boolean isBlueHubActive = true;
+
+        public void updateData() {
+            gameData = DriverStation.getGameSpecificMessage();
+            if (gameData.length() > 0) {
+                if (gameData.charAt(0) == 'B') {
+                    isBlueHubActive = true;
+                } else {
+                    isBlueHubActive = false;
+                }
+            }
+        }
+
+        public boolean isBlueHubActive() {
+            return isBlueHubActive;
+        }
+    }
 }

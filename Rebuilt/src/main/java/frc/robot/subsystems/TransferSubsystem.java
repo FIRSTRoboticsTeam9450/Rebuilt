@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -12,62 +14,114 @@ import frc.robot.Constants.RobotConstants.TransferConstants;
 /**
  * Subsystem which controls the handoff from Intake to Shooter.
  * 
- * <p> To-Do:
- *  <p> - Motor IDs </p>
- *  <p> - Make Base Code </p>
- *  <p> - Get Actual Values </p>
- *  <p> - Add Logging </p>
+ * <p>
+ *  <p> TODO: Get actual values (Motor ID, direction, and voltages) </p>
  * </p>
- *  
  */
 public class TransferSubsystem extends SubsystemBase {
-    enum UsableState {
+    /** Transfer subsystem instance */
+    private static TransferSubsystem INSTANCE;
+
+    /**
+     * State machine for transfer operation modes
+     */
+    enum TransferState {
         RUN_IN,
         RUN_OUT,
         NO_RUN
     }
-    private UsableState currentState = UsableState.NO_RUN;
+    private TransferState currentState = TransferState.NO_RUN;
+    private TransferState previousState = currentState;
 
-    private static TransferSubsystem instance;
+    private final TalonFX motor = new TalonFX(TransferConstants.DeviceIDs.kDrivingMotorID, RobotConstants.CANIVORE_BUS);
 
-    private final TalonFX motor = new TalonFX(TransferConstants.MotorIDs.kDrivingMotorID, RobotConstants.CANIVORE_BUS);
+    /** Voltage request */
+    private VoltageOut voltageRequest = new VoltageOut(0.0);
 
-    private VoltageOut voltageRequest = new VoltageOut(0);
-
-    public TransferSubsystem() {
+    /**
+     * Constructor - initializes the transfer subsystem and configures the motor
+     */
+    private TransferSubsystem() {
         configure();
     }
+
+    /**
+     * Returns the single instance of the TransferSubsystem
+     * @return The TurretSubsystem instance
+     */
     public TransferSubsystem getInstance() {
-        if (instance == null) instance = new TransferSubsystem();
-        return instance;
+        if (INSTANCE == null) INSTANCE = new TransferSubsystem();
+        return INSTANCE;
     }
 
+    /**
+     * Configures the TalonFX motor
+     */
+    private void configure() {
+        // Create config
+        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+
+        // Set motor direction
+        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        
+        // Apply config
+        motor.getConfigurator().apply(motorConfig);
+    }
+
+    /**
+     * Periodic update function called every 20ms by the command scheduler
+     */
     @Override
     public void periodic() {
+        // Execute current state logic
         applyState();
+
+        // Log telemetry data
+        publishLogs();
     }
 
+    /**
+     * State machine implementation - executes logic for current state
+     */
     private void applyState() {
+        // Set request voltage
         switch (currentState) {
-            case RUN_IN:
+            case RUN_IN: // Move fuel in
                 voltageRequest.Output = 1;
                 break;
             
-            case RUN_OUT:
+            case RUN_OUT: // Move fuel out
                 voltageRequest.Output = -1;
                 break;
             
-            case NO_RUN:
+            case NO_RUN: // Don't move
                 voltageRequest.Output = 0;
                 break;
         }
+
+        // Apply voltage to motor
         motor.setControl(voltageRequest);
     }
 
-    private void configure() {
-        TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        
-        motor.getConfigurator().apply(motorConfig);
+    /**
+     * Changes the current state of the transfer
+     * @param wantedState The desired state to transition to
+     */
+    public void setState(TransferState wantedState) {
+        // Set states
+        previousState = currentState;
+        currentState = wantedState;
+    }
+
+    /**
+     * Publishes telemetry data to AdvantageKit Logger
+     */
+    private void publishLogs() {
+        // Log state data
+        Logger.recordOutput("Rebuilt/Transfer/Current State", currentState);
+        Logger.recordOutput("Rebuilt/Transfer/Previous State", previousState);
+
+        // Log motor data
+        Logger.recordOutput("Rebuilt/Transfer/Target Speed", voltageRequest.Output);
     }
 }
