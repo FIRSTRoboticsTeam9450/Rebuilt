@@ -21,7 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants;
-import frc.robot.subsystems.TurretSubsystem.UsableStates;
+
 
 public class ClimberSubsystem extends SubsystemBase {
 
