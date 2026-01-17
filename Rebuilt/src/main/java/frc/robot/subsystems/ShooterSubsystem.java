@@ -93,8 +93,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     InterpolatingDoubleTreeMap ferryingDistanceToTime = new InterpolatingDoubleTreeMap();
     InterpolatingDoubleTreeMap ferryingDistanceToVelocity = new InterpolatingDoubleTreeMap();
-=
-
 
     public ShooterSubsystem() {
         configureAngleMotors();
@@ -221,11 +219,12 @@ public class ShooterSubsystem extends SubsystemBase {
                 return shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
             case FERRY_ZONE_TOP:
                 return ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-                break;
+                
             case FERRY_ZONE_BOTTOM:
-                break;
+                return ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                
             case TRENCH_DEADZONE:
-                break;
+                return shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
             default:
                 return 0;
         }
@@ -242,14 +241,16 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getShooterAngle() {
         switch (coordSub.getCurrentZone()) {
             case SHOOTING_ZONE:
-                shootingHoodAngleFunction();
-                break;
+                return shootingHoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                
             case FERRY_ZONE_TOP:
-                break;
+                return ferryingHoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                
             case FERRY_ZONE_BOTTOM:
-                break;
+                return ferryingHoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                
             default:
-                break;
+                return 0;
         }
 
     }
