@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants;
 
+
 public class ClimberSubsystem extends SubsystemBase {
 
     private static ClimberSubsystem climberInstance;
