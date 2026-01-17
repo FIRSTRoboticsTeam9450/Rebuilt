@@ -39,7 +39,10 @@ public final class Constants {
     public static final class ClimberConstants {
 
       public static final class DeviceIDs {
-        
+        public static final int kClimbMotorFrontID = -1;
+        public static final int kClimbMotorBackID = -1;
+        public static final int kClimbServoTopID = -1;
+        public static final int kClimbServoBottomID = -1;
       }
 
     }
