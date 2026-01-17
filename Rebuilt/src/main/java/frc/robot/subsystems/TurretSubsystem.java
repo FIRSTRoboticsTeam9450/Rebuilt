@@ -16,6 +16,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -73,6 +74,7 @@ public class TurretSubsystem extends SubsystemBase {
     // Motion Magic control request for smooth, profiled motion
     private DynamicMotionMagicVoltage controlRequest = new DynamicMotionMagicVoltage(0, logMMVelocity.get(), logMMAcceleration.get()).withJerk(logMMJerk.get())
                                                                                                                                               .withSlot(0); 
+    private SimpleMotorFeedforward feedForwardControl = new SimpleMotorFeedforward(logMMKS.get(), logMMKV.get(), logMMKA.get());
 
     // Current position tracking
     private double currentTurretAngle = 0;    // Turret angle in degrees
@@ -162,13 +164,13 @@ public class TurretSubsystem extends SubsystemBase {
         trueTurretAngleWRTFieldOrigin = (currentRobotRotation.getDegrees() - trueTargetAimingAngle) % 360;
         currentTurretRotationWRTFieldOrigin = (currentRobotRotation.getDegrees() - currentTurretAngle) % 360;
         
-        // if (driverController != null) {
-        //     if (currentState == TurretStates.AIMING && targetAngleOutsideOfRange()) {
-        //         driverController.setRumble(RumbleType.kBothRumble, 0.1);
-        //     } else {
-        //         driverController.setRumble(RumbleType.kBothRumble, 0);
-        //     }
-        // }
+        if (driverController != null) {
+            if (currentState == TurretStates.AIMING && targetAngleOutsideOfRange()) {
+                driverController.setRumble(RumbleType.kBothRumble, 0.1);
+            } else {
+                driverController.setRumble(RumbleType.kBothRumble, 0);
+            }
+        }
 
         // Execute current state logic
         applyStates();
