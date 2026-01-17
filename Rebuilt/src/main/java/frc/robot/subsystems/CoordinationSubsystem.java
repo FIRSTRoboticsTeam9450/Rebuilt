@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.VisionSubsystem.ZoneState;
 
 public class CoordinationSubsystem extends SubsystemBase {
 
@@ -11,7 +12,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private TurretSubsystem turretSub = TurretSubsystem.getInstance();
     private ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
-
+    private VisionSubsystem visionSub = VisionSubsystem.getInstance();
 
     public enum AbsoluteStates {
         STORING,
@@ -49,6 +50,10 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     public Command setFireCommand(boolean value) {
         return new InstantCommand(() -> driverAllowingShooting = value);
+    }
+
+    public ZoneState getCurrentZone() {
+        return visionSub.getCurrentZone();
     }
 
     public static CoordinationSubsystem getInstance() {

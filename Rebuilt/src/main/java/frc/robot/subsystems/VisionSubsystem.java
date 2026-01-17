@@ -5,21 +5,28 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.proto.ChassisSpeedsProto;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.RobotConstants.ZoneConstants;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.Pillar;
+import frc.robot.Constants.RobotConstants.ZoneConstants.ZoneConstantsAndyMark;
+import frc.robot.Constants.RobotConstants.ZoneConstants.ZoneTargets;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightObject;
 import frc.robot.util.LimelightObject.Location;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.sim.ChassisReference;
 
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +74,7 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
     private static TurretSubsystem turretSub = RobotContainer.turretSub;
+    private static ShooterSubsystem shooterSub = RobotContainer.shooterSub;
 
     private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
@@ -91,7 +99,18 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Logging
     private volatile Pose2d lastFusedPose = null;   // Last fused pose from vision
-    private volatile Pose2d lastTargetPose = null;
+    private volatile Transform2d lastTargetPose = null;
+
+    // Targeting Data
+    public enum ZoneState {
+        SHOOTING_ZONE,
+        FERRY_ZONE_TOP,
+        FERRY_ZONE_BOTTOM,
+        TRENCH_DEADZONE,
+        BACK_DEADZONE
+    }
+    ZoneState currentZone = ZoneState.SHOOTING_ZONE;
+    Pose2d currentTarget = ZoneTargets.SHOOTING_TARGET;
 
     // -------------------------
     // Constructor (private for singleton)
@@ -173,9 +192,11 @@ public class VisionSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
+        updateTargetAndZone();
         updateTurret();
         updateVision();  // Compute fused vision pose
         publishLogs();   // Print/log fusion confidence and pose
+        
     }
 
     private void updateTurret() {
@@ -487,10 +508,11 @@ public class VisionSubsystem extends SubsystemBase {
     /**
      * Computes the distance from robot to a target pose.
      */
-    public double getDistanceToTarget(Pose2d target) {
-        if (lastVisionPose == null) return Double.POSITIVE_INFINITY;
+    public double getDistanceToTarget(Transform2d target) {
+        Transform2d currentPose = drivetrain.getState().Pose;
+        if (currentPose == null) return Double.POSITIVE_INFINITY;
         lastTargetPose = target;
-        return lastVisionPose.getTranslation().getDistance(target.getTranslation());
+        return currentPose.getTranslation().getDistance(target.getTranslation());
     }
     
     /**
@@ -509,8 +531,68 @@ public class VisionSubsystem extends SubsystemBase {
         return new Transform2d(translationRobotFrame, rotationRobotToTarget);
     }
 
+    public Transform2d getTargetRelativeToBot () {
+        Pose2d currentPose = drivetrain.getState().Pose;
+        return currentTarget.minus(currentPose);
+    }
+
+    public ChassisSpeeds getVelocityOfBot() {
+        ChassisSpeeds speed = drivetrain.getState().speed;
+        Pose2d currentPose = drivetrain.getstate().Pose;
+        return ChassisSpeeds.fromRobotRelativeSpeeds(drivetrain.getState().speed, currentPose.getRotation());
+    }
+
     public Pose2d getTargetPose() {
         return lastTargetPose;
+    }
+
+    public Pose2d getCurrentTarget() {
+        return currentTarget;
+    }
+
+    public Transform2d getAdjustedCurrentTarget() { // TODO, CHECK IF SPEED IS ACTUALLY CORRECT SPEED
+        Transform2d currentTargetWRTBot = getTargetRelativeToBot();
+        Pose2d currentPose = drivetrain.getState().Pose;
+        ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
+        ChassisSpeeds velocityRobotWRTField = ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, currentPose.getRotation());
+        double timeToShoot = 0;
+        if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
+            timeToShoot = shooterSub.getFerryingDistanceToTime(getDistanceToTarget(currentTargetWRTBot));
+        }
+        else if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
+            timeToShoot = shooterSub.getShootingDistanceToTime(getDistanceToTarget(currentTargetWRTBot));
+        }
+        Transform2d amountMoved = new Transform2d(new Translation2d(velocityRobotWRTField.vxMetersPerSecond * timeToShoot, velocityRobotWRTField.vyMetersPerSecond * timeToShoot), currentPose.getRotation());
+        Transform2d finalTarget = currentTargetWRTBot.plus(amountMoved.inverse());
+        return finalTarget;
+    }
+
+    public ZoneState getCurrentZone() {
+        return currentZone;
+    }
+
+    public void updateTargetAndZone() {
+        Pose2d currentPose = drivetrain.getState().Pose;
+        double currentX = currentPose.getX();
+        double currentY = currentPose.getY();
+        if(currentX > ZoneConstantsAndyMark.MAJOR_ZONE_X_LOW && currentX < ZoneConstantsAndyMark.MAJOR_ZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MAJOR_ZONE_Y_LOW && currentY < ZoneConstantsAndyMark.MAJOR_ZONE_Y_HIGH) { // CHANGE DURING COMP TO WELDED
+            currentZone = ZoneState.SHOOTING_ZONE;
+            currentTarget = ZoneTargets.SHOOTING_TARGET;
+        }
+        else if(currentX > ZoneConstantsAndyMark.MID_ZONE_X_LOW && currentX < ZoneConstantsAndyMark.MID_ZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MID_ZONE_1_Y_LOW && currentY < ZoneConstantsAndyMark.MID_ZONE_1_Y_HIGH) {
+            currentZone = ZoneState.FERRY_ZONE_TOP;
+            currentTarget = ZoneTargets.FERRY_TOP_TARGET;
+        }
+        else if(currentX > ZoneConstantsAndyMark.MID_ZONE_X_LOW && currentX < ZoneConstantsAndyMark.MID_ZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MID_ZONE_2_Y_LOW && currentY < ZoneConstantsAndyMark.MID_ZONE_2_Y_HIGH) {
+            currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+            currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+        }
+
+    }
+
+
+    public boolean inZone(ZoneState currentZone) {
+
     }
 
     /**

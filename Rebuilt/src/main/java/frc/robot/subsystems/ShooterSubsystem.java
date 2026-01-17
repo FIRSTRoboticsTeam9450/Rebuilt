@@ -16,6 +16,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
@@ -27,7 +28,10 @@ public class ShooterSubsystem extends SubsystemBase {
     public enum AngleState {
         ZEROING,
         SHOOTING,
-        FERRYING,
+        FERRYING_TOP,
+        FERRYING_BOTTOM,
+        DEADZONE,
+        OVERRIDE,
         STORING
     }
 
@@ -37,6 +41,8 @@ public class ShooterSubsystem extends SubsystemBase {
         NOT_SHOOTING,
 
     }
+    private CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
+    private VisionSubsystem visionSub = VisionSubsystem.getInstance();
 
     private AngleState currentAngleState;
     private ShooterState currentShooterState;
@@ -81,6 +87,14 @@ public class ShooterSubsystem extends SubsystemBase {
     TalonFXConfiguration shooterMotorsConfig = new TalonFXConfiguration();
 
     private boolean isZeroingDone = false;
+
+    InterpolatingDoubleTreeMap shootingDistanceToTime = new InterpolatingDoubleTreeMap();
+    InterpolatingDoubleTreeMap shootingDistanceToVelocity = new InterpolatingDoubleTreeMap();
+
+    InterpolatingDoubleTreeMap ferryingDistanceToTime = new InterpolatingDoubleTreeMap();
+    InterpolatingDoubleTreeMap ferryingDistanceToVelocity = new InterpolatingDoubleTreeMap();
+=
+
 
     public ShooterSubsystem() {
         configureAngleMotors();
@@ -151,7 +165,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterFollowerMotor.setControl(new Follower(shooterLeaderMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
-
     public boolean zeroEncoder() {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
@@ -184,20 +197,17 @@ public class ShooterSubsystem extends SubsystemBase {
     public void applyState() {
         switch (currentShooterState) {
             case SHOOTING:
-                shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(targetShooterVeloc));
+                shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
                 break;
-            case NOT_SHOOTING:
-                shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(0));
-                break;
-        
             default:
                 break;
         }
         switch (currentAngleState) {
             case SHOOTING:
-                
+                angleMotor.setControl(hoodMMRequest.withPosition(null));
                 break;
-            case FERRYING:
+            case FERRYING_BOTTOM:
+                angleMotor.setControl(hoodMMRequest.withPosition(null));
 
                 break;
             default:
@@ -205,11 +215,54 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
-    //TODO: FIX THIS CURT :)
-    public double getTargetShooterVeloc() {
-        return 0;
+    public double getShooterVeloc() {
+        switch (coordSub.getCurrentZone()) {
+            case SHOOTING_ZONE:
+                return shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+            case FERRY_ZONE_TOP:
+                return ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                break;
+            case FERRY_ZONE_BOTTOM:
+                break;
+            case TRENCH_DEADZONE:
+                break;
+            default:
+                return 0;
+        }
     }
-    
+
+    public double getShootingDistanceToTime(double distance) {
+        return shootingDistanceToTime.get(distance);
+    }
+
+    public double getFerryingDistanceToTime(double distance) {
+        return ferryingDistanceToTime.get(distance);
+    }
+
+    public double getShooterAngle() {
+        switch (coordSub.getCurrentZone()) {
+            case SHOOTING_ZONE:
+                shootingHoodAngleFunction();
+                break;
+            case FERRY_ZONE_TOP:
+                break;
+            case FERRY_ZONE_BOTTOM:
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    public double shootingHoodAngleFunction(double distance) {
+
+        return 0; // Change later when you get the equation
+    }
+
+    public double ferryingHoodAngleFunction(double distance) {
+
+        return 0; // Change later when you get the equation
+    }
     public boolean isAngleWithinTolerance() {
         return isAngleWithinTolerance(0.1);
     }
