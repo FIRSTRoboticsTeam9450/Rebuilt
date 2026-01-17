@@ -170,5 +170,28 @@ public final class Constants {
         return new RuntimeException(errorMsg);
       });
     }
+
+
+    /**BLUE                      RED
+     * -----------------------------
+     * |    1 | 2          5 | 6   |
+     * |     HUB            HUB    |
+     * |    3 | 4          7 | 8   |
+     * -----------------------------
+     */
+    public static final class TrenchManeuvering {
+
+      public static final Translation2d trenchOne = new Translation2d(3.618, 7.435);
+      public static final Translation2d trenchTwo = new Translation2d(5.618, 7.435);
+      public static final Translation2d trenchThree = new Translation2d(3.618, 0.627);
+      public static final Translation2d trenchFour = new Translation2d(5.618, 0.627);
+
+      public static final Translation2d trenchFive = new Translation2d(10.618, 7.435);
+      public static final Translation2d trenchSix = new Translation2d(12.618, 7.435);
+      public static final Translation2d trenchSeven = new Translation2d(10.618, 0.627);
+      public static final Translation2d trenchEight = new Translation2d(12.618, 0.627);
+
+    }
+
   }
 }

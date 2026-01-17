@@ -164,13 +164,13 @@ public class TurretSubsystem extends SubsystemBase {
         trueTurretAngleWRTFieldOrigin = (currentRobotRotation.getDegrees() - trueTargetAimingAngle) % 360;
         currentTurretRotationWRTFieldOrigin = (currentRobotRotation.getDegrees() - currentTurretAngle) % 360;
         
-        // if (driverController != null) {
-        //     if (currentState == TurretStates.AIMING && targetAngleOutsideOfRange()) {
-        //         driverController.setRumble(RumbleType.kBothRumble, 0.1);
-        //     } else {
-        //         driverController.setRumble(RumbleType.kBothRumble, 0);
-        //     }
-        // }
+        if (driverController != null) {
+            if (currentState == TurretStates.AIMING && targetAngleOutsideOfRange()) {
+                driverController.setRumble(RumbleType.kBothRumble, 0.1);
+            } else {
+                driverController.setRumble(RumbleType.kBothRumble, 0);
+            }
+        }
 
         // Execute current state logic
         applyStates();
