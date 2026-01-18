@@ -65,7 +65,7 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     // Core subsystem fields
     // -------------------------
-    private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
+    private static CommandSwerveDrivetrain drivetrain; // Reference to drivetrain for pose updates
     private static TurretSubsystem turretSub = RobotContainer.turretSub;
 
     private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
@@ -98,6 +98,7 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     @SuppressWarnings("static-access")
     private VisionSubsystem() {
+        drivetrain = RobotContainer.drivetrain;
 
         // Configure camera offsets and add to internal list
         configureLimelights();

@@ -59,7 +59,8 @@ public final class Constants {
 
       public static final class DeviceIDs {
         public static final int kAngleMotorID = -1;
-        public static final int kShooterMotorID = -1;
+        public static final int kLeftShooterMotorID = -1;
+        public static final int kRightShooterMotorID = -1;
       }
 
     }
@@ -158,9 +159,18 @@ public final class Constants {
       FIELD_LAYOUT.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
     }
 
+    /**
+     * Ferry Poses are from blue alliance driver box perspective
+     */
     public static final class ImportantFieldPoses {
       public static final Translation2d RED_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(11.9154, 4.0345);
+
+      public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();
+      public static final Translation2d BLUE_RIGHT_FERRY_TARGET = new Translation2d();
+
+      public static final Translation2d RED_LEFT_FERRY_TARGET = new Translation2d();
+      public static final Translation2d RED_RIGHT_FERRY_TARGET = new Translation2d();
     }
 
     public static Pose3d getTag3dPose(int tagID) {

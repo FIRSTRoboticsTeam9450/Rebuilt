@@ -49,7 +49,7 @@ public class TransferSubsystem extends SubsystemBase {
      * Returns the single instance of the TransferSubsystem
      * @return The TurretSubsystem instance
      */
-    public TransferSubsystem getInstance() {
+    public static TransferSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new TransferSubsystem();
         return INSTANCE;
     }
