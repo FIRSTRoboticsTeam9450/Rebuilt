@@ -9,9 +9,12 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -63,6 +66,14 @@ public final class Constants {
         public static final int kRightShooterMotorID = -1;
       }
 
+      public static final class HoodConstants {
+        public static final double degreesPerMotorRev = 0;
+      }
+
+      public static final class HoodConstants {
+        public static final double degreesPerMotorRev = 0;
+      }
+
     }
 
     public static final class TransferConstants {
@@ -91,7 +102,81 @@ public final class Constants {
       public static final double ABS_ENCDR_POS_TO_ANGLE = 480;
 
     }
+    public static final class ZoneConstants {
+      public static final class ZoneConstantsWelded {
+        public static final double MAJOR_ZONE_X_LOW = 0;
+        public static final double MAJOR_ZONE_X_HIGH = 182.11;
+        public static final double MAJOR_ZONE_Y_LOW = 0;
+        public static final double MAJOR_ZONE_Y_HIGH = 317.69;
 
+        public static final double MID_ZONE_X_LOW = 182.11;
+        public static final double MID_ZONE_X_HIGH = 651.22;
+        public static final double MID_ZONE_1_Y_LOW = 158.84;
+        public static final double MID_ZONE_1_Y_HIGH = 317.69;
+
+        public static final double MID_ZONE_2_Y_LOW = 0;
+        public static final double MID_ZONE_2_Y_HIGH = 158.84;
+
+        public static final double MID_ZONE_2_DEADZONE_Y_LOW = 0;
+        public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 0;
+
+        public static final double TRENCH_12_DEADZONE_X_LOW = 0;
+        public static final double TRENCH_12_DEADZONE_X_HIGH = 0;
+        public static final double TRENCH_1_DEADZONE_Y_LOW = 0;
+        public static final double TRENCH_1_DEADZONE_Y_HIGH = 0;
+
+        public static final double TRENCH_2_DEADZONE_Y_LOW = 0;
+        public static final double TRENCH_2_DEADZONE_Y_HIGH = 0;
+
+        public static final double TRENCH_34_DEADZONE_X_LOW = 0;
+        public static final double TRENCH_34_DEADZONE_X_HIGH = 0;
+        public static final double TRENCH_3_DEADZONE_Y_LOW = 0;
+        public static final double TRENCH_3_DEADZONE_Y_HIGH = 0;
+
+        public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
+        public static final double TRENCH_4_DEADZONE_Y_HIGH = 0;
+      }
+      public static final class ZoneConstantsAndyMark {
+        public static final double MAJOR_ZONE_X_LOW = 0;
+        public static final double MAJOR_ZONE_X_HIGH = 181.56;
+        public static final double MAJOR_ZONE_Y_LOW = 0;
+        public static final double MAJOR_ZONE_Y_HIGH = 316.65;
+
+        public static final double MID_ZONE_X_LOW = 181.56;
+        public static final double MID_ZONE_X_HIGH = 650.12;
+        public static final double MID_ZONE_1_Y_LOW = 158.32;
+        public static final double MID_ZONE_1_Y_HIGH = 316.64;
+
+        public static final double MID_ZONE_2_Y_LOW = 0;
+        public static final double MID_ZONE_2_Y_HIGH = 158.32;
+
+        public static final double MID_ZONE_2_DEADZONE_Y_LOW = 0;
+        public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 0;
+
+        public static final double TRENCH_12_DEADZONE_X_LOW = 0;
+        public static final double TRENCH_12_DEADZONE_X_HIGH = 0;
+        public static final double TRENCH_1_DEADZONE_Y_LOW = 0;
+        public static final double TRENCH_1_DEADZONE_Y_HIGH = 0;
+
+        public static final double TRENCH_2_DEADZONE_Y_LOW = 0;
+        public static final double TRENCH_2_DEADZONE_Y_HIGH = 0;
+
+        public static final double TRENCH_34_DEADZONE_X_LOW = 0;
+        public static final double TRENCH_34_DEADZONE_X_HIGH = 0;
+        public static final double TRENCH_3_DEADZONE_Y_LOW = 0;
+        public static final double TRENCH_3_DEADZONE_Y_HIGH = 0;
+
+        public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
+        public static final double TRENCH_4_DEADZONE_Y_HIGH = 0;
+      }
+      public static final class ZoneTargets {
+        public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.MY_HUB_CENTER; // TODO: Put in proper targets
+        public static final Translation2d FERRY_TOP_TARGET = null;
+        public static final Translation2d FERRY_BOTTOM_TARGET = null;
+      }
+    }
+
+    
     public static final class LimelightConstants {
 
       public static final class FrontLeft {

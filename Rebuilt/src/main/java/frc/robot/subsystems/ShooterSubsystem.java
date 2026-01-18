@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -16,6 +17,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
@@ -24,10 +26,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private static ShooterSubsystem instance;
 
+    // States
     public enum AngleState {
         ZEROING,
         SHOOTING,
-        FERRYING,
+        TRENCH,
+        DEADZONE,
+        OVERRIDE,
         STORING
     }
 
@@ -38,15 +43,25 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
+    // Other subsystems
+    private CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
+    private VisionSubsystem visionSub = VisionSubsystem.getInstance();
+
     private AngleState currentAngleState;
     private ShooterState currentShooterState;
 
     private double targetHoodHeight = 0;
+    private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
+    // Motors
     private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
     private TalonFX shooterLeaderMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.CANIVORE_BUS);
     private TalonFX shooterFollowerMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.CANIVORE_BUS);
+
+    TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
+    TalonFXConfiguration shooterMotorsConfig = new TalonFXConfiguration();
+
 
     // Hood Motion Magic parameters
     private LoggedNetworkNumber logHoodMMVeloc = new LoggedNetworkNumber("/Tunable/Shooter/Angle/Velocity", 4);
@@ -77,10 +92,21 @@ public class ShooterSubsystem extends SubsystemBase {
     private final int outtakeVSlot = 0;
     private final MotionMagicVelocityVoltage outtakeVRequest;
 
-    TalonFXConfiguration angleMotorConfig = new TalonFXConfiguration();
-    TalonFXConfiguration shooterMotorsConfig = new TalonFXConfiguration();
-
+    // Tuning velocity table
+    private LoggedNetworkNumber logTuningShooterVelocity = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Velocity", 40);
+    private LoggedNetworkBoolean logIsTuningShooterVelocity = new LoggedNetworkBoolean("/Tuning/Shooter/Outtake/TuningShooterVelocity?", false);
+    
+    // Flags
+    private boolean isTuningShooterVelocity = logIsTuningShooterVelocity.get();
+    private boolean isOverrideAngle = false;
     private boolean isZeroingDone = false;
+
+    // Data tables
+    InterpolatingDoubleTreeMap shootingDistanceToTime = new InterpolatingDoubleTreeMap();
+    InterpolatingDoubleTreeMap shootingDistanceToVelocity = new InterpolatingDoubleTreeMap();
+
+    InterpolatingDoubleTreeMap ferryingDistanceToTime = new InterpolatingDoubleTreeMap();
+    InterpolatingDoubleTreeMap ferryingDistanceToVelocity = new InterpolatingDoubleTreeMap();
 
     public ShooterSubsystem() {
         configureAngleMotors();
@@ -90,7 +116,6 @@ public class ShooterSubsystem extends SubsystemBase {
         outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot);
 
     }
-
 
     public void configureAngleMotors() {
         angleMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
@@ -184,32 +209,92 @@ public class ShooterSubsystem extends SubsystemBase {
     public void applyState() {
         switch (currentShooterState) {
             case SHOOTING:
-                shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(targetShooterVeloc));
+                shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
                 break;
-            case NOT_SHOOTING:
-                shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(0));
-                break;
-        
             default:
                 break;
         }
         switch (currentAngleState) {
             case SHOOTING:
-                
+                angleMotor.setControl(hoodMMRequest.withPosition(getShooterAngle()));
                 break;
-            case FERRYING:
-
-                break;
+            case TRENCH:
+                angleMotor.setControl(hoodMMRequest.withPosition(0));
             default:
                 break;
         }
     }
 
-    //TODO: FIX THIS CURT :)
-    public double getTargetShooterVeloc() {
-        return 0;
+    public double getShooterVeloc() {
+        if(!isTuningShooterVelocity) {
+            switch (coordSub.getCurrentZone()) {
+                case SHOOTING_ZONE:
+                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                case FERRY_ZONE_TOP:
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                    
+                case FERRY_ZONE_BOTTOM:
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                case TRENCH_DEADZONE:
+                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                default:
+                    break;
+            }
+        }
+        else {
+            targetShooterVeloc = logTuningShooterVelocity.get();
+        }
+        return targetShooterVeloc;
     }
-    
+
+    public double getShooterAngle() {
+        if(!isOverrideAngle) {
+            switch (coordSub.getCurrentZone()) {
+                case SHOOTING_ZONE:
+                    targetHoodHeight = shootingHoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                    
+                case FERRY_ZONE_TOP:
+                    targetHoodHeight = ferryingHoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break; 
+                    
+                case FERRY_ZONE_BOTTOM:
+                    targetHoodHeight = ferryingHoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                case TRENCH_DEADZONE:
+                    targetHoodHeight = 0;
+                default:
+                    return 0;
+            }
+        }
+        else {
+            targetHoodHeight = targetHoodAngleOverride;
+        }
+        return targetHoodHeight;
+
+    }
+
+    public double getShootingDistanceToTime(double distance) {
+        return shootingDistanceToTime.get(distance);
+    }
+
+    public double getFerryingDistanceToTime(double distance) {
+        return ferryingDistanceToTime.get(distance);
+    }
+
+    public double shootingHoodAngleFunction(double distance) {
+
+        return 0; //TODO: Change later when you get the equation
+    }
+
+    public double ferryingHoodAngleFunction(double distance) {
+
+        return 0; //TODO: Change later when you get the equation
+    }
     public boolean isAngleWithinTolerance() {
         return isAngleWithinTolerance(0.1);
     }
@@ -228,6 +313,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public boolean isShooterReady() {
         return (isAngleWithinTolerance() && isVelocityWithinTolerance());
+    }
+    public void setOverrideMode(boolean isOverrideAngle) {
+        this.isOverrideAngle = isOverrideAngle;
+    }
+
+    public void setOverrideHoodAngle(double targetHoodAngleOverride) {
+        this.targetHoodAngleOverride = targetHoodAngleOverride;
     }
 
     public void updateShooterConstants() {
@@ -250,6 +342,11 @@ public class ShooterSubsystem extends SubsystemBase {
         // velocitySetpoint = lVVSVal;  // Uncomment for velocity tuning
 
         //}
+        updateSetpoints = (isTuningShooterVelocity != logIsTuningShooterVelocity.get());
+        if(updateSetpoints) {
+            isTuningShooterVelocity = logIsTuningShooterVelocity.get();
+        }
+
         updateOuttakeVals = (shooterMotorsConfig.Slot0.kS != logOuttakeVKS.get())
                     || (shooterMotorsConfig.Slot0.kV != logOuttakeVKV.get())
                     || (shooterMotorsConfig.Slot0.kA != logOuttakeVKA.get())
