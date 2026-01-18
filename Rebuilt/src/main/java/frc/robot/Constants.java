@@ -70,10 +70,6 @@ public final class Constants {
         public static final double degreesPerMotorRev = 0;
       }
 
-      public static final class HoodConstants {
-        public static final double degreesPerMotorRev = 0;
-      }
-
     }
 
     public static final class TransferConstants {
@@ -170,7 +166,7 @@ public final class Constants {
         public static final double TRENCH_4_DEADZONE_Y_HIGH = 0;
       }
       public static final class ZoneTargets {
-        public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.MY_HUB_CENTER; // TODO: Put in proper targets
+        public static final Translation2d SHOOTING_TARGET = null; // TODO: Put in proper targets
         public static final Translation2d FERRY_TOP_TARGET = null;
         public static final Translation2d FERRY_BOTTOM_TARGET = null;
       }
