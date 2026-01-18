@@ -14,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -67,6 +68,15 @@ public class RobotContainer {
                     .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+    
+    // For tuning hood angle PID
+    DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
+    DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
+    
+    DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
+    DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
+    
+    
   }
 
   public Command getAutonomousCommand() {

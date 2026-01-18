@@ -11,8 +11,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -163,9 +165,9 @@ public final class Constants {
         public static final double TRENCH_4_DEADZONE_Y_HIGH = 0;
       }
       public static final class ZoneTargets {
-        public static final Pose2d SHOOTING_TARGET = new Pose2d();
-        public static final Pose2d FERRY_TOP_TARGET = new Pose2d();
-        public static final Pose2d FERRY_BOTTOM_TARGET = new Pose2d();
+        public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.MY_HUB_CENTER; // TODO: Put in proper targets
+        public static final Translation2d FERRY_TOP_TARGET = null;
+        public static final Translation2d FERRY_BOTTOM_TARGET = null;
       }
     }
 
@@ -238,8 +240,8 @@ public final class Constants {
     }
 
     public static final class ImportantFieldPoses {
-      public static final Translation2d RED_HUB_CENTER = new Translation2d(4.6256, 4.0345);
-      public static final Translation2d BLUE_HUB_CENTER = new Translation2d(11.9154, 4.0345);
+      public static final Translation2d MY_HUB_CENTER = new Translation2d(4.6256, 4.0345);
+      public static final Translation2d THEIR_HUB_CENTER = new Translation2d(11.9154, 4.0345);
     }
 
     public static Pose3d getTag3dPose(int tagID) {
