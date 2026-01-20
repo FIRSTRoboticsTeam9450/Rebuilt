@@ -25,7 +25,7 @@ public class TransferSubsystem extends SubsystemBase {
     /**
      * State machine for transfer operation modes
      */
-    enum TransferState {
+    public enum TransferState {
         RUN_IN,
         RUN_OUT,
         NO_RUN
@@ -62,7 +62,7 @@ public class TransferSubsystem extends SubsystemBase {
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
         // Set motor direction
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         
         // Apply config
         motor.getConfigurator().apply(motorConfig);
@@ -87,11 +87,11 @@ public class TransferSubsystem extends SubsystemBase {
         // Set request voltage
         switch (currentState) {
             case RUN_IN: // Move fuel in
-                voltageRequest.Output = 1;
+                voltageRequest.Output = 8;
                 break;
             
             case RUN_OUT: // Move fuel out
-                voltageRequest.Output = -1;
+                voltageRequest.Output = -8;
                 break;
             
             case NO_RUN: // Don't move
