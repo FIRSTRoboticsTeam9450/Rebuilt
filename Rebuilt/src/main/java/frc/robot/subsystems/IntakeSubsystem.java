@@ -1,118 +1,171 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.RobotConstants.IntakeConstants;
+
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.*;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 
 public final class IntakeSubsystem extends SubsystemBase{
+
+    private static IntakeSubsystem INSTACNE;
+
     //List the states the intake will use
-    enum IntakeState {
-        HOLD,
-        INTAKE,
-        WAITING,
-        SPITOUT,
-        ZEROING
+    public enum IntakePos {
+        ZEROING,
+        STORE,
+        INTAKING,
+    }
+
+    public enum IntakeState {
+        IDLING,
+        INTAKING,
     }
 
     //Set the current state of the robot to be idle
-    private IntakeState currentState = IntakeState.WAITING;
+    private IntakePos currentPos = IntakePos.STORE;
+    private IntakeState currentState = IntakeState.IDLING;
     
     //Set up motors
-    TalonFX Intake_Arm = new TalonFX(5,"CantDrive");
-    TalonFX Intake_Wheels = new TalonFX(6,"CantDrive");
-    
-    //Velocity Motion Magic set up (Speed of intake rollers)
-    private final MotionMagicVelocityVoltage Intake_Velocity = new MotionMagicVelocityVoltage(0);
+    TalonFX motorArm = new TalonFX(IntakeConstants.DeviceIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
+    TalonFX motorWheels = new TalonFX(IntakeConstants.DeviceIDs.kWheelMotorID, RobotConstants.CANIVORE_BUS);
 
-    //Set up the rps of the intake motors to 0
-    private double rps = 0;
+    TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+
+    private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 5);
+    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 5);
+    private LoggedNetworkNumber logMMJerk = new LoggedNetworkNumber("/Tuning/Intake/Angle/Jerk", 1000);
+
+    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0);
+    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.33);
+    private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Intake/Angle/kA", 0.05);
+    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 0.01);
+    private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Intake/Angle/kI", 0);
+    private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0);
+    private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.05);
+
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 7.435059);
+    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 6);
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0);
 
-    //Set the arm to 0
-    private double arm_angle = 0;
-
     public IntakeSubsystem() {
-        //Configure the intake arm
-        TalonFXConfiguration ArmConfig = new TalonFXConfiguration();
-        ArmConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        ArmConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        ArmConfig.CurrentLimits.StatorCurrentLimit = 20;
-        ArmConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        ArmConfig.CurrentLimits.SupplyCurrentLimit = 20;
-        ArmConfig.CurrentLimits.SupplyCurrentLowerTime = 0.8;
-        ArmConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
-        ArmConfig.MotionMagic.MotionMagicAcceleration = 30;
-        ArmConfig.MotionMagic.MotionMagicCruiseVelocity = 15;
-        ArmConfig.MotionMagic.MotionMagicJerk = 1000;
+        configureMotors();
+    }
+
+    private void configureMotors() {
+        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
+        motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
+        motorConfig.MotionMagic.MotionMagicJerk = logMMJerk.get();
 
         //Magic Motion
-        var slot0Configs = ArmConfig.Slot0;
-        slot0Configs.kS = 0.3;
-        slot0Configs.kV = 1.5;
-        slot0Configs.kA = 0;
-        slot0Configs.kP = 15;
-        slot0Configs.kI = 0;
-        slot0Configs.kD = 0;
-        Intake_Arm.getConfigurator().apply(ArmConfig);
+        var slot0Configs = motorConfig.Slot0;
+        slot0Configs.kS = logMMKS.get();
+        slot0Configs.kV = logMMKV.get();
+        slot0Configs.kA = logMMKA.get();
+        slot0Configs.kP = logMMKP.get();
+        slot0Configs.kI = logMMKI.get();
+        slot0Configs.kD = logMMKD.get();
+        slot0Configs.kG = logMMKG.get();
+        slot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
+
+        motorArm.getConfigurator().apply(motorConfig);
 
         //Configure intake motors
         TalonFXConfiguration IntakeConfig = new TalonFXConfiguration();
         IntakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        IntakeConfig.MotionMagic.MotionMagicCruiseVelocity = 50;
-        IntakeConfig.MotionMagic.MotionMagicAcceleration = 400;
-        IntakeConfig.MotionMagic.MotionMagicJerk = 4000;
 
-        //Magic Velocity for rollers
-        var slot0 = IntakeConfig.Slot0;
-        slot0.kS = 0.25;
-        slot0.kV = 0.12;
-        slot0.kA = 0.01;
-        slot0.kP = 0.11;
-        Intake_Wheels.getConfigurator().apply(IntakeConfig);
-    }
-    
-    public void resetEncoders() {
-        //Sets the arm to 0
-        Intake_Arm.setPosition(0);
-    }
-    
-    private void setState(IntakeState state) {
-        currentState = state;
-        switch (currentState) {
-            case WAITING:
-                arm_angle = 0;
-                rps = 0;
-                break;
-            case HOLD:
-                arm_angle = 0.5;
-                rps = 1;
-                break;
-            case INTAKE:
-                arm_angle = 0.5;
-                rps = 50;
-                break;
-            case SPITOUT:
-                arm_angle = 0.5;
-                rps = -50;
-                break;
-            case ZEROING:
-                //Lazy zeroing mechanism 🙏its so bad
-                resetEncoders();
-                arm_angle = -0.2;
-                break;
-        }
+        motorWheels.getConfigurator().apply(IntakeConfig);
     }
 
     @Override
     public void periodic() {
-        //Sets the intake and arm to specified amounts
-        Intake_Wheels.setControl(Intake_Velocity.withVelocity(rps));
-        Intake_Arm.setControl(request.withPosition(arm_angle));
+        applyState();
+        publishLogs();
+    }
+
+    private void applyState() {
+        switch (currentPos) {
+            case ZEROING:
+                break;
+
+            case STORE:
+                motorArm.setControl(request.withPosition(0));
+                break;
+            
+            case INTAKING:
+                motorArm.setControl(request.withPosition(logIntakeTarget.get())); //7.435059
+                break;
+        }
+
+        switch (currentState) {
+            case IDLING:
+                motorWheels.setVoltage(0);
+                break;
+            
+            case INTAKING:
+                motorWheels.setVoltage(logIntakingTarget.get());
+                break;
+        }
+    }
+
+    private void publishLogs() {
+        Logger.recordOutput("Rebuilt/Intake/Angle/Position", motorArm.getPosition().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Angle/Target", logIntakeTarget.get());
+    }
+
+    public void setPos(IntakePos pos) {
+        currentPos = pos;
+    }
+
+    public void setState(IntakeState state) {
+        currentState = state;
+    }
+
+    public Command setPosAndStateCommand(IntakePos pos, IntakeState state) {
+        return new InstantCommand(() -> {setPos(pos); setState(state);});
+    }
+
+    public static IntakeSubsystem getInstance() {
+        if (INSTACNE == null) INSTACNE = new IntakeSubsystem();
+        return INSTACNE;
+    }
+
+    public void updateConstants() {
+        boolean gainsChanged = false;
+
+        if (motorConfig.MotionMagic.MotionMagicAcceleration != logMMAccel.get() ||
+            motorConfig.MotionMagic.MotionMagicCruiseVelocity != logMMVeloc.get() ||
+            motorConfig.MotionMagic.MotionMagicJerk != logMMJerk.get() ||
+            motorConfig.Slot0.kS != logMMKS.get() ||
+            motorConfig.Slot0.kV != logMMKV.get() ||
+            motorConfig.Slot0.kA != logMMKA.get() ||
+            motorConfig.Slot0.kP != logMMKP.get() ||
+            motorConfig.Slot0.kI != logMMKI.get() ||
+            motorConfig.Slot0.kD != logMMKD.get() ||
+            motorConfig.Slot0.kG != logMMKG.get()
+            ) {
+            
+            gainsChanged = true;
+        }
+
+        if (gainsChanged) {
+            configureMotors();
+        }
+    }
+
+    public void zeroEncoders() {
+        motorArm.setPosition(0);
     }
 }

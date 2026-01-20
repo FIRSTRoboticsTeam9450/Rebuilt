@@ -16,12 +16,18 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.util.BezierCurve;
 
 
 public class RobotContainer {
+  public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+  public final static CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
+
   public static TurretSubsystem turretSub = TurretSubsystem.getInstance();
   public static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
 

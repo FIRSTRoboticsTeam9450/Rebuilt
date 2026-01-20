@@ -27,6 +27,10 @@ public class CoordinationSubsystem extends SubsystemBase {
     private AbsoluteStates previousState = currentState;
 
     private boolean driverAllowingShooting = false;
+
+    public CoordinationSubsystem() {
+        
+    }
     
 
     public boolean isShooterReady() {
@@ -34,7 +38,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean isTurretReady() {
-        return turretSub.turretWithinTolerance();
+        return turretSub.isAtGoal();
     }
 
     public boolean areShooterAndTurretReady() {
@@ -60,7 +64,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     public double getVelocityTurrent(double time) {
         Translation2d currentTarget = visionSub.getAdjustedCurrentTarget();
         Translation2d futureTarget = visionSub.getAdjustedFutureTarget(time);
-        return (turretSub.getTargetAngle(currentTarget) - turretSub.getTargetAngle(futureTarget))/time;
+        // return (turretSub.getTargetAngle(currentTarget) - turretSub.getTargetAngle(futureTarget))/time;
+        return -1; //TODO: gl curt :3
     }
 
     public static CoordinationSubsystem getInstance() {

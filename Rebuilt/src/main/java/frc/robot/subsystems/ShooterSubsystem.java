@@ -19,6 +19,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
 
@@ -44,11 +45,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     // Other subsystems
-    private CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
+    private CoordinationSubsystem coordSub = RobotContainer.coordSub;
     private VisionSubsystem visionSub = VisionSubsystem.getInstance();
 
-    private AngleState currentAngleState;
-    private ShooterState currentShooterState;
+    private AngleState currentAngleState = AngleState.STORING;
+    private ShooterState currentShooterState = ShooterState.NOT_SHOOTING;
 
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
@@ -64,9 +65,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
     // Hood Motion Magic parameters
-    private LoggedNetworkNumber logHoodMMVeloc = new LoggedNetworkNumber("/Tunable/Shooter/Angle/Velocity", 4);
-    private LoggedNetworkNumber logHoodMMAccel = new LoggedNetworkNumber("/Tunable/Shooter/Angle/Acceleration", 4);
-    private LoggedNetworkNumber logHoodMMJerk = new LoggedNetworkNumber("/Tunable/Shooter/Angle/Jerk", 400);
+    private LoggedNetworkNumber logHoodMMVeloc = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Velocity", 4);
+    private LoggedNetworkNumber logHoodMMAccel = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Acceleration", 4);
+    private LoggedNetworkNumber logHoodMMJerk = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Jerk", 400);
     private double hoodMMVelocity = logHoodMMVeloc.get();
     private double hoodMMAcceleration = logHoodMMAccel.get();
     private double hoodMMJerk = logHoodMMJerk.get();

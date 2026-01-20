@@ -11,14 +11,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.RobotConstants.ZoneConstants;
+import frc.robot.Constants.FieldConstants.ZoneConstants;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.Pillar;
-import frc.robot.Constants.RobotConstants.ZoneConstants.ZoneConstantsAndyMark;
-import frc.robot.Constants.RobotConstants.ZoneConstants.ZoneTargets;
+import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsAndyMark;
+import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightObject;
@@ -56,7 +56,7 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     // Singleton instance
     // -------------------------
-    private static VisionSubsystem instance = null;
+    private static VisionSubsystem instance;
 
     /**
      * Singleton accessor method.
@@ -75,7 +75,7 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     // Core subsystem fields
     // -------------------------
-    private static CommandSwerveDrivetrain drivetrain; // Reference to drivetrain for pose updates
+    private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
     private static TurretSubsystem turretSub = RobotContainer.turretSub;
     private static ShooterSubsystem shooterSub = RobotContainer.shooterSub;
 
@@ -179,17 +179,6 @@ public class VisionSubsystem extends SubsystemBase {
         limelightBR.offsetRoll = BackRight.ROLL;
         limelightBR.offsetYaw = BackRight.YAW;
         LIMELIGHT_LIST.add(limelightBR);
-
-        // Pillar Limelight
-        LimelightObject limelightP = new LimelightObject(Pillar.NAME);
-        limelightP.location = Location.PILLAR;
-        limelightP.offsetX = Pillar.LOCATION_X;
-        limelightP.offsetY = Pillar.LOCATION_Y;
-        limelightP.offsetZ = Pillar.LOCATION_Z;
-        limelightP.offsetPitch = Pillar.PITCH;
-        limelightP.offsetRoll = Pillar.ROLL;
-        limelightP.offsetYaw = Pillar.YAW;
-        LIMELIGHT_LIST.add(limelightP);
     }
 
     /**
@@ -199,15 +188,8 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         updateTargetAndZone();
-        updateTurret();
         updateVision();  // Compute fused vision pose
         publishLogs();   // Print/log fusion confidence and pose
-        
-    }
-
-    private void updateTurret() {
-        turretSub.updateRobotRotation(drivetrain.getState().Pose.getRotation());
-        
     }
 
     // -------------------------
@@ -515,7 +497,9 @@ public class VisionSubsystem extends SubsystemBase {
      * Computes the distance from robot to a target pose.
      */
     public double getDistanceToTarget(Translation2d target) {
-        Transform2d currentPose = drivetrain.getState().Pose;
+        Pose2d drivePose = drivetrain.getState().Pose;
+        Transform2d tmpTransform = new Transform2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation());
+        Transform2d currentPose = tmpTransform;
         if (currentPose == null) return Double.POSITIVE_INFINITY;
         lastTargetPose = target;
         return currentPose.getTranslation().getDistance(target);
@@ -544,9 +528,9 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds getVelocityOfBot() {
-        ChassisSpeeds speed = drivetrain.getState().speed;
-        Pose2d currentPose = drivetrain.getstate().Pose;
-        return ChassisSpeeds.fromRobotRelativeSpeeds(drivetrain.getState().speed, currentPose.getRotation());
+        ChassisSpeeds speed = drivetrain.getState().Speeds;
+        Pose2d currentPose = drivetrain.getState().Pose;
+        return ChassisSpeeds.fromRobotRelativeSpeeds(drivetrain.getState().Speeds, currentPose.getRotation());
     }
 
     public Translation2d getTargetPose() {
@@ -653,7 +637,7 @@ public class VisionSubsystem extends SubsystemBase {
 
 
     public boolean inZone(ZoneState currentZone) {
-
+        return false;
     }
 
     /**

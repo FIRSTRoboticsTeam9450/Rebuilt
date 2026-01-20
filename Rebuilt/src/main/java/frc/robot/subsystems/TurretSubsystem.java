@@ -23,6 +23,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
@@ -56,7 +57,7 @@ public class TurretSubsystem extends SubsystemBase {
     
     private final TalonFX turretMotor;
     private final CANcoder turretEncoder;
-    private final CommandSwerveDrivetrain drivetrain;
+    private final CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
     
     private CommandXboxController driverController;
     
@@ -73,9 +74,9 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 360.0);
+        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 15.0);
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720.0);
+        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 30.0);
     
     private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 0.5);
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
@@ -149,8 +150,7 @@ public class TurretSubsystem extends SubsystemBase {
      * 
      * @param drivetrain Reference to drivetrain for field-relative tracking
      */
-    public TurretSubsystem(CommandSwerveDrivetrain drivetrain) {
-        this.drivetrain = drivetrain;
+    public TurretSubsystem() {
         
         // Initialize hardware
         turretMotor = new TalonFX(
@@ -229,15 +229,13 @@ public class TurretSubsystem extends SubsystemBase {
     
     @Override
     public void periodic() {
-        // Update tunable parameters if changed
-        updateTunableParameters();
         
         // Update target based on current mode
         updateTargetFromMode();
         
         // Get current robot state
         Rotation2d robotAngle = drivetrain.getState().Pose.getRotation();
-        ChassisSpeeds robotVelocity = drivetrain.getState().speeds;
+        ChassisSpeeds robotVelocity = drivetrain.getState().Speeds;
         double robotOmegaRadPerSec = robotVelocity.omegaRadiansPerSecond;
         
         // Convert field-relative goal to robot-relative
@@ -296,10 +294,10 @@ public class TurretSubsystem extends SubsystemBase {
                 : ImportantFieldPoses.RED_HUB_CENTER;
             
             case FERRY -> FieldConstants.isBlueAlliance 
-                ? drivetrain.getState().Pose.getYMeasurement() > 4.0345
+                ? drivetrain.getState().Pose.getY() > 4.0345
                     ? ImportantFieldPoses.BLUE_LEFT_FERRY_TARGET
                     : ImportantFieldPoses.BLUE_RIGHT_FERRY_TARGET
-                : drivetrain.getState().Pose.getYMeasurement() > 4.0345
+                : drivetrain.getState().Pose.getY() > 4.0345
                     ? ImportantFieldPoses.RED_LEFT_FERRY_TARGET
                     : ImportantFieldPoses.RED_RIGHT_FERRY_TARGET;
             
@@ -457,7 +455,7 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Updates tunable parameters if they've changed.
      */
-    private void updateTunableParameters() {
+    public void updateTunableParameters() {
         boolean gainsChanged = false;
         boolean profileChanged = false;
         
@@ -754,24 +752,10 @@ public class TurretSubsystem extends SubsystemBase {
      * @param drivetrain Drivetrain reference (required on first call)
      * @return The TurretSubsystem instance
      */
-    public static TurretSubsystem getInstance(CommandSwerveDrivetrain drivetrain) {
-        if (INSTANCE == null) {
-            INSTANCE = new TurretSubsystem(drivetrain);
-        }
-        return INSTANCE;
-    }
-    
-    /**
-     * Gets the singleton instance (must call with drivetrain first).
-     * 
-     * @return The TurretSubsystem instance
-     * @throws IllegalStateException if getInstance(drivetrain) hasn't been called yet
-     */
     public static TurretSubsystem getInstance() {
         if (INSTANCE == null) {
-            throw new IllegalStateException(
-                "TurretSubsystem not initialized. Call getInstance(drivetrain) first."
-            );
+            INSTANCE = new TurretSubsystem();
         }
+        return INSTANCE;
     }
 }

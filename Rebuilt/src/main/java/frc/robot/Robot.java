@@ -5,9 +5,12 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 
@@ -22,15 +25,20 @@ public class Robot extends LoggedRobot {
   private final RobotContainer m_robotContainer;
   private TurretSubsystem turretSub = TurretSubsystem.getInstance();
   private ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
+  private IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
 
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   public Robot() {
-    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
-    // autonomous chooser on the dashboard.
+
+    Logger.recordMetadata("Rebuilt", "main");
+    Logger.addDataReceiver(new NT4Publisher());
+
     m_robotContainer = new RobotContainer();
+
+    Logger.start();
   }
 
   /**
@@ -55,9 +63,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
-    turretSub.updateMotionMagicConstants();
+    turretSub.updateTunableParameters();
     shooterSub.updateShooterConstants();
-    
+    intakeSub.updateConstants();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
