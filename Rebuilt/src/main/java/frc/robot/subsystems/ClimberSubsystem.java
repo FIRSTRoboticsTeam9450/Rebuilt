@@ -31,18 +31,15 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private static ClimberSubsystem climberInstance;
 
-    private TalonFX climbMotorFront = new TalonFX(ClimberConstants.DeviceIDs.kClimbMotorFrontID, RobotConstants.CANIVORE_BUS_NAME);
+    private TalonFX climbMotorFront = new TalonFX(0, RobotConstants.CANIVORE_BUS_NAME); //temporary deviceID value
     // private TalonFX climbMotorBack = new TalonFX(ClimberConstants.DeviceIDs.kClimbMotorBackID, RobotConstants.CANIVORE_BUS_NAME);
     private Servo servoTop;
     private Servo servoBottom;
 
-    // ------ climber has no external encoder -----
-    // private CANcoder climbEncoder = new CANcoder(ClimberConstants.MotorIDs.kElevatorMotorID, RobotConstants.CANIVORE_BUS_NAME);
-
     // --------- all of these should be in a command ----------
     
     // Placeholder name and used to say how many bars the bot will climb up
-    private LoggedNetworkNumber barsToClimb = new LoggedNetworkNumber("/Tuning/Climb/barsToClimb", 1);
+    //private LoggedNetworkNumber barsToClimb = new LoggedNetworkNumber("/Tuning/Climb/barsToClimb", 1);
      
     // Each one says the distance the motor should move to the next climb 
     // private LoggedNetworkNumber L3Climb = new LoggedNetworkNumber("/Tuning/Climb/L3Climb", 0.0);
@@ -82,7 +79,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public enum ClimberStates {
         STANDBY,
         EXTENDCLIMB,
-        GRABBAR,
+        //GRABBAR,
         RETRACTCLIMB    
     }
 
@@ -115,16 +112,14 @@ public class ClimberSubsystem extends SubsystemBase {
         
         climbMotorFront.getConfigurator().apply(climbConfig);
         // climbMotorBack.getConfigurator().apply(climbConfig);
-        servoTop = new Servo(ClimberConstants.DeviceIDs.kClimbServoTopID);
-        servoBottom = new Servo(ClimberConstants.DeviceIDs.kClimbServoBottomID);
+        servoTop = new Servo(0); //temporary
+        servoBottom = new Servo(0); //temporary
 
         // climbMotorBack.setControl(new Follower(climbMotorFront.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     /* ----------- Updaters ----------- */
 
-    // didn't use this and I'm not sure if we should
-    // I think no
     // public void setTarget(double setpoint) {
     //     climbMotorFront.setControl(controlRequest.withPosition(setpoint));
     // }
@@ -157,19 +152,30 @@ public class ClimberSubsystem extends SubsystemBase {
             case EXTENDCLIMB:
                 // Move the climb a specific distance based on the array
                 climbMotorFront.setControl(controlRequest.withPosition(climbDistances[currentClimb].get()));
+                
+                //this isn't necessary, if you want to use this then don't use motionmagic
+                /*
                 if (Math.abs(climbDistances[currentClimb].get() - getMotorPosition())  < 0.05) {
                     climbMotorFront.set(0);
-                    currentState = ClimberStates.GRABBAR;
+                    servoTop.setAngle(90);
+                    if (90 - servoTop.getAngle() < 0.05) {
+                    currentState = ClimberStates.RETRACTCLIMB;
                 }
+                }
+                */
+                
+            /*
             case GRABBAR:
                 // Allow the servo to fully move down and latch on to the bar
                 servoTop.setAngle(90);
                 if (90 - servoTop.getAngle() < 0.05) {
                     currentState = ClimberStates.RETRACTCLIMB;
                 }
+            */
             case RETRACTCLIMB:
                 // retract the climb carry the bot up the bar
                 climbMotorFront.setControl(controlRequest.withPosition(0));
+                /*
                 if (Math.abs(getMotorPosition())  < 0.05) {
                     climbMotorFront.set(0);
 
@@ -182,6 +188,7 @@ public class ClimberSubsystem extends SubsystemBase {
                         currentState = ClimberStates.STANDBY;
                     }
                 }
+                */
             default:
                 break;
         }
