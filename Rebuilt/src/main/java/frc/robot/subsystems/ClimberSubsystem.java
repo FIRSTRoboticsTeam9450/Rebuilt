@@ -8,11 +8,13 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.google.flatbuffers.Constants;
 
@@ -30,7 +32,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private static ClimberSubsystem climberInstance;
 
     private TalonFX climbMotorFront = new TalonFX(ClimberConstants.DeviceIDs.kClimbMotorFrontID, RobotConstants.CANIVORE_BUS_NAME);
-    private TalonFX climbMotorBack = new TalonFX(ClimberConstants.DeviceIDs.kClimbMotorBackID, RobotConstants.CANIVORE_BUS_NAME);
+    // private TalonFX climbMotorBack = new TalonFX(ClimberConstants.DeviceIDs.kClimbMotorBackID, RobotConstants.CANIVORE_BUS_NAME);
     private Servo servoTop;
     private Servo servoBottom;
 
@@ -40,14 +42,21 @@ public class ClimberSubsystem extends SubsystemBase {
     // --------- all of these should be in a command ----------
     
     // Placeholder name and used to say how many bars the bot will climb up
-    // private LoggedNetworkNumber Lclimbs = new LoggedNetworkNumber("/Tuning/Climb/Lclimbs", 1);
+    private LoggedNetworkNumber barsToClimb = new LoggedNetworkNumber("/Tuning/Climb/barsToClimb", 1);
      
     // Each one says the distance the motor should move to the next climb 
     // private LoggedNetworkNumber L3Climb = new LoggedNetworkNumber("/Tuning/Climb/L3Climb", 0.0);
     // private LoggedNetworkNumber L2Climb = new LoggedNetworkNumber("/Tuning/Climb/L2Climb", 0.0);
     // private LoggedNetworkNumber L1Climb = new LoggedNetworkNumber("/Tuning/Climb/L1Climb", 0.0);
 
-    // private int currentClimb = 0;
+    private LoggedNetworkNumber[] climbDistances = 
+    {  
+        new LoggedNetworkNumber("/Tuning/Climb/L3Climb", 0.0),
+        new LoggedNetworkNumber("/Tuning/Climb/L2Climb", 0.0),
+        new LoggedNetworkNumber("/Tuning/Climb/L1Climb", 0.0)
+    };
+
+    private int currentClimb = 0;
 
     private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/MM/Velocity", 0.1);
     private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/MM/Acceleration", 1);
@@ -73,6 +82,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public enum ClimberStates {
         STANDBY,
         EXTENDCLIMB,
+        GRABBAR,
         RETRACTCLIMB    
     }
 
@@ -102,32 +112,26 @@ public class ClimberSubsystem extends SubsystemBase {
 
         climbConfig.MotionMagic = mmConfigs;
 
+        
         climbMotorFront.getConfigurator().apply(climbConfig);
-        climbMotorBack.getConfigurator().apply(climbConfig);
+        // climbMotorBack.getConfigurator().apply(climbConfig);
         servoTop = new Servo(ClimberConstants.DeviceIDs.kClimbServoTopID);
         servoBottom = new Servo(ClimberConstants.DeviceIDs.kClimbServoBottomID);
 
-        climbMotorBack.setControl(new StrictFollower(climbMotorFront.getDeviceID()));
+        // climbMotorBack.setControl(new Follower(climbMotorFront.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     /* ----------- Updaters ----------- */
 
-    public void setTopAxonAngle(double degrees) {
-        servoTop.setAngle(degrees);
-    }
-
-    public void setBottomAxonAngle(double degrees) {
-        servoBottom.setAngle(degrees);  
-    }
-
-    public void setTarget(double setpoint) {
-        climbMotorFront.setControl(controlRequest.withPosition(setpoint));
-    }
-
+    // didn't use this and I'm not sure if we should
+    // I think no
+    // public void setTarget(double setpoint) {
+    //     climbMotorFront.setControl(controlRequest.withPosition(setpoint));
+    // }
 
     public void resetEncoders() {
         climbMotorFront.setPosition(0);
-        climbMotorBack.setPosition(0);
+        // climbMotorBack.setPosition(0);
     }
 
     public void resetServos() {
@@ -146,14 +150,38 @@ public class ClimberSubsystem extends SubsystemBase {
         publishClimbLogs();
     }
 
-    public void applyStates() {
+    private void applyStates() {
         switch (currentState) {
             case STANDBY:
                 break;
             case EXTENDCLIMB:
-                break;
+                // Move the climb a specific distance based on the array
+                climbMotorFront.setControl(controlRequest.withPosition(climbDistances[currentClimb].get()));
+                if (Math.abs(climbDistances[currentClimb].get() - getMotorPosition())  < 0.05) {
+                    climbMotorFront.set(0);
+                    currentState = ClimberStates.GRABBAR;
+                }
+            case GRABBAR:
+                // Allow the servo to fully move down and latch on to the bar
+                servoTop.setAngle(90);
+                if (90 - servoTop.getAngle() < 0.05) {
+                    currentState = ClimberStates.RETRACTCLIMB;
+                }
             case RETRACTCLIMB:
-                break;
+                // retract the climb carry the bot up the bar
+                climbMotorFront.setControl(controlRequest.withPosition(0));
+                if (Math.abs(getMotorPosition())  < 0.05) {
+                    climbMotorFront.set(0);
+
+                    // possible location for adding bottom servo but it's not added yet so waitting
+
+                    // loop through states based on bars to move up
+                    currentClimb += 1;
+                    currentState = ClimberStates.EXTENDCLIMB;
+                    if (currentClimb >= barsToClimb.get()) {
+                        currentState = ClimberStates.STANDBY;
+                    }
+                }
             default:
                 break;
         }
