@@ -21,6 +21,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
@@ -64,8 +66,8 @@ public class TurretSubsystem extends SubsystemBase {
     // ========================= Configuration =========================
     
     // Physical limits (degrees) - 330° total range
-    private static final double MIN_ANGLE_DEG = -165.0;
-    private static final double MAX_ANGLE_DEG = 165.0;
+    private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    private static final double MAX_ANGLE_DEG = TurretConstants.TOTAL_ROTATION_DEGREES / 2;
     
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
@@ -236,7 +238,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Get current robot state
         Rotation2d robotAngle = drivetrain.getState().Pose.getRotation();
         ChassisSpeeds robotVelocity = drivetrain.getState().Speeds;
-        double robotOmegaRadPerSec = robotVelocity.omegaRadiansPerSecond;
+        double robotOmegaRadPerSec = robotVelocity.omegaRadiansPerSecond; //TODO: try lessening the robotVelocity.omegaRadiansPerSecond to see if it makes the turret rotate less when robot rotates
         
         // Convert field-relative goal to robot-relative
         Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.minus(robotAngle);
@@ -620,6 +622,10 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Reset motion profile on state change
         velocityLimiter.reset(Math.toRadians(getCurrentAngleDeg()));
+    }
+
+    public Command setStateCommand(TurretState state) {
+        return new InstantCommand(() -> setState(state));
     }
     
     /**

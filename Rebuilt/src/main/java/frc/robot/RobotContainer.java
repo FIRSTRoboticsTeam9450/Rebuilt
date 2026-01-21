@@ -27,6 +27,7 @@ import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
+import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.util.BezierCurve;
 
 
@@ -90,6 +91,11 @@ public class RobotContainer {
     // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
     // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
     
+    DRIVER.a().onTrue(
+        turretSub.setStateCommand(TurretState.AIMING)
+      ).onFalse(
+        turretSub.setStateCommand(TurretState.STORING)
+      );
     
     DRIVER.leftTrigger().onTrue(
       intakeSub.setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)

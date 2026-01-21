@@ -36,6 +36,12 @@ public final class Constants {
 
     public static final NeutralModeValue DEFAULT_NEUTRAL_MODE_VALUE = NeutralModeValue.Coast;
 
+    public static final class LEDConstants {
+      public static final class DeviceIDs {
+        public static final int kCANDleID = 40;
+      }
+    }
+
     public static final class ClimberConstants {
 
       public static final class DeviceIDs {

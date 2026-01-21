@@ -456,19 +456,19 @@ public class VisionSubsystem extends SubsystemBase {
             
             if (results != null) {
                 Logger.recordOutput("Rebuilt/Vision/" + name + "/Valid", results.valid);
-                Logger.recordOutput("Rebuilt/Vision/" + name + "/Tag Count", LimelightHelpers.getFiducialID(name));
+                Logger.recordOutput("Rebuilt/Vision/" + name + "/Priority Tag", LimelightHelpers.getFiducialID(name));
                 Logger.recordOutput("Rebuilt/Vision/" + name + "/Pipeline Latency", results.latency_pipeline);
                 Logger.recordOutput("Rebuilt/Vision/" + name + "/Capture Latency", results.latency_capture);
                 
                 // Get botpose data if available
                 double[] botpose = LimelightHelpers.getBotPose_wpiBlue(name);
                 if (botpose != null && botpose.length >= 6) {
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose X", botpose[0]);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose Y", botpose[1]);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose Z", botpose[2]);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose Roll", botpose[3]);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose Pitch", botpose[4]);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose Yaw", botpose[5]);
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/X", botpose[0]);
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Y", botpose[1]);
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Z", botpose[2]);
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Roll", botpose[3]);
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Pitch", botpose[4]);
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Yaw", botpose[5]);
                 }
                 
                 // Ambiguity for this camera
