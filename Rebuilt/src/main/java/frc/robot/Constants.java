@@ -8,6 +8,7 @@ import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -100,52 +101,42 @@ public final class Constants {
 
       public static final class FrontLeft {
         public static final String NAME = "limelight-fl";
-        public static final double LOCATION_X = 0;
-        public static final double LOCATION_Y = 0;
-        public static final double LOCATION_Z = 0;
-        public static final double PITCH = 0;
+        public static final double LOCATION_X = -0.2862961;
+        public static final double LOCATION_Y = 0.28271978;
+        public static final double LOCATION_Z = 0.21090128;
+        public static final double PITCH = 28.1;
         public static final double ROLL = 0;
-        public static final double YAW = 0;
+        public static final double YAW = 45;
       }
 
       public static final class FrontRight {
         public static final String NAME = "limelight-fr";
-        public static final double LOCATION_X = 0;
-        public static final double LOCATION_Y = 0;
-        public static final double LOCATION_Z = 0;
-        public static final double PITCH = 0;
+        public static final double LOCATION_X = 0.2862961;
+        public static final double LOCATION_Y = 0.28271978;
+        public static final double LOCATION_Z = 0.21090128;
+        public static final double PITCH = 28.1;
         public static final double ROLL = 0;
-        public static final double YAW = 0;
+        public static final double YAW = -45;
       }
 
       public static final class BackLeft {
         public static final String NAME = "limelight-bl";
-        public static final double LOCATION_X = 0;
-        public static final double LOCATION_Y = 0;
-        public static final double LOCATION_Z = 0;
+        public static final double LOCATION_X = -0.2862961;
+        public static final double LOCATION_Y = -0.28271978;
+        public static final double LOCATION_Z = 0.21090128;
         public static final double PITCH = 0;
         public static final double ROLL = 0;
-        public static final double YAW = 0;
+        public static final double YAW = 135;
       }
 
       public static final class BackRight {
         public static final String NAME = "limelight-br";
-        public static final double LOCATION_X = 0;
-        public static final double LOCATION_Y = 0;
-        public static final double LOCATION_Z = 0;
+        public static final double LOCATION_X = 0.2862961;
+        public static final double LOCATION_Y = -0.28271978;
+        public static final double LOCATION_Z = 0.21090128;
         public static final double PITCH = 0;
         public static final double ROLL = 0;
-        public static final double YAW = 0;
-      }
-
-      public static final class Pillar {
-        public static final String NAME = "limelight-pillar";
-        public static final double LOCATION_X = 0;
-        public static final double LOCATION_Y = 0;
-        public static final double LOCATION_Z = 0;
-        public static final double PITCH = 0;
-        public static final double ROLL = 0;
-        public static final double YAW = 0;
+        public static final double YAW = -135;
       }
 
     }

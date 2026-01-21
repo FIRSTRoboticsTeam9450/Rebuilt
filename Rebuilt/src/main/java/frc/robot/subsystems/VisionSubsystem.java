@@ -16,7 +16,6 @@ import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
-import frc.robot.Constants.RobotConstants.LimelightConstants.Pillar;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsAndyMark;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
 import frc.robot.subsystems.CommandSwerveDrivetrain;

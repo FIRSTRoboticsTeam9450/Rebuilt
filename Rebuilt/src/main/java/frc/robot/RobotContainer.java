@@ -19,8 +19,13 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.IntakeSubsystem.IntakePos;
+import frc.robot.subsystems.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.util.BezierCurve;
 
 
@@ -30,6 +35,8 @@ public class RobotContainer {
 
   public static TurretSubsystem turretSub = TurretSubsystem.getInstance();
   public static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
+  public static TransferSubsystem transferSub = TransferSubsystem.getInstance();
+  public static IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
 
   public BezierCurve driveBezier = new BezierCurve("drive", 117.4, 0.054, 91.4, 0.76, 0.1, 0.01);
   public BezierCurve rotateBezier = new BezierCurve("rotate", 120.1, 0.145, 92.2, 0.362, 0.035, 0.03);
@@ -76,13 +83,25 @@ public class RobotContainer {
         );
     
     // For tuning hood angle PID
-    DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
-    DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
+    // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
+    // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
     
-    DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
-    DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
+    // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
+    // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
     
     
+    DRIVER.leftTrigger().onTrue(
+      intakeSub.setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
+      .andThen(transferSub.setStateCommand(TransferState.RUN_IN))
+    ).onFalse(
+      intakeSub.setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
+      .andThen(transferSub.setStateCommand(TransferState.NO_RUN))
+    );
+
+    DRIVER.back().onTrue(
+      new InstantCommand(() -> intakeSub.zeroEncoders()).ignoringDisable(true)
+      );
+
   }
 
   public Command getAutonomousCommand() {

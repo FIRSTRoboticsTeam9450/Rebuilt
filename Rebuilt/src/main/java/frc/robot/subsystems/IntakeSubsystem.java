@@ -13,6 +13,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.*;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public final class IntakeSubsystem extends SubsystemBase{
@@ -41,19 +42,19 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-    private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 5);
-    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 5);
+    private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 45);
+    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 30);
     private LoggedNetworkNumber logMMJerk = new LoggedNetworkNumber("/Tuning/Intake/Angle/Jerk", 1000);
 
-    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0);
+    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.1);
     private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.33);
-    private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Intake/Angle/kA", 0.05);
-    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 0.01);
+    private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Intake/Angle/kA", 0);
+    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 25);
     private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Intake/Angle/kI", 0);
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0);
-    private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.05);
+    private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0);
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 7.435059);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 7.39209);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 6);
 
     //Motion Magic Set Up(Intake arm)
@@ -65,6 +66,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private void configureMotors() {
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
         motorConfig.MotionMagic.MotionMagicJerk = logMMJerk.get();
@@ -85,6 +87,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         //Configure intake motors
         TalonFXConfiguration IntakeConfig = new TalonFXConfiguration();
         IntakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        IntakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         motorWheels.getConfigurator().apply(IntakeConfig);
     }
@@ -101,11 +104,11 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case STORE:
-                motorArm.setControl(request.withPosition(0));
+                motorArm.setControl(request.withPosition(0.5));
                 break;
             
             case INTAKING:
-                motorArm.setControl(request.withPosition(logIntakeTarget.get())); //7.435059
+                motorArm.setControl(request.withPosition(logIntakeTarget.get()));
                 break;
         }
 
@@ -121,8 +124,12 @@ public final class IntakeSubsystem extends SubsystemBase{
     }
 
     private void publishLogs() {
+        Logger.recordOutput("Rebuilt/Intake/Angle/Current Pos", currentPos);
+
         Logger.recordOutput("Rebuilt/Intake/Angle/Position", motorArm.getPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Intake/Angle/Target", logIntakeTarget.get());
+        Logger.recordOutput("Rebuilt/Intake/Angle/Target", currentPos == IntakePos.INTAKING ? logIntakeTarget.get() : 0.5);
+        Logger.recordOutput("Rebuilt/Intake/Angle/Motor Voltage", motorArm.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Angle/Motor Velocity", motorArm.getVelocity().getValueAsDouble());
     }
 
     public void setPos(IntakePos pos) {
