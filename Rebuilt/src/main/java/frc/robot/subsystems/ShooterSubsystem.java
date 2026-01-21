@@ -17,11 +17,13 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
+import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -54,6 +56,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
+
+    private double hoodAngleMax = 0;
+    private double hoodAngleMin = 0;
+    private double degreesPerRev = HoodConstants.degreesPerMotorRev;
 
     // Motors
     private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
@@ -199,8 +205,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void publishLogs() {
-        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpoint", targetHoodHeight);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev);
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev);
+
         Logger.recordOutput("Rebuilt/Shooter/Hood/currentState", currentAngleState);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
@@ -288,14 +297,22 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double shootingHoodAngleFunction(double distance) {
-
-        return 0; //TODO: Change later when you get the equation
+        double wantedAngle = 16 * Math.log(distance - .03) + 3;
+        if(wantedAngle != MathUtil.clamp(wantedAngle, hoodAngleMin, hoodAngleMin)) {
+            System.out.println("DEBUGGING: Didn't use calculated angle: " + wantedAngle);
+        }
+        return MathUtil.clamp(wantedAngle, hoodAngleMin, hoodAngleMax);
     }
 
     public double ferryingHoodAngleFunction(double distance) {
 
         return 0; //TODO: Change later when you get the equation
     }
+
+    public double getHoodAngle() {
+        return angleMotor.getPosition().getValueAsDouble() * degreesPerRev;
+    }
+
     public boolean isAngleWithinTolerance() {
         return isAngleWithinTolerance(0.1);
     }
@@ -320,7 +337,8 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setOverrideHoodAngle(double targetHoodAngleOverride) {
-        this.targetHoodAngleOverride = targetHoodAngleOverride;
+        this.targetHoodAngleOverride = MathUtil.clamp((targetHoodAngleOverride / degreesPerRev), hoodAngleMin, hoodAngleMax);
+        
     }
 
     public void updateShooterConstants() {

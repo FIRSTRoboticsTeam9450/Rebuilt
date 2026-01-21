@@ -65,7 +65,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         Translation2d currentTarget = visionSub.getAdjustedCurrentTarget();
         Translation2d futureTarget = visionSub.getAdjustedFutureTarget(time);
         // return (turretSub.getTargetAngle(currentTarget) - turretSub.getTargetAngle(futureTarget))/time;
-        return -1; //TODO: gl curt :3
+        return -1; //TODO: make your method ryan >:)
     }
 
     public static CoordinationSubsystem getInstance() {
