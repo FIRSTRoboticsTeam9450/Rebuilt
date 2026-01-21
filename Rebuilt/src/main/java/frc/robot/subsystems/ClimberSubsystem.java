@@ -53,7 +53,7 @@ public class ClimberSubsystem extends SubsystemBase {
         new LoggedNetworkNumber("/Tuning/Climb/L1Climb", 0.0)
     };
 
-    private int currentClimb = 0;
+    private int climbCounter = 0;
 
     private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/MM/Velocity", 0.1);
     private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/MM/Acceleration", 1);
@@ -79,7 +79,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public enum ClimberStates {
         STANDBY,
         EXTENDCLIMB,
-        //GRABBAR,
+        REELING,
         RETRACTCLIMB    
     }
 
@@ -120,9 +120,9 @@ public class ClimberSubsystem extends SubsystemBase {
 
     /* ----------- Updaters ----------- */
 
-    // public void setTarget(double setpoint) {
-    //     climbMotorFront.setControl(controlRequest.withPosition(setpoint));
-    // }
+     public void setTarget(double setpoint) {
+         climbMotorFront.setControl(controlRequest.withPosition(setpoint));
+    }
 
     public void resetEncoders() {
         climbMotorFront.setPosition(0);
@@ -145,36 +145,28 @@ public class ClimberSubsystem extends SubsystemBase {
         publishClimbLogs();
     }
 
+    public boolean atTarget() {
+        atTarget = (Math.abs(climbDistances[climbCounter].get()) - getMotorPosition() < 0.05 && climbMotorFront.getVelocity().getValueAsDouble() < 0.1);
+        return atTarget;
+    }
+
     private void applyStates() {
         switch (currentState) {
             case STANDBY:
                 break;
             case EXTENDCLIMB:
                 // Move the climb a specific distance based on the array
-                climbMotorFront.setControl(controlRequest.withPosition(climbDistances[currentClimb].get()));
-                
-                //this isn't necessary, if you want to use this then don't use motionmagic
-                /*
-                if (Math.abs(climbDistances[currentClimb].get() - getMotorPosition())  < 0.05) {
-                    climbMotorFront.set(0);
-                    servoTop.setAngle(90);
-                    if (90 - servoTop.getAngle() < 0.05) {
+                setTarget(climbDistances[climbCounter].get());
+
+                if(atTarget() == true) {
+                    servoTop.set(90);
+
                     currentState = ClimberStates.RETRACTCLIMB;
                 }
-                }
-                */
                 
-            /*
-            case GRABBAR:
-                // Allow the servo to fully move down and latch on to the bar
-                servoTop.setAngle(90);
-                if (90 - servoTop.getAngle() < 0.05) {
-                    currentState = ClimberStates.RETRACTCLIMB;
-                }
-            */
             case RETRACTCLIMB:
                 // retract the climb carry the bot up the bar
-                climbMotorFront.setControl(controlRequest.withPosition(0));
+                setTarget(climbDistances[climbCounter].get());
                 /*
                 if (Math.abs(getMotorPosition())  < 0.05) {
                     climbMotorFront.set(0);
@@ -210,6 +202,7 @@ public class ClimberSubsystem extends SubsystemBase {
         if (climberInstance == null) {
             climberInstance = new ClimberSubsystem();
         }
+        System.out.println("acquired" + climberInstance); //temporary
 
         return climberInstance;
     }
