@@ -74,16 +74,16 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 15.0);
+        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 360);
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 30.0);
+        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720.0);
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 0.5);
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 400);
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.24);
-    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV", 0.33);
-    private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0.1);
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 5);
+    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV", 5);
+    private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 50);
     
     // Motor configuration
     private TalonFXConfiguration motorConfig;
@@ -280,6 +280,28 @@ public class TurretSubsystem extends SubsystemBase {
             fieldRelativeGoalAngle = angleToTarget;
             fieldRelativeGoalVelocityRadPerSec = 0.0;
         }
+    }
+
+    public double updateTargetFromMode(Translation2d targetPosition) {
+        double targetAngle = 0;
+
+        if (targetPosition != null) {
+            Pose2d robotPose = drivetrain.getState().Pose;
+            
+            // Calculate vector from robot to target
+            Translation2d robotToTarget = targetPosition.minus(robotPose.getTranslation());
+            
+            // Calculate angle to target
+            Rotation2d angleToTarget = new Rotation2d(
+                robotToTarget.getX(), 
+                robotToTarget.getY()
+            );
+            
+            // Update field-relative goal (target is stationary, so velocity = 0)
+            targetAngle = angleToTarget.getDegrees();
+        }
+
+        return targetAngle;
     }
     
     /**

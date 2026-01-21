@@ -87,14 +87,14 @@ public class VisionSubsystem extends SubsystemBase {
     private double visionStdDevTheta = 999.0;
 
     // Maximum allowed differences for fusion; if exceeded, fallback to higher confidence camera
-    private double maxTranslationDiff = 0.5; // meters
-    private double maxRotationDiff = Math.toRadians(10); // radians
+    private double maxTranslationDiff = 2.5; // meters
+    private double maxRotationDiff = Math.toRadians(45); // radians
 
     // Validation thresholds for pose filtering
     private static final double MAX_Z_THRESHOLD = 1000; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 0.1; // Vision yaw must match Pigeon within 0.01 degrees
+    private static final double MAX_YAW_DIFF_DEGREES = 1.0; // Vision yaw must match Pigeon within 0.01 degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
