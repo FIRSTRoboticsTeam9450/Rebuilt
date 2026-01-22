@@ -3,12 +3,10 @@ package frc.robot.subsystems;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.RGBWColor;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -43,7 +41,7 @@ public class TransferSubsystem extends SubsystemBase {
      * Constructor - initializes the transfer subsystem and configures the motor
      */
     private TransferSubsystem() {
-        configure();
+        configureMotor();
     }
 
     /**
@@ -58,14 +56,12 @@ public class TransferSubsystem extends SubsystemBase {
     /**
      * Configures the TalonFX motor
      */
-    private void configure() {
-        // Create config
+    private void configureMotor() {
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-        // Set motor direction
+        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         
-        // Apply config
         motor.getConfigurator().apply(motorConfig);
     }
 
@@ -74,10 +70,7 @@ public class TransferSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        // Execute current state logic
         applyState();
-
-        // Log telemetry data
         publishLogs();
     }
 
@@ -99,8 +92,6 @@ public class TransferSubsystem extends SubsystemBase {
                 voltageRequest.Output = 0;
                 break;
         }
-
-        // Apply voltage to motor
         motor.setControl(voltageRequest);
     }
 
@@ -109,24 +100,25 @@ public class TransferSubsystem extends SubsystemBase {
      * @param wantedState The desired state to transition to
      */
     public void setState(TransferState wantedState) {
-        // Set states
         previousState = currentState;
         currentState = wantedState;
     }
 
-    public Command setStateCommand(TransferState state) {
-        return new InstantCommand(() -> setState(state));
+    /**
+     * Get a command that sets the current state of the transfer
+     * @param wantedState The desired state to transition to
+     */
+    public Command setStateCommand(TransferState wantedState) {
+        return new InstantCommand(() -> setState(wantedState));
     }
 
     /**
      * Publishes telemetry data to AdvantageKit Logger
      */
     private void publishLogs() {
-        // Log state data
         Logger.recordOutput("Rebuilt/Transfer/Current State", currentState);
         Logger.recordOutput("Rebuilt/Transfer/Previous State", previousState);
 
-        // Log motor data
         Logger.recordOutput("Rebuilt/Transfer/Target Speed", voltageRequest.Output);
     }
 }
