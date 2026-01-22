@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.proto.ChassisSpeedsProto;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -91,10 +92,10 @@ public class VisionSubsystem extends SubsystemBase {
     private double maxRotationDiff = Math.toRadians(45); // radians
 
     // Validation thresholds for pose filtering
-    private static final double MAX_Z_THRESHOLD = 1000; // Robot must be on ground
+    private static final double MAX_Z_THRESHOLD = 1; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 1.0; // Vision yaw must match Pigeon within 0.01 degrees
+    private static final double MAX_YAW_DIFF_DEGREES = 5.0; // Vision yaw must match Pigeon within 0.01 degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -237,7 +238,7 @@ public class VisionSubsystem extends SubsystemBase {
             
             // Set standard deviations and add measurement
             drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
-            drivetrain.addVisionMeasurement(pose, lastVisionTimestamp);
+            drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
             
             Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
         });

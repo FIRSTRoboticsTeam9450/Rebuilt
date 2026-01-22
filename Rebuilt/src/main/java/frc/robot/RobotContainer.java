@@ -78,9 +78,9 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
     
@@ -91,11 +91,15 @@ public class RobotContainer {
     // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
     // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
     
-    DRIVER.a().onTrue(
-        turretSub.setStateCommand(TurretState.AIMING)
-      ).onFalse(
-        turretSub.setStateCommand(TurretState.STORING)
-      );
+    // DRIVER.a().onTrue(
+    //     turretSub.setStateCommand(TurretState.AIMING)
+    //   ).onFalse(
+    //     turretSub.setStateCommand(TurretState.STORING)
+    //   );
+
+    DRIVER.x().onTrue(new InstantCommand(() -> turretSub.testTargetSetpoint = -90));
+    DRIVER.a().onTrue(new InstantCommand(() -> turretSub.testTargetSetpoint = 0));
+    DRIVER.b().onTrue(new InstantCommand(() -> turretSub.testTargetSetpoint = 90));
     
     DRIVER.leftTrigger().onTrue(
       intakeSub.setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)

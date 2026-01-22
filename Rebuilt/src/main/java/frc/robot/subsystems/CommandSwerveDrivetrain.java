@@ -286,6 +286,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         Logger.recordOutput("Rebuilt/Drive/Pose 2D", getState().Pose);
+        Logger.recordOutput("Rebuilt/Drive/Pigeon Offset", RobotContainer.pigeonOffset);
     }
 
     private void startSimThread() {

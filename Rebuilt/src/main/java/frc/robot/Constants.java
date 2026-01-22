@@ -98,9 +98,8 @@ public final class Constants {
 
       public static final double TOTAL_ROTATION_DEGREES = 330;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
-      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1.5;
-      public static final double ABS_ENCDR_POS_TO_ANGLE = 480;
-
+      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1;
+      public static final double ABS_ENCDR_POS_TO_ANGLE = 360;
     }
     
     public static final class LimelightConstants {
@@ -156,16 +155,16 @@ public final class Constants {
     public static AprilTagFieldLayout FIELD_LAYOUT;
 
     static {
-      // FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2026Rebuilt);
-      // FIELD_LAYOUT.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+      FIELD_LAYOUT = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
+      FIELD_LAYOUT.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
     }
 
     /**
      * Ferry Poses are from blue alliance driver box perspective
      */
     public static final class ImportantFieldPoses {
-      public static final Translation2d RED_HUB_CENTER = new Translation2d(4.6256, 4.0345);
-      public static final Translation2d BLUE_HUB_CENTER = new Translation2d(11.9154, 4.0345);
+      public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
+      public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
       public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();
       public static final Translation2d BLUE_RIGHT_FERRY_TARGET = new Translation2d();
@@ -175,10 +174,6 @@ public final class Constants {
     }
 
     public static Pose3d getTag3dPose(int tagID) {
-      // if (tagID < AprilTagIDs.RED_LEFT_CORAL_STATION || tagID > AprilTagIDs.BLUE_REEF_LEFT_BARGE) {
-      //   throw new IllegalArgumentException("Error: Given Tag ID must be between 1 and 22 (inclusive).");
-      // }
-
       return FIELD_LAYOUT.getTagPose(tagID).orElseThrow(() -> {
         final String errorMsg = String.format("getTagPose called for unexpected tag, %d", tagID);
         return new RuntimeException(errorMsg);

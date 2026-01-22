@@ -60,6 +60,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final TalonFX turretMotor;
     private final CANcoder turretEncoder;
     private final CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
+    private final CoordinationSubsystem coordSub = RobotContainer.coordSub;
     
     private CommandXboxController driverController;
     
@@ -96,6 +97,8 @@ public class TurretSubsystem extends SubsystemBase {
      * Turret operating states.
      */
     public enum TurretState {
+        /** Go to a hand set target angle */
+        TESTING,
         /** Holding current position, no active tracking */
         IDLING,
         /** Actively tracking a field-relative target */
@@ -116,7 +119,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.STORING;
+    private TurretState currentState = TurretState.AIMING;
     private TurretState previousState = currentState;
     
     // Target management
@@ -144,6 +147,9 @@ public class TurretSubsystem extends SubsystemBase {
     // Control requests
     private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
     private final SimpleMotorFeedforward feedforward;
+
+    //Testing Stuff
+    public double testTargetSetpoint = 0;
     
     // ========================= Constructor =========================
     
@@ -247,16 +253,18 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Find best angle considering wrapping and limits
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
-        robotRelativeTargetVelocityDegPerSec = Math.toDegrees(robotRelativeGoalVelocityRadPerSec);
+        // robotRelativeTargetVelocityDegPerSec = Math.toDegrees(robotRelativeGoalVelocityRadPerSec);
+        // robotRelativeTargetVelocityDegPerSec = coordSub.getVelocityTurrent(0.02);
+        robotRelativeTargetVelocityDegPerSec = 0;
+
+        // Driver feedback for out-of-range targets
+        updateDriverFeedback();
         
         // Apply state machine
         applyState();
         
         // Publish telemetry
         publishLogs();
-        
-        // Driver feedback for out-of-range targets
-        updateDriverFeedback();
     }
     
     /**
@@ -314,8 +322,8 @@ public class TurretSubsystem extends SubsystemBase {
     private Translation2d getCurrentTargetPosition() {
         return switch (currentTargetMode) {
             case HUB -> FieldConstants.isBlueAlliance 
-                ? ImportantFieldPoses.BLUE_HUB_CENTER 
-                : ImportantFieldPoses.RED_HUB_CENTER;
+                ?  ImportantFieldPoses.BLUE_HUB_CENTER
+                :  ImportantFieldPoses.RED_HUB_CENTER;
             
             case FERRY -> FieldConstants.isBlueAlliance 
                 ? drivetrain.getState().Pose.getY() > 4.0345
@@ -334,6 +342,10 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void applyState() {
         switch (currentState) {
+            case TESTING:
+                turretMotor.setControl(positionRequest.withPosition(testTargetSetpoint / encoderToAngleMultiplier).withFeedForward(0));
+                break;
+
             case IDLING:
                 // Capture current position on state entry
                 if (stateNewlyChanged) {
