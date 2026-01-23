@@ -80,14 +80,14 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
     private static TurretSubsystem turretSub = RobotContainer.turretSub;
-    private static ShooterSubsystem shooterSub = RobotContainer.shooterSub;
+    private static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
 
     private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    private double visionStdDevX = 0.1;
-    private double visionStdDevY = 0.1;
+    private double visionStdDevX = 0.5;
+    private double visionStdDevY = 0.5;
     private double visionStdDevTheta = 999.0;
 
     // Maximum allowed differences for fusion; if exceeded, fallback to higher confidence camera
@@ -96,9 +96,9 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Validation thresholds for pose filtering
     private static final double MAX_Z_THRESHOLD = 1; // Robot must be on ground
-    private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
-    private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 5.0; // Vision yaw must match Pigeon within 0.01 degrees
+    private static final double MAX_PITCH_THRESHOLD = 10; // Robot must not be tilted forward/back
+    private static final double MAX_ROLL_THRESHOLD = 10; // Robot must not be tilted side-to-side
+    private static final double MAX_YAW_DIFF_DEGREES = 2.5; // Vision yaw must match Pigeon within 0.01 degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -488,6 +488,11 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/Faults/Drivetrain instance null?", drivetrain == null);
         Logger.recordOutput("Rebuilt/Vision/Faults/Limelight List Empty?", LIMELIGHT_LIST.isEmpty());
         Logger.recordOutput("Rebuilt/Vision/Faults/Limelight Count", LIMELIGHT_LIST.size());
+
+        // Current bot pose
+        Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
+        Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
+        Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
     }
 
     // -------------------------
@@ -526,7 +531,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Transform2d getCurrentBotPoseAllianceUnspecific() {
         Pose2d currentBluePose = drivetrain.getState().Pose;
-        if(DriverStation.getAlliance().equals(Alliance.Red)){
+        if(DriverStation.getAlliance().toString().equals("Optional[Red]")){
             return ZoneConstantsWelded.RED_CORNER.minus(currentBluePose);
         }
         return new Transform2d(currentBluePose.getTranslation(), currentBluePose.getRotation());

@@ -13,9 +13,12 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.GoToPosCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -97,9 +100,8 @@ public class RobotContainer {
     //     turretSub.setStateCommand(TurretState.STORING)
     //   );
 
-    DRIVER.x().onTrue(new InstantCommand(() -> turretSub.testTargetSetpoint = -90));
-    DRIVER.a().onTrue(new InstantCommand(() -> turretSub.testTargetSetpoint = 0));
-    DRIVER.b().onTrue(new InstantCommand(() -> turretSub.testTargetSetpoint = 90));
+    DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.192, 3.960, new Rotation2d(40))));
+    DRIVER.b().whileTrue(new GoToPosCommand(new Pose2d(2.28, 2.0, new Rotation2d(0))));
     
     DRIVER.leftTrigger().onTrue(
       intakeSub.setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)

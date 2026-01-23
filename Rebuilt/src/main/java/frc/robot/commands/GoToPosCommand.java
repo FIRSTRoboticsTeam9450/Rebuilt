@@ -9,7 +9,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
- * TODO: Vision needs to be fixed before this can be used
+ * <p> Blue-Origin </p>
+ * <p> Pose 2d
+ * <ul>
+ *   <li>X: Ending X</li>
+ *   <li>Y: Ending Y</li>
+ *   <li>Rotation: Ending rotation</li>
+ * </ul>
+ * </p>
  */
 public class GoToPosCommand extends Command{
 
@@ -17,28 +24,39 @@ public class GoToPosCommand extends Command{
 
     PathConstraints constraints;
 
+    Command pathfindingCommand;
+
     public GoToPosCommand(Pose2d targetPose) {
         this.targetPose = targetPose;
 
         constraints = new PathConstraints(
-            1, 1,
-            Units.degreesToRadians(540), Units.degreesToRadians(720) 
-            );
+            0.8, 0.5,
+            Units.degreesToRadians(90), Units.degreesToRadians(180) 
+        );
+
+        pathfindingCommand = AutoBuilder.pathfindToPose(
+            targetPose, 
+            constraints,
+            0.0
+        );
+
+        pathfindingCommand.initialize();
+        pathfindingCommand.execute();
     }
 
     @Override
     public void initialize() {
-        Command pathfindingCommand = AutoBuilder.pathfindToPose(
-            targetPose, 
-            constraints
-            );
-        
         CommandScheduler.getInstance().schedule(pathfindingCommand);
     }
 
     @Override
     public boolean isFinished() {
-        return true;
+        return false;
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        CommandScheduler.getInstance().cancel(pathfindingCommand);
     }
 
 }
