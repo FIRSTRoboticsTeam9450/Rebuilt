@@ -6,25 +6,25 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
+//import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
-import com.ctre.phoenix6.controls.Follower;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.StrictFollower;
-import com.ctre.phoenix6.hardware.CANcoder;
+//import com.ctre.phoenix6.controls.Follower;
+//import com.ctre.phoenix6.controls.MotionMagicVoltage;
+//import com.ctre.phoenix6.controls.StrictFollower;
+//import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
+//import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
-import com.google.flatbuffers.Constants;
+//import com.google.flatbuffers.Constants;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.units.measure.Distance;
+//import edu.wpi.first.math.controller.PIDController;
+//import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.Constants.RobotConstants.ClimberConstants;
+//import frc.robot.Constants.RobotConstants.ClimberConstants;
 
 
 public class ClimberSubsystem extends SubsystemBase {
@@ -53,8 +53,6 @@ public class ClimberSubsystem extends SubsystemBase {
         new LoggedNetworkNumber("/Tuning/Climb/L1Climb", 0.0)
     };
 
-    private int climbCounter = 0;
-
     private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/MM/Velocity", 0.1);
     private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/MM/Acceleration", 1);
     private LoggedNetworkNumber logMMJerk = new LoggedNetworkNumber("/Tuning/Climb/MM/Jerk", 1000);
@@ -68,6 +66,8 @@ public class ClimberSubsystem extends SubsystemBase {
     private TalonFXConfiguration climbConfig;
     boolean atTarget;
 
+    private int climbCounter;
+
     private DynamicMotionMagicVoltage controlRequest = 
                         new DynamicMotionMagicVoltage(0, 
                             logMMVelocity.get(), 
@@ -76,14 +76,19 @@ public class ClimberSubsystem extends SubsystemBase {
                             .withSlot(0);
     // MotionMagic type may change
 
-    public enum ClimberStates {
+    public enum ElevatorStates {
         STANDBY,
-        EXTENDCLIMB,
-        REELING,
-        RETRACTCLIMB    
+        EXTENDED,
+        RETRACTED
     }
 
-    private ClimberStates currentState = ClimberStates.STANDBY;
+    public enum HookStates {
+        EXTENDED,
+        RETRACTED
+    }
+
+    private ElevatorStates currentElevatorState = ElevatorStates.RETRACTED;
+    private HookStates currentHookState = HookStates.RETRACTED;
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
@@ -120,8 +125,13 @@ public class ClimberSubsystem extends SubsystemBase {
 
     /* ----------- Updaters ----------- */
 
-     public void setTarget(double setpoint) {
-         climbMotorFront.setControl(controlRequest.withPosition(setpoint));
+    public void setNumberofClimbs(int numClimbs) {
+        this.climbCounter = numClimbs;
+    }
+
+    public void setTarget(double setpoint) {
+         climbMotorFront.setControl(controlRequest.withPosition(setpoint) //in rotations
+                                                  .withVelocity(null)); //in rotations per second
     }
 
     public void resetEncoders() {
@@ -150,40 +160,47 @@ public class ClimberSubsystem extends SubsystemBase {
         return atTarget;
     }
 
+    public boolean endClimbSequence() {
+        return climbCounter == 0;
+    }
+
     private void applyStates() {
-        switch (currentState) {
+        switch (currentElevatorState) {
             case STANDBY:
                 break;
-            case EXTENDCLIMB:
+            case EXTENDED:
                 // Move the climb a specific distance based on the array
                 setTarget(climbDistances[climbCounter].get());
 
                 if(atTarget() == true) {
-                    servoTop.set(90);
-
-                    currentState = ClimberStates.RETRACTCLIMB;
+                    currentElevatorState = ElevatorStates.STANDBY;
                 }
                 
-            case RETRACTCLIMB:
+            case RETRACTED:
                 // retract the climb carry the bot up the bar
-                setTarget(climbDistances[climbCounter].get());
-                /*
-                if (Math.abs(getMotorPosition())  < 0.05) {
-                    climbMotorFront.set(0);
-
-                    // possible location for adding bottom servo but it's not added yet so waitting
-
-                    // loop through states based on bars to move up
-                    currentClimb += 1;
-                    currentState = ClimberStates.EXTENDCLIMB;
-                    if (currentClimb >= barsToClimb.get()) {
-                        currentState = ClimberStates.STANDBY;
+                setTarget(0); //retracted position
+                
+                if (atTarget() == true) {
+                    if(endClimbSequence()) {
+                        currentElevatorState = ElevatorStates.STANDBY;
                     }
+                    currentElevatorState = ElevatorStates.EXTENDED;
                 }
-                */
             default:
                 break;
         }
+
+        switch(currentHookState) {
+            case EXTENDED:
+                servoTop.setAngle(90);
+                break;
+
+            case RETRACTED:
+                servoTop.setAngle(0);
+
+            default:
+                break;
+            }
     }
 
     public double getTopServoAngle() {
