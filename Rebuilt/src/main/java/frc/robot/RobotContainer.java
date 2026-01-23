@@ -112,6 +112,7 @@ public class RobotContainer {
     );
 
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
+    DRIVER.x().onTrue(new ResetIMU(drivetrain));
 
     DRIVER.back().onTrue(
       new InstantCommand(() -> intakeSub.zeroEncoders()).ignoringDisable(true)

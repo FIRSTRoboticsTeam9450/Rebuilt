@@ -57,7 +57,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
-    private double hoodAngleMax = 0;
+    private double hoodAngleMax = 13.5;
     private double hoodAngleMin = 0;
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 15;
@@ -299,7 +299,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double hoodAngleFunction(double distance) {
         double wantedAngle = (-21/(distance + 0.7)) + 14.5;//Math.atan(51/distance); // Min distance away 4.5
-        if(wantedAngle != MathUtil.clamp(wantedAngle, hoodAngleMin, hoodAngleMin)) {
+        if(wantedAngle != MathUtil.clamp(wantedAngle, hoodAngleMin, hoodAngleMax)) {
             System.out.println("DEBUGGING: Didn't use calculated angle: " + wantedAngle);
         }
         return MathUtil.clamp(wantedAngle, hoodAngleMin, hoodAngleMax);

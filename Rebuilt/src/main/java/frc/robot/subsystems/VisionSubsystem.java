@@ -505,7 +505,7 @@ public class VisionSubsystem extends SubsystemBase {
      * Computes the distance from robot to a target pose.
      */
     public double getDistanceToTarget(Translation2d target) {
-        Pose2d drivePose = drivetrain.getState().Pose;
+        Pose2d drivePose = getCurrentBotPoseAllianceUnspecific();
         Transform2d tmpTransform = new Transform2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation());
         Transform2d currentPose = tmpTransform;
         if (currentPose == null) return Double.POSITIVE_INFINITY;
@@ -529,7 +529,7 @@ public class VisionSubsystem extends SubsystemBase {
         return translationRobotFrame;
     }
 
-    public Transform2d getCurrentBotPoseAllianceUnspecific() {
+    public Pose2d getCurrentBotPoseAllianceUnspecific() {
         Pose2d currentBluePose = drivetrain.getState().Pose;
         if(DriverStation.getAlliance().toString().equals("Optional[Red]")){
             return ZoneConstantsWelded.RED_CORNER.minus(currentBluePose);
@@ -539,14 +539,14 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public Translation2d getTargetRelativeToBot () {
-        Pose2d currentPose = drivetrain.getState().Pose;
+        Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
         Pose2d currentTargetPose = new Pose2d(currentTarget, new Rotation2d());
         return currentTargetPose.minus(currentPose).getTranslation();
     }
 
     public ChassisSpeeds getVelocityOfBot() {
         ChassisSpeeds speed = drivetrain.getState().Speeds;
-        Pose2d currentPose = drivetrain.getState().Pose;
+        Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
         return ChassisSpeeds.fromRobotRelativeSpeeds(drivetrain.getState().Speeds, currentPose.getRotation());
     }
 
@@ -573,7 +573,7 @@ public class VisionSubsystem extends SubsystemBase {
      */
     public Translation2d getAdjustedTarget(Translation2d givenTargetWRTBot, Translation2d lastTargetPose) {
         Translation2d targetWRTBot = givenTargetWRTBot;
-        Pose2d currentPose = drivetrain.getState().Pose;
+        Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
         ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
         ChassisSpeeds velocityRobotWRTField = ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, currentPose.getRotation());
         double timeToShoot = getTimeToShoot(targetWRTBot);
@@ -599,11 +599,11 @@ public class VisionSubsystem extends SubsystemBase {
      * @return
      */
     public Translation2d getAdjustedFutureTarget(double time) {
-        Pose2d currentPose = drivetrain.getState().Pose;
+        Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
         ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
         ChassisSpeeds velocityRobotWRTField = ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, currentPose.getRotation());
         
-        Pose2d futurePose = drivetrain.getState().Pose.plus(
+        Pose2d futurePose = getCurrentBotPoseAllianceUnspecific().plus(
             new Transform2d(new Translation2d(velocityRobotWRTField.vxMetersPerSecond * time, velocityRobotWRTField.vyMetersPerSecond * time),
             new Rotation2d(velocityRobotWRTField.omegaRadiansPerSecond * time)));
         Pose2d currentTargetPose = new Pose2d(currentTarget, new Rotation2d());
@@ -639,7 +639,7 @@ public class VisionSubsystem extends SubsystemBase {
      * Update which zone it's in and target it's in
      */
     public void updateTargetAndZone() {
-        Pose2d currentPose = drivetrain.getState().Pose;
+        Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
         double currentX = currentPose.getX();
         double currentY = currentPose.getY();
         if(currentX > ZoneConstantsAndyMark.MAJOR_ZONE_X_LOW && currentX < ZoneConstantsAndyMark.MAJOR_ZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MAJOR_ZONE_Y_LOW && currentY < ZoneConstantsAndyMark.MAJOR_ZONE_Y_HIGH) { // CHANGE DURING COMP TO WELDED
