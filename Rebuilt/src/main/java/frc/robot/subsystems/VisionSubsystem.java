@@ -488,6 +488,9 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/Faults/Drivetrain instance null?", drivetrain == null);
         Logger.recordOutput("Rebuilt/Vision/Faults/Limelight List Empty?", LIMELIGHT_LIST.isEmpty());
         Logger.recordOutput("Rebuilt/Vision/Faults/Limelight Count", LIMELIGHT_LIST.size());
+        
+        Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
+        Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
     }
 
     // -------------------------
@@ -527,8 +530,10 @@ public class VisionSubsystem extends SubsystemBase {
     public Pose2d getCurrentBotPoseAllianceUnspecific() {
         Pose2d currentBluePose = drivetrain.getState().Pose;
         if(DriverStation.getAlliance().toString().equals("Optional[Red]")){
-            Transform2d calculated = ZoneConstantsWelded.RED_CORNER.minus(currentBluePose);
-            return new Pose2d(calculated.getTranslation(), calculated.getRotation());
+            Pose2d redCorner = new Pose2d(new Translation2d(ZoneConstantsWelded.RED_CORNER.getX() - currentBluePose.getX(), ZoneConstantsWelded.RED_CORNER.getY() - currentBluePose.getY()), currentBluePose.getRotation());
+            return redCorner;
+            // Transform2d calculated = redCorner.minus(currentBluePose);
+            // return new Pose2d(calculated.getTranslation(), calculated.getRotation());
         }
         return currentBluePose;
         

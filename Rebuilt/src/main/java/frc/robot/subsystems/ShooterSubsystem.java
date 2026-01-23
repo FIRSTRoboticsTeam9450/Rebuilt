@@ -57,7 +57,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
-    private double hoodAngleMax = 0;
+    private double hoodAngleMax = 13.5;
     private double hoodAngleMin = 0;
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 15;
