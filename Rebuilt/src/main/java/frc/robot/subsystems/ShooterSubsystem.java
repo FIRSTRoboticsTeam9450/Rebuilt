@@ -60,6 +60,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double hoodAngleMax = 0;
     private double hoodAngleMin = 0;
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
+    private double degreesToZero = 15;
 
     // Motors
     private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
@@ -208,7 +209,7 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight);
         Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev);
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
 
         Logger.recordOutput("Rebuilt/Shooter/Hood/currentState", currentAngleState);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc);
@@ -297,7 +298,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double hoodAngleFunction(double distance) {
-        double wantedAngle = (-20/(distance + 0.6)) + 14;//Math.atan(51/distance); // Min distance away 4.5
+        double wantedAngle = (-21/(distance + 0.7)) + 14.5;//Math.atan(51/distance); // Min distance away 4.5
         if(wantedAngle != MathUtil.clamp(wantedAngle, hoodAngleMin, hoodAngleMin)) {
             System.out.println("DEBUGGING: Didn't use calculated angle: " + wantedAngle);
         }
@@ -305,7 +306,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double getHoodAngle() {
-        return angleMotor.getPosition().getValueAsDouble() * degreesPerRev;
+        return angleMotor.getPosition().getValueAsDouble() * degreesPerRev; // add + 15 if you want true angle
     }
 
     public boolean isAngleWithinTolerance() {

@@ -9,7 +9,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -71,7 +73,7 @@ public final class Constants {
       }
 
       public static final class HoodConstants {
-        public static final double degreesPerMotorRev = 0;
+        public static final double degreesPerMotorRev = 2.0571428571429;
       }
 
     }
@@ -204,6 +206,7 @@ public final class Constants {
 
     public static final class ZoneConstants {
       public static final class ZoneConstantsWelded {
+        public static final Pose2d RED_CORNER = new Pose2d(new Translation2d(8.069326, 16.54), new Rotation2d());
         public static final double MAJOR_ZONE_X_LOW = 0;
         public static final double MAJOR_ZONE_X_HIGH = 4.625594; // inches 182.11;
         public static final double MAJOR_ZONE_Y_LOW = 0;

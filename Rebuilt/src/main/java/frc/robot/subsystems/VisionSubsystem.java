@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.proto.ChassisSpeedsProto;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -18,6 +20,7 @@ import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsAndyMark;
+import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.LimelightHelpers;
@@ -521,6 +524,15 @@ public class VisionSubsystem extends SubsystemBase {
         return translationRobotFrame;
     }
 
+    public Transform2d getCurrentBotPoseAllianceUnspecific() {
+        Pose2d currentBluePose = drivetrain.getState().Pose;
+        if(DriverStation.getAlliance().equals(Alliance.Red)){
+            return ZoneConstantsWelded.RED_CORNER.minus(currentBluePose);
+        }
+        return new Transform2d(currentBluePose.getTranslation(), currentBluePose.getRotation());
+        
+    }
+
     public Translation2d getTargetRelativeToBot () {
         Pose2d currentPose = drivetrain.getState().Pose;
         Pose2d currentTargetPose = new Pose2d(currentTarget, new Rotation2d());
@@ -540,7 +552,12 @@ public class VisionSubsystem extends SubsystemBase {
     public Translation2d getCurrentTarget() {
         return currentTarget;
     }
-    
+    public Translation2d getAdjustCurrentTargetBlueAlliance() {
+        Translation2d currentTargetAllianceUnspecific = getAdjustedCurrentTarget();
+        Translation2d blueCorner = new Translation2d();
+        return currentTargetAllianceUnspecific;
+
+    }
     public Translation2d getAdjustedCurrentTarget() {
         lastAdjustedTargetPose = getAdjustedTarget(getTargetRelativeToBot(), lastAdjustedTargetPose);
         return lastAdjustedTargetPose;
