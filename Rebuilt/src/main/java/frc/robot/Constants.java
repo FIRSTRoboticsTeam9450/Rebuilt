@@ -206,7 +206,7 @@ public final class Constants {
 
     public static final class ZoneConstants {
       public static final class ZoneConstantsWelded {
-        public static final Pose2d RED_CORNER = new Pose2d(new Translation2d(8.069326, 16.54), new Rotation2d());
+        public static final Pose2d RED_CORNER = new Pose2d(new Translation2d(8.069326, 16.54), new Rotation2d(180));
         public static final double MAJOR_ZONE_X_LOW = 0;
         public static final double MAJOR_ZONE_X_HIGH = 4.625594; // inches 182.11;
         public static final double MAJOR_ZONE_Y_LOW = 0;
