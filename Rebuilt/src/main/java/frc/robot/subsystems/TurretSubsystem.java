@@ -73,7 +73,6 @@ public class TurretSubsystem extends SubsystemBase {
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
     private final double encoderToAngleMultiplier = TurretConstants.ABS_ENCDR_POS_TO_ANGLE;
-    private final double degreePerMotorRev = TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
@@ -415,13 +414,13 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void commandTurret(double positionDeg, double velocityDegPerSec, double accelerationDegPerSecSq) {
         // Convert degrees to motor rotations
-        double positionMotorRevs = positionDeg / degreePerMotorRev;
-        double velocityMotorRevsPerSec = velocityDegPerSec / degreePerMotorRev;
-        double accelerationMotorRevsPerSecSq = accelerationDegPerSecSq / degreePerMotorRev;
+        double positionMotorRevs = positionDeg;
+        double velocityMotorRevsPerSec = velocityDegPerSec;
+        double accelerationMotorRevsPerSecSq = accelerationDegPerSecSq;
         
         // Convert to encoder units (accounting for offset and encoder ratio)
         double positionEncoderRevs = 
-            (positionMotorRevs + (angleOffsetToZero / degreePerMotorRev)) / encoderToAngleMultiplier;
+            (positionMotorRevs + (angleOffsetToZero)) / encoderToAngleMultiplier;
         
         // Calculate feedforward voltage
         // FF = kS*sgn(v) + kV*v + kA*a
@@ -563,7 +562,7 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Velocity tracking
         Logger.recordOutput("Rebuilt/Turret/CurrentVelocityDegPerSec", 
-            turretMotor.getVelocity().getValueAsDouble() * degreePerMotorRev);
+            turretMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Turret/TargetVelocityDegPerSec", 
             robotRelativeTargetVelocityDegPerSec);
         

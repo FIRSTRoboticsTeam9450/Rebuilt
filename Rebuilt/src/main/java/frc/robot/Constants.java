@@ -100,7 +100,8 @@ public final class Constants {
 
       public static final double TOTAL_ROTATION_DEGREES = 330;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
-      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1;
+      /** Unused, just a spot that saves the data incase we need to quickly check it */
+      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1.5;
       public static final double ABS_ENCDR_POS_TO_ANGLE = 360;
     }
     
