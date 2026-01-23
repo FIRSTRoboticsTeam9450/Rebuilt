@@ -532,9 +532,12 @@ public class VisionSubsystem extends SubsystemBase {
     public Pose2d getCurrentBotPoseAllianceUnspecific() {
         Pose2d currentBluePose = drivetrain.getState().Pose;
         if(DriverStation.getAlliance().toString().equals("Optional[Red]")){
-            return ZoneConstantsWelded.RED_CORNER.minus(currentBluePose);
+            Pose2d redCorner = new Pose2d(new Translation2d(ZoneConstantsWelded.RED_CORNER.getX() - currentBluePose.getX(), ZoneConstantsWelded.RED_CORNER.getY() - currentBluePose.getY()), currentBluePose.getRotation());
+            return redCorner;
+            // Transform2d calculated = redCorner.minus(currentBluePose);
+            // return new Pose2d(calculated.getTranslation(), calculated.getRotation());
         }
-        return new Transform2d(currentBluePose.getTranslation(), currentBluePose.getRotation());
+        return currentBluePose;
         
     }
 
