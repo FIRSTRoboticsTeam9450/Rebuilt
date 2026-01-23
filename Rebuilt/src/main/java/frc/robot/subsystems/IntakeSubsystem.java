@@ -55,7 +55,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0);
 
     private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 7.39209);
-    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 6);
+    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 10);
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0);
