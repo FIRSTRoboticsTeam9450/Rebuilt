@@ -205,69 +205,69 @@ public final class Constants {
     public static final class ZoneConstants {
       public static final class ZoneConstantsWelded {
         public static final double MAJOR_ZONE_X_LOW = 0;
-        public static final double MAJOR_ZONE_X_HIGH = 182.11;
+        public static final double MAJOR_ZONE_X_HIGH = 4.625594; // inches 182.11;
         public static final double MAJOR_ZONE_Y_LOW = 0;
-        public static final double MAJOR_ZONE_Y_HIGH = 317.69;
+        public static final double MAJOR_ZONE_Y_HIGH = 8.06936; // inches 317.69;
 
-        public static final double MID_ZONE_X_LOW = 182.11;
-        public static final double MID_ZONE_X_HIGH = 651.22;
-        public static final double MID_ZONE_1_Y_LOW = 158.84;
-        public static final double MID_ZONE_1_Y_HIGH = 317.69;
+        public static final double MID_ZONE_X_LOW = MAJOR_ZONE_X_HIGH;//182.11;
+        public static final double MID_ZONE_X_HIGH = 16.540988; // inches 651.22;
+        public static final double MID_ZONE_1_Y_LOW = 4.034536; // inches 158.84;
+        public static final double MID_ZONE_1_Y_HIGH = 8.069326; // inches 317.69;
 
         public static final double MID_ZONE_2_Y_LOW = 0;
-        public static final double MID_ZONE_2_Y_HIGH = 158.84;
+        public static final double MID_ZONE_2_Y_HIGH = MID_ZONE_1_Y_LOW;//158.84;
 
-        public static final double MID_ZONE_2_DEADZONE_Y_LOW = 0;
-        public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 0;
+        public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.437636;
+        public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.631436;
 
-        public static final double TRENCH_12_DEADZONE_X_LOW = 0;
-        public static final double TRENCH_12_DEADZONE_X_HIGH = 0;
-        public static final double TRENCH_1_DEADZONE_Y_LOW = 0;
-        public static final double TRENCH_1_DEADZONE_Y_HIGH = 0;
+        public static final double TRENCH_12_DEADZONE_X_LOW = 4.549394; // Currently just covering the trench, no extra deadzone area
+        public static final double TRENCH_12_DEADZONE_X_HIGH = 4.701794;
+        public static final double TRENCH_1_DEADZONE_Y_LOW = 6.37203;
+        public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.069326;
 
         public static final double TRENCH_2_DEADZONE_Y_LOW = 0;
-        public static final double TRENCH_2_DEADZONE_Y_HIGH = 0;
+        public static final double TRENCH_2_DEADZONE_Y_HIGH = 1.6970375;
 
-        public static final double TRENCH_34_DEADZONE_X_LOW = 0;
-        public static final double TRENCH_34_DEADZONE_X_HIGH = 0;
-        public static final double TRENCH_3_DEADZONE_Y_LOW = 0;
-        public static final double TRENCH_3_DEADZONE_Y_HIGH = 0;
+        public static final double TRENCH_34_DEADZONE_X_LOW = 11.839194;
+        public static final double TRENCH_34_DEADZONE_X_HIGH = 11.99;
+        public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
+        public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
 
         public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
-        public static final double TRENCH_4_DEADZONE_Y_HIGH = 0;
+        public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
       }
       public static final class ZoneConstantsAndyMark {
         public static final double MAJOR_ZONE_X_LOW = 0;
-        public static final double MAJOR_ZONE_X_HIGH = 181.56;
+        public static final double MAJOR_ZONE_X_HIGH = 4.611624; // inches 181.56;
         public static final double MAJOR_ZONE_Y_LOW = 0;
-        public static final double MAJOR_ZONE_Y_HIGH = 316.65;
+        public static final double MAJOR_ZONE_Y_HIGH = 8.04291; // inches 316.65;
 
-        public static final double MID_ZONE_X_LOW = 181.56;
-        public static final double MID_ZONE_X_HIGH = 650.12;
-        public static final double MID_ZONE_1_Y_LOW = 158.32;
-        public static final double MID_ZONE_1_Y_HIGH = 316.64;
+        public static final double MID_ZONE_X_LOW = MAJOR_ZONE_X_HIGH; //181.56;
+        public static final double MID_ZONE_X_HIGH = 16.513048; //650.12;
+        public static final double MID_ZONE_1_Y_LOW = 4.021328; //158.32;
+        public static final double MID_ZONE_1_Y_HIGH = 8.042656; //316.64;
 
         public static final double MID_ZONE_2_Y_LOW = 0;
-        public static final double MID_ZONE_2_Y_HIGH = 158.32;
+        public static final double MID_ZONE_2_Y_HIGH = MID_ZONE_1_Y_LOW; //158.32;
 
-        public static final double MID_ZONE_2_DEADZONE_Y_LOW = 0;
-        public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 0;
+        public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.424428;
+        public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.618228;
 
-        public static final double TRENCH_12_DEADZONE_X_LOW = 0;
-        public static final double TRENCH_12_DEADZONE_X_HIGH = 0;
-        public static final double TRENCH_1_DEADZONE_Y_LOW = 0;
-        public static final double TRENCH_1_DEADZONE_Y_HIGH = 0;
+        public static final double TRENCH_12_DEADZONE_X_LOW = 4.535424;
+        public static final double TRENCH_12_DEADZONE_X_HIGH = 4.687824;
+        public static final double TRENCH_1_DEADZONE_Y_LOW = 6.3456185;
+        public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.042656;
 
         public static final double TRENCH_2_DEADZONE_Y_LOW = 0;
-        public static final double TRENCH_2_DEADZONE_Y_HIGH = 0;
+        public static final double TRENCH_2_DEADZONE_Y_HIGH = 1.6970375;
 
-        public static final double TRENCH_34_DEADZONE_X_LOW = 0;
-        public static final double TRENCH_34_DEADZONE_X_HIGH = 0;
-        public static final double TRENCH_3_DEADZONE_Y_LOW = 0;
-        public static final double TRENCH_3_DEADZONE_Y_HIGH = 0;
+        public static final double TRENCH_34_DEADZONE_X_LOW = 11.825224;
+        public static final double TRENCH_34_DEADZONE_X_HIGH = 11.977624;
+        public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
+        public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
 
         public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
-        public static final double TRENCH_4_DEADZONE_Y_HIGH = 0;
+        public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
       }
       public static final class ZoneTargets {
         public static final Translation2d SHOOTING_TARGET = null; // TODO: Put in proper targets
