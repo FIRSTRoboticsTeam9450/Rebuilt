@@ -265,15 +265,15 @@ public class ShooterSubsystem extends SubsystemBase {
         if(!isOverrideAngle) {
             switch (coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
-                    targetHoodHeight = shootingHoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
                     break;
                     
                 case FERRY_ZONE_TOP:
-                    targetHoodHeight = ferryingHoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
                     break; 
                     
                 case FERRY_ZONE_BOTTOM:
-                    targetHoodHeight = ferryingHoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
                     break;
                 case TRENCH_DEADZONE:
                     targetHoodHeight = 0;
@@ -296,17 +296,12 @@ public class ShooterSubsystem extends SubsystemBase {
         return ferryingDistanceToTime.get(distance);
     }
 
-    public double shootingHoodAngleFunction(double distance) {
-        double wantedAngle = 16 * Math.log(distance - .03) + 3;
+    public double hoodAngleFunction(double distance) {
+        double wantedAngle = (-20/(distance + 0.6)) + 14;//Math.atan(51/distance); // Min distance away 4.5
         if(wantedAngle != MathUtil.clamp(wantedAngle, hoodAngleMin, hoodAngleMin)) {
             System.out.println("DEBUGGING: Didn't use calculated angle: " + wantedAngle);
         }
         return MathUtil.clamp(wantedAngle, hoodAngleMin, hoodAngleMax);
-    }
-
-    public double ferryingHoodAngleFunction(double distance) {
-
-        return 0; //TODO: Change later when you get the equation
     }
 
     public double getHoodAngle() {
