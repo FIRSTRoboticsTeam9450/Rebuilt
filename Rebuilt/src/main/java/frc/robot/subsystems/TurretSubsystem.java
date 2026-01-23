@@ -97,6 +97,8 @@ public class TurretSubsystem extends SubsystemBase {
      * Turret operating states.
      */
     public enum TurretState {
+        /** Do nothing, sit there and look pretty */
+        DISABLED,
         /** Go to a hand set target angle */
         TESTING,
         /** Holding current position, no active tracking */
@@ -119,7 +121,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.AIMING;
+    private TurretState currentState = TurretState.DISABLED;
     private TurretState previousState = currentState;
     
     // Target management
@@ -342,6 +344,10 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void applyState() {
         switch (currentState) {
+            case DISABLED:
+                turretMotor.stopMotor();
+                break;
+
             case TESTING:
                 turretMotor.setControl(positionRequest.withPosition(testTargetSetpoint / encoderToAngleMultiplier).withFeedForward(0));
                 break;
