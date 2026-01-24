@@ -19,18 +19,16 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
 
-public final class ShooterSubsystem extends SubsystemBase {
+public class ShooterSubsystem extends SubsystemBase {
 
-    private static volatile ShooterSubsystem instance;
+    private static ShooterSubsystem instance;
 
     // States
     public enum AngleState {
@@ -47,26 +45,19 @@ public final class ShooterSubsystem extends SubsystemBase {
         SHOOTING,
         RAMP_UP,
         NOT_SHOOTING,
-        OVERRIDE
 
     }
 
     // Other subsystems
-    // private CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
-    private VisionSubsystem visionSub = VisionSubsystem.getInstance();
-
-    private Timer timer = new Timer();
-    private boolean startTime = true;
+    private CoordinationSubsystem coordSub; // = RobotContainer.coordSub;
+    private VisionSubsystem visionSub; // = RobotContainer.visionSub;
 
     private AngleState currentAngleState = AngleState.STORING;
-    private ShooterState currentShooterState = ShooterState.SHOOTING;
-    private ShooterState prevShooterState = null;
+    private ShooterState currentShooterState = ShooterState.NOT_SHOOTING;
 
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
-    private LoggedNetworkNumber logTuningShooterVelocity = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Velocity", 10);
-    private double overrideTargetVeloc = logTuningShooterVelocity.get();
 
     private double hoodAngleMax = 13.5;
     private double hoodAngleMin = 0;
@@ -98,7 +89,7 @@ public final class ShooterSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logHoodMMKD = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kD", 0);
     private LoggedNetworkNumber logHoodMMKG = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kG", 0);
     private DynamicMotionMagicVoltage hoodMMRequest;
-    
+
     // Shooter Outtake Velocity Motion Magic Parameters
     private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0);
     private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.15);
@@ -112,11 +103,11 @@ public final class ShooterSubsystem extends SubsystemBase {
     private final MotionMagicVelocityVoltage outtakeVRequest;
 
     // Tuning velocity table
-    // private LoggedNetworkBoolean logIsTuningShooterVelocity = new LoggedNetworkBoolean("/Tuning/Shooter/Outtake/TuningShooterVelocity?", false);
+    private LoggedNetworkNumber logTuningShooterVelocity = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Velocity", 40);
+    private LoggedNetworkBoolean logIsTuningShooterVelocity = new LoggedNetworkBoolean("/Tuning/Shooter/Outtake/TuningShooterVelocity?", false);
     
     // Flags
-    // private boolean isTuningShooterVelocity = false;//logIsTuningShooterVelocity.get();
-    
+    private boolean isTuningShooterVelocity = logIsTuningShooterVelocity.get();
     private boolean isOverrideAngle = false;
     private boolean isZeroingDone = false;
 
@@ -159,15 +150,15 @@ public final class ShooterSubsystem extends SubsystemBase {
                                                                .withMotionMagicJerk(logHoodMMJerk.get());
         angleMotorConfig.MotionMagic = mmConfigs;
 
-        // angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        // angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        // angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 4.530273; // Hood angle limit
-        // angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
+        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 4.530273; // Hood angle limit
+        angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
 
         angleMotor.getConfigurator().apply(angleMotorConfig);
     }
 
-    private void configureShooterMotors() {
+   private void configureShooterMotors() {
         shooterMotorsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
@@ -197,21 +188,22 @@ public final class ShooterSubsystem extends SubsystemBase {
         shooterRightMotor.setControl(new StrictFollower(shooterLeftMotor.getDeviceID()));
     }
 
+    // public boolean zeroEncoder() {
+    //     if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
+    //         angleMotor.setPosition(0);
+    //         angleMotor.setVoltage(0);
+    //         currentAngleState = AngleState.STORING;
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
     public void zeroEncoder() {
-        // if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
-        //     angleMotor.setPosition(0);
-        //     angleMotor.setVoltage(0);
-        //     currentAngleState = AngleState.STORING;
-        //     return true;
-        // }
         angleMotor.setPosition(0);
-        
-        // return false;
     }
 
     @Override
     public void periodic() {
-        // System.out.println(currentShooterState + " periodic current shooter state");
         // if (!isZeroingDone) {
         //     currentAngleState = AngleState.ZEROING;
         //     isZeroingDone = zeroEncoder();
@@ -236,15 +228,12 @@ public final class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Hood/Overriding hood", isOverrideAngle);
 
         Logger.recordOutput("Rebuilt/Shooter/Outtake/TargetOverrideVelocity", logTuningShooterVelocity.get());
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/Tuning?", isTuningShooterVelocity);
 
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Right motor voltage", shooterRightMotor.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/Check why", overrideTargetVeloc != logTuningShooterVelocity.get());
+        // Logger.recordOutput("Rebuilt/Shooter/Outtake/Check why", overrideTargetVeloc != logTuningShooterVelocity.get());
 
-        
-
-        // System.out.println(currentShooterState + " Publish logs current shooter state");
-        
         
         
     }
@@ -256,11 +245,6 @@ public final class ShooterSubsystem extends SubsystemBase {
                 break;
             case NOT_SHOOTING:
                 shooterLeftMotor.setVoltage(0);
-                break;
-            case OVERRIDE:
-                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(logTuningShooterVelocity.get()));
-                break;
-
             default:
                 break;
         }
@@ -270,14 +254,13 @@ public final class ShooterSubsystem extends SubsystemBase {
                 break;
             case TRENCH:
                 angleMotor.setControl(hoodMMRequest.withPosition(0));
-                break;
             default:
                 break;
         }
-        // System.out.println(currentShooterState + " ApplyState current shooter state");
     }
 
     public double getShooterVeloc() {
+        if(!isTuningShooterVelocity) {
             // switch (coordSub.getCurrentZone()) {
             //     case SHOOTING_ZONE:
             //         targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
@@ -295,6 +278,10 @@ public final class ShooterSubsystem extends SubsystemBase {
             //     default:
             //         break;
             // }
+        }
+        else {
+            targetShooterVeloc = logTuningShooterVelocity.get();
+        }
         return targetShooterVeloc;
     }
 
@@ -367,9 +354,9 @@ public final class ShooterSubsystem extends SubsystemBase {
     public void setOverrideModeAngle(boolean isOverrideAngle) {
         this.isOverrideAngle = isOverrideAngle;
     }
-    // public void setOverrideModeShooter() {
-    //     this.isTuningShooterVelocity = true;
-    // }
+    public void setOverrideModeShooter() {
+        this.isTuningShooterVelocity = true;
+    }
 
     public void setOverrideHoodAngle(double targetHoodAngleOverride) {
         this.targetHoodAngleOverride = MathUtil.clamp((targetHoodAngleOverride / degreesPerRev), hoodAngleMin, hoodAngleMax);
@@ -380,6 +367,7 @@ public final class ShooterSubsystem extends SubsystemBase {
         boolean updateOuttakeVals = false;
         boolean updateAngleVals = false;
         boolean updateSetpoints = false;
+
         // double lVVSVal = logVelocitySetpoint.get(); //Uncomment for velocity tuning
         //double lVoltageSetpoint = logVoltageSetpoint.get(); Uncomment for voltage tuning
         
@@ -387,7 +375,7 @@ public final class ShooterSubsystem extends SubsystemBase {
         // updateSetpoints = (distanceAway != lDistanceAway)
         //                 // || (velocitySetpoint != lVVSVal)  // Uncomment for velocity tuning
         //                 //|| (voltageSetpoint != lVoltageSetpoint) Uncomment for voltage tuning
-        //                 ;q
+        //                 ;
         // if(updateSetpoints) {
         // distanceAway = lDistanceAway;
         // changeOnce = true;
@@ -395,15 +383,10 @@ public final class ShooterSubsystem extends SubsystemBase {
         // velocitySetpoint = lVVSVal;  // Uncomment for velocity tuning
 
         //}
-        // updateSetpoints = (isTuningShooterVelocity != logIsTuningShooterVelocity.get());
-        // if(updateSetpoints) {
-        //     isTuningShooterVelocity = logIsTuningShooterVelocity.get();
-        // }
-        // if(overrideTargetVeloc != logTuningShooterVelocity.get()) {
-        //     System.out.println("GETS HERE YAYYYYYY");
-        //     overrideTargetVeloc = logTuningShooterVelocity.get();
-        //     System.out.println(overrideTargetVeloc + " WHYYYYYYYYYY");
-        // }
+        updateSetpoints = (isTuningShooterVelocity != logIsTuningShooterVelocity.get());
+        if(updateSetpoints) {
+            isTuningShooterVelocity = logIsTuningShooterVelocity.get();
+        }
 
         updateOuttakeVals = (shooterMotorsConfig.Slot0.kS != logOuttakeVKS.get())
                     || (shooterMotorsConfig.Slot0.kV != logOuttakeVKV.get())
@@ -463,29 +446,20 @@ public final class ShooterSubsystem extends SubsystemBase {
      * @param wantedAngleState
      */
     public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
-        // prevShooterState = currentShooterState;
-        // if(startTime) {
-        //     timer.restart();
-        //     startTime = false;
-        // }
-        // if(timer.get() > 10) {
-        System.out.println("GOT HERE SHOOTER STATE CHANGED" + wantedShooterState);
         currentShooterState = wantedShooterState;
         currentAngleState = wantedAngleState;
-        startTime = true;
-
-        // }
-        // System.out.println(timer.get() + " TIME");
     }
 
-    public Command setStateCommand(ShooterState shooterState) {
-        return new InstantCommand(() -> setState(shooterState, currentAngleState));
-    }
-
-    public static synchronized ShooterSubsystem getInstance() {
+    public static ShooterSubsystem getInstance() {
         if(instance == null) {
             instance = new ShooterSubsystem();
+            instance.initizalize();
+            System.out.println("New shooter instance: " + instance.toString());
         }
         return instance;
+    }
+    public void initizalize() {
+        visionSub = VisionSubsystem.getInstance();
+        coordSub = CoordinationSubsystem.getInstance();
     }
 }

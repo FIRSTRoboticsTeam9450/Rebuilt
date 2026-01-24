@@ -60,7 +60,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final TalonFX turretMotor;
     private final CANcoder turretEncoder;
     private final CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
-    private final CoordinationSubsystem coordSub = RobotContainer.coordSub;
+    private CoordinationSubsystem coordSub; // = RobotContainer.coordSub;
     
     private CommandXboxController driverController;
     
@@ -800,7 +800,12 @@ public class TurretSubsystem extends SubsystemBase {
     public static TurretSubsystem getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new TurretSubsystem();
+            INSTANCE.initizalize();
         }
         return INSTANCE;
+    }
+
+    public void initizalize() {
+        coordSub = CoordinationSubsystem.getInstance();
     }
 }

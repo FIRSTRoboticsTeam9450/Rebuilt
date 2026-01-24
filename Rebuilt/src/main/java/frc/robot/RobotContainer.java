@@ -122,8 +122,8 @@ public class RobotContainer {
     //   .andThen(transferSub.setStateCommand(TransferState.NO_RUN))
     //);
 
-    DRIVER.y().onTrue(
-      shooterSub.setStateCommand(ShooterState.OVERRIDE));
+    // DRIVER.y().onTrue(
+    //   shooterSub.setStateCommand(ShooterState.OVERRIDE));
     // ).onFalse(
     //   shooterSub.setStateCommand(ShooterState.NOT_SHOOTING)
     // );
