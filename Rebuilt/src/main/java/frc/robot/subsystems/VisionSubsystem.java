@@ -500,6 +500,8 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
         Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
         Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
+        Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
+        Logger.recordOutput("Rebuilt/Vision/CurrentTarget", new Pose2d(currentTarget, new Rotation2d()));
     }
 
     // -------------------------
@@ -512,12 +514,13 @@ public class VisionSubsystem extends SubsystemBase {
      * Computes the distance from robot to a target pose.
      */
     public double getDistanceToTarget(Translation2d target) {
-        Pose2d drivePose = getCurrentBotPoseAllianceUnspecific();
-        Transform2d tmpTransform = new Transform2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation());
-        Transform2d currentPose = tmpTransform;
-        if (currentPose == null) return Double.POSITIVE_INFINITY;
-        lastTargetPose = target;
-        return currentPose.getTranslation().getDistance(target);
+        // Pose2d drivePose = getCurrentBotPoseAllianceUnspecific();
+        // Transform2d tmpTransform = new Transform2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation());
+        // Transform2d currentPose = tmpTransform;
+        // if (currentPose == null) return Double.POSITIVE_INFINITY;
+        // lastTargetPose = target;
+        return Math.sqrt(Math.pow(target.getX(), 2) + Math.pow(target.getY(), 2));
+        // return currentPose.getTranslation().getDistance(target);
     }
     
     /**
@@ -632,12 +635,12 @@ public class VisionSubsystem extends SubsystemBase {
      */
     public double getTimeToShoot(Translation2d target) {
         double timeToShoot = 0;
-        if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
-            timeToShoot = shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
-        }
-        else if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
-            timeToShoot = shooterSub.getShootingDistanceToTime(getDistanceToTarget(target));
-        }
+        // if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
+        //     timeToShoot = shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
+        // }
+        // else if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
+        //     timeToShoot = shooterSub.getShootingDistanceToTime(getDistanceToTarget(target));
+        // }
         return timeToShoot;
     }
 
