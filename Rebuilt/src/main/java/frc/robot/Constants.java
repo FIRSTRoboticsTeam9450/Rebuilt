@@ -195,6 +195,13 @@ public final class Constants {
      */
     public static final class TrenchManeuvering {
 
+      public static enum TrenchLocationWRTBlueOrigin {
+        CLOSE_LEFT,
+        CLOSE_RIGHT,
+        FAR_LEFT,
+        FAR_RIGHT
+      }
+      
       public static final Translation2d trenchOne = new Translation2d(3.618, 7.435);
       public static final Translation2d trenchTwo = new Translation2d(5.618, 7.435);
       public static final Translation2d trenchThree = new Translation2d(3.618, 0.627);

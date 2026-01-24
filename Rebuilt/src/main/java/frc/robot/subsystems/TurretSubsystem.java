@@ -146,7 +146,7 @@ public class TurretSubsystem extends SubsystemBase {
     private double profiledSetpointDeg = 0.0;
     
     // Control requests
-    private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);;
+    private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private final SimpleMotorFeedforward feedforward;
 
     //Testing Stuff

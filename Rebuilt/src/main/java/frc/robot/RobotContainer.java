@@ -25,12 +25,12 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ShooterSubsystem.AngleState;
+import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
-import frc.robot.subsystems.ShooterSubsystem.AngleState;
-import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.util.BezierCurve;
@@ -90,28 +90,43 @@ public class RobotContainer {
         );
     
     // For tuning hood angle PID
+    // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
+    // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
+    
+    // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
+    // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
+   
+
+    // DRIVER.a().onTrue(
+    //     turretSub.setStateCommand(TurretState.AIMING)
+    //   ).onFalse(
+    //     turretSub.setStateCommand(TurretState.STORING)
+    //   );
+
+    // For tuning hood angle PID
     DRIVER.povUp().onTrue(
       new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3))
-    .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))
-    .andThen(transferSub.setStateCommand(TransferState.RUN_IN))));
+    .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
     DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
     
     DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
     DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
 
+    // DRIVER.rightTrigger().onTrue(
+    //   new InstantCommand(() -> shooterSub.setState(ShooterState.SHOOTING, AngleState.AIMING))
+    //   .andThen(transferSub.setStateCommand(TransferState.RUN_IN))
+    // ).onFalse(
+    //   new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING))
+    //   .andThen(transferSub.setStateCommand(TransferState.NO_RUN))
+    //);
+
     DRIVER.rightTrigger().onTrue(
-      new InstantCommand(() -> shooterSub.setState(ShooterState.SHOOTING, AngleState.AIMING))
-      .andThen(transferSub.setStateCommand(TransferState.RUN_IN))
-      ).onFalse(
-      new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING))
-      .andThen(transferSub.setStateCommand(TransferState.NO_RUN)));
+      shooterSub.setStateCommand(ShooterState.OVERRIDE)
+    ).onFalse(
+      shooterSub.setStateCommand(ShooterState.NOT_SHOOTING)
+    );
       
-    // DRIVER.a().onTrue(
-    //     turretSub.setStateCommand(TurretState.AIMING)
-    //   ).onFalse(
-    //     turretSub.setStateCommand(TurretState.STORING)
-    //   );
 
     DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.192, 3.960, new Rotation2d(40))));
     DRIVER.b().whileTrue(new GoToPosCommand(new Pose2d(2.28, 2.0, new Rotation2d(0))));
@@ -125,10 +140,13 @@ public class RobotContainer {
     );
 
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
-    DRIVER.x().onTrue(new ResetIMU(drivetrain));
 
     DRIVER.back().onTrue(
       new InstantCommand(() -> intakeSub.zeroEncoders()).ignoringDisable(true)
+      );
+
+    DRIVER.x().onTrue(
+      new InstantCommand(() -> shooterSub.zeroEncoder()).ignoringDisable(true)
       );
 
   }
