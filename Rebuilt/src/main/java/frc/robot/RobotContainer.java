@@ -42,6 +42,13 @@ import frc.robot.util.BezierCurve;
 public class RobotContainer {
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   public final static VisionSubsystem vision = VisionSubsystem.getInstance();
+  public final static CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
+
+  public static TurretSubsystem turretSub = TurretSubsystem.getInstance();
+  public static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
+  public static TransferSubsystem transferSub = TransferSubsystem.getInstance();
+  public static IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
+
 
 
   public BezierCurve driveBezier = new BezierCurve("drive", 117.4, 0.054, 91.4, 0.76, 0.1, 0.01);
