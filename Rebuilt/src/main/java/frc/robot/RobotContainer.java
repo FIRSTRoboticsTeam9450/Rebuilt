@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.GoToPosCommand;
 import frc.robot.commands.ResetIMU;
@@ -121,11 +122,11 @@ public class RobotContainer {
     //   .andThen(transferSub.setStateCommand(TransferState.NO_RUN))
     //);
 
-    DRIVER.rightTrigger().onTrue(
-      shooterSub.setStateCommand(ShooterState.OVERRIDE)
-    ).onFalse(
-      shooterSub.setStateCommand(ShooterState.NOT_SHOOTING)
-    );
+    DRIVER.y().onTrue(
+      shooterSub.setStateCommand(ShooterState.OVERRIDE));
+    // ).onFalse(
+    //   shooterSub.setStateCommand(ShooterState.NOT_SHOOTING)
+    // );
       
 
     DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.192, 3.960, new Rotation2d(40))));

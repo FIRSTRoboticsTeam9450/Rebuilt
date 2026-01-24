@@ -19,6 +19,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,7 +28,7 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
 
-public class ShooterSubsystem extends SubsystemBase {
+public final class ShooterSubsystem extends SubsystemBase {
 
     private static volatile ShooterSubsystem instance;
 
@@ -54,8 +55,12 @@ public class ShooterSubsystem extends SubsystemBase {
     // private CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
     private VisionSubsystem visionSub = VisionSubsystem.getInstance();
 
+    private Timer timer = new Timer();
+    private boolean startTime = true;
+
     private AngleState currentAngleState = AngleState.STORING;
-    private ShooterState currentShooterState = ShooterState.NOT_SHOOTING;
+    private ShooterState currentShooterState = ShooterState.SHOOTING;
+    private ShooterState prevShooterState = null;
 
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
@@ -206,7 +211,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        System.out.println(currentShooterState + " periodic current shooter state");
+        // System.out.println(currentShooterState + " periodic current shooter state");
         // if (!isZeroingDone) {
         //     currentAngleState = AngleState.ZEROING;
         //     isZeroingDone = zeroEncoder();
@@ -238,6 +243,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         
 
+        // System.out.println(currentShooterState + " Publish logs current shooter state");
         
         
         
@@ -268,6 +274,7 @@ public class ShooterSubsystem extends SubsystemBase {
             default:
                 break;
         }
+        // System.out.println(currentShooterState + " ApplyState current shooter state");
     }
 
     public double getShooterVeloc() {
@@ -456,9 +463,19 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param wantedAngleState
      */
     public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
+        // prevShooterState = currentShooterState;
+        // if(startTime) {
+        //     timer.restart();
+        //     startTime = false;
+        // }
+        // if(timer.get() > 10) {
         System.out.println("GOT HERE SHOOTER STATE CHANGED" + wantedShooterState);
         currentShooterState = wantedShooterState;
         currentAngleState = wantedAngleState;
+        startTime = true;
+
+        // }
+        // System.out.println(timer.get() + " TIME");
     }
 
     public Command setStateCommand(ShooterState shooterState) {
