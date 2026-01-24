@@ -29,6 +29,8 @@ import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.ShooterSubsystem.AngleState;
+import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.util.BezierCurve;
@@ -88,12 +90,23 @@ public class RobotContainer {
         );
     
     // For tuning hood angle PID
-    // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
-    // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
+    DRIVER.povUp().onTrue(
+      new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3))
+    .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))
+    .andThen(transferSub.setStateCommand(TransferState.RUN_IN))));
+
+    DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
     
-    // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
-    // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
-    
+    DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
+    DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
+
+    DRIVER.rightTrigger().onTrue(
+      new InstantCommand(() -> shooterSub.setState(ShooterState.SHOOTING, AngleState.AIMING))
+      .andThen(transferSub.setStateCommand(TransferState.RUN_IN))
+      ).onFalse(
+      new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING))
+      .andThen(transferSub.setStateCommand(TransferState.NO_RUN)));
+      
     // DRIVER.a().onTrue(
     //     turretSub.setStateCommand(TurretState.AIMING)
     //   ).onFalse(

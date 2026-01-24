@@ -32,10 +32,11 @@ public class ShooterSubsystem extends SubsystemBase {
     // States
     public enum AngleState {
         ZEROING,
-        SHOOTING,
+        AIMING,
         TRENCH,
         DEADZONE,
         OVERRIDE,
+        IDLING,
         STORING
     }
 
@@ -72,7 +73,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
     // Hood Motion Magic parameters
-    private LoggedNetworkNumber logHoodMMVeloc = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Velocity", 4);
+    private LoggedNetworkNumber logHoodMMVeloc = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Velocity", 1);
     private LoggedNetworkNumber logHoodMMAccel = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Acceleration", 4);
     private LoggedNetworkNumber logHoodMMJerk = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Jerk", 400);
     private double hoodMMVelocity = logHoodMMVeloc.get();
@@ -81,18 +82,18 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private LoggedNetworkNumber logHoodMMKS = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kS", 0);
     private LoggedNetworkNumber logHoodMMKV = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kV", 0.33);
-    private LoggedNetworkNumber logHoodMMKA = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kA", 0.05);
-    private LoggedNetworkNumber logHoodMMKP = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kP", 0.01);
+    private LoggedNetworkNumber logHoodMMKA = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kA", 0);
+    private LoggedNetworkNumber logHoodMMKP = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kP", 1);
     private LoggedNetworkNumber logHoodMMKI = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kI", 0);
     private LoggedNetworkNumber logHoodMMKD = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kD", 0);
-    private LoggedNetworkNumber logHoodMMKG = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kG", 0.05);
+    private LoggedNetworkNumber logHoodMMKG = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kG", 0);
     private DynamicMotionMagicVoltage hoodMMRequest;
     
     // Shooter Outtake Velocity Motion Magic Parameters
     private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.1);
     private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.1);
-    private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0.01);
-    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.6);
+    private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0);
+    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 1);
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 1);
     private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 100);
     private LoggedNetworkNumber logOuttakeVJerk = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Jerk", 4000);
@@ -222,11 +223,13 @@ public class ShooterSubsystem extends SubsystemBase {
             case SHOOTING:
                 shooterLeaderMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
                 break;
+            case NOT_SHOOTING:
+                shooterLeaderMotor.setVoltage(0);
             default:
                 break;
         }
         switch (currentAngleState) {
-            case SHOOTING:
+            case AIMING:
                 angleMotor.setControl(hoodMMRequest.withPosition(getShooterAngle()));
                 break;
             case TRENCH:
@@ -328,8 +331,11 @@ public class ShooterSubsystem extends SubsystemBase {
     public boolean isShooterReady() {
         return (isAngleWithinTolerance() && isVelocityWithinTolerance());
     }
-    public void setOverrideMode(boolean isOverrideAngle) {
+    public void setOverrideModeAngle(boolean isOverrideAngle) {
         this.isOverrideAngle = isOverrideAngle;
+    }
+    public void setOverrideModeShooter() {
+        this.isTuningShooterVelocity = true;
     }
 
     public void setOverrideHoodAngle(double targetHoodAngleOverride) {

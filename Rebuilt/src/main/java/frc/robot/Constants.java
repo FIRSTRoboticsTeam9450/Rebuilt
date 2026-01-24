@@ -220,6 +220,8 @@ public final class Constants {
         public static final double MID_ZONE_2_Y_LOW = 0;
         public static final double MID_ZONE_2_Y_HIGH = MID_ZONE_1_Y_LOW;//158.84;
 
+        public static final double MID_ZONE_2_DEADZONE_X_LOW = 11.915394;
+        public static final double MID_ZONE_2_DEADZONE_X_HIGH = 16.540988;
         public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.437636;
         public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.631436;
 
@@ -255,6 +257,8 @@ public final class Constants {
         public static final double MID_ZONE_2_Y_LOW = 0;
         public static final double MID_ZONE_2_Y_HIGH = MID_ZONE_1_Y_LOW; //158.32;
 
+        public static final double MID_ZONE_2_DEADZONE_X_LOW = 11.901;
+        public static final double MID_ZONE_2_DEADZONE_X_HIGH = 16.513048;
         public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.424428;
         public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.618228;
 

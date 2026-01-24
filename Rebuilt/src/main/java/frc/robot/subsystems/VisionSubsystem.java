@@ -493,6 +493,7 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
         Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
         Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
+        Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
     }
 
     // -------------------------
@@ -532,8 +533,8 @@ public class VisionSubsystem extends SubsystemBase {
     public Pose2d getCurrentBotPoseAllianceUnspecific() {
         Pose2d currentBluePose = drivetrain.getState().Pose;
         if(DriverStation.getAlliance().toString().equals("Optional[Red]")){
-            Pose2d redCorner = new Pose2d(new Translation2d(ZoneConstantsWelded.RED_CORNER.getX() - currentBluePose.getX(), ZoneConstantsWelded.RED_CORNER.getY() - currentBluePose.getY()), currentBluePose.getRotation());
-            return redCorner;
+            Pose2d calculatedPose = new Pose2d(new Translation2d(ZoneConstantsWelded.RED_CORNER.getX() - currentBluePose.getX(), ZoneConstantsWelded.RED_CORNER.getY() - currentBluePose.getY()), currentBluePose.getRotation());
+            return calculatedPose;
             // Transform2d calculated = redCorner.minus(currentBluePose);
             // return new Pose2d(calculated.getTranslation(), calculated.getRotation());
         }
@@ -656,6 +657,21 @@ public class VisionSubsystem extends SubsystemBase {
         else if(currentX > ZoneConstantsAndyMark.MID_ZONE_X_LOW && currentX < ZoneConstantsAndyMark.MID_ZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MID_ZONE_2_Y_LOW && currentY < ZoneConstantsAndyMark.MID_ZONE_2_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_BOTTOM;
             currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+        }
+        if(currentX > ZoneConstantsAndyMark.TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_1_DEADZONE_Y_HIGH) {
+            currentZone = ZoneState.TRENCH_DEADZONE;
+        }
+        else if(currentX > ZoneConstantsAndyMark.TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_2_DEADZONE_Y_HIGH) {
+            currentZone = ZoneState.TRENCH_DEADZONE;
+        }
+        else if(currentX > ZoneConstantsAndyMark.TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_3_DEADZONE_Y_HIGH) {
+            currentZone = ZoneState.TRENCH_DEADZONE;
+        }
+        else if(currentX > ZoneConstantsAndyMark.TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_4_DEADZONE_Y_HIGH) {
+            currentZone = ZoneState.TRENCH_DEADZONE;
+        }
+        else if(currentX > ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_Y_HIGH) {
+            currentZone = ZoneState.BACK_DEADZONE;
         }
 
     }
