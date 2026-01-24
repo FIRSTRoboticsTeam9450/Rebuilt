@@ -9,9 +9,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -95,12 +93,14 @@ public final class Constants {
         public static final int kAbsEncoderID = 31;
       }
 
+      public static final double ENCODER_MAGNET_OFFSET = 0.115966796875;
+
       public static final double ROTOR_TO_SENSOR_RATIO = 0.001890359168;
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.4565217391;
 
-      public static final double TURRET_OFFSET_TO_ZERO = 165;
+      public static final double TURRET_OFFSET_TO_ZERO = 180; //UNKOWN
 
-      public static final double TOTAL_ROTATION_DEGREES = 330;
+      public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
       public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1.5;
@@ -202,15 +202,15 @@ public final class Constants {
         FAR_RIGHT
       }
       
-      public static final Translation2d trenchOne = new Translation2d(3.618, 7.435);
-      public static final Translation2d trenchTwo = new Translation2d(5.618, 7.435);
-      public static final Translation2d trenchThree = new Translation2d(3.618, 0.627);
-      public static final Translation2d trenchFour = new Translation2d(5.618, 0.627);
+      public static final Translation2d trenchOne = new Translation2d(2.618, 7.435);
+      public static final Translation2d trenchTwo = new Translation2d(6.618, 7.435);
+      public static final Translation2d trenchThree = new Translation2d(2.618, 0.627);
+      public static final Translation2d trenchFour = new Translation2d(6.618, 0.627);
 
-      public static final Translation2d trenchFive = new Translation2d(10.618, 7.435);
-      public static final Translation2d trenchSix = new Translation2d(12.618, 7.435);
-      public static final Translation2d trenchSeven = new Translation2d(10.618, 0.627);
-      public static final Translation2d trenchEight = new Translation2d(12.618, 0.627);
+      public static final Translation2d trenchFive = new Translation2d(9.618, 7.435);
+      public static final Translation2d trenchSix = new Translation2d(14.618, 7.435);
+      public static final Translation2d trenchSeven = new Translation2d(9.618, 0.627);
+      public static final Translation2d trenchEight = new Translation2d(14.618, 0.627);
 
     }
 
