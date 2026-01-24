@@ -250,6 +250,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
             case NOT_SHOOTING:
                 shooterLeftMotor.setVoltage(0);
+                break;
             case OVERRIDE:
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(logTuningShooterVelocity.get()));
                 break;
@@ -263,6 +264,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
             case TRENCH:
                 angleMotor.setControl(hoodMMRequest.withPosition(0));
+                break;
             default:
                 break;
         }
