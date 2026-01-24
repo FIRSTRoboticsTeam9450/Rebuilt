@@ -71,14 +71,22 @@ public class VisionSubsystem extends SubsystemBase {
     public static synchronized VisionSubsystem getInstance() {
         if (instance == null) {
             instance = new VisionSubsystem();
+            instance.initizalize();
         }
         return instance;
+    }
+
+    public void initizalize() {
+        shooterSub = ShooterSubsystem.getInstance();
+        turretSub = TurretSubsystem.getInstance();
     }
 
     // -------------------------
     // Core subsystem fields
     // -------------------------
     private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
+    private static TurretSubsystem turretSub;// = RobotContainer.turretSub;
+    private static ShooterSubsystem shooterSub;// = ShooterSubsystem.getInstance();
 
     private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update

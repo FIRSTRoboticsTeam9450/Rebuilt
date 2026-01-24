@@ -19,6 +19,9 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private static volatile CoordinationSubsystem INSTANCE;
 
+    private TurretSubsystem turretSub; // = TurretSubsystem.getInstance();
+    private ShooterSubsystem shooterSub;// = ShooterSubsystem.getInstance();
+    private VisionSubsystem visionSub;// = VisionSubsystem.getInstance();
     private CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
 
     public enum AbsoluteStates {
@@ -139,9 +142,19 @@ public class CoordinationSubsystem extends SubsystemBase {
         return (TurretSubsystem.getInstance().updateTargetFromMode(currentTarget) - TurretSubsystem.getInstance().updateTargetFromMode(futureTarget))/time;
     }
 
-    public static synchronized CoordinationSubsystem getInstance() {
-        if (INSTANCE == null) INSTANCE = new CoordinationSubsystem();
+    public static CoordinationSubsystem getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new CoordinationSubsystem();
+            INSTANCE.initizalize();
+        }
         return INSTANCE;
+    }
+
+    public void initizalize() {
+        turretSub = TurretSubsystem.getInstance();
+        shooterSub = ShooterSubsystem.getInstance();
+        visionSub = VisionSubsystem.getInstance();
+
     }
 
     public static class GameData {
