@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,11 +17,8 @@ import frc.robot.subsystems.VisionSubsystem.ZoneState;
 
 public class CoordinationSubsystem extends SubsystemBase {
 
-    private static CoordinationSubsystem INSTANCE;
+    private static volatile CoordinationSubsystem INSTANCE;
 
-    private TurretSubsystem turretSub = TurretSubsystem.getInstance();
-    private ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
-    private VisionSubsystem visionSub = VisionSubsystem.getInstance();
     private CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
 
     public enum AbsoluteStates {
@@ -42,11 +40,11 @@ public class CoordinationSubsystem extends SubsystemBase {
     
 
     public boolean isShooterReady() {
-        return shooterSub.isShooterReady();
+        return ShooterSubsystem.getInstance().isShooterReady();
     }
 
     public boolean isTurretReady() {
-        return turretSub.isAtGoal();
+        return TurretSubsystem.getInstance().isAtGoal();
     }
 
     public boolean areShooterAndTurretReady() {
@@ -66,73 +64,82 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public ZoneState getCurrentZone() {
-        return visionSub.getCurrentZone();
+        return VisionSubsystem.getInstance().getCurrentZone();
     }
 
     public Command setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin location) {
-        return new GoToPosCommand(trenchDeterminer(location));
-    }
-
-    private Pose2d trenchDeterminer(TrenchLocationWRTBlueOrigin location) {
-        Pose2d currentPose = drivetrain.getState().Pose;
-        Pose2d targetPose = currentPose;
-        Translation2d tempTrans;
         if (FieldConstants.isBlueAlliance) {
             switch (location) {
                 case CLOSE_LEFT:
-                    tempTrans = currentPose.getX() > 4.614 ? TrenchManeuvering.trenchOne : TrenchManeuvering.trenchTwo;
-                    targetPose = new Pose2d(tempTrans.getX(), tempTrans.getY(), currentPose.getRotation());
-                    break;
+                    return Commands.either(
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchOne, new Rotation2d(0))),
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchTwo, new Rotation2d(0))),
+                        (() -> drivetrain.getState().Pose.getX() > 4.614)
+                    );
 
-                case CLOSE_RIGHT: 
-                    tempTrans = currentPose.getX() > 4.614 ? TrenchManeuvering.trenchThree : TrenchManeuvering.trenchFour;
-                    targetPose = new Pose2d(tempTrans.getX(), tempTrans.getY(), currentPose.getRotation());
-                    break;
+                case CLOSE_RIGHT:
+                    return Commands.either(
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchThree, new Rotation2d(0))),
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFour, new Rotation2d(0))),
+                        (() -> drivetrain.getState().Pose.getX() > 4.614)
+                    );
 
                 case FAR_LEFT:
-                    tempTrans = currentPose.getX() > 11.914 ? TrenchManeuvering.trenchFive : TrenchManeuvering.trenchSix;
-                    targetPose = new Pose2d(tempTrans.getX(), tempTrans.getY(), currentPose.getRotation());
-                    break;
+                    return Commands.either(
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFive, new Rotation2d(0))),
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSix, new Rotation2d(0))),
+                        (() -> drivetrain.getState().Pose.getX() > 11.914)
+                    );
 
                 case FAR_RIGHT:
-                    tempTrans = currentPose.getX() > 11.914 ? TrenchManeuvering.trenchSeven : TrenchManeuvering.trenchEight;
-                    targetPose = new Pose2d(tempTrans.getX(), tempTrans.getY(), currentPose.getRotation());
-                    break;
+                    return Commands.either(
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSeven, new Rotation2d(0))),
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchEight, new Rotation2d(0))),
+                        (() -> drivetrain.getState().Pose.getX() > 11.914)
+                    );
             }
         } else {
             switch (location) {
                 case CLOSE_LEFT:
-                    tempTrans = currentPose.getX() > 4.614 ? TrenchManeuvering.trenchEight : TrenchManeuvering.trenchSeven;
-                    targetPose = new Pose2d(tempTrans.getX(), tempTrans.getY(), currentPose.getRotation());
-                    break;
+                    return Commands.either(
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchEight, new Rotation2d(0))),
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSeven, new Rotation2d(0))),
+                        (() -> drivetrain.getState().Pose.getX() > 11.914)
+                    );
 
                 case CLOSE_RIGHT: 
-                    tempTrans = currentPose.getX() > 4.614 ? TrenchManeuvering.trenchSix : TrenchManeuvering.trenchFive;
-                    targetPose = new Pose2d(tempTrans.getX(), tempTrans.getY(), currentPose.getRotation());
-                    break;
+                    return Commands.either(
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSix, new Rotation2d(0))),
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFive, new Rotation2d(0))),
+                        (() -> drivetrain.getState().Pose.getX() > 11.914)
+                    );
 
                 case FAR_LEFT:
-                    tempTrans = currentPose.getX() > 11.914 ? TrenchManeuvering.trenchFour : TrenchManeuvering.trenchThree;
-                    targetPose = new Pose2d(tempTrans.getX(), tempTrans.getY(), currentPose.getRotation());
-                    break;
+                    return Commands.either(
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFour, new Rotation2d(0))),
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchThree, new Rotation2d(0))),
+                        (() -> drivetrain.getState().Pose.getX() > 4.614)
+                    );
 
                 case FAR_RIGHT:
-                    tempTrans = currentPose.getX() > 11.914 ? TrenchManeuvering.trenchTwo : TrenchManeuvering.trenchOne;
-                    targetPose = new Pose2d(tempTrans.getX(), tempTrans.getY(), currentPose.getRotation());
-                    break;
+                    return Commands.either(
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchTwo, new Rotation2d(0))),
+                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchOne, new Rotation2d(0))),
+                        (() -> drivetrain.getState().Pose.getX() > 4.614)
+                    );
             }
         }
 
-        return targetPose;
+        return new GoToPosCommand(drivetrain.getState().Pose);
     }
 
     public double getVelocityTurrent(double time) {
-        Translation2d currentTarget = visionSub.getAdjustedCurrentTarget();
-        Translation2d futureTarget = visionSub.getAdjustedFutureTarget(time);
-        return (turretSub.updateTargetFromMode(currentTarget) - turretSub.updateTargetFromMode(futureTarget))/time;
+        Translation2d currentTarget = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
+        Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(time);
+        return (TurretSubsystem.getInstance().updateTargetFromMode(currentTarget) - TurretSubsystem.getInstance().updateTargetFromMode(futureTarget))/time;
     }
 
-    public static CoordinationSubsystem getInstance() {
+    public static synchronized CoordinationSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new CoordinationSubsystem();
         return INSTANCE;
     }

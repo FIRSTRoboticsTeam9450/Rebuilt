@@ -18,7 +18,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public final class IntakeSubsystem extends SubsystemBase{
 
-    private static IntakeSubsystem INSTACNE;
+    private static volatile IntakeSubsystem INSTACNE;
 
     //List the states the intake will use
     public enum IntakePos {
@@ -144,7 +144,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         return new InstantCommand(() -> {setPos(pos); setState(state);});
     }
 
-    public static IntakeSubsystem getInstance() {
+    public static synchronized IntakeSubsystem getInstance() {
         if (INSTACNE == null) INSTACNE = new IntakeSubsystem();
         return INSTACNE;
     }

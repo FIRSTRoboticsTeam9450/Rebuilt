@@ -30,7 +30,6 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
 import frc.robot.Constants.RobotConstants.TurretConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /**
  * Subsystem controlling the turret mechanism with field-relative tracking.
@@ -55,20 +54,19 @@ public class TurretSubsystem extends SubsystemBase {
     
     // ========================= Hardware =========================
     
-    private static TurretSubsystem INSTANCE;
+    private static volatile TurretSubsystem INSTANCE;
     
     private final TalonFX turretMotor;
     private final CANcoder turretEncoder;
     private final CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
-    private final CoordinationSubsystem coordSub = RobotContainer.coordSub;
     
     private CommandXboxController driverController;
     
     // ========================= Configuration =========================
     
     // Physical limits (degrees) - 330° total range
-    private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
-    private static final double MAX_ANGLE_DEG = TurretConstants.TOTAL_ROTATION_DEGREES / 2;
+    private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2) - TurretConstants.TURRET_OFFSET_TO_ZERO;
+    private static final double MAX_ANGLE_DEG = (TurretConstants.TOTAL_ROTATION_DEGREES / 2) - TurretConstants.TURRET_OFFSET_TO_ZERO;
     
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
@@ -76,16 +74,18 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 360);
+        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 360); //360
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720.0);
+        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720.0); //720
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 400);
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 200); //400, needs tuning though
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 5);
-    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV", 5);
-    private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 50);
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 1); //5, needs tuning
+    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV", 5); //5, needs tuning
+    private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 50); //50, needs tuning though
+
+    private final LoggedNetworkNumber logTurretTarget = new LoggedNetworkNumber("/Tuning/Turret/Testing Target", 0);
     
     // Motor configuration
     private TalonFXConfiguration motorConfig;
@@ -199,6 +199,7 @@ public class TurretSubsystem extends SubsystemBase {
         
         encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
         encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        encoderConfig.MagnetSensor.MagnetOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
         
         turretEncoder.getConfigurator().apply(encoderConfig);
     }
@@ -226,7 +227,7 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Fused CANcoder feedback
         motorConfig.Feedback.FeedbackRemoteSensorID = turretEncoder.getDeviceID();
-        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         motorConfig.Feedback.RotorToSensorRatio = TurretConstants.ROTOR_TO_SENSOR_RATIO;
         motorConfig.Feedback.SensorToMechanismRatio = TurretConstants.SENSOR_TO_MECHANISM_RATIO;
         
@@ -245,7 +246,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Get current robot state
         Rotation2d robotAngle = drivetrain.getState().Pose.getRotation();
         ChassisSpeeds robotVelocity = drivetrain.getState().Speeds;
-        double robotOmegaRadPerSec = robotVelocity.omegaRadiansPerSecond; //TODO: try lessening the robotVelocity.omegaRadiansPerSecond to see if it makes the turret rotate less when robot rotates
+        double robotOmegaRadPerSec = robotVelocity.omegaRadiansPerSecond;
         
         // Convert field-relative goal to robot-relative
         Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.minus(robotAngle);
@@ -286,6 +287,7 @@ public class TurretSubsystem extends SubsystemBase {
                 robotToTarget.getX(), 
                 robotToTarget.getY()
             );
+
             
             // Update field-relative goal (target is stationary, so velocity = 0)
             fieldRelativeGoalAngle = angleToTarget;
@@ -348,7 +350,7 @@ public class TurretSubsystem extends SubsystemBase {
                 break;
 
             case TESTING:
-                turretMotor.setControl(positionRequest.withPosition(testTargetSetpoint / encoderToAngleMultiplier).withFeedForward(0));
+                turretMotor.setControl(positionRequest.withPosition(logTurretTarget.get() / encoderToAngleMultiplier).withFeedForward(0));
                 break;
 
             case IDLING:
@@ -567,11 +569,14 @@ public class TurretSubsystem extends SubsystemBase {
             robotRelativeTargetVelocityDegPerSec);
         
         // Target information
-        Translation2d currentTarget = getCurrentTargetPosition();
-        if (currentTarget != null) {
-            Logger.recordOutput("Rebuilt/Turret/CurrentTargetPosition", 
-                new double[] {currentTarget.getX(), currentTarget.getY()});
+        Translation2d currentTargetTranslation = getCurrentTargetPosition();
+        if (currentTargetTranslation != null) {
+            Logger.recordOutput("Rebuilt/Turret/CurrentTargetTranslation", 
+                new double[] {currentTargetTranslation.getX(), currentTargetTranslation.getY()});
         }
+
+        Pose2d currentTargetPose = new Pose2d(getCurrentTargetPosition(), new Rotation2d(0));
+        Logger.recordOutput("Rebuilt/Turret/CurrentTargetPose", currentTargetPose);
         
         // Hardware data
         Logger.recordOutput("Rebuilt/Turret/MotorRevolutions", 
@@ -797,7 +802,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @param drivetrain Drivetrain reference (required on first call)
      * @return The TurretSubsystem instance
      */
-    public static TurretSubsystem getInstance() {
+    public static synchronized TurretSubsystem getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new TurretSubsystem();
         }

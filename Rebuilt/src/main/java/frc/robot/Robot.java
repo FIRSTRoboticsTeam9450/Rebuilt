@@ -8,17 +8,14 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.pathfinding.Pathfinding;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.util.LocalADStarAK;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -29,9 +26,6 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
-  private TurretSubsystem turretSub = TurretSubsystem.getInstance();
-  private ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
-  private IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -45,6 +39,11 @@ public class Robot extends LoggedRobot {
     m_robotContainer = new RobotContainer();
 
     Logger.start();
+  }
+
+  @Override
+  public void robotInit() {
+    Pathfinding.setPathfinder(new LocalADStarAK());
   }
 
   /**
@@ -69,9 +68,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
-    turretSub.updateTunableParameters();
-    shooterSub.updateShooterConstants();
-    intakeSub.updateConstants();
+    TurretSubsystem.getInstance().updateTunableParameters();
+    ShooterSubsystem.getInstance().updateShooterConstants();
+    IntakeSubsystem.getInstance().updateConstants();
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

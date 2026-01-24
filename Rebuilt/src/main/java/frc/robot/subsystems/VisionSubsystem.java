@@ -59,7 +59,7 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     // Singleton instance
     // -------------------------
-    private static VisionSubsystem instance;
+    private static volatile VisionSubsystem instance;
 
     /**
      * Singleton accessor method.
@@ -79,8 +79,6 @@ public class VisionSubsystem extends SubsystemBase {
     // Core subsystem fields
     // -------------------------
     private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
-    private static TurretSubsystem turretSub = RobotContainer.turretSub;
-    private static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
 
     private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
@@ -96,8 +94,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Validation thresholds for pose filtering
     private static final double MAX_Z_THRESHOLD = 1; // Robot must be on ground
-    private static final double MAX_PITCH_THRESHOLD = 10; // Robot must not be tilted forward/back
-    private static final double MAX_ROLL_THRESHOLD = 10; // Robot must not be tilted side-to-side
+    private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
+    private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
     private static final double MAX_YAW_DIFF_DEGREES = 2.5; // Vision yaw must match Pigeon within 0.01 degrees
 
     // Limelight camera objects
@@ -627,10 +625,10 @@ public class VisionSubsystem extends SubsystemBase {
     public double getTimeToShoot(Translation2d target) {
         double timeToShoot = 0;
         if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
-            timeToShoot = shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
+            timeToShoot = ShooterSubsystem.getInstance().getFerryingDistanceToTime(getDistanceToTarget(target));
         }
         else if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
-            timeToShoot = shooterSub.getShootingDistanceToTime(getDistanceToTarget(target));
+            timeToShoot = ShooterSubsystem.getInstance().getShootingDistanceToTime(getDistanceToTarget(target));
         }
         return timeToShoot;
     }

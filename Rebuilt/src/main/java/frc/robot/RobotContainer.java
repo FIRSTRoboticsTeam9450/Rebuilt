@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
 import frc.robot.commands.GoToPosCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
@@ -30,6 +31,7 @@ import frc.robot.subsystems.ShooterSubsystem.AngleState;
 import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
@@ -39,12 +41,8 @@ import frc.robot.util.BezierCurve;
 
 public class RobotContainer {
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-  public final static CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
+  public final static VisionSubsystem vision = VisionSubsystem.getInstance();
 
-  public static TurretSubsystem turretSub = TurretSubsystem.getInstance();
-  public static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
-  public static TransferSubsystem transferSub = TransferSubsystem.getInstance();
-  public static IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
 
   public BezierCurve driveBezier = new BezierCurve("drive", 117.4, 0.054, 91.4, 0.76, 0.1, 0.01);
   public BezierCurve rotateBezier = new BezierCurve("rotate", 120.1, 0.145, 92.2, 0.362, 0.035, 0.03);
@@ -69,7 +67,7 @@ public class RobotContainer {
 
   public RobotContainer() {
 
-    turretSub.setDriverController(DRIVER);
+    TurretSubsystem.getInstance().setDriverController(DRIVER);
 
     autoChooser = new LoggedDashboardChooser<>("Rebuilt/Auto Chooser");
 
@@ -105,14 +103,14 @@ public class RobotContainer {
     //   );
 
     // For tuning hood angle PID
-    DRIVER.povUp().onTrue(
-      new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3))
-    .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
+    // DRIVER.povUp().onTrue(
+    //   new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3))
+    // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
-    DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
+    // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
     
-    DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
-    DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
+    // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
+    // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
 
     // DRIVER.rightTrigger().onTrue(
     //   new InstantCommand(() -> shooterSub.setState(ShooterState.SHOOTING, AngleState.AIMING))
@@ -123,32 +121,37 @@ public class RobotContainer {
     //);
 
     DRIVER.y().onTrue(
-      shooterSub.setStateCommand(ShooterState.OVERRIDE));
+      ShooterSubsystem.getInstance().setStateCommand(ShooterState.OVERRIDE));
     // ).onFalse(
     //   shooterSub.setStateCommand(ShooterState.NOT_SHOOTING)
     // );
       
 
-    DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.192, 3.960, new Rotation2d(40))));
-    DRIVER.b().whileTrue(new GoToPosCommand(new Pose2d(2.28, 2.0, new Rotation2d(0))));
+    // DRIVER.povDown().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT));
+    // DRIVER.povLeft().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT));
+    // DRIVER.povRight().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT));
+    // DRIVER.povUp().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT));
+
+    // DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.192, 3.960, new Rotation2d(40))));
+    // DRIVER.b().whileTrue(new GoToPosCommand(new Pose2d(2.28, 2.0, new Rotation2d(0))));
     
     DRIVER.leftTrigger().onTrue(
-      intakeSub.setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
-      .andThen(transferSub.setStateCommand(TransferState.RUN_IN))
+      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
+      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_IN))
     ).onFalse(
-      intakeSub.setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
-      .andThen(transferSub.setStateCommand(TransferState.NO_RUN))
+      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
+      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
     );
 
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
 
     DRIVER.back().onTrue(
-      new InstantCommand(() -> intakeSub.zeroEncoders()).ignoringDisable(true)
+      new InstantCommand(() -> IntakeSubsystem.getInstance().zeroEncoders()).ignoringDisable(true)
       );
 
-    DRIVER.x().onTrue(
-      new InstantCommand(() -> shooterSub.zeroEncoder()).ignoringDisable(true)
-      );
+    // DRIVER.x().onTrue(
+    //   new InstantCommand(() -> ShooterSubsystem.getInstance().zeroEncoder()).ignoringDisable(true)
+    //   );
 
   }
 
