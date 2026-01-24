@@ -21,6 +21,7 @@ import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 //import edu.wpi.first.math.controller.PIDController;
 //import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Timer;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
@@ -67,6 +68,8 @@ public class ClimberSubsystem extends SubsystemBase {
     boolean atTarget;
 
     private int climbCounter;
+
+    Timer delayStopwatch = new Timer();
 
     private DynamicMotionMagicVoltage controlRequest = 
                         new DynamicMotionMagicVoltage(0, 
@@ -164,6 +167,11 @@ public class ClimberSubsystem extends SubsystemBase {
         return climbCounter == 0;
     }
 
+    public void resetStopwatch() {
+        delayStopwatch.stop();
+        delayStopwatch.reset();
+    }
+
     private void applyStates() {
         switch (currentElevatorState) {
             case STANDBY:
@@ -172,20 +180,29 @@ public class ClimberSubsystem extends SubsystemBase {
                 // Move the climb a specific distance based on the array
                 setTarget(climbDistances[climbCounter].get());
 
-                if(atTarget() == true) {
+                if(atTarget()) {
                     currentElevatorState = ElevatorStates.STANDBY;
                 }
+
+                break;
                 
             case RETRACTED:
                 // retract the climb carry the bot up the bar
                 setTarget(0); //retracted position
                 
-                if (atTarget() == true) {
-                    if(endClimbSequence()) {
-                        currentElevatorState = ElevatorStates.STANDBY;
-                    }
-                    currentElevatorState = ElevatorStates.EXTENDED;
+                if (atTarget()) {
+                    currentElevatorState = ElevatorStates.STANDBY;
                 }
+
+                if (!endClimbSequence()) {
+                    delayStopwatch.start();
+                    if(delayStopwatch.get() >= 3) { //3 seconds
+                        currentElevatorState = ElevatorStates.EXTENDED;
+
+                        resetStopwatch();
+                    }
+                }
+                break;
             default:
                 break;
         }
