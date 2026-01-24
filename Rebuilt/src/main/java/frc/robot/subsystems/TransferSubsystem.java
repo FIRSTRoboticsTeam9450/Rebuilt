@@ -35,7 +35,7 @@ public class TransferSubsystem extends SubsystemBase {
     private final TalonFX motor = new TalonFX(TransferConstants.DeviceIDs.kDrivingMotorID, RobotConstants.CANIVORE_BUS);
 
     /** Voltage request */
-    private VoltageOut voltageRequest = new VoltageOut(0.0);
+    private VoltageOut voltageRequest = new VoltageOut(0.0).withEnableFOC(RobotConstants.ENABLE_FOC);;
 
     /**
      * Constructor - initializes the transfer subsystem and configures the motor

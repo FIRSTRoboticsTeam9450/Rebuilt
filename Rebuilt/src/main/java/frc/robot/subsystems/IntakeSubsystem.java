@@ -58,7 +58,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 10);
 
     //Motion Magic Set Up(Intake arm)
-    private MotionMagicVoltage request = new MotionMagicVoltage(0);
+    private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);;
 
     public IntakeSubsystem() {
         configureMotors();

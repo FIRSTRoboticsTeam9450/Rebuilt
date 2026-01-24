@@ -36,6 +36,8 @@ public final class Constants {
     public static final CANBus CANIVORE_BUS = new CANBus(CANIVORE_BUS_NAME);
     public static final CANBus RIO_BUS = new CANBus(RIO_BUS_NAME);
 
+    public static final boolean ENABLE_FOC = true;
+
     public static final NeutralModeValue DEFAULT_NEUTRAL_MODE_VALUE = NeutralModeValue.Coast;
 
     public static final class LEDConstants {

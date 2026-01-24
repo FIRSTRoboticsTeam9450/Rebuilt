@@ -121,8 +121,8 @@ public class ShooterSubsystem extends SubsystemBase {
         configureAngleMotors();
         configureShooterMotors();
 
-        hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withJerk(hoodMMJerk);
-        outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot);
+        hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withJerk(hoodMMJerk).withEnableFOC(RobotConstants.ENABLE_FOC);;
+        outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     }
 
@@ -416,7 +416,7 @@ public class ShooterSubsystem extends SubsystemBase {
             hoodMMAcceleration = logHoodMMAccel.get();
             hoodMMJerk = logHoodMMJerk.get();
 
-            hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withJerk(hoodMMJerk);
+            hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withJerk(hoodMMJerk).withEnableFOC(RobotConstants.ENABLE_FOC);
         }
         
     }
