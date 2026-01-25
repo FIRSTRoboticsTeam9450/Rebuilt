@@ -60,6 +60,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
+    private double currentPos = 0;
+    private boolean storeCurrentPos = false;
 
     private double hoodAngleMax = 13.5;
     private double hoodAngleMin = 0;
@@ -258,6 +260,12 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
             case TRENCH:
                 angleMotor.setControl(hoodMMRequest.withPosition(0));
+            case IDLING:
+                if(!storeCurrentPos) {
+                    currentPos = angleMotor.getPosition().getValueAsDouble();
+                    storeCurrentPos = true;
+                }
+                angleMotor.setControl(hoodMMRequest.withPosition(currentPos));
             default:
                 break;
         }
@@ -456,6 +464,7 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param wantedAngleState
      */
     public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
+        storeCurrentPos = false;
         currentShooterState = wantedShooterState;
         currentAngleState = wantedAngleState;
     }
