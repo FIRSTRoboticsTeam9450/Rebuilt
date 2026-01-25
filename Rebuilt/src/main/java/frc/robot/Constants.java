@@ -290,8 +290,8 @@ public final class Constants {
       }
       public static final class ZoneTargets {
         public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER; // TODO: Put in proper targets
-        public static final Translation2d FERRY_TOP_TARGET = null;
-        public static final Translation2d FERRY_BOTTOM_TARGET = null;
+        public static final Translation2d FERRY_TOP_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
+        public static final Translation2d FERRY_BOTTOM_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER; // Add later
       }
     }
 

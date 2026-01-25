@@ -42,6 +42,13 @@ import frc.robot.util.BezierCurve;
 public class RobotContainer {
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   public final static VisionSubsystem vision = VisionSubsystem.getInstance();
+  public final static CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
+
+  public static TurretSubsystem turretSub = TurretSubsystem.getInstance();
+  public static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
+  public static TransferSubsystem transferSub = TransferSubsystem.getInstance();
+  public static IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
+
 
 
   public BezierCurve driveBezier = new BezierCurve("drive", 117.4, 0.054, 91.4, 0.76, 0.1, 0.01);
@@ -104,13 +111,13 @@ public class RobotContainer {
     //   );
 
     // For tuning hood angle PID
-    // DRIVER.povUp().onTrue(
-    //   new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3))
-    // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
+    DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING)).andThen(
+      new InstantCommand(() -> shooterSub.setOverrideHoodAngle(20)))
+    .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
     // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
     
-    // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
+    DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(15)).andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
     // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
 
     // DRIVER.rightTrigger().onTrue(
@@ -135,6 +142,10 @@ public class RobotContainer {
 
     // DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.192, 3.960, new Rotation2d(40))));
     // DRIVER.b().whileTrue(new GoToPosCommand(new Pose2d(2.28, 2.0, new Rotation2d(0))));
+    DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.IDLING));
+    DRIVER.rightTrigger().onTrue(transferSub.setStateCommand(TransferState.RUN_IN));
+    DRIVER.rightTrigger().onFalse(transferSub.setStateCommand(TransferState.NO_RUN));
+    DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.IDLING));
     
     DRIVER.leftTrigger().onTrue(
       IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)

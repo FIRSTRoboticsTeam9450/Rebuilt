@@ -19,6 +19,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
@@ -58,6 +60,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
+    private double currentPos = 0;
+    private boolean storeCurrentPos = false;
 
     private double hoodAngleMax = 13.5;
     private double hoodAngleMin = 0;
@@ -214,7 +218,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void publishLogs() {
         Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + 15);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/Took target", hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
+
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
 
@@ -254,6 +260,12 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
             case TRENCH:
                 angleMotor.setControl(hoodMMRequest.withPosition(0));
+            case IDLING:
+                if(!storeCurrentPos) {
+                    currentPos = angleMotor.getPosition().getValueAsDouble();
+                    storeCurrentPos = true;
+                }
+                angleMotor.setControl(hoodMMRequest.withPosition(currentPos));
             default:
                 break;
         }
@@ -287,23 +299,23 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getShooterAngle() {
         if(!isOverrideAngle) {
-            // switch (coordSub.getCurrentZone()) {
-            //     case SHOOTING_ZONE:
-            //         targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-            //         break;
+            switch (coordSub.getCurrentZone()) {
+                case SHOOTING_ZONE:
+                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
                     
-            //     case FERRY_ZONE_TOP:
-            //         targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-            //         break; 
+                case FERRY_ZONE_TOP:
+                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break; 
                     
-            //     case FERRY_ZONE_BOTTOM:
-            //         targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-            //         break;
-            //     case TRENCH_DEADZONE:
-            //         targetHoodHeight = 0;
-            //     default:
-            //         return 0;
-            // }
+                case FERRY_ZONE_BOTTOM:
+                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                case TRENCH_DEADZONE:
+                    targetHoodHeight = 0;
+                default:
+                    return 0;
+            }
         }
         else {
             targetHoodHeight = targetHoodAngleOverride;
@@ -321,17 +333,21 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double hoodAngleFunction(double distance) {
-        double wantedAngle = (-21/(distance + 0.7)) + 14.5;//Math.atan(51/distance); // Min distance away 4.5
-        if(wantedAngle != MathUtil.clamp(wantedAngle, hoodAngleMin, hoodAngleMax)) {
-            System.out.println("DEBUGGING: Didn't use calculated angle: " + wantedAngle);
+        double wantedAngle = (-21.0/(distance + 1.07143)) + 42.0;//Math.atan(51/distance); // Min distance away 4.5
+        double wantedRevs = getAsRevs(wantedAngle);
+        if(wantedRevs != MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax)) {
+            System.out.println("DEBUGGING: Didn't use calculated angle: " + wantedRevs);
         }
-        return MathUtil.clamp(wantedAngle, hoodAngleMin, hoodAngleMax);
+        return MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax);
     }
 
-    public double getHoodAngle() {
-        return angleMotor.getPosition().getValueAsDouble() * degreesPerRev; // add + 15 if you want true angle
+    public double getHoodAngleDegrees() {
+        return angleMotor.getPosition().getValueAsDouble() * degreesPerRev + 15; // add + 15 if you want true angle
     }
 
+    public double getAsRevs(double degrees) {
+        return (degrees-15) / degreesPerRev;
+    }
     public boolean isAngleWithinTolerance() {
         return isAngleWithinTolerance(0.1);
     }
@@ -351,15 +367,17 @@ public class ShooterSubsystem extends SubsystemBase {
     public boolean isShooterReady() {
         return (isAngleWithinTolerance() && isVelocityWithinTolerance());
     }
+
     public void setOverrideModeAngle(boolean isOverrideAngle) {
         this.isOverrideAngle = isOverrideAngle;
     }
+
     public void setOverrideModeShooter() {
         this.isTuningShooterVelocity = true;
     }
 
     public void setOverrideHoodAngle(double targetHoodAngleOverride) {
-        this.targetHoodAngleOverride = MathUtil.clamp((targetHoodAngleOverride / degreesPerRev), hoodAngleMin, hoodAngleMax);
+        this.targetHoodAngleOverride = MathUtil.clamp(getAsRevs(targetHoodAngleOverride), hoodAngleMin, hoodAngleMax);
         
     }
 
@@ -446,10 +464,21 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param wantedAngleState
      */
     public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
+        storeCurrentPos = false;
         currentShooterState = wantedShooterState;
         currentAngleState = wantedAngleState;
     }
 
+    public Command setStateCommand(ShooterState wantedShooterState, AngleState wantedAngleState) {
+        return new InstantCommand(() -> setState(wantedShooterState, wantedAngleState));
+    }
+
+    public Command setShooterStateCommand(ShooterState wantedShooterState) {
+        return setStateCommand(wantedShooterState, currentAngleState);
+    }
+    public Command setAngleState(AngleState wantedAngleState) {
+        return setStateCommand(currentShooterState, wantedAngleState);
+    }
     public static ShooterSubsystem getInstance() {
         if(instance == null) {
             instance = new ShooterSubsystem();
