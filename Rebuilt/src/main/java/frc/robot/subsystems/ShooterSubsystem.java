@@ -64,7 +64,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean storeCurrentPos = false;
 
     private double hoodAngleMax = 13.5;
-    private double hoodAngleMin = 0;
+    private double hoodAngleMin = 5;
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 15;
 
@@ -262,10 +262,10 @@ public class ShooterSubsystem extends SubsystemBase {
                 angleMotor.setControl(hoodMMRequest.withPosition(0));
             case IDLING:
                 if(!storeCurrentPos) {
-                    currentPos = angleMotor.getPosition().getValueAsDouble();
+                    currentPos = angleMotor.getPosition().getValueAsDouble();//MathUtil.clamp(angleMotor.getPosition().getValueAsDouble(), hoodAngleMin, hoodAngleMax);
                     storeCurrentPos = true;
                 }
-                angleMotor.setControl(hoodMMRequest.withPosition(currentPos));
+                angleMotor.setControl(hoodMMRequest.withPosition(0));
             default:
                 break;
         }

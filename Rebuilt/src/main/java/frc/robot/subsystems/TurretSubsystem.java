@@ -243,14 +243,14 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Update target based on current mode
         updateTargetFromMode();
-        
+        setCustomTarget(VisionSubsystem.getInstance().getAdjustedCurrentTarget());
         // Get current robot state
         Rotation2d robotAngle = drivetrain.getState().Pose.getRotation();
         ChassisSpeeds robotVelocity = drivetrain.getState().Speeds;
         double robotOmegaRadPerSec = robotVelocity.omegaRadiansPerSecond;
         
         // Convert field-relative goal to robot-relative
-        Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.minus(robotAngle);
+        Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle;//.minus(robotAngle);
         double robotRelativeGoalVelocityRadPerSec = 
             fieldRelativeGoalVelocityRadPerSec - robotOmegaRadPerSec;
         
@@ -275,13 +275,14 @@ public class TurretSubsystem extends SubsystemBase {
      * Called every periodic cycle to recalculate aim point.
      */
     private void updateTargetFromMode() {
-        Translation2d targetPosition = getCurrentTargetPosition();
+        // Translation2d targetPosition = getCurrentTargetPosition();
+        Translation2d targetPosition = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
         
         if (targetPosition != null) {
             Pose2d robotPose = drivetrain.getState().Pose;
             
             // Calculate vector from robot to target
-            Translation2d robotToTarget = targetPosition.minus(robotPose.getTranslation());
+            Translation2d robotToTarget = targetPosition; //targetPosition.minus(robotPose.getTranslation());
             
             // Calculate angle to target
             Rotation2d angleToTarget = new Rotation2d(

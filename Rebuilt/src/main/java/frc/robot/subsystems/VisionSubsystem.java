@@ -501,7 +501,8 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
         Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
         Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
-        Logger.recordOutput("Rebuilt/Vision/CurrentTarget", new Pose2d(currentTarget, new Rotation2d()));
+        Logger.recordOutput("Rebuilt/Vision/CurrentTargetFromMethod", getAdjustedCurrentTarget());
+        Logger.recordOutput("Rebuilt/Vision/CurrentTarget",(new Pose2d(currentTarget, new Rotation2d()).minus(getCurrentBotPoseAllianceUnspecific())));
     }
 
     // -------------------------
@@ -594,13 +595,13 @@ public class VisionSubsystem extends SubsystemBase {
             timeToShoot = getTimeToShoot(lastTargetPose);
         }
         Translation2d amountMoved =new Translation2d(velocityRobotWRTField.vxMetersPerSecond * timeToShoot, velocityRobotWRTField.vyMetersPerSecond * timeToShoot);
-        Translation2d finalTarget = targetWRTBot.plus(amountMoved.times(-1));
+        Translation2d finalTarget = targetWRTBot.plus(amountMoved);
 
         // Iterate to zoom in to find the final target, get closer and closer each time
         for(int i = 0; i < 6; i++) {
             timeToShoot = getTimeToShoot(finalTarget);
             amountMoved =  new Translation2d(velocityRobotWRTField.vxMetersPerSecond * timeToShoot, velocityRobotWRTField.vyMetersPerSecond * timeToShoot);
-            finalTarget = targetWRTBot.plus(amountMoved.times(-1));
+            finalTarget = targetWRTBot.plus(amountMoved);
         }
         return finalTarget;
     }
@@ -634,7 +635,7 @@ public class VisionSubsystem extends SubsystemBase {
      * @return
      */
     public double getTimeToShoot(Translation2d target) {
-        double timeToShoot = 0;
+        double timeToShoot = 1.2;
         // if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
         //     timeToShoot = shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
         // }

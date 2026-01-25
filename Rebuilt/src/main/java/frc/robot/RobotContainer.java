@@ -135,10 +135,10 @@ public class RobotContainer {
     // );
       
 
-    DRIVER.povDown().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT));
-    DRIVER.povLeft().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT));
-    DRIVER.povRight().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT));
-    DRIVER.povUp().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT));
+    // DRIVER.povDown().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT));
+    // DRIVER.povLeft().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT));
+    // DRIVER.povRight().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT));
+    // DRIVER.povUp().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT));
 
     // DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.192, 3.960, new Rotation2d(40))));
     // DRIVER.b().whileTrue(new GoToPosCommand(new Pose2d(2.28, 2.0, new Rotation2d(0))));
@@ -158,7 +158,7 @@ public class RobotContainer {
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
 
     DRIVER.back().onTrue(
-      new InstantCommand(() -> IntakeSubsystem.getInstance().zeroEncoders()).ignoringDisable(true)
+      new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)
       );
 
     // DRIVER.x().onTrue(
