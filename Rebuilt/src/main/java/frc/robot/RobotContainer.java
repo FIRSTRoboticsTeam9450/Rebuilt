@@ -72,10 +72,11 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Rebuilt/Auto Chooser");
 
     configureBindings();
+    configureAutos();
   }
 
   private void configureAutos() {
-    
+    autoChooser.addOption("Outpost + Neutral Ferry", drivetrain.getAutoPath("Outpost + Neutral Ferry", false));
   }
 
   private void configureBindings() {
@@ -127,10 +128,10 @@ public class RobotContainer {
     // );
       
 
-    // DRIVER.povDown().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT));
-    // DRIVER.povLeft().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT));
-    // DRIVER.povRight().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT));
-    // DRIVER.povUp().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT));
+    DRIVER.povDown().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT));
+    DRIVER.povLeft().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT));
+    DRIVER.povRight().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT));
+    DRIVER.povUp().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT));
 
     // DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.192, 3.960, new Rotation2d(40))));
     // DRIVER.b().whileTrue(new GoToPosCommand(new Pose2d(2.28, 2.0, new Rotation2d(0))));
@@ -156,6 +157,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return null;
+    return autoChooser.get();
   }
 }

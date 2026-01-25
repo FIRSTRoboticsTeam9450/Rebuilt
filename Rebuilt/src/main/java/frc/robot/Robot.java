@@ -10,8 +10,10 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -68,6 +70,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledPeriodic() {
+
+    FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+
     TurretSubsystem.getInstance().updateTunableParameters();
     ShooterSubsystem.getInstance().updateShooterConstants();
     IntakeSubsystem.getInstance().updateConstants();

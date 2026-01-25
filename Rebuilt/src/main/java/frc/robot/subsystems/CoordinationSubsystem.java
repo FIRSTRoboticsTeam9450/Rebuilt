@@ -71,69 +71,62 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public Command setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin location) {
-        if (FieldConstants.isBlueAlliance) {
-            switch (location) {
-                case CLOSE_LEFT:
-                    return Commands.either(
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchOne, new Rotation2d(0))),
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchTwo, new Rotation2d(0))),
-                        (() -> drivetrain.getState().Pose.getX() > 4.614)
-                    );
+        switch (location) {
+            case CLOSE_LEFT:
+                return Commands.either(
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchOne, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchTwo, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 4.614)),
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchEight, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSeven, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 11.914)),
+                            (() -> FieldConstants.isBlueAlliance)
+                        );
 
-                case CLOSE_RIGHT:
-                    return Commands.either(
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchThree, new Rotation2d(0))),
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFour, new Rotation2d(0))),
-                        (() -> drivetrain.getState().Pose.getX() > 4.614)
-                    );
 
-                case FAR_LEFT:
-                    return Commands.either(
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFive, new Rotation2d(0))),
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSix, new Rotation2d(0))),
-                        (() -> drivetrain.getState().Pose.getX() > 11.914)
-                    );
+            case CLOSE_RIGHT:
+                return Commands.either(
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchThree, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFour, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 4.614)),
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSix, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFive, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 11.914)),
+                            (() -> FieldConstants.isBlueAlliance)
+                        );
 
-                case FAR_RIGHT:
-                    return Commands.either(
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSeven, new Rotation2d(0))),
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchEight, new Rotation2d(0))),
-                        (() -> drivetrain.getState().Pose.getX() > 11.914)
-                    );
-            }
-        } else {
-            switch (location) {
-                case CLOSE_LEFT:
-                    return Commands.either(
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchEight, new Rotation2d(0))),
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSeven, new Rotation2d(0))),
-                        (() -> drivetrain.getState().Pose.getX() > 11.914)
-                    );
+            case FAR_LEFT:
+                return Commands.either(
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFive, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSix, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 11.914)),
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFour, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchThree, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 4.614)),
+                            (() -> FieldConstants.isBlueAlliance)
+                        );
 
-                case CLOSE_RIGHT: 
-                    return Commands.either(
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSix, new Rotation2d(0))),
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFive, new Rotation2d(0))),
-                        (() -> drivetrain.getState().Pose.getX() > 11.914)
-                    );
-
-                case FAR_LEFT:
-                    return Commands.either(
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFour, new Rotation2d(0))),
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchThree, new Rotation2d(0))),
-                        (() -> drivetrain.getState().Pose.getX() > 4.614)
-                    );
-
-                case FAR_RIGHT:
-                    return Commands.either(
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchTwo, new Rotation2d(0))),
-                        new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchOne, new Rotation2d(0))),
-                        (() -> drivetrain.getState().Pose.getX() > 4.614)
-                    );
-            }
+            case FAR_RIGHT:
+                return Commands.either(
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSeven, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchEight, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 11.914)),
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchTwo, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchOne, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 4.614)),
+                            (() -> FieldConstants.isBlueAlliance)
+                        );
         }
 
-        return new GoToPosCommand(drivetrain.getState().Pose);
+    return new GoToPosCommand(drivetrain.getState().Pose);
     }
 
     public double getVelocityTurrent(double time) {

@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 11.925623271149101,
-        "y": 7.422463006551892
+        "x": 3.6214261553671427,
+        "y": 0.39803016676819203
       },
       "prevControl": null,
       "nextControl": {
-        "x": 12.925623271149103,
-        "y": 7.422463006551892
+        "x": 3.0686590584797995,
+        "y": 1.0655777460751188
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "OutpostSideStartAgainstWall"
     },
     {
       "anchor": {
-        "x": 10.120228245367661,
-        "y": -0.4741226818768041
+        "x": 1.102,
+        "y": 0.652
       },
       "prevControl": {
-        "x": 9.120228245367661,
-        "y": -0.4741226818768041
+        "x": 2.214724679029956,
+        "y": 0.4837974322396583
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.65,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,10 +47,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Outpost",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0
