@@ -54,7 +54,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0);
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0);
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 7.39209);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", -1.39);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 10);
 
     //Motion Magic Set Up(Intake arm)
@@ -104,7 +104,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case STORE:
-                motorArm.setControl(request.withPosition(0.5));
+                motorArm.setControl(request.withPosition(-6.4667)); // .5 before
                 break;
             
             case INTAKING:

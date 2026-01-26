@@ -101,6 +101,8 @@ public class TurretSubsystem extends SubsystemBase {
         DISABLED,
         /** Go to a hand set target angle */
         TESTING,
+        /** Goes to store, then once there, goes to aiming */
+        INIT,
         /** Holding current position, no active tracking */
         IDLING,
         /** Actively tracking a field-relative target */
@@ -355,6 +357,18 @@ public class TurretSubsystem extends SubsystemBase {
                 turretMotor.setControl(positionRequest.withPosition(logTurretTarget.get() / encoderToAngleMultiplier).withFeedForward(0));
                 break;
 
+            case INIT:
+                if (isAtGoal(1)) {
+                    currentState = TurretState.AIMING;
+                }
+
+                profiledSetpointDeg = Math.toDegrees(
+                    velocityLimiter.calculate(0.0)
+                );
+                
+                commandTurret(profiledSetpointDeg, 0.0, 0.0);
+                break;
+
             case IDLING:
                 // Capture current position on state entry
                 if (stateNewlyChanged) {
@@ -587,6 +601,8 @@ public class TurretSubsystem extends SubsystemBase {
             turretEncoder.getPosition().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Turret/MotorOutputVolts", 
             turretMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Turret/MotorVelocity (RPS)", 
+            turretMotor.getVelocity().getValueAsDouble());
         
         // Status flags
         Logger.recordOutput("Rebuilt/Turret/AtGoal", isAtGoal());

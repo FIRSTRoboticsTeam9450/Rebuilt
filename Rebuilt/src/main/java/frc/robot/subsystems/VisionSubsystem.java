@@ -589,19 +589,19 @@ public class VisionSubsystem extends SubsystemBase {
         Translation2d targetWRTBot = givenTargetWRTBot;
         Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
         ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
-        ChassisSpeeds velocityRobotWRTField = ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, currentPose.getRotation());
+        // ChassisSpeeds velocityRobotWRTField = ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, currentPose.getRotation());
         double timeToShoot = getTimeToShoot(targetWRTBot);
         if(lastTargetPose != null) {
             timeToShoot = getTimeToShoot(lastTargetPose);
         }
-        Translation2d amountMoved =new Translation2d(velocityRobotWRTField.vxMetersPerSecond * timeToShoot, velocityRobotWRTField.vyMetersPerSecond * timeToShoot);
-        Translation2d finalTarget = targetWRTBot.plus(amountMoved);
+        Translation2d amountMoved = new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
+        Translation2d finalTarget = targetWRTBot.plus(amountMoved.times(-1));
 
         // Iterate to zoom in to find the final target, get closer and closer each time
         for(int i = 0; i < 6; i++) {
             timeToShoot = getTimeToShoot(finalTarget);
-            amountMoved =  new Translation2d(velocityRobotWRTField.vxMetersPerSecond * timeToShoot, velocityRobotWRTField.vyMetersPerSecond * timeToShoot);
-            finalTarget = targetWRTBot.plus(amountMoved);
+            amountMoved =  new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
+            finalTarget = targetWRTBot.plus(amountMoved.times(-1));
         }
         return finalTarget;
     }

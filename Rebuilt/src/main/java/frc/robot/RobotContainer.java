@@ -112,7 +112,7 @@ public class RobotContainer {
 
     // For tuning hood angle PID
     DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING)).andThen(
-      new InstantCommand(() -> shooterSub.setOverrideHoodAngle(20)))
+      new InstantCommand(() -> shooterSub.setOverrideHoodAngle(40)))
     .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
     // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
@@ -142,10 +142,10 @@ public class RobotContainer {
 
     // DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.192, 3.960, new Rotation2d(40))));
     // DRIVER.b().whileTrue(new GoToPosCommand(new Pose2d(2.28, 2.0, new Rotation2d(0))));
-    DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.IDLING));
+    DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.AIMING));
     DRIVER.rightTrigger().onTrue(transferSub.setStateCommand(TransferState.RUN_IN));
     DRIVER.rightTrigger().onFalse(transferSub.setStateCommand(TransferState.NO_RUN));
-    DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.IDLING));
+    DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.AIMING));
     
     DRIVER.leftTrigger().onTrue(
       IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)

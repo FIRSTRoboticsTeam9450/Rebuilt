@@ -78,20 +78,18 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
     // Hood Motion Magic parameters
-    private LoggedNetworkNumber logHoodMMVeloc = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Velocity", 1);
-    private LoggedNetworkNumber logHoodMMAccel = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Acceleration", 4);
-    private LoggedNetworkNumber logHoodMMJerk = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Jerk", 400);
+    private LoggedNetworkNumber logHoodMMVeloc = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Velocity", 800);
+    private LoggedNetworkNumber logHoodMMAccel = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Acceleration", 800);
     private double hoodMMVelocity = logHoodMMVeloc.get();
     private double hoodMMAcceleration = logHoodMMAccel.get();
-    private double hoodMMJerk = logHoodMMJerk.get();
 
-    private LoggedNetworkNumber logHoodMMKS = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kS", 0);
-    private LoggedNetworkNumber logHoodMMKV = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kV", 0.33);
+    private LoggedNetworkNumber logHoodMMKS = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kS", .1);
+    private LoggedNetworkNumber logHoodMMKV = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kV", 0.095);
     private LoggedNetworkNumber logHoodMMKA = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kA", 0);
-    private LoggedNetworkNumber logHoodMMKP = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kP", 1);
+    private LoggedNetworkNumber logHoodMMKP = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kP", 15);
     private LoggedNetworkNumber logHoodMMKI = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kI", 0);
     private LoggedNetworkNumber logHoodMMKD = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kD", 0);
-    private LoggedNetworkNumber logHoodMMKG = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kG", 0);
+    private LoggedNetworkNumber logHoodMMKG = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kG", 0.3);
     private DynamicMotionMagicVoltage hoodMMRequest;
 
     // Shooter Outtake Velocity Motion Magic Parameters
@@ -101,7 +99,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", .5);
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 0);
     private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 15);
-    private LoggedNetworkNumber logOuttakeVJerk = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Jerk", 4000);
     private double outtakeVKFF = logOuttakeVKFF.get();
     private final int outtakeVSlot = 0;
     private final MotionMagicVelocityVoltage outtakeVRequest;
@@ -126,7 +123,7 @@ public class ShooterSubsystem extends SubsystemBase {
         configureAngleMotors();
         configureShooterMotors();
 
-        hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withJerk(hoodMMJerk).withEnableFOC(RobotConstants.ENABLE_FOC);;
+        hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration);//.withEnableFOC(RobotConstants.ENABLE_FOC);;
         outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     }
@@ -150,13 +147,12 @@ public class ShooterSubsystem extends SubsystemBase {
         angleMotorConfig.Slot0 = slot0Config;
 
         MotionMagicConfigs mmConfigs = new MotionMagicConfigs().withMotionMagicAcceleration(logHoodMMAccel.get())
-                                                               .withMotionMagicCruiseVelocity(logHoodMMVeloc.get())
-                                                               .withMotionMagicJerk(logHoodMMJerk.get());
+                                                               .withMotionMagicCruiseVelocity(logHoodMMVeloc.get());
         angleMotorConfig.MotionMagic = mmConfigs;
 
         angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 4.530273; // Hood angle limit
+        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 12.856934; // Hood angle limit
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
 
         angleMotor.getConfigurator().apply(angleMotorConfig);
@@ -182,7 +178,6 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorsConfig.Slot0 = slot0Config;
 
         shooterMotorsConfig.MotionMagic.MotionMagicAcceleration = logOuttakeVAccel.get();
-        shooterMotorsConfig.MotionMagic.MotionMagicJerk = logOuttakeVJerk.get();
 
         shooterLeftMotor.getConfigurator().apply(shooterMotorsConfig);
 
@@ -220,7 +215,7 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight);
         Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + 15);
         Logger.recordOutput("Rebuilt/Shooter/Hood/Took target", hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
-
+        Logger.recordOutput("Rebuilt/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
 
@@ -265,7 +260,10 @@ public class ShooterSubsystem extends SubsystemBase {
                     currentPos = angleMotor.getPosition().getValueAsDouble();//MathUtil.clamp(angleMotor.getPosition().getValueAsDouble(), hoodAngleMin, hoodAngleMax);
                     storeCurrentPos = true;
                 }
-                angleMotor.setControl(hoodMMRequest.withPosition(0));
+                angleMotor.setControl(hoodMMRequest.withPosition(5));
+            case STORING:
+                angleMotor.setControl(hoodMMRequest.withPosition(5));
+                
             default:
                 break;
         }
@@ -411,8 +409,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     || (shooterMotorsConfig.Slot0.kA != logOuttakeVKA.get())
                     || (shooterMotorsConfig.Slot0.kP != logOuttakeVKP.get())
                     || (outtakeVKFF != logOuttakeVKFF.get())
-                    || (shooterMotorsConfig.MotionMagic.MotionMagicAcceleration != logOuttakeVAccel.get())
-                    || (shooterMotorsConfig.MotionMagic.MotionMagicJerk != logOuttakeVJerk.get());
+                    || (shooterMotorsConfig.MotionMagic.MotionMagicAcceleration != logOuttakeVAccel.get());
 
         if (updateOuttakeVals) {
             shooterMotorsConfig.Slot0.kS = logOuttakeVKS.get();
@@ -422,7 +419,6 @@ public class ShooterSubsystem extends SubsystemBase {
             outtakeVKFF = logOuttakeVKFF.get();
 
             shooterMotorsConfig.MotionMagic.MotionMagicAcceleration = logOuttakeVAccel.get();
-            shooterMotorsConfig.MotionMagic.MotionMagicJerk = logOuttakeVJerk.get();
             
             configureShooterMotors();
         }
@@ -436,8 +432,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     || (angleMotorConfig.Slot0.kD != logHoodMMKD.get())
                     || (angleMotorConfig.Slot0.kG != logHoodMMKG.get())
                     || (angleMotorConfig.MotionMagic.MotionMagicCruiseVelocity != logHoodMMVeloc.get())
-                    || (angleMotorConfig.MotionMagic.MotionMagicAcceleration != logHoodMMAccel.get())
-                    || (angleMotorConfig.MotionMagic.MotionMagicJerk != logHoodMMJerk.get());
+                    || (angleMotorConfig.MotionMagic.MotionMagicAcceleration != logHoodMMAccel.get());
 
         if (updateAngleVals) {
             angleMotorConfig.Slot0.kS = logHoodMMKS.get();
@@ -452,9 +447,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
             hoodMMVelocity = logHoodMMVeloc.get();
             hoodMMAcceleration = logHoodMMAccel.get();
-            hoodMMJerk = logHoodMMJerk.get();
 
-            hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withJerk(hoodMMJerk).withEnableFOC(RobotConstants.ENABLE_FOC);
+            hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration);//.withEnableFOC(RobotConstants.ENABLE_FOC);
         }
         
     }
