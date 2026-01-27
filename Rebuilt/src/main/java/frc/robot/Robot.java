@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -41,6 +42,7 @@ public class Robot extends LoggedRobot {
     m_robotContainer = new RobotContainer();
 
     Logger.start();
+    SignalLogger.setPath("/home/lvuser/logs/");
   }
 
   @Override
@@ -66,7 +68,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    // SignalLogger.stop();
+  }
 
   @Override
   public void disabledPeriodic() {
@@ -102,6 +106,7 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    // SignalLogger.start();
   }
 
   /** This function is called periodically during operator control. */

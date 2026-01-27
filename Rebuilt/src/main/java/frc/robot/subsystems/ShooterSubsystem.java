@@ -1,9 +1,12 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Volt;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -12,6 +15,7 @@ import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -22,6 +26,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants;
@@ -44,17 +49,17 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public enum ShooterState {
+        SYS_ID,
         SHOOTING,
         RAMP_UP,
         NOT_SHOOTING,
-
     }
 
     // Other subsystems
     private CoordinationSubsystem coordSub; // = RobotContainer.coordSub;
     private VisionSubsystem visionSub; // = RobotContainer.visionSub;
 
-    private AngleState currentAngleState = AngleState.STORING;
+    private AngleState currentAngleState = AngleState.AIMING;
     private ShooterState currentShooterState = ShooterState.NOT_SHOOTING;
 
     private double targetHoodHeight = 0;
@@ -64,9 +69,11 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean storeCurrentPos = false;
 
     private double hoodAngleMax = 13.5;
-    private double hoodAngleMin = 5;
+    private double hoodAngleMin = 3.5;
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 15;
+    private double distanceAwayToUseSpecificDegree = 4.185;
+    private double distanceAwayToUseLowDegree = 1.481;
 
     // Motors
     private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.CANIVORE_BUS);
@@ -93,12 +100,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private DynamicMotionMagicVoltage hoodMMRequest;
 
     // Shooter Outtake Velocity Motion Magic Parameters
-    private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0);
-    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.15);
+    private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.331699);
+    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.12222);
     private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0);
-    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", .5);
+    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.5);
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 0);
-    private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 15);
+    private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 30);
     private double outtakeVKFF = logOuttakeVKFF.get();
     private final int outtakeVSlot = 0;
     private final MotionMagicVelocityVoltage outtakeVRequest;
@@ -110,7 +117,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // Flags
     private boolean isTuningShooterVelocity = logIsTuningShooterVelocity.get();
     private boolean isOverrideAngle = false;
-    private boolean isZeroingDone = false;
+    private boolean isZeroingDone = true;
 
     // Data tables
     InterpolatingDoubleTreeMap shootingDistanceToTime = new InterpolatingDoubleTreeMap();
@@ -119,12 +126,42 @@ public class ShooterSubsystem extends SubsystemBase {
     InterpolatingDoubleTreeMap ferryingDistanceToTime = new InterpolatingDoubleTreeMap();
     InterpolatingDoubleTreeMap ferryingDistanceToVelocity = new InterpolatingDoubleTreeMap();
 
+    // SYS ID
+    private final VoltageOut sysIDRequest = new VoltageOut(0);
+    private final SysIdRoutine m_sysIdRoutine;
+
     public ShooterSubsystem() {
         configureAngleMotors();
         configureShooterMotors();
-
+        addData();
         hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration);//.withEnableFOC(RobotConstants.ENABLE_FOC);;
         outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
+
+        m_sysIdRoutine =
+            new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    null,        // Use default ramp rate (1 V/s)
+                    Volt.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
+                    null,        // Use default timeout (10 s)
+                                // Log state with Phoenix SignalLogger class
+                    (state) -> SignalLogger.writeString("state", state.toString())
+                ),
+                new SysIdRoutine.Mechanism(
+                    (volts) -> shooterRightMotor.setControl(sysIDRequest.withOutput(volts.in(Volt))),
+                    null,
+                    this
+                )
+            );
+    }
+
+    public void addData() {
+        shootingDistanceToVelocity.put(1.676, 24.5);
+        shootingDistanceToVelocity.put(2.033,26.5);
+        shootingDistanceToVelocity.put(2.581,27.5);
+        shootingDistanceToVelocity.put(3.323,29.5);
+        shootingDistanceToVelocity.put(4.08,32.0);
+        shootingDistanceToVelocity.put(5.058,32.5);
+        shootingDistanceToVelocity.put(5.695,34.0);
 
     }
 
@@ -187,15 +224,15 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterRightMotor.setControl(new StrictFollower(shooterLeftMotor.getDeviceID()));
     }
 
-    // public boolean zeroEncoder() {
-    //     if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
-    //         angleMotor.setPosition(0);
-    //         angleMotor.setVoltage(0);
-    //         currentAngleState = AngleState.STORING;
-    //         return true;
-    //     }
-    //     return false;
-    // }
+    public boolean autoZeroing() {
+        if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
+            angleMotor.setPosition(0);
+            angleMotor.setVoltage(0);
+            currentAngleState = AngleState.STORING;
+            return true;
+        }
+        return false;
+    }
 
     public void zeroEncoder() {
         angleMotor.setPosition(0);
@@ -203,10 +240,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // if (!isZeroingDone) {
-        //     currentAngleState = AngleState.ZEROING;
-        //     isZeroingDone = zeroEncoder();
-        // }
+        if (!isZeroingDone) {
+            currentAngleState = AngleState.ZEROING;
+            isZeroingDone = autoZeroing();
+        }
         applyState();
         publishLogs();
     }
@@ -241,8 +278,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void applyState() {
         switch (currentShooterState) {
+            case SYS_ID:
+                break;
             case SHOOTING:
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
+                // shooterLeftMotor.setVoltage(getShooterVeloc());
                 break;
             case NOT_SHOOTING:
                 shooterLeftMotor.setVoltage(0);
@@ -250,6 +290,12 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
         }
         switch (currentAngleState) {
+            case ZEROING:
+                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtGoal()) {
+                    angleMotor.setControl(new VoltageOut(-0.6));
+                } else {
+                    angleMotor.setControl(new VoltageOut(0));
+                }
             case AIMING:
                 angleMotor.setControl(hoodMMRequest.withPosition(getShooterAngle()));
                 break;
@@ -260,9 +306,9 @@ public class ShooterSubsystem extends SubsystemBase {
                     currentPos = angleMotor.getPosition().getValueAsDouble();//MathUtil.clamp(angleMotor.getPosition().getValueAsDouble(), hoodAngleMin, hoodAngleMax);
                     storeCurrentPos = true;
                 }
-                angleMotor.setControl(hoodMMRequest.withPosition(5));
+                angleMotor.setControl(hoodMMRequest.withPosition(0));
             case STORING:
-                angleMotor.setControl(hoodMMRequest.withPosition(5));
+                angleMotor.setControl(hoodMMRequest.withPosition(0));
                 
             default:
                 break;
@@ -271,23 +317,23 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
-            // switch (coordSub.getCurrentZone()) {
-            //     case SHOOTING_ZONE:
-            //         targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-            //         break;
-            //     case FERRY_ZONE_TOP:
-            //         targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-            //         break;
+            switch (coordSub.getCurrentZone()) {
+                case SHOOTING_ZONE:
+                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                // case FERRY_ZONE_TOP:
+                //     targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                //     break;
                     
-            //     case FERRY_ZONE_BOTTOM:
-            //         targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-            //         break;
-            //     case TRENCH_DEADZONE:
-            //         targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-            //         break;
-            //     default:
-            //         break;
-            // }
+                // case FERRY_ZONE_BOTTOM:
+                //     targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                //     break;
+                // case TRENCH_DEADZONE:
+                //     targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                //     break;
+                default:
+                    break;
+            }
         }
         else {
             targetShooterVeloc = logTuningShooterVelocity.get();
@@ -331,10 +377,16 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double hoodAngleFunction(double distance) {
-        double wantedAngle = (-21.0/(distance + 1.07143)) + 42.0;//Math.atan(51/distance); // Min distance away 4.5
+        double wantedAngle = (-60.0/(distance - .6)) + 48.0;//Math.atan(51/distance); // Min distance away 4.5
         double wantedRevs = getAsRevs(wantedAngle);
         if(wantedRevs != MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax)) {
             System.out.println("DEBUGGING: Didn't use calculated angle: " + wantedRevs);
+        }
+        if(distance <= distanceAwayToUseLowDegree) {
+            wantedRevs = 0; 
+        }
+        if(distance >= distanceAwayToUseSpecificDegree) {
+            wantedRevs = getAsRevs(40);
         }
         return MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax);
     }
@@ -452,6 +504,12 @@ public class ShooterSubsystem extends SubsystemBase {
         }
         
     }
+
+
+    public AngleState getCurrentAngleState() {
+        return currentAngleState;
+    }
+
     /**
      * Set shooter state
      * @param wantedShooterState
@@ -484,5 +542,14 @@ public class ShooterSubsystem extends SubsystemBase {
     public void initizalize() {
         visionSub = VisionSubsystem.getInstance();
         coordSub = CoordinationSubsystem.getInstance();
+    }
+
+    // ======================= SYS ID ===================
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutine.dynamic(direction);
     }
 }
