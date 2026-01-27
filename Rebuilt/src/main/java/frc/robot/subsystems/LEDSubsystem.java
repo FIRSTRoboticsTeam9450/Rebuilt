@@ -12,9 +12,9 @@ import frc.robot.Constants.RobotConstants;
 
 public class LEDSubsystem extends SubsystemBase{
 
-    private static volatile LEDSubsystem INSTANCE;
+    private static LEDSubsystem INSTANCE;
 
-    public static synchronized LEDSubsystem getInstance() {
+    public static LEDSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new LEDSubsystem();
         return INSTANCE;
     }

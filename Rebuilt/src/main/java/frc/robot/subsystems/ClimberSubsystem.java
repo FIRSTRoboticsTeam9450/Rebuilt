@@ -30,7 +30,7 @@ import frc.robot.Constants.RobotConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
 
-    private static volatile ClimberSubsystem climberInstance;
+    private static ClimberSubsystem climberInstance;
 
     private TalonFX climbMotorFront = new TalonFX(0, RobotConstants.CANIVORE_BUS_NAME); //temporary deviceID value
     // private TalonFX climbMotorBack = new TalonFX(ClimberConstants.DeviceIDs.kClimbMotorBackID, RobotConstants.CANIVORE_BUS_NAME);
@@ -233,7 +233,7 @@ public class ClimberSubsystem extends SubsystemBase {
         return climbMotorFront.getPosition().getValueAsDouble();
     }
 
-    public static synchronized ClimberSubsystem getInstance() {
+    public static ClimberSubsystem getInstance() {
         if (climberInstance == null) {
             climberInstance = new ClimberSubsystem();
         }

@@ -19,7 +19,7 @@ import frc.robot.Constants.RobotConstants.TransferConstants;
  */
 public class TransferSubsystem extends SubsystemBase {
     /** Transfer subsystem instance */
-    private static volatile TransferSubsystem INSTANCE;
+    private static TransferSubsystem INSTANCE;
 
     /**
      * State machine for transfer operation modes
@@ -48,7 +48,7 @@ public class TransferSubsystem extends SubsystemBase {
      * Returns the single instance of the TransferSubsystem
      * @return The TurretSubsystem instance
      */
-    public static synchronized TransferSubsystem getInstance() {
+    public static TransferSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new TransferSubsystem();
         return INSTANCE;
     }
