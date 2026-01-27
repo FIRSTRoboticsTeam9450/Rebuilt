@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.RobotContainer;
 
 /**
  * <p> Blue-Origin </p>
@@ -27,11 +28,12 @@ public class GoToPosCommand extends Command{
     Command pathfindingCommand;
 
     public GoToPosCommand(Pose2d targetPose) {
+        addRequirements(RobotContainer.drivetrain);
         this.targetPose = targetPose;
 
         constraints = new PathConstraints(
-            0.8, 0.5,
-            Units.degreesToRadians(90), Units.degreesToRadians(180) 
+            6, 5,
+            Units.degreesToRadians(720), Units.degreesToRadians(940) 
         );
 
         pathfindingCommand = AutoBuilder.pathfindToPose(
@@ -58,5 +60,4 @@ public class GoToPosCommand extends Command{
     public void end(boolean interrupted) {
         CommandScheduler.getInstance().cancel(pathfindingCommand);
     }
-
 }
