@@ -76,7 +76,8 @@ public class ClimberSubsystem extends SubsystemBase {
                             logMMVelocity.get(), 
                             logMMAcceleration.get())
                             .withJerk(logMMJerk.get())
-                            .withSlot(0);
+                            .withSlot(0)
+                            .withEnableFOC(true);
     // MotionMagic type may change
 
     public enum ElevatorStates {
@@ -189,17 +190,17 @@ public class ClimberSubsystem extends SubsystemBase {
             case RETRACTED:
                 // retract the climb carry the bot up the bar
                 setTarget(0); //retracted position
-                
-                if (atTarget()) {
-                    currentElevatorState = ElevatorStates.STANDBY;
-                }
 
                 if (!endClimbSequence()) {
                     delayStopwatch.start();
                     if(delayStopwatch.get() >= 3) { //3 seconds
                         currentElevatorState = ElevatorStates.EXTENDED;
+                        //yeah we have no clue how the climber is going to work
 
                         resetStopwatch();
+                        climbCounter--;
+                    } else {
+                        currentElevatorState = ElevatorStates.STANDBY;
                     }
                 }
                 break;
