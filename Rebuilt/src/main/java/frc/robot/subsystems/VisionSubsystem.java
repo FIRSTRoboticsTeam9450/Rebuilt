@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants.ZoneConstants;
+import frc.robot.Constants.RobotConstants.TurretConstants;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
@@ -553,7 +554,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public Translation2d getTargetRelativeToBot () {
-        Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
+        Pose2d currentPose = getCurrentBotPoseAllianceUnspecific().transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
         Pose2d currentTargetPose = new Pose2d(currentTarget, new Rotation2d());
         return currentTargetPose.minus(currentPose).getTranslation();
     }

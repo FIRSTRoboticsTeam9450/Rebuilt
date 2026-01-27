@@ -1,16 +1,23 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.IntakeConstants;
+
+import static edu.wpi.first.units.Units.Volt;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.*;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -22,6 +29,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     //List the states the intake will use
     public enum IntakePos {
+        SYS_ID,
         ZEROING,
         STORE,
         INTAKING,
@@ -44,32 +52,51 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 45);
     private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 30);
-    private LoggedNetworkNumber logMMJerk = new LoggedNetworkNumber("/Tuning/Intake/Angle/Jerk", 1000);
 
-    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.1);
-    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.33);
-    private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Intake/Angle/kA", 0);
-    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 25);
-    private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Intake/Angle/kI", 0);
-    private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0);
-    private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0);
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", -1.39);
-    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 10);
+    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.1); // .1
+    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.45); // .33
+    private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Intake/Angle/kA", 0); // 0
+    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 25); // 25
+    private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Intake/Angle/kI", 0); // 0
+    private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0); // 0
+    private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0); // 0
+
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.39);
+    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
     //Motion Magic Set Up(Intake arm)
-    private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);;
+    private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+
+    private final VoltageOut sysIDRequest = new VoltageOut(0);
+    private final SysIdRoutine m_sysIdRoutine;
 
     public IntakeSubsystem() {
         configureMotors();
+
+        //sys id
+        m_sysIdRoutine =
+            new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    null,        // Use default ramp rate (1 V/s)
+                    Volt.of(1), // Reduce dynamic step voltage to 1 to prevent brownout
+                    null,        // Use default timeout (10 s)
+                                // Log state with Phoenix SignalLogger class
+                    (state) -> SignalLogger.writeString("state", state.toString())
+                ),
+                new SysIdRoutine.Mechanism(
+                    (volts) -> motorArm.setControl(sysIDRequest.withOutput(volts.in(Volt))),
+                    null,
+                    this
+                )
+            );
     }
 
     private void configureMotors() {
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
-        motorConfig.MotionMagic.MotionMagicJerk = logMMJerk.get();
 
         //Magic Motion
         var slot0Configs = motorConfig.Slot0;
@@ -100,11 +127,13 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private void applyState() {
         switch (currentPos) {
+            case SYS_ID:
+                break;
             case ZEROING:
                 break;
 
             case STORE:
-                motorArm.setControl(request.withPosition(-6.4667)); // .5 before
+                motorArm.setControl(request.withPosition(6.4667)); // .5 before
                 break;
             
             case INTAKING:
@@ -127,7 +156,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Angle/Current Pos", currentPos);
 
         Logger.recordOutput("Rebuilt/Intake/Angle/Position", motorArm.getPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Intake/Angle/Target", currentPos == IntakePos.INTAKING ? logIntakeTarget.get() : 0.5);
+        Logger.recordOutput("Rebuilt/Intake/Angle/Target", currentPos == IntakePos.INTAKING ? logIntakeTarget.get() : 6.4667);
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Voltage", motorArm.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Velocity", motorArm.getVelocity().getValueAsDouble());
     }
@@ -154,7 +183,6 @@ public final class IntakeSubsystem extends SubsystemBase{
 
         if (motorConfig.MotionMagic.MotionMagicAcceleration != logMMAccel.get() ||
             motorConfig.MotionMagic.MotionMagicCruiseVelocity != logMMVeloc.get() ||
-            motorConfig.MotionMagic.MotionMagicJerk != logMMJerk.get() ||
             motorConfig.Slot0.kS != logMMKS.get() ||
             motorConfig.Slot0.kV != logMMKV.get() ||
             motorConfig.Slot0.kA != logMMKA.get() ||
@@ -174,5 +202,14 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     public void zeroEncoders() {
         motorArm.setPosition(0);
+    }
+
+    // ================== SYS ID COMMANDS ================
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutine.dynamic(direction);
     }
 }

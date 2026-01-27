@@ -10,15 +10,18 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
 import frc.robot.commands.GoToPosCommand;
 import frc.robot.commands.ResetIMU;
@@ -57,8 +60,8 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
 
-  public static double maxSpeed = DEFAULT_MAX_SPEED;
-  public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE;
+  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.2;
+  public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
   private final CommandXboxController OPERATOR = new CommandXboxController(Constants.OPERATOR_CONTROLLER_PORT);
@@ -111,13 +114,13 @@ public class RobotContainer {
     //   );
 
     // For tuning hood angle PID
-    DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING)).andThen(
-      new InstantCommand(() -> shooterSub.setOverrideHoodAngle(40)))
-    .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
+    // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING)).andThen(
+    //   new InstantCommand(() -> shooterSub.setOverrideHoodAngle(40)))
+    // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
     // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
     
-    DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(15)).andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
+    //DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(15)).andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
     // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
 
     // DRIVER.rightTrigger().onTrue(
@@ -128,24 +131,20 @@ public class RobotContainer {
     //   .andThen(transferSub.setStateCommand(TransferState.NO_RUN))
     //);
 
-    // DRIVER.y().onTrue(
-    //   shooterSub.setStateCommand(ShooterState.OVERRIDE));
-    // ).onFalse(
-    //   shooterSub.setStateCommand(ShooterState.NOT_SHOOTING)
-    // );
-      
 
     // DRIVER.povDown().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT));
     // DRIVER.povLeft().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT));
     // DRIVER.povRight().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT));
     // DRIVER.povUp().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT));
 
-    // DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.192, 3.960, new Rotation2d(40))));
-    // DRIVER.b().whileTrue(new GoToPosCommand(new Pose2d(2.28, 2.0, new Rotation2d(0))));
+
     DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.AIMING));
-    DRIVER.rightTrigger().onTrue(transferSub.setStateCommand(TransferState.RUN_IN));
-    DRIVER.rightTrigger().onFalse(transferSub.setStateCommand(TransferState.NO_RUN));
     DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.AIMING));
+
+    // DRIVER.rightTrigger().onTrue(transferSub.setStateCommand(TransferState.RUN_IN));
+    // DRIVER.rightTrigger().onFalse(transferSub.setStateCommand(TransferState.NO_RUN));
+
+    
     
     DRIVER.leftTrigger().onTrue(
       IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
@@ -159,11 +158,25 @@ public class RobotContainer {
 
     DRIVER.back().onTrue(
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)
-      );
+    );
 
-    // DRIVER.x().onTrue(
-    //   new InstantCommand(() -> ShooterSubsystem.getInstance().zeroEncoder()).ignoringDisable(true)
-    //   );
+    // DRIVER.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    // DRIVER.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+
+    // DRIVER.y().whileTrue(ShooterSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // DRIVER.a().whileTrue(ShooterSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // DRIVER.b().whileTrue(ShooterSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // DRIVER.x().whileTrue(ShooterSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    // DRIVER.y().whileTrue(TurretSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // DRIVER.a().whileTrue(TurretSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // DRIVER.b().whileTrue(TurretSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // DRIVER.x().whileTrue(TurretSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+    // DRIVER.y().whileTrue(IntakeSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // DRIVER.a().whileTrue(IntakeSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // DRIVER.b().whileTrue(IntakeSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // DRIVER.x().whileTrue(IntakeSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
   }
 

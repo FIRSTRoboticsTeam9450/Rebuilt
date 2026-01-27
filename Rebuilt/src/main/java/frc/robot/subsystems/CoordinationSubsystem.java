@@ -132,7 +132,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     public double getVelocityTurrent(double time) {
         Translation2d currentTarget = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
         Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(time);
-        return (TurretSubsystem.getInstance().updateTargetFromMode(currentTarget) - TurretSubsystem.getInstance().updateTargetFromMode(futureTarget))/time;
+        return (TurretSubsystem.getInstance().updateTargetFromMode(futureTarget) - TurretSubsystem.getInstance().updateTargetFromMode(currentTarget))/time;
     }
 
     public static CoordinationSubsystem getInstance() {
