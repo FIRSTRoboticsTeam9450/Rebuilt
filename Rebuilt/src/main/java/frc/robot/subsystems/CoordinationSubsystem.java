@@ -1,19 +1,28 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.FieldConstants.TrenchManeuvering;
+import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
+import frc.robot.commands.GoToPosCommand;
 import frc.robot.subsystems.VisionSubsystem.ZoneState;
 
 public class CoordinationSubsystem extends SubsystemBase {
 
-    private static CoordinationSubsystem INSTANCE;
+    private static volatile CoordinationSubsystem INSTANCE;
 
-    private TurretSubsystem turretSub = TurretSubsystem.getInstance();
-    private ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
-    private VisionSubsystem visionSub = VisionSubsystem.getInstance();
+    private TurretSubsystem turretSub; // = TurretSubsystem.getInstance();
+    private ShooterSubsystem shooterSub;// = ShooterSubsystem.getInstance();
+    private VisionSubsystem visionSub;// = VisionSubsystem.getInstance();
+    private CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
 
     public enum AbsoluteStates {
         STORING,
@@ -34,11 +43,11 @@ public class CoordinationSubsystem extends SubsystemBase {
     
 
     public boolean isShooterReady() {
-        return shooterSub.isShooterReady();
+        return ShooterSubsystem.getInstance().isShooterReady();
     }
 
     public boolean isTurretReady() {
-        return turretSub.isAtGoal();
+        return TurretSubsystem.getInstance().isAtGoal();
     }
 
     public boolean areShooterAndTurretReady() {
@@ -58,19 +67,87 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public ZoneState getCurrentZone() {
-        return visionSub.getCurrentZone();
+        return VisionSubsystem.getInstance().getCurrentZone();
+    }
+
+    public Command setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin location) {
+        switch (location) {
+            case CLOSE_LEFT:
+                return Commands.either(
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchOne, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchTwo, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 4.614)),
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchEight, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSeven, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 11.914)),
+                            (() -> FieldConstants.isBlueAlliance)
+                        );
+
+
+            case CLOSE_RIGHT:
+                return Commands.either(
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchThree, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFour, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 4.614)),
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSix, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFive, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 11.914)),
+                            (() -> FieldConstants.isBlueAlliance)
+                        );
+
+            case FAR_LEFT:
+                return Commands.either(
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFive, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSix, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 11.914)),
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchFour, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchThree, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 4.614)),
+                            (() -> FieldConstants.isBlueAlliance)
+                        );
+
+            case FAR_RIGHT:
+                return Commands.either(
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchSeven, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchEight, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 11.914)),
+                            Commands.either(
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchTwo, new Rotation2d(0))),
+                                new GoToPosCommand(new Pose2d(TrenchManeuvering.trenchOne, new Rotation2d(0))),
+                                (() -> drivetrain.getState().Pose.getX() > 4.614)),
+                            (() -> FieldConstants.isBlueAlliance)
+                        );
+        }
+
+    return new GoToPosCommand(drivetrain.getState().Pose);
     }
 
     public double getVelocityTurrent(double time) {
-        Translation2d currentTarget = visionSub.getAdjustedCurrentTarget();
-        Translation2d futureTarget = visionSub.getAdjustedFutureTarget(time);
-        return (turretSub.updateTargetFromMode(currentTarget) - turretSub.updateTargetFromMode(futureTarget))/time;
-        // return -1; //TODO: make your method ryan >:)
+        Translation2d currentTarget = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
+        Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(time);
+        return (TurretSubsystem.getInstance().updateTargetFromMode(currentTarget) - TurretSubsystem.getInstance().updateTargetFromMode(futureTarget))/time;
     }
 
     public static CoordinationSubsystem getInstance() {
-        if (INSTANCE == null) INSTANCE = new CoordinationSubsystem();
+        if (INSTANCE == null) {
+            INSTANCE = new CoordinationSubsystem();
+            INSTANCE.initizalize();
+        }
         return INSTANCE;
+    }
+
+    public void initizalize() {
+        turretSub = TurretSubsystem.getInstance();
+        shooterSub = ShooterSubsystem.getInstance();
+        visionSub = VisionSubsystem.getInstance();
+
     }
 
     public static class GameData {

@@ -59,7 +59,7 @@ public class VisionSubsystem extends SubsystemBase {
     // -------------------------
     // Singleton instance
     // -------------------------
-    private static VisionSubsystem instance;
+    private static volatile VisionSubsystem instance;
 
     /**
      * Singleton accessor method.
@@ -71,16 +71,22 @@ public class VisionSubsystem extends SubsystemBase {
     public static synchronized VisionSubsystem getInstance() {
         if (instance == null) {
             instance = new VisionSubsystem();
+            instance.initizalize();
         }
         return instance;
+    }
+
+    public void initizalize() {
+        shooterSub = ShooterSubsystem.getInstance();
+        turretSub = TurretSubsystem.getInstance();
     }
 
     // -------------------------
     // Core subsystem fields
     // -------------------------
     private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
-    private static TurretSubsystem turretSub = RobotContainer.turretSub;
-    private static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
+    private static TurretSubsystem turretSub;// = RobotContainer.turretSub;
+    private static ShooterSubsystem shooterSub;// = ShooterSubsystem.getInstance();
 
     private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
@@ -96,8 +102,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Validation thresholds for pose filtering
     private static final double MAX_Z_THRESHOLD = 1; // Robot must be on ground
-    private static final double MAX_PITCH_THRESHOLD = 10; // Robot must not be tilted forward/back
-    private static final double MAX_ROLL_THRESHOLD = 10; // Robot must not be tilted side-to-side
+    private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
+    private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
     private static final double MAX_YAW_DIFF_DEGREES = 2.5; // Vision yaw must match Pigeon within 0.01 degrees
 
     // Limelight camera objects
@@ -494,6 +500,9 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
         Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
         Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
+        Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
+        Logger.recordOutput("Rebuilt/Vision/CurrentTargetFromMethod", getAdjustedCurrentTarget());
+        Logger.recordOutput("Rebuilt/Vision/CurrentTarget",(new Pose2d(currentTarget, new Rotation2d()).minus(getCurrentBotPoseAllianceUnspecific())));
     }
 
     // -------------------------
@@ -506,12 +515,13 @@ public class VisionSubsystem extends SubsystemBase {
      * Computes the distance from robot to a target pose.
      */
     public double getDistanceToTarget(Translation2d target) {
-        Pose2d drivePose = getCurrentBotPoseAllianceUnspecific();
-        Transform2d tmpTransform = new Transform2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation());
-        Transform2d currentPose = tmpTransform;
-        if (currentPose == null) return Double.POSITIVE_INFINITY;
-        lastTargetPose = target;
-        return currentPose.getTranslation().getDistance(target);
+        // Pose2d drivePose = getCurrentBotPoseAllianceUnspecific();
+        // Transform2d tmpTransform = new Transform2d(drivePose.getX(), drivePose.getY(), drivePose.getRotation());
+        // Transform2d currentPose = tmpTransform;
+        // if (currentPose == null) return Double.POSITIVE_INFINITY;
+        // lastTargetPose = target;
+        return Math.sqrt(Math.pow(target.getX(), 2) + Math.pow(target.getY(), 2));
+        // return currentPose.getTranslation().getDistance(target);
     }
     
     /**
@@ -579,18 +589,18 @@ public class VisionSubsystem extends SubsystemBase {
         Translation2d targetWRTBot = givenTargetWRTBot;
         Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
         ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
-        ChassisSpeeds velocityRobotWRTField = ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, currentPose.getRotation());
+        // ChassisSpeeds velocityRobotWRTField = ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, currentPose.getRotation());
         double timeToShoot = getTimeToShoot(targetWRTBot);
         if(lastTargetPose != null) {
             timeToShoot = getTimeToShoot(lastTargetPose);
         }
-        Translation2d amountMoved =new Translation2d(velocityRobotWRTField.vxMetersPerSecond * timeToShoot, velocityRobotWRTField.vyMetersPerSecond * timeToShoot);
+        Translation2d amountMoved = new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
         Translation2d finalTarget = targetWRTBot.plus(amountMoved.times(-1));
 
         // Iterate to zoom in to find the final target, get closer and closer each time
         for(int i = 0; i < 6; i++) {
             timeToShoot = getTimeToShoot(finalTarget);
-            amountMoved =  new Translation2d(velocityRobotWRTField.vxMetersPerSecond * timeToShoot, velocityRobotWRTField.vyMetersPerSecond * timeToShoot);
+            amountMoved =  new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
             finalTarget = targetWRTBot.plus(amountMoved.times(-1));
         }
         return finalTarget;
@@ -625,13 +635,13 @@ public class VisionSubsystem extends SubsystemBase {
      * @return
      */
     public double getTimeToShoot(Translation2d target) {
-        double timeToShoot = 0;
-        if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
-            timeToShoot = shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
-        }
-        else if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
-            timeToShoot = shooterSub.getShootingDistanceToTime(getDistanceToTarget(target));
-        }
+        double timeToShoot = 1.2;
+        // if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
+        //     timeToShoot = shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
+        // }
+        // else if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
+        //     timeToShoot = shooterSub.getShootingDistanceToTime(getDistanceToTarget(target));
+        // }
         return timeToShoot;
     }
 
