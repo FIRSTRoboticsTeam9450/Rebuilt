@@ -1,12 +1,16 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Volt;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -25,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
@@ -90,6 +95,10 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Motor configuration
     private TalonFXConfiguration motorConfig;
+
+    // SYS ID
+    private final VoltageOut sysIDRequest = new VoltageOut(0);
+    private final SysIdRoutine m_sysIdRoutine;
     
     // ========================= Control =========================
     
@@ -190,6 +199,23 @@ public class TurretSubsystem extends SubsystemBase {
             Math.toRadians(logMaxAccelerationDegPerSecSq.get())
         );
         currentRateLimit = Math.toRadians(logMaxAccelerationDegPerSecSq.get());
+
+        //sys id
+        m_sysIdRoutine =
+            new SysIdRoutine(
+                new SysIdRoutine.Config(
+                    null,        // Use default ramp rate (1 V/s)
+                    Volt.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
+                    null,        // Use default timeout (10 s)
+                                // Log state with Phoenix SignalLogger class
+                    (state) -> SignalLogger.writeString("state", state.toString())
+                ),
+                new SysIdRoutine.Mechanism(
+                    (volts) -> turretMotor.setControl(sysIDRequest.withOutput(volts.in(Volt))),
+                    null,
+                    this
+                )
+            );
     }
     
     // ========================= Configuration =========================
@@ -282,6 +308,8 @@ public class TurretSubsystem extends SubsystemBase {
         
         if (targetPosition != null) {
             Pose2d robotPose = drivetrain.getState().Pose;
+            Pose2d turretAlteredRobotPose = robotPose.transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
+            
             
             // Calculate vector from robot to target
             Translation2d robotToTarget = targetPosition; //targetPosition.minus(robotPose.getTranslation());
@@ -358,12 +386,18 @@ public class TurretSubsystem extends SubsystemBase {
                 break;
 
             case INIT:
-                if (isAtGoal(1)) {
+                if (isAtGoal(1) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
                     currentState = TurretState.AIMING;
                 }
 
                 profiledSetpointDeg = Math.toDegrees(
                     velocityLimiter.calculate(0.0)
+                );
+
+                profiledSetpointDeg = MathUtil.clamp(
+                    profiledSetpointDeg, 
+                    MIN_ANGLE_DEG, 
+                    MAX_ANGLE_DEG
                 );
                 
                 commandTurret(profiledSetpointDeg, 0.0, 0.0);
@@ -417,6 +451,12 @@ public class TurretSubsystem extends SubsystemBase {
                 profiledSetpointDeg = Math.toDegrees(
                     velocityLimiter.calculate(0.0)
                 );
+
+                profiledSetpointDeg = MathUtil.clamp(
+                    profiledSetpointDeg, 
+                    MIN_ANGLE_DEG, 
+                    MAX_ANGLE_DEG
+                );
                 
                 commandTurret(profiledSetpointDeg, 0.0, 0.0);
                 break;
@@ -431,6 +471,13 @@ public class TurretSubsystem extends SubsystemBase {
      * @param accelerationDegPerSecSq Target acceleration in deg/s² (robot-relative)
      */
     private void commandTurret(double positionDeg, double velocityDegPerSec, double accelerationDegPerSecSq) {
+
+        positionDeg = MathUtil.clamp(
+                    positionDeg, 
+                    MIN_ANGLE_DEG, 
+                    MAX_ANGLE_DEG
+                );
+
         // Convert degrees to motor rotations
         double positionMotorRevs = positionDeg;
         double velocityMotorRevsPerSec = velocityDegPerSec;
@@ -830,5 +877,14 @@ public class TurretSubsystem extends SubsystemBase {
 
     public void initizalize() {
         coordSub = CoordinationSubsystem.getInstance();
+    }
+
+    // ================== SYS ID COMMANDS ================
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutine.dynamic(direction);
     }
 }
