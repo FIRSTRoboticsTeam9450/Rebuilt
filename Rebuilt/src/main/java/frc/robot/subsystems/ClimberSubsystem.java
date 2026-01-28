@@ -199,9 +199,9 @@ public class ClimberSubsystem extends SubsystemBase {
 
                         resetStopwatch();
                         climbCounter--;
-                    } else {
-                        currentElevatorState = ElevatorStates.STANDBY;
                     }
+                } else {
+                        currentElevatorState = ElevatorStates.STANDBY;
                 }
                 break;
             default:
