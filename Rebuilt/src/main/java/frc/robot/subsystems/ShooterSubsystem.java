@@ -319,7 +319,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(!isTuningShooterVelocity) {
             switch (coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()) + 0.0889);
                     break;
                 // case FERRY_ZONE_TOP:
                 //     targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));

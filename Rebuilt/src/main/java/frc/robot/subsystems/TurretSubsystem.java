@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -80,11 +81,11 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 360); //360
+        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 10); //360
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720.0); //720
+        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 20); //720
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 200); //400, needs tuning though
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 20); //200, needs tuning though
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
     private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 1); //5, needs tuning
@@ -132,7 +133,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.AIMING;
+    private TurretState currentState = TurretState.STORING;
     private TurretState previousState = currentState;
     
     // Target management
@@ -284,7 +285,6 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Find best angle considering wrapping and limits
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
-        // robotRelativeTargetVelocityDegPerSec = Math.toDegrees(robotRelativeGoalVelocityRadPerSec);
         // robotRelativeTargetVelocityDegPerSec = coordSub.getVelocityTurrent(0.02);
         robotRelativeTargetVelocityDegPerSec = 0;
 
@@ -390,9 +390,7 @@ public class TurretSubsystem extends SubsystemBase {
                     currentState = TurretState.AIMING;
                 }
 
-                profiledSetpointDeg = Math.toDegrees(
-                    velocityLimiter.calculate(0.0)
-                );
+                profiledSetpointDeg = -TurretConstants.TURRET_OFFSET_TO_ZERO - 12.5;
 
                 profiledSetpointDeg = MathUtil.clamp(
                     profiledSetpointDeg, 
@@ -407,7 +405,7 @@ public class TurretSubsystem extends SubsystemBase {
                 // Capture current position on state entry
                 if (stateNewlyChanged) {
                     stateNewlyChanged = false;
-                    idlePositionDeg = getCurrentAngleDeg();
+                    idlePositionDeg = getCurrentAngleDeg() - TurretConstants.TURRET_OFFSET_TO_ZERO;
                     profiledSetpointDeg = idlePositionDeg;
                 }
                 
@@ -420,7 +418,6 @@ public class TurretSubsystem extends SubsystemBase {
                 double maxVelocity = logMaxVelocityDegPerSec.get();
                 
                 // Apply motion profiling for smooth acceleration
-                double targetVelocityRadPerSec = Math.toRadians(robotRelativeTargetVelocityDegPerSec);
                 profiledSetpointDeg = Math.toDegrees(
                     velocityLimiter.calculate(Math.toRadians(robotRelativeTargetAngleDeg))
                 );
@@ -448,9 +445,7 @@ public class TurretSubsystem extends SubsystemBase {
                 
             case STORING:
                 // Return to zero position with no velocity
-                profiledSetpointDeg = Math.toDegrees(
-                    velocityLimiter.calculate(0.0)
-                );
+                profiledSetpointDeg = -TurretConstants.TURRET_OFFSET_TO_ZERO;
 
                 profiledSetpointDeg = MathUtil.clamp(
                     profiledSetpointDeg, 
@@ -554,8 +549,8 @@ public class TurretSubsystem extends SubsystemBase {
      * @return true if target cannot be reached without robot rotation
      */
     private boolean isTargetOutOfRange() {
-        return robotRelativeTargetAngleDeg < MIN_ANGLE_DEG || 
-               robotRelativeTargetAngleDeg > MAX_ANGLE_DEG;
+        return robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || 
+               robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG;
     }
     
     /**
@@ -600,8 +595,8 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void updateDriverFeedback() {
         if (driverController != null) {
-            if (currentState == TurretState.AIMING && isTargetOutOfRange()) {
-                driverController.setRumble(RumbleType.kBothRumble, 0.3);
+            if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled()) {
+                driverController.setRumble(RumbleType.kBothRumble, 0.05);
             } else {
                 driverController.setRumble(RumbleType.kBothRumble, 0.0);
             }
@@ -620,9 +615,10 @@ public class TurretSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Turret/TargetMode", currentTargetMode);
         
         // Position tracking
-        Logger.recordOutput("Rebuilt/Turret/CurrentAngleDeg", getCurrentAngleDeg());
-        Logger.recordOutput("Rebuilt/Turret/TargetAngleDeg", robotRelativeTargetAngleDeg);
-        Logger.recordOutput("Rebuilt/Turret/ProfiledSetpointDeg", profiledSetpointDeg);
+        Logger.recordOutput("Rebuilt/Turret/CurrentAngleDeg", (getCurrentAngleDeg() * 2.2));
+        Logger.recordOutput("Rebuilt/Turret/No Offset Current Angle", (getCurrentAngleDeg() * 2.2) - TurretConstants.TURRET_OFFSET_TO_ZERO);
+        Logger.recordOutput("Rebuilt/Turret/TargetAngleDeg", robotRelativeTargetAngleDeg + TurretConstants.TURRET_OFFSET_TO_ZERO);
+        Logger.recordOutput("Rebuilt/Turret/ProfiledSetpointDeg", profiledSetpointDeg + TurretConstants.TURRET_OFFSET_TO_ZERO);
         Logger.recordOutput("Rebuilt/Turret/FieldGoalAngleDeg", fieldRelativeGoalAngle.getDegrees());
         
         // Velocity tracking
@@ -827,10 +823,10 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Checks if turret is within tolerance of target.
      * 
-     * @return true if within default tolerance (0.5°)
+     * @return true if within default tolerance (1.0°)
      */
     public boolean isAtGoal() {
-        return isAtGoal(0.5);
+        return isAtGoal(1);
     }
     
     /**
@@ -840,7 +836,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return true if within tolerance
      */
     public boolean isAtGoal(double toleranceDeg) {
-        double error = Math.abs(getCurrentAngleDeg() - profiledSetpointDeg);
+        double error = Math.abs(((getCurrentAngleDeg() * 2.2) - TurretConstants.TURRET_OFFSET_TO_ZERO) - profiledSetpointDeg);
         return error < toleranceDeg;
     }
     
