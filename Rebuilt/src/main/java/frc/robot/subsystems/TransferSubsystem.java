@@ -25,6 +25,7 @@ public class TransferSubsystem extends SubsystemBase {
      * State machine for transfer operation modes
      */
     public enum TransferState {
+        HOLD,
         RUN_IN,
         RUN_OUT,
         NO_RUN
@@ -80,12 +81,16 @@ public class TransferSubsystem extends SubsystemBase {
     private void applyState() {
         // Set request voltage
         switch (currentState) {
+            case HOLD:
+                voltageRequest.Output = 1;
+                break;
+
             case RUN_IN: // Move fuel in
-                voltageRequest.Output = 8;
+                voltageRequest.Output = 12;
                 break;
             
             case RUN_OUT: // Move fuel out
-                voltageRequest.Output = -8;
+                voltageRequest.Output = -12;
                 break;
             
             case NO_RUN: // Don't move

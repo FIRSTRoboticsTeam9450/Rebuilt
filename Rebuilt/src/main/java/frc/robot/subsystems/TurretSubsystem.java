@@ -9,6 +9,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -85,12 +86,12 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 20); //720
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 20); //200, needs tuning though
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 80); //200, needs tuning though
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 1); //5, needs tuning
-    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV", 5); //5, needs tuning
-    private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 50); //50, needs tuning though
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 3.34); //5, needs tuning
+    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",11.764); //5, needs tuning
+    private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0); //50, needs tuning though
 
     private final LoggedNetworkNumber logTurretTarget = new LoggedNetworkNumber("/Tuning/Turret/Testing Target", 0);
     
@@ -159,7 +160,7 @@ public class TurretSubsystem extends SubsystemBase {
     private double profiledSetpointDeg = 0.0;
     
     // Control requests
-    private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private final PositionTorqueCurrentFOC positionRequest = new PositionTorqueCurrentFOC(0).withSlot(0);
     private final SimpleMotorFeedforward feedforward;
 
     //Testing Stuff
@@ -260,6 +261,9 @@ public class TurretSubsystem extends SubsystemBase {
         motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         motorConfig.Feedback.RotorToSensorRatio = TurretConstants.ROTOR_TO_SENSOR_RATIO;
         motorConfig.Feedback.SensorToMechanismRatio = TurretConstants.SENSOR_TO_MECHANISM_RATIO;
+
+        motorConfig.TorqueCurrent.PeakForwardTorqueCurrent = 40;
+        motorConfig.TorqueCurrent.PeakReverseTorqueCurrent = -40;
         
         // Apply configuration
         turretMotor.getConfigurator().apply(motorConfig);
@@ -644,6 +648,8 @@ public class TurretSubsystem extends SubsystemBase {
             turretEncoder.getPosition().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Turret/MotorOutputVolts", 
             turretMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Turret/MotorOutputAmps", 
+            turretMotor.getTorqueCurrent().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Turret/MotorVelocity (RPS)", 
             turretMotor.getVelocity().getValueAsDouble());
         

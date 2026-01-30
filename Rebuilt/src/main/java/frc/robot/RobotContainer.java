@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.GoToPosCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
@@ -145,6 +146,14 @@ public class RobotContainer {
     DRIVER.leftTrigger().onTrue(
       IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
       .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_IN))
+    ).onFalse(
+      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
+      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
+    );
+
+    DRIVER.rightTrigger().onTrue(
+      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
+      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.HOLD))
     ).onFalse(
       IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
       .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
