@@ -498,6 +498,7 @@ public class VisionSubsystem extends SubsystemBase {
         // Current bot pose
         // Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
         Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
+        Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
         Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
         Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
         Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
@@ -505,7 +506,7 @@ public class VisionSubsystem extends SubsystemBase {
         // Logger.recordOutput("Rebuilt/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
         Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
         Logger.recordOutput("Rebuilt/Vision/CurrentTargetWRTRobot", getTargetRelativeToBot());
-        getAdjustedFutureTarget(.5);
+        // getAdjustedFutureTarget(.5);
     }
 
     // -------------------------
@@ -545,13 +546,15 @@ public class VisionSubsystem extends SubsystemBase {
 
     public Pose2d getCurrentBotPoseAllianceUnspecific() {
         Pose2d currentBluePose = drivetrain.getState().Pose;
+        Pose2d alliancePose = new Pose2d(ZoneConstantsWelded.RED_CORNER, new Rotation2d(Math.PI));
+
         if(DriverStation.getAlliance().toString().equals("Optional[Red]")){
-            Pose2d calculatedPose = new Pose2d(new Translation2d(ZoneConstantsWelded.RED_CORNER.getX() - currentBluePose.getX(), ZoneConstantsWelded.RED_CORNER.getY() - currentBluePose.getY()), currentBluePose.getRotation());
-            return calculatedPose;
+            alliancePose = new Pose2d(ZoneConstantsWelded.RED_CORNER, new Rotation2d(Math.PI));
+            // Pose2d newBotPose = currentBluePose.plus(redCornerPose);
             // Transform2d calculated = redCorner.minus(currentBluePose);
             // return new Pose2d(calculated.getTranslation(), calculated.getRotation());
         }
-        return currentBluePose;
+        return currentBluePose.relativeTo(alliancePose);
         
     }
 
