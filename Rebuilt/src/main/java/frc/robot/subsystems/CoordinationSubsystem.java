@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -42,6 +44,10 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
     
 
+    @Override
+    public void periodic() {
+        getVelocityTurrent(0.02);
+    }
     public boolean isShooterReady() {
         return ShooterSubsystem.getInstance().isShooterReady();
     }
@@ -132,6 +138,9 @@ public class CoordinationSubsystem extends SubsystemBase {
     public double getVelocityTurrent(double time) {
         Translation2d currentTarget = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
         Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(time);
+        
+        Logger.recordOutput("Rebuilt/Turret/FutureTurretAngle", TurretSubsystem.getInstance().updateTargetFromMode(futureTarget));
+        Logger.recordOutput("Rebuilt/Turret/CurrentTurretAngle", TurretSubsystem.getInstance().updateTargetFromMode(currentTarget));
         return (TurretSubsystem.getInstance().updateTargetFromMode(futureTarget) - TurretSubsystem.getInstance().updateTargetFromMode(currentTarget))/time;
     }
 

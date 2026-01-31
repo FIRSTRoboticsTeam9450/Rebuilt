@@ -100,12 +100,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private DynamicMotionMagicVoltage hoodMMRequest;
 
     // Shooter Outtake Velocity Motion Magic Parameters
-    private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.331699);
-    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.12222);
-    private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0);
-    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.5);
+    private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.331699); //0.17238
+    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.12222); //0.13318
+    private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0); //0.046148
+    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.6);
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 0);
-    private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 30);
+    private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 200);
     private double outtakeVKFF = logOuttakeVKFF.get();
     private final int outtakeVSlot = 0;
     private final MotionMagicVelocityVoltage outtakeVRequest;
@@ -141,10 +141,10 @@ public class ShooterSubsystem extends SubsystemBase {
             new SysIdRoutine(
                 new SysIdRoutine.Config(
                     null,        // Use default ramp rate (1 V/s)
-                    Volt.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
+                    Volt.of(6), // Reduce dynamic step voltage to 4 to prevent brownout
                     null,        // Use default timeout (10 s)
                                 // Log state with Phoenix SignalLogger class
-                    (state) -> SignalLogger.writeString("state", state.toString())
+                    (state) -> Logger.recordOutput("Rebuilt/Shooter/Outtake/SysIdTestState", state.toString())
                 ),
                 new SysIdRoutine.Mechanism(
                     (volts) -> shooterRightMotor.setControl(sysIDRequest.withOutput(volts.in(Volt))),
@@ -272,6 +272,8 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Right motor voltage", shooterRightMotor.getMotorVoltage().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Shooter/Outtake/Check why", overrideTargetVeloc != logTuningShooterVelocity.get());
 
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/Right Motor Position", shooterRightMotor.getPosition().getValueAsDouble());
+
         
         
     }
@@ -319,7 +321,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(!isTuningShooterVelocity) {
             switch (coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()) + 0.0889);
                     break;
                 // case FERRY_ZONE_TOP:
                 //     targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));

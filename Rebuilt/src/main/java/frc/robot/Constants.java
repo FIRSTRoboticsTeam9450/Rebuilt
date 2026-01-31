@@ -98,12 +98,12 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.115966796875;
+      public static final double ENCODER_MAGNET_OFFSET = 0.110595703125;
 
       public static final double ROTOR_TO_SENSOR_RATIO = 0.001890359168;
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.4565217391;
 
-      public static final double TURRET_OFFSET_TO_ZERO = 180; //UNKOWN
+      public static final double TURRET_OFFSET_TO_ZERO = 179.5; //UNKOWN
 
       public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
