@@ -173,6 +173,16 @@ public class ClimberSubsystem extends SubsystemBase {
         delayStopwatch.reset();
     }
 
+    /*
+     * IC OC REMARKS
+     * -  -  STOWED
+     * ++ +  L1(A)+
+     * +  +  L1
+     * ++ -  L2(A)+
+     * +  -  L2(A)
+     * +  +  L2
+     */
+
     private void applyStates() {
         switch (currentElevatorState) {
             case STANDBY:
