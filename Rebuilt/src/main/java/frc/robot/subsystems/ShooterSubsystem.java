@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
@@ -50,14 +51,14 @@ public class ShooterSubsystem extends SubsystemBase {
     private CoordinationSubsystem coordSub; // = RobotContainer.coordSub;
     private VisionSubsystem visionSub; // = RobotContainer.visionSub;
 
-    private AngleState currentAngleState = AngleState.AIMING;
+    private AngleState currentAngleState = AngleState.ZEROING;
     private ShooterState currentShooterState = ShooterState.NOT_SHOOTING;
 
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
-    private double hoodAngleMax = 13.5;
+    private double hoodAngleMax = 13;
     private double hoodAngleMin = 3.5;
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
@@ -106,7 +107,7 @@ public class ShooterSubsystem extends SubsystemBase {
     // Flags
     private boolean isTuningShooterVelocity = logIsTuningShooterVelocity.get();
     private boolean isOverrideAngle = false;
-    private boolean isZeroingDone = true;
+    private boolean isZeroingDone = false;
 
     // Data tables
     InterpolatingDoubleTreeMap shootingDistanceToTime = new InterpolatingDoubleTreeMap();
@@ -126,7 +127,7 @@ public class ShooterSubsystem extends SubsystemBase {
         addData();
 
         hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration);//.withEnableFOC(RobotConstants.ENABLE_FOC);;
-        outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
+        outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot);//.withEnableFOC(RobotConstants.ENABLE_FOC);
 
         m_sysIdRoutine =
             new SysIdRoutine(
@@ -190,7 +191,7 @@ public class ShooterSubsystem extends SubsystemBase {
         angleMotorConfig.MotionMagic = mmConfigs;
 
         angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
         angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 12.856934; // Hood angle limit
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
 
@@ -230,7 +231,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
-            currentAngleState = AngleState.STORING;
+            currentAngleState = AngleState.AIMING;
             return true;
         }
         return false;
@@ -275,7 +276,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // Logger.recordOutput("Rebuilt/Shooter/Outtake/Check why", overrideTargetVeloc != logTuningShooterVelocity.get());
 
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Right Motor Position", shooterRightMotor.getPosition().getValueAsDouble());
-
+        Logger.recordOutput("Rebuilt/Shooter/Hood/ReadyToZero", TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtGoal());
         
         
     }
@@ -291,10 +292,6 @@ public class ShooterSubsystem extends SubsystemBase {
                 shooterLeftMotor.setVoltage(0);
                 break;
             
-            case RAMP_UP:
-                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(10));
-                break;
-
             case HOLD_IN:
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(-10));
                 break;
@@ -304,8 +301,9 @@ public class ShooterSubsystem extends SubsystemBase {
         }
         switch (currentAngleState) {
             case ZEROING:
-                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtGoal()) {
-                    angleMotor.setControl(new VoltageOut(-0.6));
+            
+                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtGoal(10)) {
+                    angleMotor.setVoltage(-0.6);
                 } else {
                     angleMotor.setControl(new VoltageOut(0));
                 }

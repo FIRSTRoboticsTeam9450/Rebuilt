@@ -94,39 +94,58 @@ public class RobotContainer {
         );
 
 
+    // For tuning hood angle PID
+    // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
+    // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
+    
+    // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)));
+    // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
+   
+
+    // DRIVER.a().onTrue(
+    //     turretSub.setStateCommand(TurretState.AIMING)
+    //   ).onFalse(
+    //     turretSub.setStateCommand(TurretState.STORING)
+    //   );
+
+    // For tuning hood angle PID
+    // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING)).andThen(
+    //   new InstantCommand(() -> shooterSub.setOverrideHoodAngle(40)))
+    // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
+
     // DRIVER.povDown().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT));
     // DRIVER.povLeft().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT));
     // DRIVER.povRight().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT));
     // DRIVER.povUp().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT));
 
 
-    // DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.AIMING));
-    // DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.AIMING));
+    DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.AIMING));
+    DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.AIMING));
     
-    // DRIVER.leftTrigger().onTrue(
-    //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
-    //   .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_IN))
-    // ).onFalse(
-    //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
-    //   .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
-    // );
+    DRIVER.leftTrigger().onTrue(
+      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
+      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_IN))
+    ).onFalse(
+      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
+      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
+    );
 
-    // DRIVER.rightTrigger().onTrue(
-    //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
-    //   .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.HOLD))
-    // ).onFalse(
-    //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
-    //   .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
-    // );
+    DRIVER.rightTrigger().onTrue(
+      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
+      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.HOLD))
+    ).onFalse(
+      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
+      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
+    );
 
-    // DRIVER.y().onTrue(
-    //   TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_OUT)
-    // ).onFalse(
-    //   TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN)
-    // );
+    DRIVER.y().onTrue(
+      TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_OUT)
+    ).onFalse(
+      TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN)
+    );
 
-    // DRIVER.a().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.AIMING));
-    // DRIVER.x().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.STORING));
+    DRIVER.a().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.AIMING));
+    DRIVER.x().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.STORING));
 
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
 

@@ -131,7 +131,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case STORE:
-                motorArm.setControl(request.withPosition(6.4667)); // .5 before
+                motorArm.setControl(request.withPosition(5.7128)); // .5 before
                 break;
             
             case INTAKING:

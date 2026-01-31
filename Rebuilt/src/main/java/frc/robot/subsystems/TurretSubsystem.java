@@ -123,7 +123,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.STORING;
+    private TurretState currentState = TurretState.INIT;
     private TurretState previousState = currentState;
     
     // Target management
@@ -371,7 +371,7 @@ public class TurretSubsystem extends SubsystemBase {
                 break;
 
             case INIT:
-                if (isAtGoal(1) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
+                if (isAtGoal(20) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
                     currentState = TurretState.AIMING;
                 }
 
