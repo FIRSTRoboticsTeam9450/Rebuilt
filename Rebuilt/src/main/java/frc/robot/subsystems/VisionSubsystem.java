@@ -516,7 +516,7 @@ public class VisionSubsystem extends SubsystemBase {
     public Pose2d getLastVisionPose() { return lastVisionPose; }
 
     /**
-     * Computes the distance from robot to a target pose.
+     * Computes the distance from robot to a target transform.
      */
     public double getDistanceToTarget(Translation2d target) {
         // Pose2d drivePose = getCurrentBotPoseAllianceUnspecific();
@@ -544,22 +544,28 @@ public class VisionSubsystem extends SubsystemBase {
         return translationRobotFrame;
     }
 
+    /**
+     * Get the current robot pose unalliance specific
+     * Will always be from the alliance's corner
+     * @return
+     */
     public Pose2d getCurrentBotPoseAllianceUnspecific() {
         Pose2d currentBluePose = drivetrain.getState().Pose;
-        Pose2d alliancePose = new Pose2d(ZoneConstantsWelded.RED_CORNER, new Rotation2d(Math.PI));
+        Pose2d alliancePose = new Pose2d(new Translation2d(0,0), new Rotation2d());
 
         if(DriverStation.getAlliance().toString().equals("Optional[Red]")){
             alliancePose = new Pose2d(ZoneConstantsWelded.RED_CORNER, new Rotation2d(Math.PI));
             // Pose2d newBotPose = currentBluePose.plus(redCornerPose);
             // Transform2d calculated = redCorner.minus(currentBluePose);
             // return new Pose2d(calculated.getTranslation(), calculated.getRotation());
+            
         }
-        return currentBluePose.relativeTo(alliancePose);
+        return currentBluePose.relativeTo(alliancePose).transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
         
     }
 
     public Translation2d getTargetRelativeToBot () {
-        Pose2d currentPose = getCurrentBotPoseAllianceUnspecific().transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
+        Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
         Pose2d currentTargetPose = new Pose2d(currentTarget, new Rotation2d());
         return currentTargetPose.minus(currentPose).getTranslation();
     }
@@ -577,12 +583,7 @@ public class VisionSubsystem extends SubsystemBase {
     public Translation2d getCurrentTarget() {
         return currentTarget;
     }
-    public Translation2d getAdjustCurrentTargetBlueAlliance() {
-        Translation2d currentTargetAllianceUnspecific = getAdjustedCurrentTarget();
-        Translation2d blueCorner = new Translation2d();
-        return currentTargetAllianceUnspecific;
-
-    }
+    
     public Translation2d getAdjustedCurrentTarget() {
         lastAdjustedTargetPose = getAdjustedTarget(getTargetRelativeToBot(), lastAdjustedTargetPose);
         return lastAdjustedTargetPose;
@@ -594,20 +595,22 @@ public class VisionSubsystem extends SubsystemBase {
     public Translation2d getAdjustedTarget(Translation2d givenTargetWRTBot, Translation2d lastTargetPose) {
         Translation2d targetWRTBot = givenTargetWRTBot;
         ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
-        // ChassisSpeeds velocityRobotWRTField = ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, currentPose.getRotation());
+
         double timeToShoot = getTimeToShoot(targetWRTBot);
         if(lastTargetPose != null) {
             timeToShoot = getTimeToShoot(lastTargetPose);
         }
+
+        // Calculate the amount the ball moved due to robot velocity in the time it takes for the ball to land in the target
         Translation2d amountMoved = new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
         Translation2d finalTarget = targetWRTBot.plus(amountMoved.times(-1));
 
         // Iterate to zoom in to find the final target, get closer and closer each time
-        // for(int i = 0; i < 6; i++) {
-        //     timeToShoot = getTimeToShoot(finalTarget);
-        //     amountMoved =  new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
-        //     finalTarget = targetWRTBot.plus(amountMoved.times(-1));
-        // }
+        for(int i = 0; i < 6; i++) {
+            timeToShoot = getTimeToShoot(finalTarget);
+            amountMoved =  new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
+            finalTarget = targetWRTBot.plus(amountMoved.times(-1));
+        }
         
         return finalTarget;
     }
@@ -621,47 +624,25 @@ public class VisionSubsystem extends SubsystemBase {
     public Translation2d getAdjustedFutureTarget(double time) {
         Pose2d currentPoseWRTField = getCurrentBotPoseAllianceUnspecific();
         ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
-        // ChassisSpeeds velocityRobotWRTField = ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, currentPose.getRotation());
-        double newRotation = velocityRobotWRTRobot.omegaRadiansPerSecond * time + currentPoseWRTField.getRotation().getRadians();
-        // Pose2d futurePose = currentPose.plus(
-        //     new Transform2d(new Translation2d((velocityRobotWRTRobot.vxMetersPerSecond * time), (velocityRobotWRTRobot.vyMetersPerSecond * time)),
-        //     new Rotation2d(velocityRobotWRTRobot.omegaRadiansPerSecond * time)));
-        Pose2d futurePoseWRTCurrentBot = new Pose2d(//new Translation2d(), new Rotation2d());
-            new Translation2d((velocityRobotWRTRobot.vxMetersPerSecond * time), (velocityRobotWRTRobot.vyMetersPerSecond * time)),
-            // new Rotation2d());
-            new Rotation2d(velocityRobotWRTRobot.omegaRadiansPerSecond * time)); // ABSOLUTELY CORRECT
-        //Transform2d botToField = fieldToBot.times(-1);
 
+        // Calculate how much the robot will have moved into the future
+        Pose2d futurePoseWRTCurrentBot = new Pose2d(
+            new Translation2d((velocityRobotWRTRobot.vxMetersPerSecond * time), (velocityRobotWRTRobot.vyMetersPerSecond * time)),
+            new Rotation2d(velocityRobotWRTRobot.omegaRadiansPerSecond * time)); // ABSOLUTELY CORRECT
+
+        // Coordinate math stuff //
         Pose2d targetWRTCurrentBot = new Pose2d(getTargetRelativeToBot(), new Rotation2d()); // Correct
         Transform2d fieldWRTCurrentTransform = new Transform2d(currentPoseWRTField.getTranslation(), currentPoseWRTField.getRotation()).inverse(); // ABSOLUTELY CORRECT
         Pose2d fieldWRTCurrentPose = new Pose2d(fieldWRTCurrentTransform.getTranslation(), fieldWRTCurrentTransform.getRotation()); // ABSOLUTELY CORRECT
-        // Transform2d futurePoseWRTField2 = futurePoseWRTCurrentBot.plus(currentPoseWRTField);
         Pose2d futurePoseWRTField = futurePoseWRTCurrentBot.relativeTo(fieldWRTCurrentPose); // ABSOLUTELY CORRECT
         Transform2d futurePoseToTarget = targetWRTCurrentBot.minus(futurePoseWRTCurrentBot); 
-        // Transform2d targetWRTField = futurePoseWRTField.plus(targetWRTFuturePose);
         Transform2d futurePoseToAdjustedTarget = new Transform2d(getAdjustedTarget(futurePoseToTarget.getTranslation(), futurePoseToTarget.getTranslation()), new Rotation2d());
+
+        // Logging
         Logger.recordOutput("Rebuilt/Vision/FuturePose", futurePoseWRTCurrentBot.relativeTo(fieldWRTCurrentPose));
         Logger.recordOutput("Rebuilt/Vision/FutureTarget", futurePoseWRTField.plus(futurePoseToAdjustedTarget));
+
         return getAdjustedTarget(futurePoseToTarget.getTranslation(), futurePoseToTarget.getTranslation());
-        // Pose2d targetWRTCurrentBot = futurePose.plus((new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()).minus(new Pose2d(futurePoseWRTCurrentBot.getTranslation(), futurePoseWRTCurrentBot.getRotation()))));
-        // Logger.recordOutput("Rebuilt/Vision/FutureBotPoseWRTCurrentBot", futurePoseWRTField.plus(futurePoseWRTCurrentBot));
-        // Logger.recordOutput("Rebuilt/Vision/FutureBotPoseWRTField", futurePoseWRTField);
-        // return targetWRTFuturePose.getTranslation();
-        // Logger.recordOutput("Rebuilt/Vision/FutureTarget", currentPose.plus(new Transform2d(targetWRTCurrentBot.getTranslation(), targetWRTCurrentBot.getRotation())));
-        // return new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()).minus(new Pose2d(futurePoseWRTCurrentBot.getTranslation(), futurePoseWRTCurrentBot.getRotation())).getTranslation();
-
-        //futurePose.relativeTo(new Pose2d(ZoneConstantsAndyMark.RED_CORNER, new Rotation2d()));
-        
-        // Pose2d currentTargetPose = new Pose2d(currentTarget, new Rotation2d());
-        
-        // Translation2d futureTargetWRTBot = currentTargetPose.minus(futurePose).getTranslation(); //new Translation2d(-futurePose.getX() + currentTarget.getX(), -futurePose.getY() + currentTarget.getY());//
-        // Logger.recordOutput("Rebuilt/Vision/FutureTargetPose WRT Bot", new Pose2d(futureTargetWRTBot, new Rotation2d()));
-        
-        // Logger.recordOutput("Rebuilt/Vision/FutureTarget", futurePose.plus(new Transform2d(getAdjustedTarget(futureTargetWRTBot, futureTargetWRTBot), new Rotation2d())));
-        // return getAdjustedTarget(futureTargetWRTBot, futureTargetWRTBot);
-
-
-        // return lastAdjustedFutureTargetPose;
 
     }
 
@@ -672,6 +653,7 @@ public class VisionSubsystem extends SubsystemBase {
      */
     public double getTimeToShoot(Translation2d target) {
         double timeToShoot = 1.2;
+        // TODO: UNCOMMENT LATER //
         // if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
         //     timeToShoot = shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
         // }

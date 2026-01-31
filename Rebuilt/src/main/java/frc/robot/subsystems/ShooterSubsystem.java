@@ -41,17 +41,12 @@ public class ShooterSubsystem extends SubsystemBase {
     public enum AngleState {
         ZEROING,
         AIMING,
-        TRENCH,
         DEADZONE,
-        OVERRIDE,
-        IDLING,
         STORING
     }
 
     public enum ShooterState {
-        SYS_ID,
         SHOOTING,
-        RAMP_UP,
         NOT_SHOOTING,
     }
 
@@ -65,13 +60,11 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
-    private double currentPos = 0;
-    private boolean storeCurrentPos = false;
 
     private double hoodAngleMax = 13.5;
     private double hoodAngleMin = 3.5;
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
-    private double degreesToZero = 15;
+    private double degreesToZero = 8;
     private double distanceAwayToUseSpecificDegree = 4.185;
     private double distanceAwayToUseLowDegree = 1.481;
 
@@ -130,10 +123,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private final VoltageOut sysIDRequest = new VoltageOut(0);
     private final SysIdRoutine m_sysIdRoutine;
 
+    // ----------------------------- CONSTRUCTOR ---------------------------- //
     public ShooterSubsystem() {
         configureAngleMotors();
         configureShooterMotors();
         addData();
+
         hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration);//.withEnableFOC(RobotConstants.ENABLE_FOC);;
         outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
 
@@ -154,7 +149,9 @@ public class ShooterSubsystem extends SubsystemBase {
             );
     }
 
+    // TODO: put in shooting data and ferrying data
     public void addData() {
+        // Shooting Data Velocity
         shootingDistanceToVelocity.put(1.676, 24.5);
         shootingDistanceToVelocity.put(2.033,26.5);
         shootingDistanceToVelocity.put(2.581,27.5);
@@ -162,6 +159,15 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToVelocity.put(4.08,32.0);
         shootingDistanceToVelocity.put(5.058,32.5);
         shootingDistanceToVelocity.put(5.695,34.0);
+
+        // Shooting Data Time
+
+
+        // Ferrying Data Velocity
+
+        
+        // Ferrying Data Time
+
 
     }
 
@@ -280,8 +286,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void applyState() {
         switch (currentShooterState) {
-            case SYS_ID:
-                break;
             case SHOOTING:
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
                 // shooterLeftMotor.setVoltage(getShooterVeloc());
@@ -301,38 +305,36 @@ public class ShooterSubsystem extends SubsystemBase {
             case AIMING:
                 angleMotor.setControl(hoodMMRequest.withPosition(getShooterAngle()));
                 break;
-            case TRENCH:
-                angleMotor.setControl(hoodMMRequest.withPosition(0));
-            case IDLING:
-                if(!storeCurrentPos) {
-                    currentPos = angleMotor.getPosition().getValueAsDouble();//MathUtil.clamp(angleMotor.getPosition().getValueAsDouble(), hoodAngleMin, hoodAngleMax);
-                    storeCurrentPos = true;
-                }
-                angleMotor.setControl(hoodMMRequest.withPosition(0));
             case STORING:
-                angleMotor.setControl(hoodMMRequest.withPosition(0));
-                
+                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtGoal()) {
+                    angleMotor.setControl(hoodMMRequest.withPosition(0));
+                }
             default:
                 break;
         }
     }
 
+
+    // -------------------------------------- GETTERS -------------------------------------- //
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
             switch (coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
                     targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()) + 0.0889);
                     break;
-                // case FERRY_ZONE_TOP:
-                //     targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-                //     break;
+                case FERRY_ZONE_TOP:
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
                     
-                // case FERRY_ZONE_BOTTOM:
-                //     targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-                //     break;
-                // case TRENCH_DEADZONE:
-                //     targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
-                //     break;
+                case FERRY_ZONE_BOTTOM:
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                case TRENCH_DEADZONE:
+                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                case BACK_DEADZONE:
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
                 default:
                     break;
             }
@@ -359,6 +361,10 @@ public class ShooterSubsystem extends SubsystemBase {
                     break;
                 case TRENCH_DEADZONE:
                     targetHoodHeight = 0;
+                    break;
+                case BACK_DEADZONE:
+                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
                 default:
                     return 0;
             }
@@ -400,6 +406,12 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getAsRevs(double degrees) {
         return (degrees-15) / degreesPerRev;
     }
+
+    public AngleState getCurrentAngleState() {
+        return currentAngleState;
+    }
+
+    // Checks
     public boolean isAngleWithinTolerance() {
         return isAngleWithinTolerance(0.1);
     }
@@ -420,6 +432,30 @@ public class ShooterSubsystem extends SubsystemBase {
         return (isAngleWithinTolerance() && isVelocityWithinTolerance());
     }
 
+    // -------------------------------------- SETTERS -------------------------------------- //
+    
+    /**
+     * Set shooter state
+     * @param wantedShooterState
+     * @param wantedAngleState
+     */
+    public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
+        currentShooterState = wantedShooterState;
+        currentAngleState = wantedAngleState;
+    }
+
+    public Command setStateCommand(ShooterState wantedShooterState, AngleState wantedAngleState) {
+        return new InstantCommand(() -> setState(wantedShooterState, wantedAngleState));
+    }
+
+    public Command setShooterStateCommand(ShooterState wantedShooterState) {
+        return setStateCommand(wantedShooterState, currentAngleState);
+    }
+
+    public Command setAngleState(AngleState wantedAngleState) {
+        return setStateCommand(currentShooterState, wantedAngleState);
+    }
+
     public void setOverrideModeAngle(boolean isOverrideAngle) {
         this.isOverrideAngle = isOverrideAngle;
     }
@@ -433,6 +469,7 @@ public class ShooterSubsystem extends SubsystemBase {
         
     }
 
+    // -------------------------------------------- UPDATE BASED ON LOGS -------------------------------------------- //
     public void updateShooterConstants() {
         boolean updateOuttakeVals = false;
         boolean updateAngleVals = false;
@@ -507,32 +544,6 @@ public class ShooterSubsystem extends SubsystemBase {
         
     }
 
-
-    public AngleState getCurrentAngleState() {
-        return currentAngleState;
-    }
-
-    /**
-     * Set shooter state
-     * @param wantedShooterState
-     * @param wantedAngleState
-     */
-    public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
-        storeCurrentPos = false;
-        currentShooterState = wantedShooterState;
-        currentAngleState = wantedAngleState;
-    }
-
-    public Command setStateCommand(ShooterState wantedShooterState, AngleState wantedAngleState) {
-        return new InstantCommand(() -> setState(wantedShooterState, wantedAngleState));
-    }
-
-    public Command setShooterStateCommand(ShooterState wantedShooterState) {
-        return setStateCommand(wantedShooterState, currentAngleState);
-    }
-    public Command setAngleState(AngleState wantedAngleState) {
-        return setStateCommand(currentShooterState, wantedAngleState);
-    }
     public static ShooterSubsystem getInstance() {
         if(instance == null) {
             instance = new ShooterSubsystem();

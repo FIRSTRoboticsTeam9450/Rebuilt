@@ -311,7 +311,7 @@ public class TurretSubsystem extends SubsystemBase {
         Translation2d targetPosition = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
         
         if (targetPosition != null) {
-            Pose2d robotPose = drivetrain.getState().Pose;
+            Pose2d robotPose = VisionSubsystem.getInstance().getCurrentBotPoseAllianceUnspecific();
             Pose2d turretAlteredRobotPose = robotPose.transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
             
             
@@ -335,7 +335,7 @@ public class TurretSubsystem extends SubsystemBase {
         double targetAngle = 0;
 
         if (targetPosition != null) {
-            Pose2d robotPose = drivetrain.getState().Pose;
+            Pose2d robotPose = VisionSubsystem.getInstance().getCurrentBotPoseAllianceUnspecific();
             
             // Calculate vector from robot to target
             Translation2d robotToTarget = targetPosition.minus(robotPose.getTranslation());
