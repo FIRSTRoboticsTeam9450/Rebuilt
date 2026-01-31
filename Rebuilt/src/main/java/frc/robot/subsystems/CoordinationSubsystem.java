@@ -15,27 +15,30 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
 import frc.robot.commands.GoToPosCommand;
+import frc.robot.subsystems.IntakeSubsystem.IntakePos;
+import frc.robot.subsystems.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.LEDSubsystem.LEDState;
+import frc.robot.subsystems.ShooterSubsystem.AngleState;
+import frc.robot.subsystems.ShooterSubsystem.ShooterState;
+import frc.robot.subsystems.TransferSubsystem.TransferState;
+import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.subsystems.VisionSubsystem.ZoneState;
 
 public class CoordinationSubsystem extends SubsystemBase {
 
     private static volatile CoordinationSubsystem INSTANCE;
 
-    private TurretSubsystem turretSub; // = TurretSubsystem.getInstance();
-    private ShooterSubsystem shooterSub;// = ShooterSubsystem.getInstance();
-    private VisionSubsystem visionSub;// = VisionSubsystem.getInstance();
     private CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
 
     public enum AbsoluteStates {
+        INIT,
         STORING,
-        IDLING,
         PREPARING_FOR_SHOOTING,
         SHOOTING,
         TRENCH
     }
 
     private AbsoluteStates currentState = AbsoluteStates.STORING;
-    private AbsoluteStates previousState = currentState;
 
     private boolean driverAllowingShooting = false;
 
@@ -48,6 +51,46 @@ public class CoordinationSubsystem extends SubsystemBase {
     public void periodic() {
         getVelocityTurrent(0.02);
     }
+
+    private void applyState() {
+        TurretState turretState = TurretState.DISABLED;
+        ShooterState shooterVelocState = ShooterState.NOT_SHOOTING;
+        AngleState shooterHoodState = AngleState.DISABLED;
+        TransferState transferState = TransferState.NO_RUN;
+        IntakePos intakeAngleState = IntakePos.STORE;
+        IntakeState intakeVelocState = IntakeState.IDLING;
+        LEDState ledState = LEDState.DISABLED;
+
+        switch (currentState) {
+            case INIT: //TODO: Intake should be added when it has zeroing functionalilty, and a hardstop within robot frame.
+                turretState = TurretState.INIT;
+                shooterHoodState = AngleState.ZEROING;
+                ledState = LEDState.INIT;
+                break;
+
+            case STORING:
+                turretState = TurretState.STORING;
+                shooterHoodState = AngleState.STORING;
+                ledState = LEDState.STORING;
+                break;
+
+            case PREPARING_FOR_SHOOTING:
+                turretState = TurretState.AIMING;
+                shooterHoodState = AngleState.AIMING;
+                shooterVelocState = ShooterState.SHOOTING;
+                ledState = LEDState.PREPARING_TO_FIRE;
+        }
+
+        TurretSubsystem.getInstance().setState(turretState);
+        ShooterSubsystem.getInstance().setState(shooterVelocState, shooterHoodState);
+        TransferSubsystem.getInstance().setState(transferState);
+        IntakeSubsystem.getInstance().setPos(intakeAngleState);
+        IntakeSubsystem.getInstance().setState(intakeVelocState);
+        LEDSubsystem.getInstance().setState(ledState);
+    }
+
+    // ======================== Conditions =============================
+
     public boolean isShooterReady() {
         return ShooterSubsystem.getInstance().isShooterReady();
     }
@@ -71,6 +114,9 @@ public class CoordinationSubsystem extends SubsystemBase {
     public Command setFireCommand(boolean value) {
         return new InstantCommand(() -> driverAllowingShooting = value);
     }
+
+
+    // ============================ Getters & Setters ============================
 
     public ZoneState getCurrentZone() {
         return VisionSubsystem.getInstance().getCurrentZone();
@@ -144,6 +190,13 @@ public class CoordinationSubsystem extends SubsystemBase {
         return (TurretSubsystem.getInstance().updateTargetFromMode(futureTarget) - TurretSubsystem.getInstance().updateTargetFromMode(currentTarget))/time;
     }
 
+    public void setState(AbsoluteStates state) {
+        currentState = state;
+        applyState();
+    }
+
+    // ======================= INIT ===================
+
     public static CoordinationSubsystem getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new CoordinationSubsystem();
@@ -153,11 +206,9 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public void initizalize() {
-        turretSub = TurretSubsystem.getInstance();
-        shooterSub = ShooterSubsystem.getInstance();
-        visionSub = VisionSubsystem.getInstance();
-
     }
+
+    // ========================================= GAME DATA ===========================================
 
     public static class GameData {
         private String gameData;

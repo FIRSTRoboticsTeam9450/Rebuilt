@@ -6,15 +6,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.proto.ChassisSpeedsProto;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.FieldConstants.ZoneConstants;
 import frc.robot.Constants.RobotConstants.TurretConstants;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
@@ -23,20 +17,15 @@ import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsAndyMark;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightObject;
 import frc.robot.util.LimelightObject.Location;
 
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.sim.ChassisReference;
 
-import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import javax.xml.crypto.dsig.Transform;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -78,16 +67,12 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public void initizalize() {
-        shooterSub = ShooterSubsystem.getInstance();
-        turretSub = TurretSubsystem.getInstance();
     }
 
     // -------------------------
     // Core subsystem fields
     // -------------------------
     private static CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain; // Reference to drivetrain for pose updates
-    private static TurretSubsystem turretSub;// = RobotContainer.turretSub;
-    private static ShooterSubsystem shooterSub;// = ShooterSubsystem.getInstance();
 
     private volatile Pose2d lastVisionPose = drivetrain.getState().Pose;  // Last pose estimated from fused vision
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update

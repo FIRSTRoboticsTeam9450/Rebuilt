@@ -105,7 +105,7 @@ public final class Constants {
 
       public static final double TURRET_OFFSET_TO_ZERO = 179.5; //UNKOWN
 
-      public static final double TOTAL_ROTATION_DEGREES = 270;
+      public static final double TOTAL_ROTATION_DEGREES = 180;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
       public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1.5;
@@ -294,9 +294,9 @@ public final class Constants {
         public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
       }
       public static final class ZoneTargets {
-        public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER; // TODO: Put in proper targets
+        public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
         public static final Translation2d FERRY_TOP_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
-        public static final Translation2d FERRY_BOTTOM_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER; // Add later
+        public static final Translation2d FERRY_BOTTOM_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
       }
     }
 

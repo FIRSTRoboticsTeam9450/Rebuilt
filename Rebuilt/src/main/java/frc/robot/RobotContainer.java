@@ -10,22 +10,18 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.GoToPosCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.ShooterSubsystem.AngleState;
 import frc.robot.subsystems.ShooterSubsystem.ShooterState;
@@ -34,6 +30,7 @@ import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.LEDSubsystem.LEDState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.util.BezierCurve;
@@ -95,38 +92,6 @@ public class RobotContainer {
                     .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
-    
-    // For tuning hood angle PID
-    // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
-    // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
-    
-    // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() ->shooterSub.setOverrideMode(true))));
-    // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
-   
-
-    // DRIVER.a().onTrue(
-    //     turretSub.setStateCommand(TurretState.AIMING)
-    //   ).onFalse(
-    //     turretSub.setStateCommand(TurretState.STORING)
-    //   );
-
-    // For tuning hood angle PID
-    // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING)).andThen(
-    //   new InstantCommand(() -> shooterSub.setOverrideHoodAngle(40)))
-    // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
-
-    // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
-    
-    //DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(15)).andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
-    // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideModeAngle(false)));
-
-    // DRIVER.rightTrigger().onTrue(
-    //   new InstantCommand(() -> shooterSub.setState(ShooterState.SHOOTING, AngleState.AIMING))
-    //   .andThen(transferSub.setStateCommand(TransferState.RUN_IN))
-    // ).onFalse(
-    //   new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING))
-    //   .andThen(transferSub.setStateCommand(TransferState.NO_RUN))
-    //);
 
 
     // DRIVER.povDown().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT));
@@ -135,33 +100,33 @@ public class RobotContainer {
     // DRIVER.povUp().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT));
 
 
-    DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.AIMING));
-    DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.AIMING));
-
-    // DRIVER.rightTrigger().onTrue(transferSub.setStateCommand(TransferState.RUN_IN));
-    // DRIVER.rightTrigger().onFalse(transferSub.setStateCommand(TransferState.NO_RUN));
-
+    // DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.AIMING));
+    // DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.AIMING));
     
-    
-    DRIVER.leftTrigger().onTrue(
-      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
-      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_IN))
-    ).onFalse(
-      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
-      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
-    );
+    // DRIVER.leftTrigger().onTrue(
+    //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
+    //   .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_IN))
+    // ).onFalse(
+    //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
+    //   .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
+    // );
 
-    DRIVER.rightTrigger().onTrue(
-      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
-      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.HOLD))
-    ).onFalse(
-      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
-      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
-    );
+    // DRIVER.rightTrigger().onTrue(
+    //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
+    //   .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.HOLD))
+    // ).onFalse(
+    //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
+    //   .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
+    // );
 
-    DRIVER.a().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.AIMING));
-    DRIVER.b().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.IDLING));
-    DRIVER.x().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.STORING));
+    // DRIVER.y().onTrue(
+    //   TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_OUT)
+    // ).onFalse(
+    //   TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN)
+    // );
+
+    // DRIVER.a().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.AIMING));
+    // DRIVER.x().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.STORING));
 
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
 
@@ -169,23 +134,10 @@ public class RobotContainer {
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)
     );
 
-    // DRIVER.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-    // DRIVER.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
-
-    // DRIVER.y().whileTrue(ShooterSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // DRIVER.a().whileTrue(ShooterSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // DRIVER.b().whileTrue(ShooterSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // DRIVER.x().whileTrue(ShooterSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    // DRIVER.y().whileTrue(TurretSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // DRIVER.a().whileTrue(TurretSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // DRIVER.b().whileTrue(TurretSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // DRIVER.x().whileTrue(TurretSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    // DRIVER.y().whileTrue(IntakeSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // DRIVER.a().whileTrue(IntakeSubsystem.getInstance().sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // DRIVER.b().whileTrue(IntakeSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // DRIVER.x().whileTrue(IntakeSubsystem.getInstance().sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    DRIVER.a().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.DISABLED));
+    DRIVER.b().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.GOOD_TO_FIRE));
+    DRIVER.x().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.INIT));
+    DRIVER.y().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.UNABLE_TO_FIRE));
 
   }
 

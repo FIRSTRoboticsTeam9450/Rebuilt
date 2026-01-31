@@ -6,19 +6,15 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
@@ -27,8 +23,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Robot;
-import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
@@ -39,6 +33,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // States
     public enum AngleState {
+        DISABLED,
         ZEROING,
         AIMING,
         TRENCH,
@@ -49,10 +44,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public enum ShooterState {
-        SYS_ID,
         SHOOTING,
         RAMP_UP,
         NOT_SHOOTING,
+        HOLD_IN,
     }
 
     // Other subsystems
@@ -280,14 +275,23 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void applyState() {
         switch (currentShooterState) {
-            case SYS_ID:
-                break;
             case SHOOTING:
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
                 // shooterLeftMotor.setVoltage(getShooterVeloc());
                 break;
+
             case NOT_SHOOTING:
                 shooterLeftMotor.setVoltage(0);
+                break;
+            
+            case RAMP_UP:
+                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(10));
+                break;
+
+            case HOLD_IN:
+                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(-10));
+                break;
+
             default:
                 break;
         }
@@ -298,19 +302,27 @@ public class ShooterSubsystem extends SubsystemBase {
                 } else {
                     angleMotor.setControl(new VoltageOut(0));
                 }
+                break;
+
             case AIMING:
                 angleMotor.setControl(hoodMMRequest.withPosition(getShooterAngle()));
                 break;
+
             case TRENCH:
                 angleMotor.setControl(hoodMMRequest.withPosition(0));
+                break;
+
             case IDLING:
                 if(!storeCurrentPos) {
                     currentPos = angleMotor.getPosition().getValueAsDouble();//MathUtil.clamp(angleMotor.getPosition().getValueAsDouble(), hoodAngleMin, hoodAngleMax);
                     storeCurrentPos = true;
                 }
-                angleMotor.setControl(hoodMMRequest.withPosition(0));
+                angleMotor.setControl(hoodMMRequest.withPosition(currentPos));
+                break;
+
             case STORING:
                 angleMotor.setControl(hoodMMRequest.withPosition(0));
+                break;
                 
             default:
                 break;

@@ -1,22 +1,21 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Volt;
-
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.ctre.phoenix6.sim.CANcoderSimState;
+import com.ctre.phoenix6.sim.ChassisReference;
+import com.ctre.phoenix6.sim.TalonFXSimState;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -24,14 +23,12 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
@@ -64,9 +61,11 @@ public class TurretSubsystem extends SubsystemBase {
     private static volatile TurretSubsystem INSTANCE;
     
     private final TalonFX turretMotor;
+    private final TalonFXSimState turretMotorSimState;
     private final CANcoder turretEncoder;
+    private final CANcoderSimState turretEncoderSimState;
     private final CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
-    private CoordinationSubsystem coordSub; // = RobotContainer.coordSub;
+    private CoordinationSubsystem coordSub;
     
     private CommandXboxController driverController;
     
@@ -93,14 +92,8 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",11.764); //5, needs tuning
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0); //50, needs tuning though
 
-    private final LoggedNetworkNumber logTurretTarget = new LoggedNetworkNumber("/Tuning/Turret/Testing Target", 0);
-    
     // Motor configuration
     private TalonFXConfiguration motorConfig;
-
-    // SYS ID
-    private final VoltageOut sysIDRequest = new VoltageOut(0);
-    private final SysIdRoutine m_sysIdRoutine;
     
     // ========================= Control =========================
     
@@ -110,13 +103,9 @@ public class TurretSubsystem extends SubsystemBase {
     public enum TurretState {
         /** Do nothing, sit there and look pretty */
         DISABLED,
-        /** Go to a hand set target angle */
-        TESTING,
         /** Goes to store, then once there, goes to aiming */
         INIT,
         /** Holding current position, no active tracking */
-        IDLING,
-        /** Actively tracking a field-relative target */
         AIMING,
         /** Moving to safe storage position (0°) */
         STORING
@@ -143,15 +132,13 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Field-relative targeting
     private Rotation2d fieldRelativeGoalAngle = Rotation2d.fromDegrees(0);
-    private double fieldRelativeGoalVelocityRadPerSec = 0.0;
+    // private double fieldRelativeGoalVelocityRadPerSec = 0.0;
     
     // Robot-relative targeting (calculated each cycle)
     private double robotRelativeTargetAngleDeg = 0.0;
     private double robotRelativeTargetVelocityDegPerSec = 0.0;
     
     // State tracking
-    private double idlePositionDeg = 0.0;
-    private boolean stateNewlyChanged = true;
     private double turretOffset = 0.0;
     
     // Motion profiling
@@ -180,10 +167,13 @@ public class TurretSubsystem extends SubsystemBase {
             TurretConstants.DeviceIDs.kMotorID, 
             RobotConstants.CANIVORE_BUS
         );
+        turretMotorSimState = turretMotor.getSimState();
+
         turretEncoder = new CANcoder(
             TurretConstants.DeviceIDs.kAbsEncoderID, 
             RobotConstants.CANIVORE_BUS
         );
+        turretEncoderSimState = turretEncoder.getSimState();
         
         // Configure hardware
         configureEncoder();
@@ -201,23 +191,6 @@ public class TurretSubsystem extends SubsystemBase {
             Math.toRadians(logMaxAccelerationDegPerSecSq.get())
         );
         currentRateLimit = Math.toRadians(logMaxAccelerationDegPerSecSq.get());
-
-        //sys id
-        m_sysIdRoutine =
-            new SysIdRoutine(
-                new SysIdRoutine.Config(
-                    null,        // Use default ramp rate (1 V/s)
-                    Volt.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
-                    null,        // Use default timeout (10 s)
-                                // Log state with Phoenix SignalLogger class
-                    (state) -> SignalLogger.writeString("state", state.toString())
-                ),
-                new SysIdRoutine.Mechanism(
-                    (volts) -> turretMotor.setControl(sysIDRequest.withOutput(volts.in(Volt))),
-                    null,
-                    this
-                )
-            );
     }
     
     // ========================= Configuration =========================
@@ -226,6 +199,7 @@ public class TurretSubsystem extends SubsystemBase {
      * Configures the CANcoder absolute encoder.
      */
     private void configureEncoder() {
+        //IRL
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
         
         encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
@@ -233,12 +207,17 @@ public class TurretSubsystem extends SubsystemBase {
         encoderConfig.MagnetSensor.MagnetOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
         
         turretEncoder.getConfigurator().apply(encoderConfig);
+
+        //Sim
+        turretEncoderSimState.Orientation = ChassisReference.Clockwise_Positive;
+        turretEncoderSimState.SensorOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
     }
     
     /**
      * Configures the TalonFX motor controller with PID and limits.
      */
     private void configureMotor() {
+        //IRL
         motorConfig = new TalonFXConfiguration();
         
         // Neutral mode
@@ -267,6 +246,11 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Apply configuration
         turretMotor.getConfigurator().apply(motorConfig);
+
+        //SIM
+        turretMotorSimState.Orientation = ChassisReference.CounterClockwise_Positive;
+        turretMotorSimState.setMotorType(MotorType.KrakenX60);
+        turretMotorSimState.addRotorPosition(0);
     }
     
     // ========================= Periodic =========================
@@ -277,20 +261,21 @@ public class TurretSubsystem extends SubsystemBase {
         // Update target based on current mode
         updateTargetFromMode();
         setCustomTarget(VisionSubsystem.getInstance().getAdjustedCurrentTarget());
+
         // Get current robot state
-        Rotation2d robotAngle = drivetrain.getState().Pose.getRotation();
-        ChassisSpeeds robotVelocity = drivetrain.getState().Speeds;
-        double robotOmegaRadPerSec = robotVelocity.omegaRadiansPerSecond;
+        // Rotation2d robotAngle = drivetrain.getState().Pose.getRotation();
+        // ChassisSpeeds robotVelocity = drivetrain.getState().Speeds;
+        // double robotOmegaRadPerSec = robotVelocity.omegaRadiansPerSecond;
         
         // Convert field-relative goal to robot-relative
         Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle;//.minus(robotAngle);
-        double robotRelativeGoalVelocityRadPerSec = 
-            fieldRelativeGoalVelocityRadPerSec - robotOmegaRadPerSec;
+        // double robotRelativeGoalVelocityRadPerSec = 
+        //     fieldRelativeGoalVelocityRadPerSec - robotOmegaRadPerSec;
         
         // Find best angle considering wrapping and limits
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
-        // robotRelativeTargetVelocityDegPerSec = coordSub.getVelocityTurrent(0.02);
-        robotRelativeTargetVelocityDegPerSec = 0;
+        robotRelativeTargetVelocityDegPerSec = coordSub.getVelocityTurrent(0.02);
+        // robotRelativeTargetVelocityDegPerSec = 0;
 
         // Driver feedback for out-of-range targets
         updateDriverFeedback();
@@ -311,8 +296,8 @@ public class TurretSubsystem extends SubsystemBase {
         Translation2d targetPosition = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
         
         if (targetPosition != null) {
-            Pose2d robotPose = drivetrain.getState().Pose;
-            Pose2d turretAlteredRobotPose = robotPose.transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
+            // Pose2d robotPose = drivetrain.getState().Pose;
+            // Pose2d turretAlteredRobotPose = robotPose.transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
             
             
             // Calculate vector from robot to target
@@ -327,7 +312,7 @@ public class TurretSubsystem extends SubsystemBase {
             
             // Update field-relative goal (target is stationary, so velocity = 0)
             fieldRelativeGoalAngle = angleToTarget;
-            fieldRelativeGoalVelocityRadPerSec = 0.0;
+            // fieldRelativeGoalVelocityRadPerSec = 0.0;
         }
     }
 
@@ -385,10 +370,6 @@ public class TurretSubsystem extends SubsystemBase {
                 turretMotor.stopMotor();
                 break;
 
-            case TESTING:
-                turretMotor.setControl(positionRequest.withPosition(logTurretTarget.get() / encoderToAngleMultiplier).withFeedForward(0));
-                break;
-
             case INIT:
                 if (isAtGoal(1) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
                     currentState = TurretState.AIMING;
@@ -405,18 +386,6 @@ public class TurretSubsystem extends SubsystemBase {
                 commandTurret(profiledSetpointDeg, 0.0, 0.0);
                 break;
 
-            case IDLING:
-                // Capture current position on state entry
-                if (stateNewlyChanged) {
-                    stateNewlyChanged = false;
-                    idlePositionDeg = getCurrentAngleDeg() - TurretConstants.TURRET_OFFSET_TO_ZERO;
-                    profiledSetpointDeg = idlePositionDeg;
-                }
-                
-                // Hold idle position with no velocity
-                commandTurret(idlePositionDeg, 0.0, 0.0);
-                break;
-                
             case AIMING:
                 // Track target with velocity feedforward
                 double maxVelocity = logMaxVelocityDegPerSec.get();
@@ -696,7 +665,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public void setFieldRelativeTarget(Rotation2d angle, double velocityRadPerSec) {
         this.fieldRelativeGoalAngle = angle;
-        this.fieldRelativeGoalVelocityRadPerSec = velocityRadPerSec;
+        // this.fieldRelativeGoalVelocityRadPerSec = velocityRadPerSec;
     }
     
     /**
@@ -707,7 +676,6 @@ public class TurretSubsystem extends SubsystemBase {
     public void setState(TurretState wantedState) {
         previousState = currentState;
         currentState = wantedState;
-        stateNewlyChanged = true;
         
         // Reset motion profile on state change
         velocityLimiter.reset(Math.toRadians(getCurrentAngleDeg()));
@@ -879,14 +847,5 @@ public class TurretSubsystem extends SubsystemBase {
 
     public void initizalize() {
         coordSub = CoordinationSubsystem.getInstance();
-    }
-
-    // ================== SYS ID COMMANDS ================
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutine.quasistatic(direction);
-    }
-
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutine.dynamic(direction);
     }
 }
