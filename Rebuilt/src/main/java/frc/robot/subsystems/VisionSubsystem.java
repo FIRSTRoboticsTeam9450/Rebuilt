@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 /**
  * VisionSubsystem using Limelights with:
@@ -111,6 +112,9 @@ public class VisionSubsystem extends SubsystemBase {
     ZoneState currentZone = ZoneState.SHOOTING_ZONE;
     Translation2d currentTarget = ZoneTargets.SHOOTING_TARGET;
 
+    // DEBUGGING
+    LoggedNetworkBoolean debuggingData = new LoggedNetworkBoolean("/Tuning/Debugging Flips/Vision", false);
+
     // -------------------------
     // Constructor (private for singleton)
     // -------------------------
@@ -180,7 +184,7 @@ public class VisionSubsystem extends SubsystemBase {
      * Updates vision data and logs key metrics.
      */
     @Override
-    public void periodic() {
+    public void periodic() { 
         updateTargetAndZone();
         updateVision();  // Compute fused vision pose
         publishLogs();   // Print/log fusion confidence and pose
@@ -202,20 +206,22 @@ public class VisionSubsystem extends SubsystemBase {
         
         for (LimelightObject limelight : LIMELIGHT_LIST) {
             // Update robot orientation for this limelight
-            LimelightHelpers.SetRobotOrientation(limelight.getName(), robotYaw, 0, 0, 0, 0, 0);
-            
-            // Get pose estimate using MegaTag2
-            LimelightHelpers.PoseEstimate pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight.getName());
-            
-            // Create vision measurement
-            VisionMeasurement vm = createVisionMeasurement(pe, limelight.getName());
-            
-            // Only add valid measurements
-            if (vm.isValid()) {
-                measurements.add(vm);
+            LimelightHelpers.SetRobotOrientation_NoFlush(limelight.getName(), robotYaw, 0, 0, 0, 0, 0);
+
+            //If not seeing a tag, dont run through this process
+            if (LimelightHelpers.getTV(limelight.getName())) {
+                // Get pose estimate using MegaTag2
+                LimelightHelpers.PoseEstimate pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight.getName());
+                
+                // Create vision measurement
+                VisionMeasurement vm = createVisionMeasurement(pe, limelight.getName());
+                
+                // Only add valid measurements
+                if (vm.isValid()) {
+                    measurements.add(vm);
+                }
             }
         }
-        
         // Fuse all valid measurements
         Optional<Pose2d> fusedPose = fuseVision(measurements);
         
@@ -444,54 +450,57 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
         Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
         
-        // Per-camera data
-        for (LimelightObject limelight : LIMELIGHT_LIST) {
-            String name = limelight.getName();
-            LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults(name);
-            
-            if (results != null) {
-                Logger.recordOutput("Rebuilt/Vision/" + name + "/Valid", results.valid);
-                Logger.recordOutput("Rebuilt/Vision/" + name + "/Priority Tag", LimelightHelpers.getFiducialID(name));
-                Logger.recordOutput("Rebuilt/Vision/" + name + "/Pipeline Latency", results.latency_pipeline);
-                Logger.recordOutput("Rebuilt/Vision/" + name + "/Capture Latency", results.latency_capture);
+        if (debuggingData.get()) {
+            // Per-camera data
+            for (LimelightObject limelight : LIMELIGHT_LIST) {
+                String name = limelight.getName();
+                LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults(name);
                 
-                // Get botpose data if available
-                double[] botpose = LimelightHelpers.getBotPose_wpiBlue(name);
-                if (botpose != null && botpose.length >= 6) {
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/X", botpose[0]);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Y", botpose[1]);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Z", botpose[2]);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Roll", botpose[3]);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Pitch", botpose[4]);
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Yaw", botpose[5]);
+                if (results != null) {
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Valid", results.valid);
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Priority Tag", LimelightHelpers.getFiducialID(name));
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Pipeline Latency", results.latency_pipeline);
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Capture Latency", results.latency_capture);
+                    
+                    // Get botpose data if available
+                    double[] botpose = LimelightHelpers.getBotPose_wpiBlue(name);
+                    if (botpose != null && botpose.length >= 6) {
+                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/X", botpose[0]);
+                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Y", botpose[1]);
+                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Z", botpose[2]);
+                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Roll", botpose[3]);
+                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Pitch", botpose[4]);
+                        Logger.recordOutput("Rebuilt/Vision/" + name + "/Botpose/Yaw", botpose[5]);
+                    }
+                    
+                    // Ambiguity for this camera
+                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Ambiguity", computeAmbiguity(name));
                 }
-                
-                // Ambiguity for this camera
-                Logger.recordOutput("Rebuilt/Vision/" + name + "/Ambiguity", computeAmbiguity(name));
             }
+            
+            // Robot state
+            Logger.recordOutput("Rebuilt/Vision/Robot/Pigeon Yaw", 
+                drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset);
+
+            // Current bot pose
+            // Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
+            Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
+            Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
+            Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
+            Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
+            Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
+            Logger.recordOutput("Rebuilt/Vision/CurrentTargetFromMethod", new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()));
+            // Logger.recordOutput("Rebuilt/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
+            Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
+            Logger.recordOutput("Rebuilt/Vision/CurrentTargetWRTRobot", getTargetRelativeToBot());
+            // getAdjustedFutureTarget(.5);
+
         }
-        
-        // Robot state
-        Logger.recordOutput("Rebuilt/Vision/Robot/Pigeon Yaw", 
-            drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset);
-        
+
         // Fault detection
         Logger.recordOutput("Rebuilt/Vision/Faults/Drivetrain instance null?", drivetrain == null);
         Logger.recordOutput("Rebuilt/Vision/Faults/Limelight List Empty?", LIMELIGHT_LIST.isEmpty());
         Logger.recordOutput("Rebuilt/Vision/Faults/Limelight Count", LIMELIGHT_LIST.size());
-
-        // Current bot pose
-        // Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
-        Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
-        Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
-        Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
-        Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
-        Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
-        Logger.recordOutput("Rebuilt/Vision/CurrentTargetFromMethod", new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()));
-        // Logger.recordOutput("Rebuilt/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
-        Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
-        Logger.recordOutput("Rebuilt/Vision/CurrentTargetWRTRobot", getTargetRelativeToBot());
-        // getAdjustedFutureTarget(.5);
     }
 
     // -------------------------

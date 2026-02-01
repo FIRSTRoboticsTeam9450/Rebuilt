@@ -126,8 +126,8 @@ public class ShooterSubsystem extends SubsystemBase {
         configureShooterMotors();
         addData();
 
-        hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration);//.withEnableFOC(RobotConstants.ENABLE_FOC);;
-        outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot);//.withEnableFOC(RobotConstants.ENABLE_FOC);
+        hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withEnableFOC(RobotConstants.ENABLE_FOC);
+        outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
 
         m_sysIdRoutine =
             new SysIdRoutine(
@@ -149,15 +149,22 @@ public class ShooterSubsystem extends SubsystemBase {
     // TODO: put in shooting data and ferrying data
     public void addData() {
         // Shooting Data Velocity
-        shootingDistanceToVelocity.put(1.676, 24.5);
-        shootingDistanceToVelocity.put(2.033,26.5);
-        shootingDistanceToVelocity.put(2.581,27.5);
-        shootingDistanceToVelocity.put(3.323,29.5);
-        shootingDistanceToVelocity.put(4.08,32.0);
-        shootingDistanceToVelocity.put(5.058,32.5);
-        shootingDistanceToVelocity.put(5.695,34.0);
+        shootingDistanceToVelocity.put(1.276, 25.25);
+        shootingDistanceToVelocity.put(1.8, 27.0);
+        shootingDistanceToVelocity.put(2.5, 27.2);
+        shootingDistanceToVelocity.put(3.2, 27.72);
+        shootingDistanceToVelocity.put(3.375, 28.5);
+        shootingDistanceToVelocity.put(3.7, 29.75);
+        shootingDistanceToVelocity.put(4.41, 31.0);
 
         // Shooting Data Time
+        shootingDistanceToTime.put(1.276, 0.96);
+        shootingDistanceToTime.put(1.8, 1.125);
+        shootingDistanceToTime.put(2.5, 1.044);
+        shootingDistanceToTime.put(3.2, 1.04);
+        shootingDistanceToTime.put(3.375, 1.036);
+        shootingDistanceToTime.put(3.7, 1.0925);
+        shootingDistanceToTime.put(4.41, 1.134);
 
 
         // Ferrying Data Velocity
@@ -330,7 +337,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(!isTuningShooterVelocity) {
             switch (coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()) + 0.0889);
+                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()) + 0.1);
                     break;
                 case FERRY_ZONE_TOP:
                     targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
@@ -395,17 +402,17 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double hoodAngleFunction(double distance) {
-        double wantedAngle = (-60.0/(distance - .6)) + 48.0;//Math.atan(51/distance); // Min distance away 4.5
+        double wantedAngle = (-35.0/(distance - .6)) + 48.0;//Math.atan(51/distance); // Min distance away 4.5
         double wantedRevs = getAsRevs(wantedAngle);
         if(wantedRevs != MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax)) {
-            System.out.println("DEBUGGING: Didn't use calculated angle: " + wantedRevs);
+            // System.out.println("DEBUGGING: Didn't use calculated angle: " + wantedRevs);
         }
         if(distance <= distanceAwayToUseLowDegree) {
             wantedRevs = 0; 
         }
-        if(distance >= distanceAwayToUseSpecificDegree) {
-            wantedRevs = getAsRevs(40);
-        }
+        // if(distance >= distanceAwayToUseSpecificDegree) {
+        //     wantedRevs = getAsRevs(40);
+        // }
         return MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax);
     }
 

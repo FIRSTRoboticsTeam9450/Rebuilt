@@ -101,11 +101,11 @@ public final class Constants {
       public static final double ENCODER_MAGNET_OFFSET = 0.110595703125;
 
       public static final double ROTOR_TO_SENSOR_RATIO = 0.001890359168;
-      public static final double SENSOR_TO_MECHANISM_RATIO = 0.4565217391;
+      public static final double SENSOR_TO_MECHANISM_RATIO = 0.4565217391 * 1.06;
 
       public static final double TURRET_OFFSET_TO_ZERO = 179.5; //UNKOWN
 
-      public static final double TOTAL_ROTATION_DEGREES = 180;
+      public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
       public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1.5;

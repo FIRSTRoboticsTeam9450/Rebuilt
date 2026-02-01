@@ -6,7 +6,8 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -23,6 +24,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -50,7 +52,7 @@ import frc.robot.Constants.RobotConstants.TurretConstants;
  * 
  * <p>Physical Constraints:
  * <ul>
- *   <li>Range: -165° to +165° (330° total)</li>
+ *   <li>Range: -150° to +150° (300° total)</li>
  *   <li>Gear Ratio: {@link TurretConstants#DEGREE_CHANGE_PER_MOTOR_REVOLUTION} degrees per motor revolution</li>
  * </ul>
  */
@@ -72,8 +74,8 @@ public class TurretSubsystem extends SubsystemBase {
     // ========================= Configuration =========================
     
     // Physical limits (degrees) - 330° total range
-    private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2) - TurretConstants.TURRET_OFFSET_TO_ZERO;
-    private static final double MAX_ANGLE_DEG = (TurretConstants.TOTAL_ROTATION_DEGREES / 2) - TurretConstants.TURRET_OFFSET_TO_ZERO;
+    private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
+    private static final double MAX_ANGLE_DEG = (TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
@@ -81,15 +83,15 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 10); //360
+        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 360); //360
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 20); //720
+        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720); //720
     
     private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 80); //200, needs tuning though
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 3.34); //5, needs tuning
-    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",11.764); //5, needs tuning
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.4); //5, needs tuning
+    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",15); //5, needs tuning
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0); //50, needs tuning though
 
     // Motor configuration
@@ -137,6 +139,7 @@ public class TurretSubsystem extends SubsystemBase {
     // Robot-relative targeting (calculated each cycle)
     private double robotRelativeTargetAngleDeg = 0.0;
     private double robotRelativeTargetVelocityDegPerSec = 0.0;
+    private double previousRobotRelativeTargetAngleDeg = 0.0;
     
     // State tracking
     private double turretOffset = 0.0;
@@ -147,7 +150,7 @@ public class TurretSubsystem extends SubsystemBase {
     private double profiledSetpointDeg = 0.0;
     
     // Control requests
-    private final PositionTorqueCurrentFOC positionRequest = new PositionTorqueCurrentFOC(0).withSlot(0);
+    private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private final SimpleMotorFeedforward feedforward;
 
     //Testing Stuff
@@ -268,13 +271,20 @@ public class TurretSubsystem extends SubsystemBase {
         // double robotOmegaRadPerSec = robotVelocity.omegaRadiansPerSecond;
         
         // Convert field-relative goal to robot-relative
-        Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle;//.minus(robotAngle);
+        Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.plus(new Rotation2d(Units.degreesToRadians(angleOffsetToZero - 5)));
         // double robotRelativeGoalVelocityRadPerSec = 
         //     fieldRelativeGoalVelocityRadPerSec - robotOmegaRadPerSec;
         
         // Find best angle considering wrapping and limits
+        previousRobotRelativeTargetAngleDeg = robotRelativeTargetAngleDeg;
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
-        robotRelativeTargetVelocityDegPerSec = coordSub.getVelocityTurrent(0.02);
+        // robotRelativeTargetVelocityDegPerSec = currentState == TurretState.AIMING ? coordSub.getVelocityTurrent(0.02) : 0;
+        if (robotRelativeTargetAngleDeg < MIN_ANGLE_DEG || robotRelativeTargetAngleDeg > MAX_ANGLE_DEG) {
+            robotRelativeTargetVelocityDegPerSec = 0.0;
+        } else {
+            robotRelativeTargetVelocityDegPerSec = (robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / 0.020;
+        }
+        
         // robotRelativeTargetVelocityDegPerSec = 0;
 
         // Driver feedback for out-of-range targets
@@ -296,8 +306,6 @@ public class TurretSubsystem extends SubsystemBase {
         Translation2d targetPosition = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
         
         if (targetPosition != null) {
-            Pose2d robotPose = VisionSubsystem.getInstance().getCurrentBotPoseAllianceUnspecific();
-            Pose2d turretAlteredRobotPose = robotPose.transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
             
             
             // Calculate vector from robot to target
@@ -312,7 +320,6 @@ public class TurretSubsystem extends SubsystemBase {
             
             // Update field-relative goal (target is stationary, so velocity = 0)
             fieldRelativeGoalAngle = angleToTarget;
-            // fieldRelativeGoalVelocityRadPerSec = 0.0;
         }
     }
 
@@ -375,7 +382,7 @@ public class TurretSubsystem extends SubsystemBase {
                     currentState = TurretState.AIMING;
                 }
 
-                profiledSetpointDeg = -TurretConstants.TURRET_OFFSET_TO_ZERO - 12.5;
+                profiledSetpointDeg = -31;
 
                 profiledSetpointDeg = MathUtil.clamp(
                     profiledSetpointDeg, 
@@ -418,7 +425,7 @@ public class TurretSubsystem extends SubsystemBase {
                 
             case STORING:
                 // Return to zero position with no velocity
-                profiledSetpointDeg = -TurretConstants.TURRET_OFFSET_TO_ZERO;
+                profiledSetpointDeg = -0;
 
                 profiledSetpointDeg = MathUtil.clamp(
                     profiledSetpointDeg, 
@@ -453,7 +460,7 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Convert to encoder units (accounting for offset and encoder ratio)
         double positionEncoderRevs = 
-            (positionMotorRevs + (angleOffsetToZero)) / encoderToAngleMultiplier;
+            (positionMotorRevs) / encoderToAngleMultiplier;
         
         // Calculate feedforward voltage
         // FF = kS*sgn(v) + kV*v + kA*a
@@ -476,11 +483,11 @@ public class TurretSubsystem extends SubsystemBase {
      * Finds the best equivalent angle considering wrapping and physical limits.
      * Chooses the angle that requires the least turret rotation.
      * 
-     * <p>With 330° range (-165° to +165°), the turret can nearly complete a full rotation,
+     * <p>With 300° range (-150° to +150°), the turret can nearly complete a full rotation,
      * so we check multiple wrapped versions to find the shortest path.
      * 
      * @param targetDegrees Target angle in degrees (robot-relative)
-     * @return Best wrapped angle within [-165°, +165°]
+     * @return Best wrapped angle within [-150°, +150°]
      */
     private double findBestWrappedAngle(double targetDegrees) {
         double currentAngle = getCurrentAngleDeg();
@@ -489,7 +496,7 @@ public class TurretSubsystem extends SubsystemBase {
         double minDistance = Double.POSITIVE_INFINITY;
         
         // Check wrapped versions: -720°, -360°, 0°, +360°, +720°
-        // With 330° range, wrapping becomes more important
+        // With 300° range, wrapping becomes more important
         for (int wraps = -2; wraps <= 2; wraps++) {
             double wrappedAngle = targetDegrees + (wraps * 360.0);
             
@@ -507,11 +514,15 @@ public class TurretSubsystem extends SubsystemBase {
                 minDistance = distance;
             }
         }
-        
+
+        Logger.recordOutput("Rebuilt/Turret/Debugging/Best Angle Unclamped", bestAngle);
+
         // If no valid angle found (all out of range), clamp to nearest limit
         if (minDistance == Double.POSITIVE_INFINITY) {
             bestAngle = MathUtil.clamp(targetDegrees, MIN_ANGLE_DEG, MAX_ANGLE_DEG);
         }
+        
+        Logger.recordOutput("Rebuilt/Turret/Debugging/Best Angle Clamped", bestAngle);
         
         return bestAngle;
     }
@@ -554,6 +565,10 @@ public class TurretSubsystem extends SubsystemBase {
         // Reconfigure if needed
         if (gainsChanged) {
             configureMotor();
+
+            feedforward.setKa(logKA.get());
+            feedforward.setKs(logKS.get());
+            feedforward.setKv(logKV.get());
         }
         
         if (profileChanged) {
@@ -588,10 +603,9 @@ public class TurretSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Turret/TargetMode", currentTargetMode);
         
         // Position tracking
-        Logger.recordOutput("Rebuilt/Turret/CurrentAngleDeg", (getCurrentAngleDeg() * 2.2));
-        Logger.recordOutput("Rebuilt/Turret/No Offset Current Angle", (getCurrentAngleDeg() * 2.2) - TurretConstants.TURRET_OFFSET_TO_ZERO);
-        Logger.recordOutput("Rebuilt/Turret/TargetAngleDeg", robotRelativeTargetAngleDeg + TurretConstants.TURRET_OFFSET_TO_ZERO);
-        Logger.recordOutput("Rebuilt/Turret/ProfiledSetpointDeg", profiledSetpointDeg + TurretConstants.TURRET_OFFSET_TO_ZERO);
+        Logger.recordOutput("Rebuilt/Turret/CurrentAngleDeg", getCurrentAngleDeg());
+        Logger.recordOutput("Rebuilt/Turret/TargetAngleDeg", robotRelativeTargetAngleDeg);
+        Logger.recordOutput("Rebuilt/Turret/ProfiledSetpointDeg", profiledSetpointDeg);
         Logger.recordOutput("Rebuilt/Turret/FieldGoalAngleDeg", fieldRelativeGoalAngle.getDegrees());
         
         // Velocity tracking
@@ -625,6 +639,9 @@ public class TurretSubsystem extends SubsystemBase {
         // Status flags
         Logger.recordOutput("Rebuilt/Turret/AtGoal", isAtGoal());
         Logger.recordOutput("Rebuilt/Turret/TargetOutOfRange", isTargetOutOfRange());
+
+        Logger.recordOutput("Rebuilt/Turret/Debugging/MIN Angle", MIN_ANGLE_DEG);
+        Logger.recordOutput("Rebuilt/Turret/Debugging/MAX Angle", MAX_ANGLE_DEG);
     }
     
     // ========================= Public API =========================
@@ -743,10 +760,10 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Gets the current turret angle in degrees (robot-relative).
      * 
-     * @return Current angle in degrees, range [-165, +165]
+     * @return Current angle in degrees, range [-150, +150]
      */
     public double getCurrentAngleDeg() {
-        return turretEncoder.getPosition().getValueAsDouble() * encoderToAngleMultiplier + turretOffset;
+        return turretEncoder.getPosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
     }
     
     /**
@@ -810,7 +827,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return true if within tolerance
      */
     public boolean isAtGoal(double toleranceDeg) {
-        double error = Math.abs(((getCurrentAngleDeg() * 2.2) - TurretConstants.TURRET_OFFSET_TO_ZERO) - profiledSetpointDeg);
+        double error = Math.abs(getCurrentAngleDeg() - profiledSetpointDeg);
         return error < toleranceDeg;
     }
     
