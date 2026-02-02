@@ -382,7 +382,7 @@ public class TurretSubsystem extends SubsystemBase {
                     currentState = TurretState.AIMING;
                 }
 
-                profiledSetpointDeg = -31;
+                profiledSetpointDeg = 13;
 
                 profiledSetpointDeg = MathUtil.clamp(
                     profiledSetpointDeg, 
@@ -425,7 +425,7 @@ public class TurretSubsystem extends SubsystemBase {
                 
             case STORING:
                 // Return to zero position with no velocity
-                profiledSetpointDeg = -0;
+                profiledSetpointDeg = 13;
 
                 profiledSetpointDeg = MathUtil.clamp(
                     profiledSetpointDeg, 
@@ -583,7 +583,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void updateDriverFeedback() {
         if (driverController != null) {
-            if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled()) {
+            if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled() && !DriverStation.isAutonomous()) {
                 driverController.setRumble(RumbleType.kBothRumble, 0.05);
             } else {
                 driverController.setRumble(RumbleType.kBothRumble, 0.0);

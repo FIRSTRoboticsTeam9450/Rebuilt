@@ -260,7 +260,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void publishLogs() {
         Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + 15);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
         Logger.recordOutput("Rebuilt/Shooter/Hood/Took target", hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
         Logger.recordOutput("Rebuilt/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
@@ -417,11 +417,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double getHoodAngleDegrees() {
-        return angleMotor.getPosition().getValueAsDouble() * degreesPerRev + 15; // add + 15 if you want true angle
+        return angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero; // add + 15 if you want true angle
     }
 
     public double getAsRevs(double degrees) {
-        return (degrees-15) / degreesPerRev;
+        return (degrees-degreesToZero) / degreesPerRev;
     }
 
     public AngleState getCurrentAngleState() {
