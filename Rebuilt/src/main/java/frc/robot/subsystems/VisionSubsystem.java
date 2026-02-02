@@ -652,7 +652,7 @@ public class VisionSubsystem extends SubsystemBase {
         //     timeToShoot = shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
         // }
         // else if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
-        //     timeToShoot = shooterSub.getShootingDistanceToTime(getDistanceToTarget(target));
+            timeToShoot = ShooterSubsystem.getInstance().getShootingDistanceToTime(getDistanceToTarget(target));
         // }
         return timeToShoot;
     }

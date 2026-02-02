@@ -8,6 +8,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -20,6 +21,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -108,6 +110,10 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean isTuningShooterVelocity = logIsTuningShooterVelocity.get();
     private boolean isOverrideAngle = false;
     private boolean isZeroingDone = false;
+    private boolean hasSwitchedBack = false;
+
+    // Timer
+    private Timer switchSlotBackTimer = new Timer();
 
     // Data tables
     InterpolatingDoubleTreeMap shootingDistanceToTime = new InterpolatingDoubleTreeMap();
@@ -126,7 +132,7 @@ public class ShooterSubsystem extends SubsystemBase {
         configureShooterMotors();
         addData();
 
-        hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withEnableFOC(RobotConstants.ENABLE_FOC);
+        hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withEnableFOC(RobotConstants.ENABLE_FOC).withSlot(0);
         outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
 
         m_sysIdRoutine =
@@ -193,6 +199,16 @@ public class ShooterSubsystem extends SubsystemBase {
                                                     .withKG(logHoodMMKG.get());
         angleMotorConfig.Slot0 = slot0Config;
 
+        
+        Slot1Configs slot1Config = new Slot1Configs().withKS(logHoodMMKS.get())
+                                                    .withKV(logHoodMMKV.get())
+                                                    .withKA(logHoodMMKA.get())
+                                                    .withKP(logHoodMMKP.get())
+                                                    .withKI(logHoodMMKI.get())
+                                                    .withKD(logHoodMMKD.get())
+                                                    .withKG(logHoodMMKG.get());
+        angleMotorConfig.Slot1 = slot1Config;
+
         MotionMagicConfigs mmConfigs = new MotionMagicConfigs().withMotionMagicAcceleration(logHoodMMAccel.get())
                                                                .withMotionMagicCruiseVelocity(logHoodMMVeloc.get());
         angleMotorConfig.MotionMagic = mmConfigs;
@@ -254,6 +270,10 @@ public class ShooterSubsystem extends SubsystemBase {
             currentAngleState = AngleState.ZEROING;
             isZeroingDone = autoZeroing();
         }
+        if(switchSlotBackTimer.get() > 2 && currentAngleState == AngleState.AIMING && !hasSwitchedBack) {
+            hasSwitchedBack = true;
+            hoodMMRequest = hoodMMRequest.withSlot(0);
+        }
         applyState();
         publishLogs();
     }
@@ -265,7 +285,7 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
-
+        Logger.recordOutput("Rebuilt/Shooter/Hood/Slot", hoodMMRequest.Slot);
         Logger.recordOutput("Rebuilt/Shooter/Hood/currentState", currentAngleState);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
 
@@ -457,6 +477,12 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param wantedAngleState
      */
     public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
+        if((currentAngleState == AngleState.ZEROING || currentAngleState == AngleState.STORING) && wantedAngleState == AngleState.AIMING) {
+            hoodMMRequest = hoodMMRequest.withSlot(1);
+            switchSlotBackTimer.restart();
+            hasSwitchedBack = false;
+        }
+        
         currentShooterState = wantedShooterState;
         currentAngleState = wantedAngleState;
     }
@@ -556,7 +582,7 @@ public class ShooterSubsystem extends SubsystemBase {
             hoodMMVelocity = logHoodMMVeloc.get();
             hoodMMAcceleration = logHoodMMAccel.get();
 
-            hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration);//.withEnableFOC(RobotConstants.ENABLE_FOC);
+            hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withSlot(0);//.withEnableFOC(RobotConstants.ENABLE_FOC);
         }
         
     }
