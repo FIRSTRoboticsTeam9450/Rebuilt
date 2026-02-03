@@ -585,8 +585,12 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void updateDriverFeedback() {
         if (driverController != null) {
-            if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled() && !DriverStation.isAutonomous()) {
-                driverController.setRumble(RumbleType.kBothRumble, 0.05);
+            if (currentState != TurretState.AIMING && !isTargetOutOfRange() && !DriverStation.isEnabled() && DriverStation.isAutonomous()) {
+                driverController.setRumble(RumbleType.kBothRumble, 0.0);
+            } else if (profiledSetpointDeg == MIN_ANGLE_DEG) {
+                driverController.setRumble(RumbleType.kLeftRumble, 0.05);
+            } else if (profiledSetpointDeg == MAX_ANGLE_DEG) {
+                driverController.setRumble(RumbleType.kRightRumble, 0.05);
             } else {
                 driverController.setRumble(RumbleType.kBothRumble, 0.0);
             }
