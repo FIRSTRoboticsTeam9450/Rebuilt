@@ -6,6 +6,7 @@ import org.w3c.dom.css.RGBColor;
 
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.ColorFlowAnimation;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.EmptyAnimation;
 import com.ctre.phoenix6.controls.SingleFadeAnimation;
 import com.ctre.phoenix6.controls.SolidColor;
@@ -64,7 +65,14 @@ public class LEDSubsystem extends SubsystemBase{
     public void periodic() {
         // applyState();
 
+        solidColorRequest.withLEDEndIndex(0);
+
         publishLogs();
+    }
+
+    private void removeLEDColor () {
+        candle.setControl(new EmptyAnimation(0));
+        candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 0, 0)));
     }
 
     private void applyState() {
@@ -75,7 +83,7 @@ public class LEDSubsystem extends SubsystemBase{
                 break;
             
             case INIT:
-                candle.setControl(flowColorRequest.withColor(RGBWColor.fromHSV(60, 1, 1)).withSlot(1));
+                candle.setControl(flowColorRequest.withColor(RGBWColor.fromHSV(60, 1, 1)).withSlot(0));
                 break;
 
             case STORING:
@@ -103,7 +111,7 @@ public class LEDSubsystem extends SubsystemBase{
 
     public void setState(LEDState state) {
         currentState = state;
-
+        removeLEDColor();
         applyState();
     }
 
