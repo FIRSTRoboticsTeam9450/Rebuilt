@@ -45,6 +45,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean overrideTrench = false;
 
     private boolean update = false;
+    private boolean previousGoodToShoot = goodToFire();
 
     public CoordinationSubsystem() {
         
@@ -60,8 +61,13 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     private void applyZone() {
-        if(currentZone != previousZone || update) {
+        if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
             if(currentState != AbsoluteStates.INIT) {
+
+                previousZone = currentZone;
+                update = false;
+                previousGoodToShoot = goodToFire();
+
                 switch (currentZone) {
                     case SHOOTING_ZONE:
                         if(goodToFire()) {
@@ -94,7 +100,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                             setState(AbsoluteStates.TRENCH);
                         }
                         else {
-                            setState(AbsoluteStates.SHOOTING);
+                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
                         }
                         break;
                     case HARD_TRENCH_DEADZONE:
@@ -106,8 +112,6 @@ public class CoordinationSubsystem extends SubsystemBase {
                         return;
                 }
             }
-            previousZone = currentZone;
-            update = false;
         }
     }
 
@@ -137,6 +141,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
+                transferState = TransferState.HOLD;
                 ledState = LEDState.PREPARING_TO_FIRE;
                 break;
             case SHOOTING:
@@ -144,12 +149,13 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
                 transferState = TransferState.RUN_IN;
-                ledState = LEDState.PREPARING_TO_FIRE;
+                ledState = LEDState.GOOD_TO_FIRE;
                 break;
             case TRENCH:
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
                 shooterVelocState = ShooterState.NOT_SHOOTING;
+                transferState = TransferState.HOLD;
                 ledState = LEDState.UNABLE_TO_FIRE;
                 break;
 
