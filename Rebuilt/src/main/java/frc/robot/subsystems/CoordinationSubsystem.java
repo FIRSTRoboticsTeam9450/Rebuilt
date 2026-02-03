@@ -44,6 +44,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean driverAllowingShooting = false;
     private boolean overrideTrench = false;
 
+    private boolean update = false;
+
     public CoordinationSubsystem() {
         
     }
@@ -58,7 +60,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     private void applyZone() {
-        if(currentZone != previousZone) {
+        if(currentZone != previousZone || update) {
             if(currentState != AbsoluteStates.INIT) {
                 switch (currentZone) {
                     case SHOOTING_ZONE:
@@ -105,6 +107,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 }
             }
             previousZone = currentZone;
+            update = false;
         }
     }
 
@@ -190,6 +193,11 @@ public class CoordinationSubsystem extends SubsystemBase {
         return new InstantCommand(() -> driverAllowingShooting = value);
     }
 
+    public Command setOverrideCommand(boolean value) {
+        return new InstantCommand(() -> overrideTrench = value)
+        .alongWith(new InstantCommand(() -> update = true));
+        
+    }
 
     // ============================ Getters & Setters ============================
 
