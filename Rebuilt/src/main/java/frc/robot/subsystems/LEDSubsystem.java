@@ -38,7 +38,8 @@ public class LEDSubsystem extends SubsystemBase{
         STORING,
         UNABLE_TO_FIRE,
         PREPARING_TO_FIRE,
-        GOOD_TO_FIRE
+        GOOD_TO_FIRE,
+        DEADZONE_OVERRIDEN
     }
 
     private LEDState currentState = LEDState.DISABLED;
@@ -63,10 +64,6 @@ public class LEDSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-        // applyState();
-
-        solidColorRequest.withLEDEndIndex(0);
-
         publishLogs();
     }
 
@@ -76,14 +73,13 @@ public class LEDSubsystem extends SubsystemBase{
     }
 
     private void applyState() {
-        // candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 0, 0)));
         switch (currentState) {
             case DISABLED:
-                candle.setControl(singleFadeRequest.withColor(RGBWColor.fromHSV(45, 1, 1)).withSlot(0));
+                candle.setControl(singleFadeRequest.withColor(RGBWColor.fromHSV(45, 1, 1)).withFrameRate(25));
                 break;
             
             case INIT:
-                candle.setControl(flowColorRequest.withColor(RGBWColor.fromHSV(60, 1, 1)).withSlot(0));
+                candle.setControl(flowColorRequest.withColor(RGBWColor.fromHSV(60, 1, 1)).withFrameRate(10));
                 break;
 
             case STORING:
@@ -101,6 +97,9 @@ public class LEDSubsystem extends SubsystemBase{
             case GOOD_TO_FIRE:
                 candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(120, 1, 1)));
                 break;
+
+            case DEADZONE_OVERRIDEN:
+                candle.setControl(singleFadeRequest.withColor(RGBWColor.fromHSV(0, 1, 1)).withFrameRate(5));
         }
     }
 
