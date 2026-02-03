@@ -178,6 +178,7 @@ public class VisionSubsystem extends SubsystemBase {
         limelightBR.offsetRoll = BackRight.ROLL;
         limelightBR.offsetYaw = BackRight.YAW;
         LIMELIGHT_LIST.add(limelightBR);
+        setLLIMUModes(1);
     }
 
     /**
@@ -208,7 +209,7 @@ public class VisionSubsystem extends SubsystemBase {
         for (LimelightObject limelight : LIMELIGHT_LIST) {
             // Update robot orientation for this limelight
             LimelightHelpers.SetRobotOrientation_NoFlush(limelight.getName(), robotYaw, 0, 0, 0, 0, 0);
-
+            
             //If not seeing a tag, dont run through this process
             if (LimelightHelpers.getTV(limelight.getName())) {
                 // Get pose estimate using MegaTag2
@@ -649,12 +650,12 @@ public class VisionSubsystem extends SubsystemBase {
     public double getTimeToShoot(Translation2d target) {
         double timeToShoot = 1.2;
         // TODO: UNCOMMENT LATER //
-        // if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
-        //     timeToShoot = shooterSub.getFerryingDistanceToTime(getDistanceToTarget(target));
-        // }
-        // else if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
-            // timeToShoot = ShooterSubsystem.getInstance().getShootingDistanceToTime(getDistanceToTarget(target));
-        // }
+        if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
+            timeToShoot = ShooterSubsystem.getInstance().getFerryingDistanceToTime(getDistanceToTarget(target));
+        }
+        else if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
+            timeToShoot = ShooterSubsystem.getInstance().getShootingDistanceToTime(getDistanceToTarget(target));
+        }
         return timeToShoot;
     }
 
@@ -725,6 +726,12 @@ public class VisionSubsystem extends SubsystemBase {
         this.visionStdDevTheta = thetaRadians;
 
         drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+    }
+
+    public void setLLIMUModes(int mode) {
+        for (LimelightObject limelight : LIMELIGHT_LIST) {
+            LimelightHelpers.SetIMUMode(limelight.getName(), mode); // Use internal IMU + external IMU
+        }
     }
 
     public void setMaxDiffForFusion(double translationMeters, double rotationRadians) {
