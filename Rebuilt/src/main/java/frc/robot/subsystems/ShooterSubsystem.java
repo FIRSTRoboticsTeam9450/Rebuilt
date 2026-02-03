@@ -114,6 +114,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
+    int slotNum = 0;
 
     // Data tables
     InterpolatingDoubleTreeMap shootingDistanceToTime = new InterpolatingDoubleTreeMap();
@@ -132,7 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
         configureShooterMotors();
         addData();
 
-        hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withEnableFOC(RobotConstants.ENABLE_FOC).withSlot(0);
+        hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withEnableFOC(RobotConstants.ENABLE_FOC).withSlot(slotNum);
         outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
 
         m_sysIdRoutine =
@@ -254,7 +255,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(Math.abs(angleMotor.getMotorVoltage().getValueAsDouble()) > 0.4 && Math.abs(angleMotor.getVelocity().getValueAsDouble()) < 0.05) {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
-            currentAngleState = AngleState.AIMING;
+            setState(currentShooterState, AngleState.AIMING);
             return true;
         }
         return false;
@@ -270,12 +271,13 @@ public class ShooterSubsystem extends SubsystemBase {
             currentAngleState = AngleState.ZEROING;
             isZeroingDone = autoZeroing();
         }
+        publishLogs();
         if(switchSlotBackTimer.get() > 2 && currentAngleState == AngleState.AIMING && !hasSwitchedBack) {
             hasSwitchedBack = true;
-            hoodMMRequest = hoodMMRequest.withSlot(0);
+            slotNum = 0;
+            hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration);
         }
         applyState();
-        publishLogs();
     }
 
     public void publishLogs() {
@@ -285,7 +287,9 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/Slot", hoodMMRequest.Slot);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/Slot", slotNum);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/Request Accel", hoodMMRequest.Acceleration);
+        Logger.recordOutput("Rebuilt/Shooter/Hood/Request Veloc", hoodMMRequest.Velocity);
         Logger.recordOutput("Rebuilt/Shooter/Hood/currentState", currentAngleState);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
 
@@ -337,13 +341,13 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
 
             case AIMING:
-                angleMotor.setControl(hoodMMRequest.withPosition(getShooterAngle()));
+                angleMotor.setControl(hoodMMRequest.withPosition(getShooterAngle()).withSlot(slotNum));
                 break;
             case STORING:
                 if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtGoal()) {
-                    angleMotor.setControl(hoodMMRequest.withPosition(0));
+                    angleMotor.setControl(hoodMMRequest.withPosition(0).withSlot(slotNum));
                 }
-                angleMotor.setControl(hoodMMRequest.withPosition(0));
+                angleMotor.setControl(hoodMMRequest.withPosition(0).withSlot(slotNum));
                 break;
                 
             default:
@@ -477,10 +481,13 @@ public class ShooterSubsystem extends SubsystemBase {
      * @param wantedAngleState
      */
     public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
-        if((currentAngleState == AngleState.ZEROING || currentAngleState == AngleState.STORING) && wantedAngleState == AngleState.AIMING) {
-            hoodMMRequest = hoodMMRequest.withSlot(1);
-            switchSlotBackTimer.restart();
-            hasSwitchedBack = false;
+        if(currentAngleState == AngleState.ZEROING || currentAngleState == AngleState.STORING) {
+            if(wantedAngleState == AngleState.AIMING) {
+                hoodMMRequest = new DynamicMotionMagicVoltage(0, 620, 620);
+
+                switchSlotBackTimer.restart();
+                hasSwitchedBack = false;
+            }
         }
         
         currentShooterState = wantedShooterState;
@@ -508,7 +515,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setOverrideHoodAngle(double targetHoodAngleOverride) {
-        this.targetHoodAngleOverride = MathUtil.clamp(getAsRevs(targetHoodAngleOverride), hoodAngleMin, hoodAngleMax);
+        this.targetHoodAngleOverride = MathUtil.clamp(getAsRevs(targetHoodAngleOverride), 0, hoodAngleMax);
         
     }
 
@@ -582,7 +589,7 @@ public class ShooterSubsystem extends SubsystemBase {
             hoodMMVelocity = logHoodMMVeloc.get();
             hoodMMAcceleration = logHoodMMAccel.get();
 
-            hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withSlot(0);//.withEnableFOC(RobotConstants.ENABLE_FOC);
+            hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withSlot(slotNum);//.withEnableFOC(RobotConstants.ENABLE_FOC);
         }
         
     }

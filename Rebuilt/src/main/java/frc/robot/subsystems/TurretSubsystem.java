@@ -278,12 +278,14 @@ public class TurretSubsystem extends SubsystemBase {
         // Find best angle considering wrapping and limits
         previousRobotRelativeTargetAngleDeg = robotRelativeTargetAngleDeg;
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
-        // robotRelativeTargetVelocityDegPerSec = currentState == TurretState.AIMING ? coordSub.getVelocityTurrent(0.02) : 0;
-        if (robotRelativeTargetAngleDeg < MIN_ANGLE_DEG || robotRelativeTargetAngleDeg > MAX_ANGLE_DEG) {
-            robotRelativeTargetVelocityDegPerSec = 0.0;
-        } else {
-            robotRelativeTargetVelocityDegPerSec = (robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / 0.020;
-        }
+
+        // if (robotRelativeTargetAngleDeg < MIN_ANGLE_DEG || robotRelativeTargetAngleDeg > MAX_ANGLE_DEG) {
+        //     robotRelativeTargetVelocityDegPerSec = 0.0;
+        // } else {
+        //     robotRelativeTargetVelocityDegPerSec = (robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / 0.020;
+        // }
+
+        robotRelativeTargetVelocityDegPerSec = 0.0;
         
         // robotRelativeTargetVelocityDegPerSec = 0;
 
