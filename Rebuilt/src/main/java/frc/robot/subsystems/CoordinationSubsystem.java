@@ -38,9 +38,13 @@ public class CoordinationSubsystem extends SubsystemBase {
         TRENCH
     }
 
-    private AbsoluteStates currentState = AbsoluteStates.STORING;
-
+    private AbsoluteStates currentState = AbsoluteStates.INIT;
+    private ZoneState previousZone = ZoneState.SHOOTING_ZONE;
+    private ZoneState currentZone = ZoneState.SHOOTING_ZONE;
     private boolean driverAllowingShooting = false;
+    private boolean overrideTrench = false;
+
+    private boolean update = false;
 
     public CoordinationSubsystem() {
         
@@ -49,7 +53,62 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        currentZone = getCurrentZone();
         getVelocityTurrent(0.02);
+        applyZone();
+        publishLogs();
+    }
+
+    private void applyZone() {
+        if(currentZone != previousZone || update) {
+            if(currentState != AbsoluteStates.INIT) {
+                switch (currentZone) {
+                    case SHOOTING_ZONE:
+                        if(goodToFire()) {
+                            setState(AbsoluteStates.SHOOTING);
+                        }
+                        else {
+                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+                        }
+                        break;
+                        
+                    case FERRY_ZONE_TOP:
+                        if(goodToFire()) {
+                            setState(AbsoluteStates.SHOOTING);
+                        }
+                        else {
+                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+                        }
+                        break; 
+                        
+                    case FERRY_ZONE_BOTTOM:
+                        if(goodToFire()) {
+                            setState(AbsoluteStates.SHOOTING);
+                        }
+                        else {
+                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+                        }
+                        break;
+                    case SOFT_TRENCH_DEADZONE:
+                        if(!overrideTrench) {
+                            setState(AbsoluteStates.TRENCH);
+                        }
+                        else {
+                            setState(AbsoluteStates.SHOOTING);
+                        }
+                        break;
+                    case HARD_TRENCH_DEADZONE:
+                        setState(AbsoluteStates.TRENCH);
+                        break;
+                    case BACK_DEADZONE:
+                        break;
+                    default:
+                        return;
+                }
+            }
+            previousZone = currentZone;
+            update = false;
+        }
     }
 
     private void applyState() {
@@ -79,6 +138,22 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
                 ledState = LEDState.PREPARING_TO_FIRE;
+                break;
+            case SHOOTING:
+                turretState = TurretState.AIMING;
+                shooterHoodState = AngleState.AIMING;
+                shooterVelocState = ShooterState.SHOOTING;
+                transferState = TransferState.RUN_IN;
+                ledState = LEDState.PREPARING_TO_FIRE;
+                break;
+            case TRENCH:
+                turretState = TurretState.STORING;
+                shooterHoodState = AngleState.STORING;
+                shooterVelocState = ShooterState.NOT_SHOOTING;
+                ledState = LEDState.UNABLE_TO_FIRE;
+                break;
+
+
         }
 
         TurretSubsystem.getInstance().setState(turretState);
@@ -89,6 +164,9 @@ public class CoordinationSubsystem extends SubsystemBase {
         LEDSubsystem.getInstance().setState(ledState);
     }
 
+    private void publishLogs() {
+        Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
+    }
     // ======================== Conditions =============================
 
     public boolean isShooterReady() {
@@ -115,6 +193,11 @@ public class CoordinationSubsystem extends SubsystemBase {
         return new InstantCommand(() -> driverAllowingShooting = value);
     }
 
+    public Command setOverrideCommand(boolean value) {
+        return new InstantCommand(() -> overrideTrench = value)
+        .alongWith(new InstantCommand(() -> update = true));
+        
+    }
 
     // ============================ Getters & Setters ============================
 
@@ -180,7 +263,18 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     return new GoToPosCommand(drivetrain.getState().Pose);
     }
-
+    public boolean getInDeadzone() {
+        if(currentZone != ZoneState.SOFT_TRENCH_DEADZONE || currentZone != ZoneState.HARD_TRENCH_DEADZONE || currentZone != ZoneState.BACK_DEADZONE) {
+            return true;
+        }
+        return false;
+    }
+    public boolean getOverridinTrench() {
+        if(overrideTrench) {
+            return true;
+        }
+        return false;
+    }
     public double getVelocityTurrent(double time) {
         Translation2d currentTarget = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
         Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(time);

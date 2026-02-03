@@ -384,7 +384,7 @@ public class TurretSubsystem extends SubsystemBase {
                     currentState = TurretState.AIMING;
                 }
 
-                profiledSetpointDeg = 13;
+                profiledSetpointDeg = -48;
 
                 profiledSetpointDeg = MathUtil.clamp(
                     profiledSetpointDeg, 
@@ -427,7 +427,7 @@ public class TurretSubsystem extends SubsystemBase {
                 
             case STORING:
                 // Return to zero position with no velocity
-                profiledSetpointDeg = 13;
+                profiledSetpointDeg = -48;
 
                 profiledSetpointDeg = MathUtil.clamp(
                     profiledSetpointDeg, 
@@ -823,7 +823,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return true if within default tolerance (1.0°)
      */
     public boolean isAtGoal() {
-        return isAtGoal(1);
+        return isAtGoal(5);
     }
     
     /**

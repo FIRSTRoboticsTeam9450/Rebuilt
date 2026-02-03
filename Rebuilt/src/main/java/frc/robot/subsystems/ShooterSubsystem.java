@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
+import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -256,6 +257,7 @@ public class ShooterSubsystem extends SubsystemBase {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
             setState(currentShooterState, AngleState.AIMING);
+            coordSub.setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
             return true;
         }
         return false;
@@ -347,7 +349,6 @@ public class ShooterSubsystem extends SubsystemBase {
                 if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtGoal()) {
                     angleMotor.setControl(hoodMMRequest.withPosition(0).withSlot(slotNum));
                 }
-                angleMotor.setControl(hoodMMRequest.withPosition(0).withSlot(slotNum));
                 break;
                 
             default:
@@ -370,7 +371,11 @@ public class ShooterSubsystem extends SubsystemBase {
                 case FERRY_ZONE_BOTTOM:
                     targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
                     break;
-                case TRENCH_DEADZONE:
+                    
+                case SOFT_TRENCH_DEADZONE:
+                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    break;
+                case HARD_TRENCH_DEADZONE:
                     targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
                     break;
                 case BACK_DEADZONE:
@@ -400,8 +405,11 @@ public class ShooterSubsystem extends SubsystemBase {
                 case FERRY_ZONE_BOTTOM:
                     targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
                     break;
-                case TRENCH_DEADZONE:
-                    targetHoodHeight = 0;
+                case HARD_TRENCH_DEADZONE:
+                    currentAngleState = AngleState.STORING;
+                    break;
+                case SOFT_TRENCH_DEADZONE:
+                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
                     break;
                 case BACK_DEADZONE:
                     targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));

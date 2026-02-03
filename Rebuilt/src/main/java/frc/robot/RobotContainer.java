@@ -147,14 +147,18 @@ public class RobotContainer {
     DRIVER.a().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.AIMING));
     DRIVER.x().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.STORING));
 
+    DRIVER.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
+    DRIVER.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+    
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
 
     DRIVER.back().onTrue(
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)
     );
 
+    // For some reason when commented out causes really bad crashing
     DRIVER.a().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.DISABLED));
-    DRIVER.b().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.GOOD_TO_FIRE));
+    // DRIVER.b().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.GOOD_TO_FIRE));
     DRIVER.x().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.INIT));
     DRIVER.y().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.UNABLE_TO_FIRE));
 
