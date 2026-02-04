@@ -45,6 +45,7 @@ public class RobotContainer {
   public static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
   public static TransferSubsystem transferSub = TransferSubsystem.getInstance();
   public static IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
+  public static LEDSubsystem ledSub = LEDSubsystem.getInstance();
 
 
 
@@ -151,9 +152,6 @@ public class RobotContainer {
       TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN)
     );
 
-    DRIVER.a().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.AIMING));
-    DRIVER.x().onTrue(TurretSubsystem.getInstance().setStateCommand(TurretState.STORING));
-
     DRIVER.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
     DRIVER.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
     
@@ -164,10 +162,10 @@ public class RobotContainer {
     );
 
     // For some reason when commented out causes really bad crashing
-    DRIVER.a().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.DISABLED));
+    // DRIVER.a().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.DISABLED));
     // DRIVER.b().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.GOOD_TO_FIRE));
-    DRIVER.x().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.INIT));
-    DRIVER.y().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.UNABLE_TO_FIRE));
+    // DRIVER.x().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.INIT));
+    // DRIVER.y().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.UNABLE_TO_FIRE));
 
   }
 
