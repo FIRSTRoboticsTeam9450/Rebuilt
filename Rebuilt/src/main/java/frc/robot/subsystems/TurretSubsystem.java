@@ -1,12 +1,12 @@
 package frc.robot.subsystems;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -94,6 +94,8 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",15); //5, needs tuning
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0); //50, needs tuning though
 
+    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
+
     // Motor configuration
     private TalonFXConfiguration motorConfig;
     
@@ -140,6 +142,7 @@ public class TurretSubsystem extends SubsystemBase {
     private double robotRelativeTargetAngleDeg = 0.0;
     private double robotRelativeTargetVelocityDegPerSec = 0.0;
     private double previousRobotRelativeTargetAngleDeg = 0.0;
+    private double degreesToStopWithCurrentVelocity = 0.0;
     
     // State tracking
     private double turretOffset = 0.0;
@@ -279,13 +282,8 @@ public class TurretSubsystem extends SubsystemBase {
         previousRobotRelativeTargetAngleDeg = robotRelativeTargetAngleDeg;
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
 
-        // if (robotRelativeTargetAngleDeg < MIN_ANGLE_DEG || robotRelativeTargetAngleDeg > MAX_ANGLE_DEG) {
-        //     robotRelativeTargetVelocityDegPerSec = 0.0;
-        // } else {
-        //     robotRelativeTargetVelocityDegPerSec = (robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / 0.020;
-        // }
-
-        robotRelativeTargetVelocityDegPerSec = 0.0;
+        degreesToStopWithCurrentVelocity = Math.pow(turretMotor.getVelocity().getValueAsDouble(), 2) * TurretConstants.ABS_ENCDR_POS_TO_ANGLE;
+        robotRelativeTargetVelocityDegPerSec = calculateVelocity();
         
         // robotRelativeTargetVelocityDegPerSec = 0;
 
@@ -298,6 +296,37 @@ public class TurretSubsystem extends SubsystemBase {
         // Publish telemetry
         publishLogs();
     }
+
+    private double calculateVelocity() {
+        boolean usedVeloc = false;
+        double targetVeloc = 0;
+        if (robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) {
+            targetVeloc = 0.0;
+        } else {
+            usedVeloc = true;
+            boolean isVelocityPositive = turretMotor.getVelocity().getValueAsDouble() > 0;
+            boolean allowVeloc = false;
+            double maxVelocity = 0.0;
+            if (isVelocityPositive) {
+                if ((turretMotor.getVelocity().getValueAsDouble() * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION) + degreesToStopWithCurrentVelocity < MAX_ANGLE_DEG) {
+                    allowVeloc = true;
+                    maxVelocity = MAX_ANGLE_DEG - getCurrentAngleDeg();
+                }
+            } else {
+                if ((turretMotor.getVelocity().getValueAsDouble() * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION) - degreesToStopWithCurrentVelocity > MIN_ANGLE_DEG) {
+                    allowVeloc = true;
+                    maxVelocity = Math.abs(MIN_ANGLE_DEG) - getCurrentAngleDeg();
+                }
+            }
+            if (allowVeloc) {
+                targetVeloc = MathUtil.clamp((robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / 0.020, -maxVelocity, maxVelocity);
+            }
+        }
+        Logger.recordOutput("Rebuilt/Turret/Used Velocity", usedVeloc);
+        Logger.recordOutput("Rebuilt/Turret/Calculated Veloc", targetVeloc);
+        // return targetVeloc;
+        return 0.0;
+    }   
     
     /**
      * Updates the field-relative goal based on the current target mode.
@@ -517,14 +546,10 @@ public class TurretSubsystem extends SubsystemBase {
             }
         }
 
-        Logger.recordOutput("Rebuilt/Turret/Debugging/Best Angle Unclamped", bestAngle);
-
         // If no valid angle found (all out of range), clamp to nearest limit
         if (minDistance == Double.POSITIVE_INFINITY) {
             bestAngle = MathUtil.clamp(targetDegrees, MIN_ANGLE_DEG, MAX_ANGLE_DEG);
         }
-        
-        Logger.recordOutput("Rebuilt/Turret/Debugging/Best Angle Clamped", bestAngle);
         
         return bestAngle;
     }
@@ -585,12 +610,16 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void updateDriverFeedback() {
         if (driverController != null) {
-            if (currentState != TurretState.AIMING && !isTargetOutOfRange() && !DriverStation.isEnabled() && DriverStation.isAutonomous()) {
-                driverController.setRumble(RumbleType.kBothRumble, 0.0);
-            } else if (profiledSetpointDeg == MIN_ANGLE_DEG) {
-                driverController.setRumble(RumbleType.kLeftRumble, 0.05);
-            } else if (profiledSetpointDeg == MAX_ANGLE_DEG) {
-                driverController.setRumble(RumbleType.kRightRumble, 0.05);
+            if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled() && !DriverStation.isAutonomous()) {
+                if (CoordinationSubsystem.getInstance().getInDeadzone() && CoordinationSubsystem.getInstance().getOverridinTrench()) {
+                    driverController.setRumble(RumbleType.kBothRumble, 0.1);
+                } else if (profiledSetpointDeg == MIN_ANGLE_DEG) {
+                    driverController.setRumble(RumbleType.kLeftRumble, 0.05);
+                } else if (profiledSetpointDeg == MAX_ANGLE_DEG) {
+                    driverController.setRumble(RumbleType.kRightRumble, 0.05);
+                } else {
+                    driverController.setRumble(RumbleType.kBothRumble, 0.0);
+                }
             } else {
                 driverController.setRumble(RumbleType.kBothRumble, 0.0);
             }
@@ -605,49 +634,50 @@ public class TurretSubsystem extends SubsystemBase {
     private void publishLogs() {
         // State information
         Logger.recordOutput("Rebuilt/Turret/CurrentState", currentState);
-        Logger.recordOutput("Rebuilt/Turret/PreviousState", previousState);
         Logger.recordOutput("Rebuilt/Turret/TargetMode", currentTargetMode);
         
         // Position tracking
         Logger.recordOutput("Rebuilt/Turret/CurrentAngleDeg", getCurrentAngleDeg());
-        Logger.recordOutput("Rebuilt/Turret/TargetAngleDeg", robotRelativeTargetAngleDeg);
         Logger.recordOutput("Rebuilt/Turret/ProfiledSetpointDeg", profiledSetpointDeg);
-        Logger.recordOutput("Rebuilt/Turret/FieldGoalAngleDeg", fieldRelativeGoalAngle.getDegrees());
         
         // Velocity tracking
         Logger.recordOutput("Rebuilt/Turret/CurrentVelocityDegPerSec", 
-            turretMotor.getVelocity().getValueAsDouble());
+            turretMotor.getVelocity().getValueAsDouble() * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION);
         Logger.recordOutput("Rebuilt/Turret/TargetVelocityDegPerSec", 
             robotRelativeTargetVelocityDegPerSec);
-        
-        // Target information
-        Translation2d currentTargetTranslation = getCurrentTargetPosition();
-        if (currentTargetTranslation != null) {
-            Logger.recordOutput("Rebuilt/Turret/CurrentTargetTranslation", 
-                new double[] {currentTargetTranslation.getX(), currentTargetTranslation.getY()});
+
+        //Debugging For Creating Velocity Safety Net
+        Logger.recordOutput("Rebuilt/Turret/Distance to Stop", degreesToStopWithCurrentVelocity);
+
+        if (logDebuggingToggle.get()) {
+            Logger.recordOutput("Rebuilt/Turret/PreviousState", previousState);
+
+            Logger.recordOutput("Rebuilt/Turret/TargetAngleDeg", robotRelativeTargetAngleDeg);
+            Logger.recordOutput("Rebuilt/Turret/FieldGoalAngleDeg", fieldRelativeGoalAngle.getDegrees());
+
+            Translation2d currentTargetTranslation = getCurrentTargetPosition();
+            if (currentTargetTranslation != null) {
+                Logger.recordOutput("Rebuilt/Turret/CurrentTargetTranslation", 
+                    new double[] {currentTargetTranslation.getX(), currentTargetTranslation.getY()});
+            }
+
+            Pose2d currentTargetPose = new Pose2d(getCurrentTargetPosition(), new Rotation2d(0));
+            Logger.recordOutput("Rebuilt/Turret/CurrentTargetPose", currentTargetPose);
+
+            Logger.recordOutput("Rebuilt/Turret/MotorRevolutions", 
+                turretMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("Rebuilt/Turret/AbsoluteEncoderPosition", 
+                turretEncoder.getPosition().getValueAsDouble());
+            Logger.recordOutput("Rebuilt/Turret/MotorOutputVolts", 
+                turretMotor.getMotorVoltage().getValueAsDouble());
+            Logger.recordOutput("Rebuilt/Turret/MotorOutputAmps", 
+                turretMotor.getTorqueCurrent().getValueAsDouble());
+            Logger.recordOutput("Rebuilt/Turret/MotorVelocity (RPS)", 
+                turretMotor.getVelocity().getValueAsDouble());
+
+            Logger.recordOutput("Rebuilt/Turret/AtGoal", isAtGoal());
+            Logger.recordOutput("Rebuilt/Turret/TargetOutOfRange", isTargetOutOfRange());
         }
-
-        Pose2d currentTargetPose = new Pose2d(getCurrentTargetPosition(), new Rotation2d(0));
-        Logger.recordOutput("Rebuilt/Turret/CurrentTargetPose", currentTargetPose);
-        
-        // Hardware data
-        Logger.recordOutput("Rebuilt/Turret/MotorRevolutions", 
-            turretMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Turret/AbsoluteEncoderPosition", 
-            turretEncoder.getPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Turret/MotorOutputVolts", 
-            turretMotor.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Turret/MotorOutputAmps", 
-            turretMotor.getTorqueCurrent().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Turret/MotorVelocity (RPS)", 
-            turretMotor.getVelocity().getValueAsDouble());
-        
-        // Status flags
-        Logger.recordOutput("Rebuilt/Turret/AtGoal", isAtGoal());
-        Logger.recordOutput("Rebuilt/Turret/TargetOutOfRange", isTargetOutOfRange());
-
-        Logger.recordOutput("Rebuilt/Turret/Debugging/MIN Angle", MIN_ANGLE_DEG);
-        Logger.recordOutput("Rebuilt/Turret/Debugging/MAX Angle", MAX_ANGLE_DEG);
     }
     
     // ========================= Public API =========================
