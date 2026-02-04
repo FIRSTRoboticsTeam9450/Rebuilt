@@ -120,8 +120,8 @@ public class RobotContainer {
     // DRIVER.povUp().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT));
 
 
-    DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.AIMING));
-    DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.AIMING));
+    // DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.AIMING));
+    // DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.AIMING));
     
     DRIVER.leftTrigger().onTrue(
       IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
@@ -131,13 +131,20 @@ public class RobotContainer {
       .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
     );
 
+    // DRIVER.rightTrigger().onTrue(
+    //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
+    //   .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.HOLD))
+    // ).onFalse(
+    //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
+    //   .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
+    // );
+
     DRIVER.rightTrigger().onTrue(
-      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
-      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.HOLD))
+      CoordinationSubsystem.getInstance().setFireCommand(true)
     ).onFalse(
-      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
-      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
+      CoordinationSubsystem.getInstance().setFireCommand(false)
     );
+
 
     DRIVER.y().onTrue(
       TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_OUT)

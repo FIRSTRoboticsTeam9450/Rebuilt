@@ -45,7 +45,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean overrideTrench = false;
 
     private boolean update = false;
-
+    private boolean previousGoodToShoot = goodToFire();
+    private boolean checkZeroing = false;
     public CoordinationSubsystem() {
         
     }
@@ -55,13 +56,22 @@ public class CoordinationSubsystem extends SubsystemBase {
     public void periodic() {
         currentZone = getCurrentZone();
         getVelocityTurrent(0.02);
+        if(checkZeroing) {
+            setState(AbsoluteStates.INIT);
+            checkZeroing = !isZeroingDone();
+        }
         applyZone();
         publishLogs();
     }
 
     private void applyZone() {
-        if(currentZone != previousZone || update) {
+        if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
             if(currentState != AbsoluteStates.INIT) {
+
+                previousZone = currentZone;
+                update = false;
+                previousGoodToShoot = goodToFire();
+
                 switch (currentZone) {
                     case SHOOTING_ZONE:
                         if(goodToFire()) {
@@ -94,7 +104,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                             setState(AbsoluteStates.TRENCH);
                         }
                         else {
-                            setState(AbsoluteStates.SHOOTING);
+                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
                         }
                         break;
                     case HARD_TRENCH_DEADZONE:
@@ -106,8 +116,6 @@ public class CoordinationSubsystem extends SubsystemBase {
                         return;
                 }
             }
-            previousZone = currentZone;
-            update = false;
         }
     }
 
@@ -124,6 +132,7 @@ public class CoordinationSubsystem extends SubsystemBase {
             case INIT: //TODO: Intake should be added when it has zeroing functionalilty, and a hardstop within robot frame.
                 turretState = TurretState.INIT;
                 shooterHoodState = AngleState.ZEROING;
+                intakeAngleState = IntakePos.ZEROING;
                 ledState = LEDState.INIT;
                 break;
 
@@ -137,6 +146,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
+                transferState = TransferState.HOLD;
                 ledState = LEDState.PREPARING_TO_FIRE;
                 break;
             case SHOOTING:
@@ -144,12 +154,13 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
                 transferState = TransferState.RUN_IN;
-                ledState = LEDState.PREPARING_TO_FIRE;
+                ledState = LEDState.GOOD_TO_FIRE;
                 break;
             case TRENCH:
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
                 shooterVelocState = ShooterState.NOT_SHOOTING;
+                transferState = TransferState.HOLD;
                 ledState = LEDState.UNABLE_TO_FIRE;
                 break;
 
@@ -168,7 +179,15 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
     }
     // ======================== Conditions =============================
-
+    public boolean isZeroingDone() {
+        boolean zeroingDone = ShooterSubsystem.getInstance().getCurrentAngleState() != AngleState.ZEROING 
+        && IntakeSubsystem.getInstance().getCurrentIntakePos() != IntakePos.ZEROING;
+        if(zeroingDone) {
+            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+            checkZeroing = false;
+        }
+        return zeroingDone;
+    }
     public boolean isShooterReady() {
         return ShooterSubsystem.getInstance().isShooterReady();
     }
@@ -287,6 +306,10 @@ public class CoordinationSubsystem extends SubsystemBase {
     public void setState(AbsoluteStates state) {
         currentState = state;
         applyState();
+    }
+
+    public Command setStateCommand(AbsoluteStates state) {
+        return new InstantCommand(() -> setState(state));
     }
 
     // ======================= INIT ===================
