@@ -5,37 +5,24 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-//import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
-//import com.ctre.phoenix6.controls.Follower;
-//import com.ctre.phoenix6.controls.MotionMagicVoltage;
-//import com.ctre.phoenix6.controls.StrictFollower;
-//import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-//import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
-//import com.google.flatbuffers.Constants;
 
-//import edu.wpi.first.math.controller.PIDController;
-//import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
-//import frc.robot.Constants.RobotConstants.ClimberConstants;
-
 
 public class ClimberSubsystem extends SubsystemBase {
 
     private static volatile ClimberSubsystem climberInstance;
 
     private TalonFX climbMotorFront = new TalonFX(0, RobotConstants.CANIVORE_BUS_NAME); //temporary deviceID value
-    // private TalonFX climbMotorBack = new TalonFX(ClimberConstants.DeviceIDs.kClimbMotorBackID, RobotConstants.CANIVORE_BUS_NAME);
-    private Servo servoTop;
-    private Servo servoBottom;
 
     // --------- all of these should be in a command ----------
     
@@ -81,24 +68,34 @@ public class ClimberSubsystem extends SubsystemBase {
     // MotionMagic type may change
 
     public enum ElevatorStates {
+        STOWING,
         STANDBY,
-        EXTENDED,
-        RETRACTED
+        EXTENDING,
+        LOCKING, //this will be removed later on
+        RETRACTING
     }
 
-    public enum HookStates {
-        EXTENDED,
-        RETRACTED
+    public enum TapeClimbStates {
+        STOWING,
+        STANDBY,
+        EXTENDING,
+        LOCKING, //this will be removed later on
+        RETRACTING
     }
 
-    private ElevatorStates currentElevatorState = ElevatorStates.RETRACTED;
-    private HookStates currentHookState = HookStates.RETRACTED;
+    private ElevatorStates currentElevatorState = ElevatorStates.STANDBY;
+    private TapeClimbStates currentTapeClimbState = TapeClimbStates.STANDBY;
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
+        configureMotors();
+    }
+
+    public void configureMotors() {
+        //MOTOR I
         climbConfig = new TalonFXConfiguration();
 
-        climbConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
+        climbConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         climbConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         Slot0Configs slot0Configs = new Slot0Configs()
@@ -109,6 +106,16 @@ public class ClimberSubsystem extends SubsystemBase {
                                         .withKP(logMMKP.get())
                                         .withKI(logMMKI.get())
                                         .withKD(logMMKD.get());
+        
+        Slot1Configs slot1Configs = new Slot1Configs()
+                                        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+                                        .withKS(logMMKS.get())
+                                        .withKV(logMMKV.get())
+                                        .withKA(logMMKA.get())
+                                        .withKP(logMMKP.get())
+                                        .withKI(logMMKI.get())
+                                        .withKD(logMMKD.get())
+                                        .withKG(0);
 
         climbConfig.Slot0 = slot0Configs;
 
@@ -120,11 +127,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
         
         climbMotorFront.getConfigurator().apply(climbConfig);
-        // climbMotorBack.getConfigurator().apply(climbConfig);
-        servoTop = new Servo(0); //temporary
-        servoBottom = new Servo(0); //temporary
 
-        // climbMotorBack.setControl(new Follower(climbMotorFront.getDeviceID(), MotorAlignmentValue.Opposed));
+        //MOTOR II
     }
 
     /* ----------- Updaters ----------- */
@@ -140,18 +144,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void resetEncoders() {
         climbMotorFront.setPosition(0);
-        // climbMotorBack.setPosition(0);
-    }
-
-    public void resetServos() {
-        servoBottom.setAngle(0);
-        servoTop.setAngle(0);
     }
 
     private void publishClimbLogs() {
         Logger.recordOutput("Rebuilt/Climb/MotorPosition",getMotorPosition());
-        Logger.recordOutput("Rebuilt/Climb/TopServoAngle",getTopServoAngle());
-        Logger.recordOutput("Rebuilt/Climb/BottomServoAngle",getBottomServoAngle());
     }
 
     public void periodic() {
@@ -173,70 +169,67 @@ public class ClimberSubsystem extends SubsystemBase {
         delayStopwatch.reset();
     }
 
-    /*
-     * IC OC REMARKS
-     * -  -  STOWED
-     * ++ +  L1(A)+
-     * +  +  L1
-     * ++ -  L2(A)+
-     * +  -  L2(A)
-     * +  +  L2
-     */
-
     private void applyStates() {
+        //consider merging these two switches
+        //stuff to consider- the motion magic configs
+
         switch (currentElevatorState) {
             case STANDBY:
+                setTarget(Math.round(Math.abs(climbMotorFront.getPosition().getValueAsDouble())));
+                //502 bad code
                 break;
-            case EXTENDED:
-                // Move the climb a specific distance based on the array
-                setTarget(climbDistances[climbCounter].get());
-
+            case EXTENDING:
+                setTarget(7);
+                if(atTarget()) {
+                    currentElevatorState = ElevatorStates.LOCKING;
+                }
+                break;
+            case LOCKING:
+                setTarget(5); //temporary value
+                if(atTarget()) {
+                    currentElevatorState = ElevatorStates.RETRACTING;
+                }
+                break;
+            case RETRACTING:
+                setTarget(0);
                 if(atTarget()) {
                     currentElevatorState = ElevatorStates.STANDBY;
                 }
-
                 break;
-                
-            case RETRACTED:
-                // retract the climb carry the bot up the bar
-                setTarget(0); //retracted position
-
-                if (!endClimbSequence()) {
-                    delayStopwatch.start();
-                    if(delayStopwatch.get() >= 3) { //3 seconds
-                        currentElevatorState = ElevatorStates.EXTENDED;
-                        //yeah we have no clue how the climber is going to work
-
-                        resetStopwatch();
-                        climbCounter--;
-                    }
-                } else {
-                        currentElevatorState = ElevatorStates.STANDBY;
-                }
-                break;
-            default:
+            case STOWING:
+                setTarget(0);
+                if(atTarget()) {
+                    currentElevatorState = ElevatorStates.STANDBY;
+                } 
                 break;
         }
-
-        switch(currentHookState) {
-            case EXTENDED:
-                servoTop.setAngle(90);
+        switch(currentTapeClimbState) {
+            case EXTENDING:
+                setTarget(7);
+                if(atTarget()) {
+                    currentElevatorState = ElevatorStates.LOCKING;
+                }
                 break;
-
-            case RETRACTED:
-                servoTop.setAngle(0);
-
-            default:
+            case RETRACTING:
+                setTarget(0);
+                if(atTarget()) {
+                    currentElevatorState = ElevatorStates.STANDBY;
+                }
                 break;
-            }
-    }
-
-    public double getTopServoAngle() {
-        return servoTop.getAngle();
-    }
-
-    public double getBottomServoAngle() {
-        return servoBottom.getAngle();
+            case LOCKING:
+                setTarget(5);
+                if(atTarget()) {
+                    currentElevatorState = ElevatorStates.RETRACTING;
+                }
+                break;
+            case STANDBY:
+                setTarget(Math.round(Math.abs(climbMotorFront.getPosition().getValueAsDouble())));
+                //make sure to set what happens during state standby
+                break;
+            case STOWING:
+                setTarget(0);
+                break;
+        }
     }
 
     public double getMotorPosition() {
