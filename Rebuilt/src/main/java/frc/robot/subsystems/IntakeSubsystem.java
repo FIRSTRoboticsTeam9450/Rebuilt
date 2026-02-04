@@ -39,7 +39,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     }
 
     //Set the current state of the robot to be idle
-    private IntakePos currentPos = IntakePos.STORE;
+    private IntakePos currentPos = IntakePos.ZEROING;
     private IntakeState currentState = IntakeState.IDLING;
     
     //Set up motors
@@ -68,6 +68,8 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private final VoltageOut sysIDRequest = new VoltageOut(0);
     private final SysIdRoutine m_sysIdRoutine;
+
+    private boolean isZeroing = false;
 
     public IntakeSubsystem() {
         configureMotors();
@@ -117,8 +119,22 @@ public final class IntakeSubsystem extends SubsystemBase{
         motorWheels.getConfigurator().apply(IntakeConfig);
     }
 
+    public boolean isZeroingDone() {
+        if(Math.abs(motorArm.getVelocity().getValueAsDouble()) < .05 && Math.abs(motorArm.getMotorVoltage().getValueAsDouble()) > .4) {
+            motorArm.setPosition(0);
+            motorArm.setVoltage(0);
+            currentPos = IntakePos.STORE;
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void periodic() {
+        if(!isZeroing) {
+            currentPos = IntakePos.ZEROING;
+            isZeroing = isZeroingDone();
+        }
         applyState();
         publishLogs();
     }
@@ -128,6 +144,7 @@ public final class IntakeSubsystem extends SubsystemBase{
             case SYS_ID:
                 break;
             case ZEROING:
+                motorArm.setVoltage(-.6);
                 break;
 
             case STORE:
@@ -159,6 +176,9 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Velocity", motorArm.getVelocity().getValueAsDouble());
     }
 
+    public IntakePos getCurrentIntakePos() {
+        return currentPos;
+    }
     public void setPos(IntakePos pos) {
         currentPos = pos;
     }

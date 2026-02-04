@@ -46,7 +46,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private boolean update = false;
     private boolean previousGoodToShoot = goodToFire();
-
+    private boolean checkZeroing = false;
     public CoordinationSubsystem() {
         
     }
@@ -56,6 +56,10 @@ public class CoordinationSubsystem extends SubsystemBase {
     public void periodic() {
         currentZone = getCurrentZone();
         getVelocityTurrent(0.02);
+        if(checkZeroing) {
+            setState(AbsoluteStates.INIT);
+            checkZeroing = !isZeroingDone();
+        }
         applyZone();
         publishLogs();
     }
@@ -128,6 +132,7 @@ public class CoordinationSubsystem extends SubsystemBase {
             case INIT: //TODO: Intake should be added when it has zeroing functionalilty, and a hardstop within robot frame.
                 turretState = TurretState.INIT;
                 shooterHoodState = AngleState.ZEROING;
+                intakeAngleState = IntakePos.ZEROING;
                 ledState = LEDState.INIT;
                 break;
 
@@ -174,7 +179,15 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
     }
     // ======================== Conditions =============================
-
+    public boolean isZeroingDone() {
+        boolean zeroingDone = ShooterSubsystem.getInstance().getCurrentAngleState() != AngleState.ZEROING 
+        && IntakeSubsystem.getInstance().getCurrentIntakePos() != IntakePos.ZEROING;
+        if(zeroingDone) {
+            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+            checkZeroing = false;
+        }
+        return zeroingDone;
+    }
     public boolean isShooterReady() {
         return ShooterSubsystem.getInstance().isShooterReady();
     }
