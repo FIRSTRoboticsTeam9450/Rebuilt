@@ -32,22 +32,19 @@ public class GoToPosCommand extends Command{
         this.targetPose = targetPose;
 
         constraints = new PathConstraints(
-            6, 5,
-            Units.degreesToRadians(720), Units.degreesToRadians(940) 
+            1, 1,
+            Units.degreesToRadians(30), Units.degreesToRadians(60) 
         );
+    }
 
+    @Override
+    public void initialize() {
         pathfindingCommand = AutoBuilder.pathfindToPose(
             targetPose, 
             constraints,
             0.0
         );
-
-        pathfindingCommand.initialize();
-        pathfindingCommand.execute();
-    }
-
-    @Override
-    public void initialize() {
+        
         CommandScheduler.getInstance().schedule(pathfindingCommand);
     }
 

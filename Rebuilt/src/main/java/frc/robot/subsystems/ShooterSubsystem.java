@@ -113,6 +113,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean isZeroingDone = false;
     private boolean hasSwitchedBack = false;
 
+    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
+
     // Timer
     private Timer switchSlotBackTimer = new Timer();
     int slotNum = 0;
@@ -176,9 +178,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
         // Ferrying Data Velocity
-
+        ferryingDistanceToVelocity.put(0.0, 0.0);
         
         // Ferrying Data Time
+        ferryingDistanceToTime.put(0.0, 0.0);
 
 
     }
@@ -285,40 +288,42 @@ public class ShooterSubsystem extends SubsystemBase {
     public void publishLogs() {
         Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight);
         Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/Took target", hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
-        Logger.recordOutput("Rebuilt/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());
+
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/Slot", slotNum);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/Request Accel", hoodMMRequest.Acceleration);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/Request Veloc", hoodMMRequest.Velocity);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/currentState", currentAngleState);
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
 
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc);
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
+        if (logDebuggingToggle.get()) {
+            Logger.recordOutput("Rebuilt/Shooter/Hood/Took target", hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
+            Logger.recordOutput("Rebuilt/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());
+            Logger.recordOutput("Rebuilt/Shooter/Hood/Slot", slotNum);
+            Logger.recordOutput("Rebuilt/Shooter/Hood/Request Accel", hoodMMRequest.Acceleration);
+            Logger.recordOutput("Rebuilt/Shooter/Hood/Request Veloc", hoodMMRequest.Velocity);
+            Logger.recordOutput("Rebuilt/Shooter/Hood/currentState", currentAngleState);
+            Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
+            Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc);
+            Logger.recordOutput("Rebuilt/Shooter/Outtake/current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
 
-        Logger.recordOutput("Rebuilt/Shooter/Hood/Override hood setpoint", targetHoodAngleOverride);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/Overriding hood", isOverrideAngle);
+            Logger.recordOutput("Rebuilt/Shooter/Hood/Override hood setpoint", targetHoodAngleOverride);
+            Logger.recordOutput("Rebuilt/Shooter/Hood/Overriding hood", isOverrideAngle);
 
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/TargetOverrideVelocity", logTuningShooterVelocity.get());
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/Tuning?", isTuningShooterVelocity);
+            Logger.recordOutput("Rebuilt/Shooter/Outtake/TargetOverrideVelocity", logTuningShooterVelocity.get());
+            Logger.recordOutput("Rebuilt/Shooter/Outtake/Tuning?", isTuningShooterVelocity);
 
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/Right motor voltage", shooterRightMotor.getMotorVoltage().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Shooter/Outtake/Check why", overrideTargetVeloc != logTuningShooterVelocity.get());
+            Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
+            Logger.recordOutput("Rebuilt/Shooter/Outtake/Right motor voltage", shooterRightMotor.getMotorVoltage().getValueAsDouble());
 
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/Right Motor Position", shooterRightMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Shooter/Hood/ReadyToZero", TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtGoal());
-        
-        
+            Logger.recordOutput("Rebuilt/Shooter/Outtake/Right Motor Position", shooterRightMotor.getPosition().getValueAsDouble());
+            Logger.recordOutput("Rebuilt/Shooter/Hood/ReadyToZero", TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtGoal());
+            
+            Logger.recordOutput("Rebuilt/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
+            Logger.recordOutput("Rebuilt/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
+        }
     }
 
     public void applyState() {
         switch (currentShooterState) {
             case SHOOTING:
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
-                // shooterLeftMotor.setVoltage(getShooterVeloc());
                 break;
 
             case NOT_SHOOTING:
@@ -462,7 +467,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Checks
     public boolean isAngleWithinTolerance() {
-        return isAngleWithinTolerance(0.1);
+        return isAngleWithinTolerance(1.0);
     }
 
     public boolean isAngleWithinTolerance(double tolerance) {
@@ -470,7 +475,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isVelocityWithinTolerance() {
-        return isVelocityWithinTolerance(0.5);
+        return isVelocityWithinTolerance(1.0);
     }
 
     public boolean isVelocityWithinTolerance(double tolerance) {

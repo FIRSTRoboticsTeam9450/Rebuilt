@@ -178,7 +178,20 @@ public class VisionSubsystem extends SubsystemBase {
         limelightBR.offsetRoll = BackRight.ROLL;
         limelightBR.offsetYaw = BackRight.YAW;
         LIMELIGHT_LIST.add(limelightBR);
+
+        setLLIMUModes(0);
+        // resetIMUFusion();
+    }
+
+    public void resetIMUFusion() {
         setLLIMUModes(1);
+
+        for (LimelightObject limelight : LIMELIGHT_LIST) {
+            double robotYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
+            LimelightHelpers.SetRobotOrientation_NoFlush(limelight.getName(), robotYaw, 0, 0, 0, 0, 0);
+        }
+
+        setLLIMUModes(4);
     }
 
     /**
@@ -187,6 +200,7 @@ public class VisionSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() { 
+
         updateTargetAndZone();
         updateVision();  // Compute fused vision pose
         publishLogs();   // Print/log fusion confidence and pose

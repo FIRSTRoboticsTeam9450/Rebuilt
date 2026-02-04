@@ -42,6 +42,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private ZoneState previousZone = ZoneState.SHOOTING_ZONE;
     private ZoneState currentZone = ZoneState.SHOOTING_ZONE;
     private boolean driverAllowingShooting = false;
+    private boolean shouldBeIntaking = false;
     private boolean overrideTrench = false;
 
     private boolean update = false;
@@ -55,7 +56,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         currentZone = getCurrentZone();
-        getVelocityTurrent(0.02);
+        // getVelocityTurret(0.02);
         if(checkZeroing) {
             setState(AbsoluteStates.INIT);
             checkZeroing = !isZeroingDone();
@@ -129,7 +130,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         LEDState ledState = LEDState.DISABLED;
 
         switch (currentState) {
-            case INIT: //TODO: Intake should be added when it has zeroing functionalilty, and a hardstop within robot frame.
+            case INIT:
                 turretState = TurretState.INIT;
                 shooterHoodState = AngleState.ZEROING;
                 intakeAngleState = IntakePos.ZEROING;
@@ -148,14 +149,30 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterVelocState = ShooterState.SHOOTING;
                 transferState = TransferState.HOLD;
                 ledState = LEDState.PREPARING_TO_FIRE;
+                if (shouldBeIntaking) {
+                    intakeAngleState = IntakePos.INTAKING;
+                    intakeVelocState = IntakeState.INTAKING;
+                } else {
+                    intakeAngleState = IntakePos.STORE;
+                    intakeVelocState = IntakeState.IDLING;
+                }
                 break;
+
             case SHOOTING:
                 turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
                 transferState = TransferState.RUN_IN;
                 ledState = LEDState.GOOD_TO_FIRE;
+                if (shouldBeIntaking) {
+                    intakeAngleState = IntakePos.INTAKING;
+                    intakeVelocState = IntakeState.INTAKING;
+                } else {
+                    intakeAngleState = IntakePos.STORE;
+                    intakeVelocState = IntakeState.IDLING;
+                }
                 break;
+
             case TRENCH:
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
@@ -163,8 +180,6 @@ public class CoordinationSubsystem extends SubsystemBase {
                 transferState = TransferState.HOLD;
                 ledState = LEDState.UNABLE_TO_FIRE;
                 break;
-
-
         }
 
         TurretSubsystem.getInstance().setState(turretState);
@@ -177,7 +192,12 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private void publishLogs() {
         Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
+        Logger.recordOutput("Rebuilt/Coord/Driver Allows Shooting", driverAllowingShooting);
+        Logger.recordOutput("Rebuilt/Coord/Subsystems good to fire?", areShooterAndTurretReady());
+        Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
+        Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
     }
+
     // ======================== Conditions =============================
     public boolean isZeroingDone() {
         boolean zeroingDone = ShooterSubsystem.getInstance().getCurrentAngleState() != AngleState.ZEROING 
@@ -208,14 +228,18 @@ public class CoordinationSubsystem extends SubsystemBase {
         return (driverAllowingShooting && areShooterAndTurretReady());
     }
 
-    public Command setFireCommand(boolean value) {
-        return new InstantCommand(() -> driverAllowingShooting = value);
+    public Command setFireCommand() {
+        return new InstantCommand(() -> driverAllowingShooting = !driverAllowingShooting);
     }
 
     public Command setOverrideCommand(boolean value) {
         return new InstantCommand(() -> overrideTrench = value)
         .alongWith(new InstantCommand(() -> update = true));
-        
+    }
+
+    public Command setIntakeCommand() {
+        return new InstantCommand(() -> shouldBeIntaking = !shouldBeIntaking)
+        .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState()));
     }
 
     // ============================ Getters & Setters ============================
@@ -294,7 +318,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
         return false;
     }
-    public double getVelocityTurrent(double time) {
+    public double getVelocityTurret(double time) {
         Translation2d currentTarget = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
         Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(time);
         

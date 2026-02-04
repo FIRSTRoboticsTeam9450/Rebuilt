@@ -94,7 +94,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",15); //5, needs tuning
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0); //50, needs tuning though
 
-    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
+    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
 
     // Motor configuration
     private TalonFXConfiguration motorConfig;

@@ -82,7 +82,7 @@ public class TransferSubsystem extends SubsystemBase {
         // Set request voltage
         switch (currentState) {
             case HOLD:
-                voltageRequest.Output = 1;
+                voltageRequest.Output = 0.65;
                 break;
 
             case RUN_IN: // Move fuel in

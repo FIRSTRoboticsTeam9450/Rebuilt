@@ -13,9 +13,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.GoToPosCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -123,13 +127,7 @@ public class RobotContainer {
     // DRIVER.rightBumper().onTrue(shooterSub.setStateCommand(ShooterState.SHOOTING, AngleState.AIMING));
     // DRIVER.leftBumper().onTrue(shooterSub.setStateCommand(ShooterState.NOT_SHOOTING, AngleState.AIMING));
     
-    DRIVER.leftTrigger().onTrue(
-      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
-      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_IN))
-    ).onFalse(
-      IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.STORE, IntakeState.IDLING)
-      .andThen(TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN))
-    );
+  
 
     // DRIVER.rightTrigger().onTrue(
     //   IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.INTAKING, IntakeState.INTAKING)
@@ -140,16 +138,11 @@ public class RobotContainer {
     // );
 
     DRIVER.rightTrigger().onTrue(
-      CoordinationSubsystem.getInstance().setFireCommand(true)
-    ).onFalse(
-      CoordinationSubsystem.getInstance().setFireCommand(false)
+      CoordinationSubsystem.getInstance().setFireCommand()
     );
 
-
-    DRIVER.y().onTrue(
-      TransferSubsystem.getInstance().setStateCommand(TransferState.RUN_OUT)
-    ).onFalse(
-      TransferSubsystem.getInstance().setStateCommand(TransferState.NO_RUN)
+    DRIVER.leftTrigger().onTrue(
+      CoordinationSubsystem.getInstance().setIntakeCommand()
     );
 
     DRIVER.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
@@ -161,11 +154,7 @@ public class RobotContainer {
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)
     );
 
-    // For some reason when commented out causes really bad crashing
-    // DRIVER.a().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.DISABLED));
-    // DRIVER.b().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.GOOD_TO_FIRE));
-    // DRIVER.x().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.INIT));
-    // DRIVER.y().onTrue(LEDSubsystem.getInstance().setStateCommand(LEDState.UNABLE_TO_FIRE));
+    // DRIVER.a().whileTrue(new GoToPosCommand(new Pose2d(2.315, 3.715, new Rotation2d(Units.degreesToRadians(45)))));
 
   }
 
