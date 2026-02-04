@@ -308,6 +308,10 @@ public class CoordinationSubsystem extends SubsystemBase {
         applyState();
     }
 
+    public Command setStateCommand(AbsoluteStates state) {
+        return new InstantCommand(() -> setState(state));
+    }
+
     // ======================= INIT ===================
 
     public static CoordinationSubsystem getInstance() {
