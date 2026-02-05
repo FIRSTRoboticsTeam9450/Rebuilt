@@ -52,7 +52,7 @@ import frc.robot.Constants.RobotConstants.TurretConstants;
  * 
  * <p>Physical Constraints:
  * <ul>
- *   <li>Range: -150° to +150° (300° total)</li>
+ *   <li>Range: -135° to +135° (270° total)</li>
  *   <li>Gear Ratio: {@link TurretConstants#DEGREE_CHANGE_PER_MOTOR_REVOLUTION} degrees per motor revolution</li>
  * </ul>
  */
@@ -282,7 +282,14 @@ public class TurretSubsystem extends SubsystemBase {
         previousRobotRelativeTargetAngleDeg = robotRelativeTargetAngleDeg;
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
 
-        degreesToStopWithCurrentVelocity = Math.pow(turretMotor.getVelocity().getValueAsDouble(), 2) * TurretConstants.ABS_ENCDR_POS_TO_ANGLE;
+        // Convert RPS to degrees/sec
+        double currentVelocityDegPerSec = turretMotor.getVelocity().getValueAsDouble() 
+            * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
+
+        // Calculate stopping distance: v² / (2a)
+        double maxDeceleration = logMaxAccelerationDegPerSecSq.get();
+        degreesToStopWithCurrentVelocity = Math.pow(currentVelocityDegPerSec, 2) 
+            / (2 * maxDeceleration);
         robotRelativeTargetVelocityDegPerSec = calculateVelocity();
         
         // robotRelativeTargetVelocityDegPerSec = 0;
@@ -300,6 +307,7 @@ public class TurretSubsystem extends SubsystemBase {
     private double calculateVelocity() {
         boolean usedVeloc = false;
         double targetVeloc = 0;
+
         if (robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) {
             targetVeloc = 0.0;
         } else {
@@ -307,19 +315,30 @@ public class TurretSubsystem extends SubsystemBase {
             boolean isVelocityPositive = turretMotor.getVelocity().getValueAsDouble() > 0;
             boolean allowVeloc = false;
             double maxVelocity = 0.0;
+            double currentAngle = getCurrentAngleDeg();
             if (isVelocityPositive) {
-                if ((turretMotor.getVelocity().getValueAsDouble() * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION) + degreesToStopWithCurrentVelocity < MAX_ANGLE_DEG) {
+                // Check if we can continue moving positive without hitting max limit
+                if (currentAngle + degreesToStopWithCurrentVelocity < MAX_ANGLE_DEG) {
                     allowVeloc = true;
-                    maxVelocity = MAX_ANGLE_DEG - getCurrentAngleDeg();
+                    maxVelocity = MAX_ANGLE_DEG - currentAngle;
                 }
             } else {
-                if ((turretMotor.getVelocity().getValueAsDouble() * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION) - degreesToStopWithCurrentVelocity > MIN_ANGLE_DEG) {
+                // Check if we can continue moving negative without hitting min limit
+                if (currentAngle - degreesToStopWithCurrentVelocity > MIN_ANGLE_DEG) {
                     allowVeloc = true;
-                    maxVelocity = Math.abs(MIN_ANGLE_DEG) - getCurrentAngleDeg();
+                    maxVelocity = currentAngle - MIN_ANGLE_DEG; // Distance to min limit
                 }
             }
             if (allowVeloc) {
-                targetVeloc = MathUtil.clamp((robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / 0.020, -maxVelocity, maxVelocity);
+                // Calculate desired velocity (derivative of target position)
+                double desiredVelocity = (robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / 0.020;
+                
+                // Clamp to maximum safe velocity in the appropriate direction
+                if (isVelocityPositive || desiredVelocity > 0) {
+                    targetVeloc = MathUtil.clamp(desiredVelocity, 0, maxVelocity);
+                } else {
+                    targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, 0);
+                }
             }
         }
         Logger.recordOutput("Rebuilt/Turret/Used Velocity", usedVeloc);
@@ -514,11 +533,11 @@ public class TurretSubsystem extends SubsystemBase {
      * Finds the best equivalent angle considering wrapping and physical limits.
      * Chooses the angle that requires the least turret rotation.
      * 
-     * <p>With 300° range (-150° to +150°), the turret can nearly complete a full rotation,
+     * <p>With 270° range (-135° to +135°), the turret can nearly complete a full rotation,
      * so we check multiple wrapped versions to find the shortest path.
      * 
      * @param targetDegrees Target angle in degrees (robot-relative)
-     * @return Best wrapped angle within [-150°, +150°]
+     * @return Best wrapped angle within [-135°, +135°]
      */
     private double findBestWrappedAngle(double targetDegrees) {
         double currentAngle = getCurrentAngleDeg();
@@ -527,7 +546,7 @@ public class TurretSubsystem extends SubsystemBase {
         double minDistance = Double.POSITIVE_INFINITY;
         
         // Check wrapped versions: -720°, -360°, 0°, +360°, +720°
-        // With 300° range, wrapping becomes more important
+        // With 270° range, wrapping becomes more important
         for (int wraps = -2; wraps <= 2; wraps++) {
             double wrappedAngle = targetDegrees + (wraps * 360.0);
             
@@ -796,7 +815,7 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Gets the current turret angle in degrees (robot-relative).
      * 
-     * @return Current angle in degrees, range [-150, +150]
+     * @return Current angle in degrees, range [-135, +135]
      */
     public double getCurrentAngleDeg() {
         return turretEncoder.getPosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
