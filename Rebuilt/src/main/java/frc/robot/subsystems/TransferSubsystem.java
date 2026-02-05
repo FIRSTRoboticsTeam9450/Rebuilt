@@ -50,8 +50,15 @@ public class TransferSubsystem extends SubsystemBase {
      * @return The TurretSubsystem instance
      */
     public static synchronized TransferSubsystem getInstance() {
-        if (INSTANCE == null) INSTANCE = new TransferSubsystem();
+        if (INSTANCE == null) {
+            INSTANCE = new TransferSubsystem();
+            INSTANCE.initialize();
+        }
         return INSTANCE;
+    }
+
+    private void initialize() {
+        Logger.recordOutput("Rebuilt/Transfer/Subsystem Initizalized", true);
     }
 
     /**

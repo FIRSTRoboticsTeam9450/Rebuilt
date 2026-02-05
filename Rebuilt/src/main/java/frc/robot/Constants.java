@@ -103,7 +103,8 @@ public final class Constants {
       public static final double ROTOR_TO_SENSOR_RATIO = 0.001890359168;
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.4565217391 * 1.06;
 
-      public static final double TURRET_OFFSET_TO_ZERO = 179.5; //UNKOWN
+      public static final double TURRET_OFFSET_TO_ZERO = 179.5;
+      public static final double TURRET_OFFSET_TO_TARGET = 5;
 
       public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
