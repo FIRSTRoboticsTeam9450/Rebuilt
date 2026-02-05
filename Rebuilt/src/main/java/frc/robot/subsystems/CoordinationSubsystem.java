@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -322,9 +323,9 @@ public class CoordinationSubsystem extends SubsystemBase {
         Translation2d currentTarget = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
         Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(time);
         
-        Logger.recordOutput("Rebuilt/Turret/FutureTurretAngle", TurretSubsystem.getInstance().updateTargetFromMode(futureTarget));
-        Logger.recordOutput("Rebuilt/Turret/CurrentTurretAngle", TurretSubsystem.getInstance().updateTargetFromMode(currentTarget));
-        return (TurretSubsystem.getInstance().updateTargetFromMode(futureTarget) - TurretSubsystem.getInstance().updateTargetFromMode(currentTarget))/time;
+        Logger.recordOutput("Rebuilt/Turret/FutureTurretAngle", TurretSubsystem.getInstance().updateTargetFromPose(futureTarget));
+        Logger.recordOutput("Rebuilt/Turret/CurrentTurretAngle", TurretSubsystem.getInstance().updateTargetFromPose(currentTarget));
+        return (TurretSubsystem.getInstance().updateTargetFromPose(futureTarget) - TurretSubsystem.getInstance().updateTargetFromPose(currentTarget))/time;
     }
 
     public void setState(AbsoluteStates state) {

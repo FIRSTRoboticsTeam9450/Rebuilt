@@ -67,7 +67,6 @@ public class TurretSubsystem extends SubsystemBase {
     private final CANcoder turretEncoder;
     private final CANcoderSimState turretEncoderSimState;
     private final CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
-    private CoordinationSubsystem coordSub;
     
     private CommandXboxController driverController;
     
@@ -79,6 +78,7 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Conversion constants
     private final double angleOffsetToZero = TurretConstants.TURRET_OFFSET_TO_ZERO;
+    private final double degreeOffsetToTarget = TurretConstants.TURRET_OFFSET_TO_TARGET;
     private final double encoderToAngleMultiplier = TurretConstants.ABS_ENCDR_POS_TO_ANGLE;
     
     // Tunable parameters
@@ -121,6 +121,8 @@ public class TurretSubsystem extends SubsystemBase {
     public enum TargetMode {
         /** Aiming at alliance Hub for shooting */
         HUB,
+        /** Aiming at alliance hub with SOTM Implementation */
+        ADJ_HUB,
         /** Aiming at ferry target for passing */
         FERRY,
         /** Aiming at custom position set via setCustomTarget() */
@@ -131,12 +133,11 @@ public class TurretSubsystem extends SubsystemBase {
     private TurretState previousState = currentState;
     
     // Target management
-    private TargetMode currentTargetMode = TargetMode.HUB;
+    private TargetMode currentTargetMode = TargetMode.ADJ_HUB;
     private Translation2d customTargetPosition = null;
     
     // Field-relative targeting
     private Rotation2d fieldRelativeGoalAngle = Rotation2d.fromDegrees(0);
-    // private double fieldRelativeGoalVelocityRadPerSec = 0.0;
     
     // Robot-relative targeting (calculated each cycle)
     private double robotRelativeTargetAngleDeg = 0.0;
@@ -240,8 +241,8 @@ public class TurretSubsystem extends SubsystemBase {
 
         motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = maxRotorRevs;
         motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minRotorRevs;
-        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false; //implement motor zeroing at end of init (use current anlge, and calculate it to motor revs)
+        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
         
         // PID gains (Slot 0)
         Slot0Configs slot0 = new Slot0Configs()
@@ -279,17 +280,10 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Update target based on current mode
         updateTargetFromMode();
-        setCustomTarget(VisionSubsystem.getInstance().getAdjustedCurrentTarget());
-
-        // Get current robot state
-        // Rotation2d robotAngle = drivetrain.getState().Pose.getRotation();
-        // ChassisSpeeds robotVelocity = drivetrain.getState().Speeds;
-        // double robotOmegaRadPerSec = robotVelocity.omegaRadiansPerSecond;
         
         // Convert field-relative goal to robot-relative
-        Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.plus(new Rotation2d(Units.degreesToRadians(angleOffsetToZero - 5)));
-        // double robotRelativeGoalVelocityRadPerSec = 
-        //     fieldRelativeGoalVelocityRadPerSec - robotOmegaRadPerSec;
+        Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.plus(
+            new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget)));
         
         // Find best angle considering wrapping and limits
         previousRobotRelativeTargetAngleDeg = robotRelativeTargetAngleDeg;
@@ -303,9 +297,8 @@ public class TurretSubsystem extends SubsystemBase {
         double maxDeceleration = logMaxAccelerationDegPerSecSq.get();
         degreesToStopWithCurrentVelocity = Math.pow(currentVelocityDegPerSec, 2) 
             / (2 * maxDeceleration);
+            
         robotRelativeTargetVelocityDegPerSec = calculateVelocity();
-        
-        // robotRelativeTargetVelocityDegPerSec = 0;
 
         // Driver feedback for out-of-range targets
         updateDriverFeedback();
@@ -317,6 +310,15 @@ public class TurretSubsystem extends SubsystemBase {
         publishLogs();
     }
 
+    /**
+     * Calculates the target Velocity in Degrees per Second.
+     * <p>Safety Precautions:
+     * <ul>
+     *   <li>If at deadzone, do not use any velocity</li>
+     *   <li>If unclamped velocity will lead to going outside of deadzone, limit velocity to what will not go outside of deadzone</li>
+     * </ul>
+     * @return the target velocity
+     */
     private double calculateVelocity() {
         boolean usedVeloc = false;
         double targetVeloc = 0;
@@ -365,14 +367,13 @@ public class TurretSubsystem extends SubsystemBase {
      * Called every periodic cycle to recalculate aim point.
      */
     private void updateTargetFromMode() {
-        // Translation2d targetPosition = getCurrentTargetPosition();
-        Translation2d targetPosition = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
+        Translation2d targetPosition = getCurrentTargetPosition();
         
         if (targetPosition != null) {
             
             
             // Calculate vector from robot to target
-            Translation2d robotToTarget = targetPosition; //targetPosition.minus(robotPose.getTranslation());
+            Translation2d robotToTarget = targetPosition;
             
             // Calculate angle to target
             Rotation2d angleToTarget = new Rotation2d(
@@ -386,7 +387,7 @@ public class TurretSubsystem extends SubsystemBase {
         }
     }
 
-    public double updateTargetFromMode(Translation2d targetPosition) {
+    public double updateTargetFromPose(Translation2d targetPosition) {
         double targetAngle = 0;
 
         if (targetPosition != null) {
@@ -418,6 +419,8 @@ public class TurretSubsystem extends SubsystemBase {
             case HUB -> FieldConstants.isBlueAlliance 
                 ?  ImportantFieldPoses.BLUE_HUB_CENTER
                 :  ImportantFieldPoses.RED_HUB_CENTER;
+
+            case ADJ_HUB -> VisionSubsystem.getInstance().getAdjustedCurrentTarget();
             
             case FERRY -> FieldConstants.isBlueAlliance 
                 ? drivetrain.getState().Pose.getY() > 4.0345
@@ -665,50 +668,50 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void publishLogs() {
         // State information
-        Logger.recordOutput("Rebuilt/Turret/CurrentState", currentState);
-        Logger.recordOutput("Rebuilt/Turret/TargetMode", currentTargetMode);
+        Logger.recordOutput("Rebuilt/Turret/State/CurrentState", currentState);
+        Logger.recordOutput("Rebuilt/Turret/State/TargetMode", currentTargetMode);
         
         // Position tracking
-        Logger.recordOutput("Rebuilt/Turret/CurrentAngleDeg", getCurrentAngleDeg());
-        Logger.recordOutput("Rebuilt/Turret/ProfiledSetpointDeg", profiledSetpointDeg);
+        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentAngleDeg", getCurrentAngleDeg());
+        Logger.recordOutput("Rebuilt/Turret/Target/ProfiledSetpointDeg", profiledSetpointDeg);
         
         // Velocity tracking
-        Logger.recordOutput("Rebuilt/Turret/CurrentVelocityDegPerSec", 
+        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentVelocityDegPerSec", 
             turretMotor.getVelocity().getValueAsDouble() * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION);
-        Logger.recordOutput("Rebuilt/Turret/TargetVelocityDegPerSec", 
+        Logger.recordOutput("Rebuilt/Turret/Target/TargetVelocityDegPerSec", 
             robotRelativeTargetVelocityDegPerSec);
 
         //Debugging For Creating Velocity Safety Net
-        Logger.recordOutput("Rebuilt/Turret/Distance to Stop", degreesToStopWithCurrentVelocity);
+        Logger.recordOutput("Rebuilt/Turret/Pos/Distance to Stop", degreesToStopWithCurrentVelocity);
 
         if (logDebuggingToggle.get()) {
-            Logger.recordOutput("Rebuilt/Turret/PreviousState", previousState);
+            Logger.recordOutput("Rebuilt/Turret/State/PreviousState", previousState);
 
-            Logger.recordOutput("Rebuilt/Turret/TargetAngleDeg", robotRelativeTargetAngleDeg);
-            Logger.recordOutput("Rebuilt/Turret/FieldGoalAngleDeg", fieldRelativeGoalAngle.getDegrees());
+            Logger.recordOutput("Rebuilt/Turret/Target/TargetAngleDeg", robotRelativeTargetAngleDeg);
+            Logger.recordOutput("Rebuilt/Turret/Target/FieldGoalAngleDeg", fieldRelativeGoalAngle.getDegrees());
 
             Translation2d currentTargetTranslation = getCurrentTargetPosition();
             if (currentTargetTranslation != null) {
-                Logger.recordOutput("Rebuilt/Turret/CurrentTargetTranslation", 
+                Logger.recordOutput("Rebuilt/Turret/Target/CurrentTargetTranslation", 
                     new double[] {currentTargetTranslation.getX(), currentTargetTranslation.getY()});
             }
 
             Pose2d currentTargetPose = new Pose2d(getCurrentTargetPosition(), new Rotation2d(0));
-            Logger.recordOutput("Rebuilt/Turret/CurrentTargetPose", currentTargetPose);
+            Logger.recordOutput("Rebuilt/Turret/Target/CurrentTargetPose", currentTargetPose);
 
-            Logger.recordOutput("Rebuilt/Turret/MotorRevolutions", 
+            Logger.recordOutput("Rebuilt/Turret/Device/MotorRevolutions", 
                 turretMotor.getPosition().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Turret/AbsoluteEncoderPosition", 
+            Logger.recordOutput("Rebuilt/Turret/Device/AbsoluteEncoderPosition", 
                 turretEncoder.getPosition().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Turret/MotorOutputVolts", 
+            Logger.recordOutput("Rebuilt/Turret/Device/MotorOutputVolts", 
                 turretMotor.getMotorVoltage().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Turret/MotorOutputAmps", 
+            Logger.recordOutput("Rebuilt/Turret/Device/MotorOutputAmps", 
                 turretMotor.getTorqueCurrent().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Turret/MotorVelocity (RPS)", 
+            Logger.recordOutput("Rebuilt/Turret/Device/MotorVelocity (RPS)", 
                 turretMotor.getVelocity().getValueAsDouble());
 
-            Logger.recordOutput("Rebuilt/Turret/AtGoal", isAtGoal());
-            Logger.recordOutput("Rebuilt/Turret/TargetOutOfRange", isTargetOutOfRange());
+            Logger.recordOutput("Rebuilt/Turret/Pos/AtGoal", isAtGoal());
+            Logger.recordOutput("Rebuilt/Turret/Target/TargetOutOfRange", isTargetOutOfRange());
         }
     }
     
@@ -750,7 +753,6 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public void setFieldRelativeTarget(Rotation2d angle, double velocityRadPerSec) {
         this.fieldRelativeGoalAngle = angle;
-        // this.fieldRelativeGoalVelocityRadPerSec = velocityRadPerSec;
     }
     
     /**
@@ -808,10 +810,17 @@ public class TurretSubsystem extends SubsystemBase {
     }
     
     /**
-     * Resets encoder values to zero.
+     * Resets the Turret's motor internal encoder values to zero.
      */
     public void resetEncoders() {
         turretMotor.setPosition(0);
+    }
+
+    /**
+     * Syncs the Turret motor's position with the encoders
+     */
+    public void syncMotorPosToEncoder() {
+        turretMotor.setPosition(getCurrentAngleDeg() / TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION);
     }
     
     /**
@@ -919,18 +928,17 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Gets the singleton instance of TurretSubsystem.
      * 
-     * @param drivetrain Drivetrain reference (required on first call)
      * @return The TurretSubsystem instance
      */
     public static synchronized TurretSubsystem getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new TurretSubsystem();
-            INSTANCE.initizalize();
+            INSTANCE.initialize();
         }
         return INSTANCE;
     }
 
-    public void initizalize() {
-        coordSub = CoordinationSubsystem.getInstance();
+    public void initialize() {
+        Logger.recordOutput("Rebuilt/Turret/Subsystem Initizalized", true);
     }
 }
