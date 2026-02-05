@@ -229,6 +229,19 @@ public class TurretSubsystem extends SubsystemBase {
         // Neutral mode
         motorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
         motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        // Calculate motor revolutions for your angle limits
+        double minAngleMotorRevs = MIN_ANGLE_DEG / TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
+        double maxAngleMotorRevs = MAX_ANGLE_DEG / TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
+
+        // Now account for the rotor-to-sensor ratio
+        double minRotorRevs = minAngleMotorRevs * TurretConstants.ROTOR_TO_SENSOR_RATIO;
+        double maxRotorRevs = maxAngleMotorRevs * TurretConstants.ROTOR_TO_SENSOR_RATIO;
+
+        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = maxRotorRevs;
+        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minRotorRevs;
+        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         
         // PID gains (Slot 0)
         Slot0Configs slot0 = new Slot0Configs()
