@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.690831325301204,
+        "y": 6.766927710843373
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.647120481927709,
+        "y": 4.75622891566265
+      },
+      "isLocked": false,
+      "linkedName": "Shoot&Ferry Neutral Start"
+    },
+    {
+      "anchor": {
+        "x": 7.690831325301204,
+        "y": 1.2921445783132537
+      },
+      "prevControl": {
+        "x": 7.690831325301204,
+        "y": 2.2761847880695347
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Shoot&Ferry Neutral End"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -88.63607246839702
+  },
+  "reversed": false,
+  "folder": "Shoot & Ferry",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -90.96286362563626
+  },
+  "useDefaultConstraints": true
+}

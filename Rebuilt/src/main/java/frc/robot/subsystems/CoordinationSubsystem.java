@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -49,6 +50,9 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean update = false;
     private boolean previousGoodToShoot = goodToFire();
     private boolean checkZeroing = false;
+    
+    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
+
     public CoordinationSubsystem() {
         
     }
@@ -192,11 +196,13 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     private void publishLogs() {
-        Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
-        Logger.recordOutput("Rebuilt/Coord/Driver Allows Shooting", driverAllowingShooting);
-        Logger.recordOutput("Rebuilt/Coord/Subsystems good to fire?", areShooterAndTurretReady());
-        Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
-        Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
+        if(logDebuggingToggle.get()) {
+            Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
+            Logger.recordOutput("Rebuilt/Coord/Driver Allows Shooting", driverAllowingShooting);
+            Logger.recordOutput("Rebuilt/Coord/Subsystems good to fire?", areShooterAndTurretReady());
+            Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
+            Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
+        }
     }
 
     // ======================== Conditions =============================

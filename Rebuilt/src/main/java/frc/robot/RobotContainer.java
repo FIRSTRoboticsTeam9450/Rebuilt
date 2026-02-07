@@ -12,11 +12,13 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.GoToPosCommand;
@@ -81,6 +83,8 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Rebuilt/Auto Chooser");
 
     configureBindings();
+    registeredCommands();
+
     configureAutos();
   }
 
@@ -158,6 +162,12 @@ public class RobotContainer {
 
   }
 
+  public void registeredCommands() {
+    // Intake Commands
+    NamedCommands.registerCommand("SetIntake", coordSub.setIntakeCommand());
+    NamedCommands.registerCommand("SetFire", coordSub.setFireCommand());
+
+    }
   public Command getAutonomousCommand() {
     return autoChooser.get();
   }
