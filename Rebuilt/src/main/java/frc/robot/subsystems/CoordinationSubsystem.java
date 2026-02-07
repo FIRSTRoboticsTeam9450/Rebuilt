@@ -332,14 +332,13 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
         return false;
     }
-    public double getVelocityTurret(double time) {
-        Translation2d currentTarget = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
-        Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(time);
-        
-        Logger.recordOutput("Rebuilt/Turret/FutureTurretAngle", TurretSubsystem.getInstance().updateTargetFromPose(futureTarget));
-        Logger.recordOutput("Rebuilt/Turret/CurrentTurretAngle", TurretSubsystem.getInstance().updateTargetFromPose(currentTarget));
-        return (TurretSubsystem.getInstance().updateTargetFromPose(futureTarget) - TurretSubsystem.getInstance().updateTargetFromPose(currentTarget))/time;
-    }
+    // public double getVelocityTurret(double time) {
+    //     Translation2d currentTarget = VisionSubsystem.getInstance().getAdjustedCurrentTarget();
+    //     Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(time);
+    //     Logger.recordOutput("Rebuilt/Turret/FutureTurretAngle", TurretSubsystem.getInstance().updateTargetFromPose(futureTarget));
+    //     Logger.recordOutput("Rebuilt/Turret/CurrentTurretAngle", TurretSubsystem.getInstance().updateTargetFromPose(currentTarget));
+    //     // return (TurretSubsystem.getInstance().updateTargetFromPose(futureTarget));// - TurretSubsystem.getInstance().getcu)/time;
+    // }
 
     public void setState(AbsoluteStates state) {
         currentState = state;
