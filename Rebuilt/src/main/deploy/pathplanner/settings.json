@@ -3,7 +3,8 @@
   "robotLength": 0.7688595,
   "holonomicMode": true,
   "pathFolders": [
-    "Outpost"
+    "Outpost",
+    "Shoot & Ferry"
   ],
   "autoFolders": [
     "Test Autos"
