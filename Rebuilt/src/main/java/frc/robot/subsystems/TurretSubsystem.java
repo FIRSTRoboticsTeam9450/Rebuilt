@@ -660,7 +660,7 @@ public class TurretSubsystem extends SubsystemBase {
                 } else if (profiledSetpointDeg == MIN_ANGLE_DEG) {
                     driverController.setRumble(RumbleType.kLeftRumble, 0.05);
                 } else if (profiledSetpointDeg == MAX_ANGLE_DEG) {
-                    driverController.setRumble(RumbleType.kRightRumble, 0.05);
+                    driverController.setRumble(RumbleType.kRightRumble, 0.1);
                 } else {
                     driverController.setRumble(RumbleType.kBothRumble, 0.0);
                 }

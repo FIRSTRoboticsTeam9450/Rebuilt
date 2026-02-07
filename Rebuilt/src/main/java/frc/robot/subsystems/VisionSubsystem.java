@@ -226,8 +226,15 @@ public class VisionSubsystem extends SubsystemBase {
             
             //If not seeing a tag, dont run through this process
             if (LimelightHelpers.getTV(limelight.getName())) {
-                // Get pose estimate using MegaTag2
-                LimelightHelpers.PoseEstimate pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight.getName());
+                LimelightHelpers.PoseEstimate pe;
+
+                if (DriverStation.isEnabled()) {
+                    // Get pose estimate using MegaTag2
+                    pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight.getName());
+                } else {
+                    // Get pose estimate using MegaTag2
+                    pe = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight.getName());
+                }
                 
                 // Create vision measurement
                 VisionMeasurement vm = createVisionMeasurement(pe, limelight.getName());
@@ -308,7 +315,10 @@ public class VisionSubsystem extends SubsystemBase {
                 // Normalize to [-180, 180]
                 while (yawDiff > 180) yawDiff -= 360;
                 while (yawDiff < -180) yawDiff += 360;
-                boolean yawValid = Math.abs(yawDiff) <= MAX_YAW_DIFF_DEGREES;
+                boolean yawValid = true;
+                if (DriverStation.isEnabled()) {
+                    yawValid = Math.abs(yawDiff) <= MAX_YAW_DIFF_DEGREES;
+                }
                 
                 // Pose is only valid if all checks pass
                 poseValid = zValid && rollValid && pitchValid && yawValid;

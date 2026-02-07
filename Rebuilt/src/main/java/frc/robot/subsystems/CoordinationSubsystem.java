@@ -1,19 +1,24 @@
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
 import frc.robot.commands.GoToPosCommand;
@@ -25,6 +30,8 @@ import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.subsystems.VisionSubsystem.ZoneState;
+import frc.robot.util.HubTracker;
+import frc.robot.util.HubTracker.Shift;
 
 public class CoordinationSubsystem extends SubsystemBase {
 
@@ -60,6 +67,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+
         currentZone = getCurrentZone();
         // getVelocityTurret(0.02);
         if(checkZeroing) {
@@ -203,6 +211,9 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     private void publishLogs() {
+        Logger.recordOutput("Rebuilt/Match Data/Our Hub Active?", HubTracker.isActive());
+        Logger.recordOutput("Rebuilt/Match Data/Time Left Until Shift Change", HubTracker.timeRemainingInCurrentShift().isPresent() ? HubTracker.timeRemainingInCurrentShift().get() : -1);
+
         if(logDebuggingToggle.get()) {
             Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
             Logger.recordOutput("Rebuilt/Coord/Driver Allows Shooting", driverAllowingShooting);
@@ -361,27 +372,5 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public void initizalize() {
-    }
-
-    // ========================================= GAME DATA ===========================================
-
-    public static class GameData {
-        private String gameData;
-        private boolean isBlueHubActive = true;
-
-        public void updateData() {
-            gameData = DriverStation.getGameSpecificMessage();
-            if (gameData.length() > 0) {
-                if (gameData.charAt(0) == 'B') {
-                    isBlueHubActive = true;
-                } else {
-                    isBlueHubActive = false;
-                }
-            }
-        }
-
-        public boolean isBlueHubActive() {
-            return isBlueHubActive;
-        }
     }
 }
