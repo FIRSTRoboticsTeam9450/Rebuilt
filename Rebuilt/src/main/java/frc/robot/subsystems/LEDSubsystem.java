@@ -2,17 +2,14 @@ package frc.robot.subsystems;
 
 
 import org.littletonrobotics.junction.Logger;
-import org.w3c.dom.css.RGBColor;
 
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.ColorFlowAnimation;
-import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.EmptyAnimation;
 import com.ctre.phoenix6.controls.SingleFadeAnimation;
 import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.controls.StrobeAnimation;
 import com.ctre.phoenix6.hardware.CANdle;
-import com.ctre.phoenix6.signals.Animation0TypeValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 import com.ctre.phoenix6.signals.StripTypeValue;
 
@@ -44,7 +41,7 @@ public class LEDSubsystem extends SubsystemBase{
 
     private LEDState currentState = LEDState.DISABLED;
     
-    private CANdle candle = new CANdle(LEDConstants.DeviceIDs.kCANDleID, RobotConstants.CANIVORE_BUS);
+    private CANdle candle = new CANdle(LEDConstants.DeviceIDs.kCANDleID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private SolidColor solidColorRequest = new SolidColor(0, 14);
     private ColorFlowAnimation flowColorRequest = new ColorFlowAnimation(0, 14);
     private StrobeAnimation strobeColorRequest = new StrobeAnimation(0, 14);

@@ -40,7 +40,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TRENCH
     }
 
-    private AbsoluteStates currentState = AbsoluteStates.INIT;
+    private AbsoluteStates currentState = AbsoluteStates.PREPARING_FOR_SHOOTING;
     private ZoneState previousZone = ZoneState.SHOOTING_ZONE;
     private ZoneState currentZone = ZoneState.SHOOTING_ZONE;
     private boolean driverAllowingShooting = false;
@@ -146,6 +146,13 @@ public class CoordinationSubsystem extends SubsystemBase {
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
                 ledState = LEDState.STORING;
+                if (shouldBeIntaking) {
+                    intakeAngleState = IntakePos.INTAKING;
+                    intakeVelocState = IntakeState.INTAKING;
+                } else {
+                    intakeAngleState = IntakePos.STORE;
+                    intakeVelocState = IntakeState.IDLING;
+                }
                 break;
 
             case PREPARING_FOR_SHOOTING:
