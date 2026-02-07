@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
 import frc.robot.commands.GoToPosCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
@@ -115,10 +116,26 @@ public class RobotContainer {
       new InstantCommand(() -> shooterSub.setOverrideHoodAngle(40)))
     .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
-    // DRIVER.povDown().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT));
-    // DRIVER.povLeft().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT));
-    // DRIVER.povRight().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT));
-    // DRIVER.povUp().whileTrue(CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT));
+    // DRIVER.povDown().whileTrue(
+    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)
+    //   ).onFalse(
+    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+    //   );
+    // DRIVER.povLeft().whileTrue(
+    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT)
+    //   ).onFalse(
+    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+    //   );
+    // DRIVER.povRight().whileTrue(
+    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT)
+    //   ).onFalse(
+    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+    //   );
+    // DRIVER.povUp().whileTrue(
+    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT)
+    //   ).onFalse(
+    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+    //   );
 
     DRIVER.rightTrigger().onTrue(
       CoordinationSubsystem.getInstance().setFireCommand()
@@ -136,12 +153,6 @@ public class RobotContainer {
     DRIVER.back().onTrue(
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)
     );
-
-    // DRIVER.a().whileTrue(
-    //   new GoToPosCommand(new Pose2d(2.315, 3.715, new Rotation2d(Units.degreesToRadians(45))))
-    //   ).onFalse(
-    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
-    //   );
 
   }
 
