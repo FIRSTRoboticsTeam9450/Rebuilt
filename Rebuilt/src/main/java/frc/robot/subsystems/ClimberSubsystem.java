@@ -12,8 +12,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
-
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
@@ -22,7 +20,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private static volatile ClimberSubsystem climberInstance;
 
-    private TalonFX climbMotorFront = new TalonFX(0, RobotConstants.CANIVORE_BUS_NAME); //temporary deviceID value
+    private TalonFX tapeClimbMotor = new TalonFX(0, RobotConstants.CANIVORE_BUS_NAME); //temporary deviceID value
+    private TalonFX elevatorClimbMotor = new TalonFX(0, RobotConstants.CANIVORE_BUS_NAME); //temporary deviceID value
 
     // --------- all of these should be in a command ----------
     
@@ -50,8 +49,10 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Climb/MM/kP", 0.5);
     private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Climb/MM/kI", 0.0);
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Climb/MM/kD", 0.0);
+    private LoggedNetworkNumber logKG = new LoggedNetworkNumber("/Tuning/Climb/kG");
 
-    private TalonFXConfiguration climbConfig;
+    private TalonFXConfiguration climbConfig1;
+    private TalonFXConfiguration climbConfig2;
     boolean atTarget;
 
     private int climbCounter;
@@ -66,6 +67,15 @@ public class ClimberSubsystem extends SubsystemBase {
                             .withSlot(0)
                             .withEnableFOC(true);
     // MotionMagic type may change
+
+    public enum IHateMyLife {
+        STOWING,
+        STANDBY,
+        LOCKING1,
+        LOCKING2,
+        HAND1,
+        HAND2
+    }
 
     public enum ElevatorStates {
         STOWING,
@@ -83,6 +93,7 @@ public class ClimberSubsystem extends SubsystemBase {
         RETRACTING
     }
 
+    private IHateMyLife currentMasterState = IHateMyLife.STANDBY;
     private ElevatorStates currentElevatorState = ElevatorStates.STANDBY;
     private TapeClimbStates currentTapeClimbState = TapeClimbStates.STANDBY;
 
@@ -93,10 +104,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void configureMotors() {
         //MOTOR I
-        climbConfig = new TalonFXConfiguration();
+        climbConfig1 = new TalonFXConfiguration();
 
-        climbConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        climbConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        climbConfig1.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        climbConfig1.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         Slot0Configs slot0Configs = new Slot0Configs()
                                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
@@ -106,29 +117,37 @@ public class ClimberSubsystem extends SubsystemBase {
                                         .withKP(logMMKP.get())
                                         .withKI(logMMKI.get())
                                         .withKD(logMMKD.get());
+
         
+
+        //MOTOR II
+
+        climbConfig2 = new TalonFXConfiguration();
+
+        climbConfig2.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        climbConfig2.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
         Slot1Configs slot1Configs = new Slot1Configs()
                                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-                                        .withKS(logMMKS.get())
-                                        .withKV(logMMKV.get())
-                                        .withKA(logMMKA.get())
-                                        .withKP(logMMKP.get())
-                                        .withKI(logMMKI.get())
-                                        .withKD(logMMKD.get())
-                                        .withKG(0);
-
-        climbConfig.Slot0 = slot0Configs;
+                                        .withKS(0)
+                                        .withKV(0)
+                                        .withKA(0)
+                                        .withKP(0)
+                                        .withKI(0)
+                                        .withKD(0);
 
         MotionMagicConfigs mmConfigs = new MotionMagicConfigs().withMotionMagicAcceleration(logMMAcceleration.get())
                                                                .withMotionMagicCruiseVelocity(logMMVelocity.get())
                                                                .withMotionMagicJerk(logMMJerk.get());
 
-        climbConfig.MotionMagic = mmConfigs;
+        climbConfig2.Slot0 = slot0Configs;
+        climbConfig1.Slot1 = slot1Configs;
 
+        climbConfig2.MotionMagic = mmConfigs;
+        climbConfig1.MotionMagic = mmConfigs;
         
-        climbMotorFront.getConfigurator().apply(climbConfig);
-
-        //MOTOR II
+        elevatorClimbMotor.getConfigurator().apply(climbConfig2);
+        tapeClimbMotor.getConfigurator().apply(climbConfig1);
     }
 
     /* ----------- Updaters ----------- */
@@ -138,12 +157,13 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void setTarget(double setpoint) {
-         climbMotorFront.setControl(controlRequest.withPosition(setpoint) //in rotations
-                                                  .withVelocity(null)); //in rotations per second
+         tapeClimbMotor.setControl(controlRequest.withPosition(setpoint) //in rotations
+                                                 .withVelocity(null)); //in rotations per second
     }
 
     public void resetEncoders() {
-        climbMotorFront.setPosition(0);
+        tapeClimbMotor.setPosition(0);
+        elevatorClimbMotor.setPosition(0);
     }
 
     private void publishClimbLogs() {
@@ -156,7 +176,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public boolean atTarget() {
-        atTarget = (Math.abs(climbDistances[climbCounter].get()) - getMotorPosition() < 0.05 && climbMotorFront.getVelocity().getValueAsDouble() < 0.1);
+        atTarget = (Math.abs(climbDistances[climbCounter].get()) - getMotorPosition() < 0.05 && tapeClimbMotor.getVelocity().getValueAsDouble() < 0.1);
         return atTarget;
     }
 
@@ -169,13 +189,68 @@ public class ClimberSubsystem extends SubsystemBase {
         delayStopwatch.reset();
     }
 
+    public void setState(int num) {
+        switch (num) {
+            case 1:
+                currentElevatorState = ElevatorStates.STANDBY;
+                break;
+            case 2:
+                currentElevatorState = ElevatorStates.EXTENDING;
+                break;
+            case 3:
+                currentElevatorState = ElevatorStates.RETRACTING;
+                break;
+            case 4:
+                currentElevatorState = ElevatorStates.LOCKING;
+                break;
+            case 5:
+                currentElevatorState = ElevatorStates.STOWING;
+                break;
+        
+            default:
+                break;
+        }
+    }
+
+    public void masterStates() {
+        switch (currentMasterState) {
+            case HAND1:
+                currentElevatorState = ElevatorStates.RETRACTING;
+                currentTapeClimbState = TapeClimbStates.EXTENDING;
+                break;
+            case HAND2:
+                currentElevatorState = ElevatorStates.EXTENDING;
+                currentTapeClimbState = TapeClimbStates.RETRACTING;
+                break;
+            case LOCKING1:
+                currentTapeClimbState = TapeClimbStates.LOCKING;
+                break;
+            case LOCKING2:
+                currentElevatorState = ElevatorStates.LOCKING;
+                break;
+            case STANDBY:
+                break;
+            case STOWING:
+            
+                break;
+            default:
+                break;
+        }
+    }
+
     private void applyStates() {
         //consider merging these two switches
         //stuff to consider- the motion magic configs
 
+        //0 (climb count) + 3 = 3
+
+        //maximum num of climbs - climb count = currentGoal
+        //for instance, 3 - 2 = 1
+        //therefore, 2 + 1 = 3
+
         switch (currentElevatorState) {
             case STANDBY:
-                setTarget(Math.round(Math.abs(climbMotorFront.getPosition().getValueAsDouble())));
+                setTarget(Math.round(Math.abs(getMotorPosition())));
                 //502 bad code
                 break;
             case EXTENDING:
@@ -223,8 +298,8 @@ public class ClimberSubsystem extends SubsystemBase {
                 }
                 break;
             case STANDBY:
-                setTarget(Math.round(Math.abs(climbMotorFront.getPosition().getValueAsDouble())));
-                //make sure to set what happens during state standby
+                setTarget(Math.round(Math.abs(getMotorPosition())));
+                //make sure to set what happens during state standbyaa
                 break;
             case STOWING:
                 setTarget(0);
@@ -233,7 +308,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public double getMotorPosition() {
-        return climbMotorFront.getPosition().getValueAsDouble();
+        return tapeClimbMotor.getPosition().getValueAsDouble();
     }
 
     public static synchronized ClimberSubsystem getInstance() {
