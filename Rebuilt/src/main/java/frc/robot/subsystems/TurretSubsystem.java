@@ -239,17 +239,15 @@ public class TurretSubsystem extends SubsystemBase {
         motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         // Calculate motor revolutions for your angle limits
-        double minAngleMotorRevs = MIN_ANGLE_DEG / TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
-        double maxAngleMotorRevs = MAX_ANGLE_DEG / TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
+        double minMotorRevs = MIN_ANGLE_DEG / TurretConstants.ABS_ENCDR_POS_TO_ANGLE;
+        double maxMotorRevs = MAX_ANGLE_DEG / TurretConstants.ABS_ENCDR_POS_TO_ANGLE;
 
         // Now account for the rotor-to-sensor ratio
-        double minRotorRevs = minAngleMotorRevs;
-        double maxRotorRevs = maxAngleMotorRevs;
 
-        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = maxRotorRevs;
-        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minRotorRevs;
-        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false; //implement motor zeroing at end of init (use current anlge, and calculate it to motor revs)
-        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
+        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = maxMotorRevs;
+        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minMotorRevs;
+        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
         
         // PID gains (Slot 0)
         Slot0Configs slot0 = new Slot0Configs()
@@ -273,6 +271,8 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Apply configuration
         turretMotor.getConfigurator().apply(motorConfig);
+
+        syncMotorPosToEncoder();
 
         //SIM
         turretMotorSimState.Orientation = ChassisReference.CounterClockwise_Positive;
