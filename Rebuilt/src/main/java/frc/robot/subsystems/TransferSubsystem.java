@@ -33,7 +33,7 @@ public class TransferSubsystem extends SubsystemBase {
     private TransferState currentState = TransferState.NO_RUN;
     private TransferState previousState = currentState;
 
-    private final TalonFX motor = new TalonFX(TransferConstants.DeviceIDs.kDrivingMotorID, RobotConstants.CANIVORE_BUS);
+    private final TalonFX motor = new TalonFX(TransferConstants.DeviceIDs.kDrivingMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     /** Voltage request */
     private VoltageOut voltageRequest = new VoltageOut(0.0).withEnableFOC(RobotConstants.ENABLE_FOC);;

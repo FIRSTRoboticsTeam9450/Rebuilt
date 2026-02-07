@@ -22,7 +22,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private static volatile ClimberSubsystem climberInstance;
 
-    private TalonFX climbMotorFront = new TalonFX(0, RobotConstants.CANIVORE_BUS_NAME); //temporary deviceID value
+    private TalonFX climbMotorFront = new TalonFX(0, RobotConstants.MAIN_SYSTEMS_CANBUS); //temporary deviceID value
 
     // --------- all of these should be in a command ----------
     

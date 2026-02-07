@@ -30,10 +30,12 @@ public final class Constants {
 
   public static final class RobotConstants {
 
-    public static final String CANIVORE_BUS_NAME = "CantDrive";
+    public static final String DRIVEBASE_CANBUS_NAME = "CantDrive";
+    public static final String MAIN_SYSTEMS_CANBUS_NAME = "CantShoot";
     public static final String RIO_BUS_NAME = "Rio";
 
-    public static final CANBus CANIVORE_BUS = new CANBus(CANIVORE_BUS_NAME);
+    public static final CANBus DRIVEBASE_CANBUS = new CANBus(DRIVEBASE_CANBUS_NAME);
+    public static final CANBus MAIN_SYSTEMS_CANBUS = new CANBus(MAIN_SYSTEMS_CANBUS_NAME);
     public static final CANBus RIO_BUS = new CANBus(RIO_BUS_NAME);
 
     public static final boolean ENABLE_FOC = true;
@@ -98,10 +100,11 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.110595703125;
+      public static final double ENCODER_MAGNET_OFFSET = 0.455322265625;
 
-      public static final double ROTOR_TO_SENSOR_RATIO = 0.001890359168;
-      public static final double SENSOR_TO_MECHANISM_RATIO = 0.4565217391 * 1.06;
+      //Lantern motot to turret gear reduction 161:1 (1/161)
+      public static final double ROTOR_TO_SENSOR_RATIO = 0.001827990359168;
+      public static final double SENSOR_TO_MECHANISM_RATIO = 0.311279 * 0.9849444;// Non-Lantern: 0.4565217391 * 1.06;
 
       public static final double TURRET_OFFSET_TO_ZERO = 179.5;
       public static final double TURRET_OFFSET_TO_TARGET = 5;
@@ -109,7 +112,7 @@ public final class Constants {
       public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
-      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 1.5;
+      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 2.24; //Lantern: 2.24
       public static final double ABS_ENCDR_POS_TO_ANGLE = 360;
     }
     

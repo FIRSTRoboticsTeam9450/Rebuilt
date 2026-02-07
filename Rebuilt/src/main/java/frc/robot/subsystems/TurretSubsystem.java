@@ -22,10 +22,14 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -87,12 +91,12 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720); //720
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 80); //200, needs tuning though
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 80); //80
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.4); //5, needs tuning
-    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",15); //5, needs tuning
-    private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0); //50, needs tuning though
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.15);
+    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.08); //if still 0.08, then not tuned fully
+    private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0);
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
 
@@ -129,7 +133,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.INIT;
+    private TurretState currentState = TurretState.AIMING;
     private TurretState previousState = currentState;
     
     // Target management
@@ -142,8 +146,11 @@ public class TurretSubsystem extends SubsystemBase {
     // Robot-relative targeting (calculated each cycle)
     private double robotRelativeTargetAngleDeg = 0.0;
     private double robotRelativeTargetVelocityDegPerSec = 0.0;
+    private double previousRobotRelativeTargetVelocityDegPerSec = 0.0;
     private double previousRobotRelativeTargetAngleDeg = 0.0;
     private double degreesToStopWithCurrentVelocity = 0.0;
+
+    private double previousAnglesTimestamp = 0.0;
     
     // State tracking
     private double turretOffset = 0.0;
@@ -154,7 +161,7 @@ public class TurretSubsystem extends SubsystemBase {
     private double profiledSetpointDeg = 0.0;
     
     // Control requests
-    private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0).withEnableFOC(false);
     private final SimpleMotorFeedforward feedforward;
 
     //Testing Stuff
@@ -172,13 +179,13 @@ public class TurretSubsystem extends SubsystemBase {
         // Initialize hardware
         turretMotor = new TalonFX(
             TurretConstants.DeviceIDs.kMotorID, 
-            RobotConstants.CANIVORE_BUS
+            RobotConstants.MAIN_SYSTEMS_CANBUS
         );
         turretMotorSimState = turretMotor.getSimState();
 
         turretEncoder = new CANcoder(
             TurretConstants.DeviceIDs.kAbsEncoderID, 
-            RobotConstants.CANIVORE_BUS
+            RobotConstants.MAIN_SYSTEMS_CANBUS
         );
         turretEncoderSimState = turretEncoder.getSimState();
         
@@ -236,8 +243,8 @@ public class TurretSubsystem extends SubsystemBase {
         double maxAngleMotorRevs = MAX_ANGLE_DEG / TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
 
         // Now account for the rotor-to-sensor ratio
-        double minRotorRevs = minAngleMotorRevs * TurretConstants.ROTOR_TO_SENSOR_RATIO;
-        double maxRotorRevs = maxAngleMotorRevs * TurretConstants.ROTOR_TO_SENSOR_RATIO;
+        double minRotorRevs = minAngleMotorRevs;
+        double maxRotorRevs = maxAngleMotorRevs;
 
         motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = maxRotorRevs;
         motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minRotorRevs;
@@ -286,7 +293,7 @@ public class TurretSubsystem extends SubsystemBase {
             new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget)));
         
         // Find best angle considering wrapping and limits
-        previousRobotRelativeTargetAngleDeg = robotRelativeTargetAngleDeg;
+
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
 
         // Convert RPS to degrees/sec
@@ -297,8 +304,10 @@ public class TurretSubsystem extends SubsystemBase {
         double maxDeceleration = logMaxAccelerationDegPerSecSq.get();
         degreesToStopWithCurrentVelocity = Math.pow(currentVelocityDegPerSec, 2) 
             / (2 * maxDeceleration);
-            
+
+        previousRobotRelativeTargetVelocityDegPerSec = robotRelativeTargetVelocityDegPerSec;
         robotRelativeTargetVelocityDegPerSec = calculateVelocity();
+        // robotRelativeTargetVelocityDegPerSec = CoordinationSubsystem.getInstance().getVelocityTurret(0.02);
 
         // Driver feedback for out-of-range targets
         updateDriverFeedback();
@@ -346,20 +355,20 @@ public class TurretSubsystem extends SubsystemBase {
             }
             if (allowVeloc) {
                 // Calculate desired velocity (derivative of target position)
-                double desiredVelocity = (robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / 0.020;
+                double desiredVelocity = (robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / (Timer.getFPGATimestamp() - previousAnglesTimestamp);
                 
-                // Clamp to maximum safe velocity in the appropriate direction
-                if (isVelocityPositive || desiredVelocity > 0) {
-                    targetVeloc = MathUtil.clamp(desiredVelocity, 0, maxVelocity);
-                } else {
-                    targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, 0);
-                }
+                previousRobotRelativeTargetAngleDeg = robotRelativeTargetAngleDeg;
+                previousAnglesTimestamp = Timer.getFPGATimestamp();
+
+                desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
+
+                targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
             }
         }
-        Logger.recordOutput("Rebuilt/Turret/Used Velocity", usedVeloc);
-        Logger.recordOutput("Rebuilt/Turret/Calculated Veloc", targetVeloc);
-        // return targetVeloc;
-        return 0.0;
+        Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);
+        Logger.recordOutput("Rebuilt/Turret/Veloc Net/Calculated Veloc", targetVeloc);
+        return targetVeloc;
+        // return 0.0;
     }   
     
     /**
@@ -683,6 +692,12 @@ public class TurretSubsystem extends SubsystemBase {
 
         //Debugging For Creating Velocity Safety Net
         Logger.recordOutput("Rebuilt/Turret/Pos/Distance to Stop", degreesToStopWithCurrentVelocity);
+
+        Pose2d currentBotPose = drivetrain.getState().Pose;
+        Pose2d currentBotPoseWRTTurret = currentBotPose.transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
+        Translation3d turretPoseTranslation = new Translation3d(currentBotPoseWRTTurret.getX(), currentBotPoseWRTTurret.getY(), 0.5);
+        Rotation3d turretPoseRotation = new Rotation3d(0, 0, fieldRelativeGoalAngle.getRadians());
+        Logger.recordOutput("Rebuilt/Turret/Turret Pose WRT Field", new Pose3d(turretPoseTranslation, turretPoseRotation));
 
         if (logDebuggingToggle.get()) {
             Logger.recordOutput("Rebuilt/Turret/State/PreviousState", previousState);
