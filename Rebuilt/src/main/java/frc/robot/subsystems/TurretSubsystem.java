@@ -288,7 +288,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Update target based on current mode
         updateTargetFromMode();
         
-        // Convert field-relative goal to robot-relative
+        // Convert field-relative goal to robot-relative 
         Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.plus(
             new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget)));
         
@@ -361,8 +361,14 @@ public class TurretSubsystem extends SubsystemBase {
                 previousAnglesTimestamp = Timer.getFPGATimestamp();
 
                 desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
-
+                
                 targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
+
+                // Other method of using future casting!!! It works :)
+                // Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(.02);
+                // desiredVelocity = (findBestWrappedAngle(updateTargetFromPose(futureTarget).plus(
+                // new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget))).getDegrees()) - robotRelativeTargetAngleDeg)/.02;
+                // targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
             }
         }
         Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);
@@ -396,26 +402,25 @@ public class TurretSubsystem extends SubsystemBase {
         }
     }
 
-    public double updateTargetFromPose(Translation2d targetPosition) {
+    public Rotation2d updateTargetFromPose(Translation2d targetPosition) {
         double targetAngle = 0;
 
         if (targetPosition != null) {
-            Pose2d robotPose = VisionSubsystem.getInstance().getCurrentBotPoseAllianceUnspecific();
-            
             // Calculate vector from robot to target
-            Translation2d robotToTarget = targetPosition.minus(robotPose.getTranslation());
+            Translation2d robotToTarget = targetPosition;
             
             // Calculate angle to target
             Rotation2d angleToTarget = new Rotation2d(
                 robotToTarget.getX(), 
                 robotToTarget.getY()
             );
+
             
             // Update field-relative goal (target is stationary, so velocity = 0)
-            targetAngle = angleToTarget.getDegrees();
+            return angleToTarget;
         }
 
-        return targetAngle;
+        return null;
     }
     
     /**
