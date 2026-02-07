@@ -9,13 +9,21 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.pathfinding.Pathfinder;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -32,7 +40,13 @@ public class Robot extends LoggedRobot {
 
   private final RobotContainer m_robotContainer;
 
-  /**
+  private final Field2d field2d = new Field2d();
+
+  // sendableBuilder used to send the field2d to the network table which Elastic will look at to get the feild 2d
+  private NetworkTable networkTable;
+  private final SendableBuilderImpl sendableBuilder = new SendableBuilderImpl();
+
+  /*** 
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
@@ -52,6 +66,18 @@ public class Robot extends LoggedRobot {
     Pathfinding.setPathfinder(new LocalADStarAK());
 
     CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
+
+    // Creates a network table which is read by Elastic (Seems like advantage scope doesn't see it)
+    networkTable = NetworkTableInstance.getDefault()
+            .getTable("FieldTable") // Name of the folder Field2d is stored in
+            .getSubTable("Field2d"); // Name of the Field2d
+    
+    // Makes the builder attached to the network table to send the feild2d
+    sendableBuilder.setTable(networkTable); 
+
+    // initiate the feild2d and builder
+    field2d.initSendable(sendableBuilder);
+    sendableBuilder.startListeners();
   }
 
   /**
@@ -68,6 +94,10 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    //  Puts the robots pose2d into the feild and add it to the builder
+    field2d.setRobotPose(RobotContainer.drivetrain.getState().Pose);
+    sendableBuilder.update();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -107,6 +137,7 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
