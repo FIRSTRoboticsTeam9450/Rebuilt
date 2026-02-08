@@ -156,9 +156,14 @@ public class ClimberSubsystem extends SubsystemBase {
         this.climbCounter = numClimbs;
     }
 
-    public void setTarget(double setpoint) {
+    public void setTapeTarget(double setpoint) {
          tapeClimbMotor.setControl(controlRequest.withPosition(setpoint) //in rotations
                                                  .withVelocity(null)); //in rotations per second
+    }
+
+    public void setElevatorTarget(double setpoint) {
+        elevatorClimbMotor.setControl(controlRequest.withPosition(setpoint)
+                                                    .withVelocity(null));
     }
 
     public void resetEncoders() {
@@ -167,7 +172,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     private void publishClimbLogs() {
-        Logger.recordOutput("Rebuilt/Climb/MotorPosition",getMotorPosition());
+        Logger.recordOutput("Rebuilt/Climb/MotorPosition", getMotorPosition());
     }
 
     public void periodic() {
@@ -175,20 +180,20 @@ public class ClimberSubsystem extends SubsystemBase {
         publishClimbLogs();
     }
 
-    public boolean atTarget() {
-        atTarget = (Math.abs(climbDistances[climbCounter].get()) - getMotorPosition() < 0.05 && tapeClimbMotor.getVelocity().getValueAsDouble() < 0.1);
-        return atTarget;
+    public boolean atTarget(double target) {
+        return Math.abs(target - getMotorPosition()) < 0.05 && tapeClimbMotor.getVelocity().getValueAsDouble() < 0.1;
     }
 
-    public boolean endClimbSequence() {
-        return climbCounter == 0;
-    }
+    // public boolean endClimbSequence() {
+    //     return climbCounter == 0;
+    // }
 
     public void resetStopwatch() {
         delayStopwatch.stop();
         delayStopwatch.reset();
     }
 
+    /*
     public void setState(int num) {
         switch (num) {
             case 1:
@@ -211,7 +216,9 @@ public class ClimberSubsystem extends SubsystemBase {
                 break;
         }
     }
+    */
 
+    /*
     public void masterStates() {
         switch (currentMasterState) {
             case HAND1:
@@ -231,12 +238,14 @@ public class ClimberSubsystem extends SubsystemBase {
             case STANDBY:
                 break;
             case STOWING:
-            
+                currentElevatorState = ElevatorStates.STOWING;
+                currentTapeClimbState = TapeClimbStates.STOWING;
                 break;
             default:
                 break;
         }
     }
+    */
 
     private void applyStates() {
         //consider merging these two switches
@@ -250,59 +259,59 @@ public class ClimberSubsystem extends SubsystemBase {
 
         switch (currentElevatorState) {
             case STANDBY:
-                setTarget(Math.round(Math.abs(getMotorPosition())));
+                setElevatorTarget(Math.round(Math.abs(getMotorPosition())));
                 //502 bad code
                 break;
             case EXTENDING:
-                setTarget(7);
-                if(atTarget()) {
-                    currentElevatorState = ElevatorStates.LOCKING;
-                }
-                break;
+                setElevatorTarget(7);
+                // if(atTarget()) {
+                //     currentElevatorState = ElevatorStates.LOCKING;
+                // }
+                // break;
             case LOCKING:
-                setTarget(5); //temporary value
-                if(atTarget()) {
-                    currentElevatorState = ElevatorStates.RETRACTING;
-                }
-                break;
+                setElevatorTarget(5); //temporary value
+                // if(atTarget()) {
+                //     currentElevatorState = ElevatorStates.RETRACTING;
+                // }
+                // break;
             case RETRACTING:
-                setTarget(0);
-                if(atTarget()) {
-                    currentElevatorState = ElevatorStates.STANDBY;
-                }
+                setElevatorTarget(0);
+                // if(atTarget()) {
+                //     currentElevatorState = ElevatorStates.STANDBY;
+                // }
                 break;
             case STOWING:
-                setTarget(0);
-                if(atTarget()) {
-                    currentElevatorState = ElevatorStates.STANDBY;
-                } 
-                break;
+                setElevatorTarget(0);
+                // if(atTarget()) {
+                //     currentElevatorState = ElevatorStates.STANDBY;
+                // } 
+                // break;
         }
         switch(currentTapeClimbState) {
             case EXTENDING:
-                setTarget(7);
-                if(atTarget()) {
-                    currentElevatorState = ElevatorStates.LOCKING;
-                }
-                break;
+                setTapeTarget(7);
+                // if(atTarget()) {
+                //     currentElevatorState = ElevatorStates.LOCKING;
+                // }
+                // break;
             case RETRACTING:
-                setTarget(0);
-                if(atTarget()) {
-                    currentElevatorState = ElevatorStates.STANDBY;
-                }
-                break;
+                setTapeTarget(0);
+                // if(atTarget()) {
+                //     currentElevatorState = ElevatorStates.STANDBY;
+                // }
+                // break;
             case LOCKING:
-                setTarget(5);
-                if(atTarget()) {
-                    currentElevatorState = ElevatorStates.RETRACTING;
-                }
-                break;
+                setTapeTarget(5);
+                // if(atTarget()) {
+                //     currentElevatorState = ElevatorStates.RETRACTING;
+                // }
+                // break;
             case STANDBY:
-                setTarget(Math.round(Math.abs(getMotorPosition())));
+                setTapeTarget(Math.round(Math.abs(getMotorPosition())));
                 //make sure to set what happens during state standbyaa
                 break;
             case STOWING:
-                setTarget(0);
+                setTapeTarget(0);
                 break;
         }
     }
