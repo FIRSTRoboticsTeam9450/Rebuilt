@@ -73,6 +73,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
     
     private CommandXboxController driverController;
+    private double controllersCurrentRumbling = 0.0;
     
     // ========================= Configuration =========================
     
@@ -94,8 +95,8 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 80); //80
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.15);
-    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.08); //if still 0.08, then not tuned fully
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.19);
+    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.04);
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0);
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
@@ -133,7 +134,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.AIMING;
+    private TurretState currentState = TurretState.INIT;
     private TurretState previousState = currentState;
     
     // Target management
@@ -661,16 +662,31 @@ public class TurretSubsystem extends SubsystemBase {
         if (driverController != null) {
             if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled() && !DriverStation.isAutonomous()) {
                 if (CoordinationSubsystem.getInstance().getInDeadzone() && CoordinationSubsystem.getInstance().getOverridinTrench()) {
-                    driverController.setRumble(RumbleType.kBothRumble, 0.1);
+                    if (controllersCurrentRumbling != 0.15) {
+                        controllersCurrentRumbling = 0.15;
+                        driverController.setRumble(RumbleType.kBothRumble, 0.15);
+                    }
                 } else if (profiledSetpointDeg == MIN_ANGLE_DEG) {
-                    driverController.setRumble(RumbleType.kLeftRumble, 0.05);
+                    if (controllersCurrentRumbling != 0.05) {
+                        controllersCurrentRumbling = 0.05;
+                        driverController.setRumble(RumbleType.kLeftRumble, 0.05);
+                    }
                 } else if (profiledSetpointDeg == MAX_ANGLE_DEG) {
-                    driverController.setRumble(RumbleType.kRightRumble, 0.1);
+                    if (controllersCurrentRumbling != 0.1) {
+                        controllersCurrentRumbling = 0.1;
+                        driverController.setRumble(RumbleType.kRightRumble, 0.1);
+                    }
                 } else {
-                    driverController.setRumble(RumbleType.kBothRumble, 0.0);
+                    if (controllersCurrentRumbling != 0.0) {
+                        controllersCurrentRumbling = 0.0;
+                        driverController.setRumble(RumbleType.kBothRumble, 0.0);
+                    }
                 }
             } else {
-                driverController.setRumble(RumbleType.kBothRumble, 0.0);
+                if (controllersCurrentRumbling != 0.0) {
+                    controllersCurrentRumbling = 0.0;
+                    driverController.setRumble(RumbleType.kBothRumble, 0.0);
+                }
             }
         }
     }
@@ -681,6 +697,8 @@ public class TurretSubsystem extends SubsystemBase {
      * Publishes telemetry data to AdvantageKit Logger.
      */
     private void publishLogs() {
+        
+
         // State information
         Logger.recordOutput("Rebuilt/Turret/State/CurrentState", currentState);
         Logger.recordOutput("Rebuilt/Turret/State/TargetMode", currentTargetMode);
@@ -722,7 +740,7 @@ public class TurretSubsystem extends SubsystemBase {
             Logger.recordOutput("Rebuilt/Turret/Device/MotorRevolutions", 
                 turretMotor.getPosition().getValueAsDouble());
             Logger.recordOutput("Rebuilt/Turret/Device/AbsoluteEncoderPosition", 
-                turretEncoder.getPosition().getValueAsDouble());
+                turretEncoder.getAbsolutePosition().getValueAsDouble());
             Logger.recordOutput("Rebuilt/Turret/Device/MotorOutputVolts", 
                 turretMotor.getMotorVoltage().getValueAsDouble());
             Logger.recordOutput("Rebuilt/Turret/Device/MotorOutputAmps", 
@@ -826,7 +844,7 @@ public class TurretSubsystem extends SubsystemBase {
      * Call this when the turret is at its mechanical zero position.
      */
     public void zero() {
-        turretOffset = -turretEncoder.getPosition().getValueAsDouble() * encoderToAngleMultiplier;
+        turretOffset = -turretEncoder.getAbsolutePosition().getValueAsDouble() * encoderToAngleMultiplier;
     }
     
     /**
@@ -860,7 +878,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return Current angle in degrees, range [-135, +135]
      */
     public double getCurrentAngleDeg() {
-        return turretEncoder.getPosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
+        return turretEncoder.getAbsolutePosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
     }
     
     /**

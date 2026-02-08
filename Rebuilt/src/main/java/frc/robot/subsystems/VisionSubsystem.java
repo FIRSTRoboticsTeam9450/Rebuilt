@@ -1,11 +1,13 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -79,9 +81,13 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    private double visionStdDevX = 0.5;
-    private double visionStdDevY = 0.5;
-    private double visionStdDevTheta = 999.0;
+    public Vector<N3> disabledStdDev = VecBuilder.fill(1, 1, 0.5);
+    public Vector<N3> enabledStdDev = VecBuilder.fill(0.5, 0.5, 999);
+
+    public double visionStdDevX = 0.5;
+    public double visionStdDevY = 0.5;
+    public double visionStdDevTheta = 999.0;
+    private boolean firstMeasurment = true;
 
     // Maximum allowed differences for fusion; if exceeded, fallback to higher confidence camera
     private double maxTranslationDiff = 2.5; // meters
@@ -91,7 +97,7 @@ public class VisionSubsystem extends SubsystemBase {
     private static final double MAX_Z_THRESHOLD = 1; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 2.5; // Vision yaw must match Pigeon within 0.01 degrees
+    private static final double MAX_YAW_DIFF_DEGREES = 5; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -260,7 +266,12 @@ public class VisionSubsystem extends SubsystemBase {
                 .orElse(0.0);
             
             // Set standard deviations and add measurement
-            drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+            if (firstMeasurment) {
+                firstMeasurment = false;
+                drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0, 0, 0));
+            } else {
+                drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+            }
             drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
             
             Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
@@ -297,6 +308,8 @@ public class VisionSubsystem extends SubsystemBase {
             double[] botpose = LimelightHelpers.getBotPose_wpiBlue(limelightName);
             
             if (botpose != null && botpose.length >= 6) {
+                double x = botpose[0];
+                double y = botpose[1];
                 double z = botpose[2];
                 double roll = botpose[3];
                 double pitch = botpose[4];
@@ -306,9 +319,12 @@ public class VisionSubsystem extends SubsystemBase {
                 double pigeonYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
                 
                 // Validation checks
+                boolean xValid = (x > 0) && (x < 16.565);
+                boolean yValid = (y > 0) && (y < 8.095);
                 boolean zValid = Math.abs(z) <= MAX_Z_THRESHOLD;
                 boolean rollValid = Math.abs(roll) <= MAX_ROLL_THRESHOLD;
                 boolean pitchValid = Math.abs(pitch) <= MAX_PITCH_THRESHOLD;
+                
                 
                 // Yaw difference check (handle angle wrapping)
                 double yawDiff = Math.abs(visionYaw - pigeonYaw);
@@ -321,7 +337,7 @@ public class VisionSubsystem extends SubsystemBase {
                 }
                 
                 // Pose is only valid if all checks pass
-                poseValid = zValid && rollValid && pitchValid && yawValid;
+                poseValid = xValid && yValid && zValid && rollValid && pitchValid && yawValid;
                 
                 // Optional: Log which check failed for debugging
                 if (!poseValid) {
@@ -750,6 +766,10 @@ public class VisionSubsystem extends SubsystemBase {
         this.visionStdDevTheta = thetaRadians;
 
         drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+    }
+
+    public void setVisionMeasurementStdDevs(Vector<N3> vector) {
+        drivetrain.setVisionMeasurementStdDevs(vector);
     }
 
     public void setLLIMUModes(int mode) {
