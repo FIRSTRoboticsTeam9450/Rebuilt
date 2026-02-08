@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
@@ -19,6 +20,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -92,7 +94,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720); //720
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 80); //80
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 5); //80 TODO: Tune it
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
     private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.19);
@@ -134,7 +136,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.INIT;
+    private TurretState currentState = TurretState.AIMING;
     private TurretState previousState = currentState;
     
     // Target management
@@ -161,9 +163,11 @@ public class TurretSubsystem extends SubsystemBase {
     private double currentRateLimit;
     private double profiledSetpointDeg = 0.0;
     
+    PIDController turretPidController = new PIDController(0, 0, 0);
     // Control requests
     private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0).withEnableFOC(false);
     private final SimpleMotorFeedforward feedforward;
+    private final VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(false);
 
     //Testing Stuff
     public double testTargetSetpoint = 0;
@@ -222,7 +226,6 @@ public class TurretSubsystem extends SubsystemBase {
         encoderConfig.MagnetSensor.MagnetOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
         
         turretEncoder.getConfigurator().apply(encoderConfig);
-
         //Sim
         turretEncoderSimState.Orientation = ChassisReference.Clockwise_Positive;
         turretEncoderSimState.SensorOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
@@ -247,19 +250,20 @@ public class TurretSubsystem extends SubsystemBase {
 
         motorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = maxMotorRevs;
         motorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = minMotorRevs;
-        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        motorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
+        motorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
         
         // PID gains (Slot 0)
-        Slot0Configs slot0 = new Slot0Configs()
-            .withKP(logKP.get())
-            .withKI(logKI.get())
-            .withKD(logKD.get())
-            .withKS(logKS.get())
-            .withKV(logKV.get())
-            .withKA(logKA.get());
-        
-        motorConfig.Slot0 = slot0;
+        // Slot0Configs slot0 = new Slot0Configs()
+        //     .withKP(logKP.get())
+        //     .withKI(logKI.get())
+        //     .withKD(logKD.get())
+        //     .withKS(logKS.get())
+        //     .withKV(logKV.get())
+        //     .withKA(logKA.get());
+
+        // motorConfig.Slot0 = slot0;
+        turretPidController.setPID(logKP.get(), logKI.get(), logKD.get());
         
         // Fused CANcoder feedback
         motorConfig.Feedback.FeedbackRemoteSensorID = turretEncoder.getDeviceID();
@@ -542,19 +546,25 @@ public class TurretSubsystem extends SubsystemBase {
         // Convert to encoder units (accounting for offset and encoder ratio)
         double positionEncoderRevs = 
             (positionMotorRevs) / encoderToAngleMultiplier;
-        
+
+        turretPidController.setSetpoint(positionDeg);
+        double PIDOutput = turretPidController.calculate(getCurrentAngleDeg());
+
         // Calculate feedforward voltage
         // FF = kS*sgn(v) + kV*v + kA*a
         double feedforwardVolts = feedforward.calculate(
-            velocityMotorRevsPerSec,
+            velocityMotorRevsPerSec + PIDOutput,
             accelerationMotorRevsPerSecSq
         );
         
+        
         // Send position command with feedforward
         turretMotor.setControl(
-            positionRequest
-                .withPosition(positionEncoderRevs - (turretOffset / encoderToAngleMultiplier))
-                .withFeedForward(feedforwardVolts)
+            voltageRequest.withOutput(feedforwardVolts)
+            // positionRequest
+            //     .withPosition(positionEncoderRevs - (turretOffset / encoderToAngleMultiplier))
+            //     .withFeedForward(feedforwardVolts))
+
         );
     }
     
@@ -622,14 +632,22 @@ public class TurretSubsystem extends SubsystemBase {
         boolean profileChanged = false;
         
         // Check if PID/FF gains changed
-        if (motorConfig.Slot0.kP != logKP.get() ||
-            motorConfig.Slot0.kI != logKI.get() ||
-            motorConfig.Slot0.kD != logKD.get() ||
-            motorConfig.Slot0.kS != logKS.get() ||
-            motorConfig.Slot0.kV != logKV.get() ||
-            motorConfig.Slot0.kA != logKA.get()) {
+        // if (motorConfig.Slot0.kP != logKP.get() ||
+        //     motorConfig.Slot0.kI != logKI.get() ||
+        //     motorConfig.Slot0.kD != logKD.get() ||
+        //     motorConfig.Slot0.kS != logKS.get() ||
+        //     motorConfig.Slot0.kV != logKV.get() ||
+        //     motorConfig.Slot0.kA != logKA.get()) {
             
-            gainsChanged = true;
+        //     gainsChanged = true;
+        // }
+        if(turretPidController.getP() != logKP.get() ||
+            turretPidController.getI() != logKI.get() ||
+            turretPidController.getD() != logKD.get() ||
+            feedforward.getKs() != logKS.get() ||
+            feedforward.getKv() != logKV.get() ||
+            feedforward.getKa() != logKA.get()) {
+                gainsChanged = true;
         }
         
         // Check if profile parameters changed
@@ -641,11 +659,14 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Reconfigure if needed
         if (gainsChanged) {
-            configureMotor();
+
+            turretPidController.setPID(logKP.get(), logKI.get(), logKD.get());
 
             feedforward.setKa(logKA.get());
             feedforward.setKs(logKS.get());
             feedforward.setKv(logKV.get());
+
+            gainsChanged = false;
         }
         
         if (profileChanged) {

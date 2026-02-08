@@ -100,7 +100,7 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = -0.219482421875;
+      public static final double ENCODER_MAGNET_OFFSET = 0.0849609375;
 
       //Lantern motot to turret gear reduction 161:1 (1/161)
       public static final double ROTOR_TO_SENSOR_RATIO = 0.001827990359168;
