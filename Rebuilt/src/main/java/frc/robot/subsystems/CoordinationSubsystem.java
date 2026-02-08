@@ -47,7 +47,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TRENCH
     }
 
-    private AbsoluteStates currentState = AbsoluteStates.PREPARING_FOR_SHOOTING;
+    private AbsoluteStates currentState = AbsoluteStates.INIT;
     private ZoneState previousZone = ZoneState.SHOOTING_ZONE;
     private ZoneState currentZone = ZoneState.SHOOTING_ZONE;
     private boolean driverAllowingShooting = false;
@@ -58,7 +58,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean previousGoodToShoot = goodToFire();
     private boolean checkZeroing = false;
     
-    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
+    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", false);
 
     public CoordinationSubsystem() {
         

@@ -62,7 +62,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetShooterVeloc = 0;
 
     private double hoodAngleMax = 13;
-    private double hoodAngleMin = 3.5;
+    private double hoodAngleMin = 4.4;
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
     private double distanceAwayToUseSpecificDegree = 4.185;
@@ -469,7 +469,8 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isShooterReady() {
-        return (isAngleWithinTolerance() && isVelocityWithinTolerance());
+        // return (isAngleWithinTolerance() && isVelocityWithinTolerance());
+        return (isAngleWithinTolerance());
     }
 
     // -------------------------------------- SETTERS -------------------------------------- //

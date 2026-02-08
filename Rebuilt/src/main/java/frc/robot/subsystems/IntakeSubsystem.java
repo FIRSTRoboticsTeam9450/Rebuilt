@@ -148,7 +148,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case STORE:
-                motorArm.setControl(request.withPosition(0.55));
+                motorArm.setControl(request.withPosition(0.9));
                 break;
             
             case INTAKING:
@@ -171,7 +171,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Angle/Current Pos", currentPos);
 
         Logger.recordOutput("Rebuilt/Intake/Angle/Position", motorArm.getPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Intake/Angle/Target", currentPos == IntakePos.INTAKING ? logIntakeTarget.get() : 0.55);
+        Logger.recordOutput("Rebuilt/Intake/Angle/Target", currentPos == IntakePos.INTAKING ? logIntakeTarget.get() : 0.9);
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Voltage", motorArm.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Velocity", motorArm.getVelocity().getValueAsDouble());
     }
