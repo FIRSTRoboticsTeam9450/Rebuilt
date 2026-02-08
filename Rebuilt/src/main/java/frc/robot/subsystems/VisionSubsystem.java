@@ -88,6 +88,7 @@ public class VisionSubsystem extends SubsystemBase {
     public double visionStdDevY = 0.5;
     public double visionStdDevTheta = 999.0;
     private boolean firstMeasurment = true;
+    private double validMeasurementCount = 0;
 
     // Maximum allowed differences for fusion; if exceeded, fallback to higher confidence camera
     private double maxTranslationDiff = 2.5; // meters
@@ -221,7 +222,8 @@ public class VisionSubsystem extends SubsystemBase {
      * Sends fused pose to drivetrain for odometry correction.
      */
     private void updateVision() {
-        double robotYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
+        // double robotYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
+        double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
         
         // Collect vision measurements from all limelights
         List<VisionMeasurement> measurements = new ArrayList<>();
@@ -234,7 +236,7 @@ public class VisionSubsystem extends SubsystemBase {
             if (LimelightHelpers.getTV(limelight.getName())) {
                 LimelightHelpers.PoseEstimate pe;
 
-                if (DriverStation.isEnabled()) {
+                if (validMeasurementCount > 15) {
                     // Get pose estimate using MegaTag2
                     pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight.getName());
                 } else {
@@ -273,6 +275,8 @@ public class VisionSubsystem extends SubsystemBase {
                 drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
             }
             drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
+
+            validMeasurementCount++;
             
             Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
         });
@@ -491,6 +495,8 @@ public class VisionSubsystem extends SubsystemBase {
         // Fusion thresholds
         Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
         Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
+
+        Logger.recordOutput("Rebuilt/Vision/Valid Measurments", validMeasurementCount);
         
         if (debuggingData.get()) {
             // Per-camera data
