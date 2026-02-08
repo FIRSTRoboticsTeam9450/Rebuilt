@@ -24,7 +24,7 @@
         "y": 7.201987743173979
       },
       "nextControl": {
-        "x": 0.23105411915823165,
+        "x": 0.2310541191582317,
         "y": 6.067725758450448
       },
       "isLocked": false,
@@ -36,7 +36,7 @@
         "y": 3.9946888888888887
       },
       "prevControl": {
-        "x": 3.0330767068273086,
+        "x": 3.033076706827308,
         "y": 6.070711111111116
       },
       "nextControl": {
@@ -66,13 +66,27 @@
       "rotationDegrees": -140.96448710125304
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.8039867109634506,
+      "maxWaypointRelativePos": 1.0099667774086523,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 180.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 5.0,
     "maxAcceleration": 4.0,
-    "maxAngularVelocity": 540.0,
+    "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
@@ -85,7 +99,7 @@
   "folder": "Experimental",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -1.3639275316028807
+    "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
