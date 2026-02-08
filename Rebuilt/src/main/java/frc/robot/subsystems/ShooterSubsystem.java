@@ -348,7 +348,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
 
-    // -------------------------------------- GETTERS -------------------------------------- //
+    // --------------------------------------- GETTERS --------------------------------------- //
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
             switch (coordSub.getCurrentZone()) {
