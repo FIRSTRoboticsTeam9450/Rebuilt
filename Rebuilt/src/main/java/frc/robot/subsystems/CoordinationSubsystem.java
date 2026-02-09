@@ -47,7 +47,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TRENCH
     }
 
-    private AbsoluteStates currentState = AbsoluteStates.INIT;
+    private AbsoluteStates currentState = AbsoluteStates.SHOOTING;
     private ZoneState previousZone = ZoneState.SHOOTING_ZONE;
     private ZoneState currentZone = ZoneState.SHOOTING_ZONE;
     private boolean driverAllowingShooting = false;
@@ -250,7 +250,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean goodToFire() {
-        return (driverAllowingShooting && areShooterAndTurretReady());
+        // return (driverAllowingShooting && areShooterAndTurretReady());
+        return true;
     }
 
     public Command setFireCommand() {

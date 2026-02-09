@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volt;
 
 import org.littletonrobotics.junction.Logger;
@@ -21,15 +24,20 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
+import frc.robot.util.FuelSim;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -55,8 +63,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private CoordinationSubsystem coordSub; // = RobotContainer.coordSub;
     private VisionSubsystem visionSub; // = RobotContainer.visionSub;
 
-    private AngleState currentAngleState = AngleState.ZEROING;
-    private ShooterState currentShooterState = ShooterState.NOT_SHOOTING;
+    private AngleState currentAngleState = AngleState.AIMING;
+    private ShooterState currentShooterState = ShooterState.SHOOTING;
 
     private double targetHoodHeight = 0;
     private double targetHoodAngleOverride = 0;
@@ -69,6 +77,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double distanceAwayToUseSpecificDegree = 4.185;
     private double distanceAwayToUseLowDegree = 1.481;
 
+    private double previousTime = 0;
     // Motors
     private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private TalonFX shooterLeftMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -304,7 +313,19 @@ public class ShooterSubsystem extends SubsystemBase {
     public void applyState() {
         switch (currentShooterState) {
             case SHOOTING:
+                LinearVelocity launchVelocity = MetersPerSecond.of(getShooterVeloc() * .0508 * 2 * Math.PI);
+                Angle launchAngle = Degrees.of(getShooterAngle() * degreesPerRev + degreesToZero);
+                Angle turretAngle = Degrees.of(TurretSubsystem.getInstance().getFieldRelativeTarget().getDegrees());
+                Distance distance = Meters.of(.55);
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
+                double currentTime = Timer.getFPGATimestamp();
+                if(currentTime - previousTime > .2) {
+                    RobotContainer.fuelSim.launchFuel(launchVelocity, launchAngle, turretAngle, distance);
+                    previousTime = currentTime;
+                }
+                if(RobotContainer.fuelSim.getFuelCount() > 8) {
+                    RobotContainer.fuelSim.clearFuel();
+                }
                 break;
 
             case NOT_SHOOTING:

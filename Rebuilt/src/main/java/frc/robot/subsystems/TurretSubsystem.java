@@ -136,7 +136,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.INIT;
+    private TurretState currentState = TurretState.AIMING;
     private TurretState previousState = currentState;
     
     // Target management

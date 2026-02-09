@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -16,6 +18,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -41,6 +44,7 @@ import frc.robot.subsystems.LEDSubsystem.LEDState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.util.BezierCurve;
+import frc.robot.util.FuelSim;
 
 
 public class RobotContainer {
@@ -54,8 +58,8 @@ public class RobotContainer {
   public static IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
   public static LEDSubsystem ledSub = LEDSubsystem.getInstance();
 
-
-
+  public static FuelSim fuelSim = new FuelSim(); // creates a new fuelSim of FuelSim
+  
   public BezierCurve driveBezier = new BezierCurve("drive", 117.4, 0.054, 91.4, 0.76, 0.1, 0.01);
   public BezierCurve rotateBezier = new BezierCurve("rotate", 120.1, 0.145, 92.2, 0.362, 0.035, 0.03);
 
@@ -83,6 +87,19 @@ public class RobotContainer {
 
     autoChooser = new LoggedDashboardChooser<>("Rebuilt/Auto Chooser");
 
+    // fuelSim.spawnStartingFuel(); // spawns fuel in the depots and neutral zone
+
+    Supplier<ChassisSpeeds> fieldCentricSupplier = () -> drivetrain.getState().Speeds;
+    Supplier<Pose2d> poseSupplier = () -> drivetrain.getState().Pose;
+      // Register a robot for collision with fuel
+      fuelSim.registerRobot(
+              0.6858, // from left to right in meters
+              0.6858, // from front to back in meters
+              .01, // from floor to top of bumpers in meters
+              poseSupplier, // Supplier<Pose2d> of robot pose
+              fieldCentricSupplier); // Supplier<ChassisSpeeds> of field-centric chassis speeds
+
+    fuelSim.start(); // enables the simulation to run (updateSim must still be called periodically)
     configureBindings();
     registeredCommands();
 
