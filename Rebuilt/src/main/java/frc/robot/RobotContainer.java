@@ -108,13 +108,13 @@ public class RobotContainer {
     // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3)).andThen(new InstantCommand(() ->shooterSub.setS(true))));
     // // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
     
-    DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)));
+    // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)));
     // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
 
     // For tuning hood angle PID
-    DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING)).andThen(
-      new InstantCommand(() -> shooterSub.setOverrideHoodAngle(40)))
-    .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
+    // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setState(ShooterState.NOT_SHOOTING, AngleState.AIMING)).andThen(
+    //   new InstantCommand(() -> shooterSub.setOverrideHoodAngle(40)))
+    // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
     // DRIVER.povDown().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)
