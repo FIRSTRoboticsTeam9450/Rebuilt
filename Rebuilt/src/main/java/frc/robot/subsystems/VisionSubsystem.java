@@ -277,9 +277,9 @@ public class VisionSubsystem extends SubsystemBase {
             drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
 
             validMeasurementCount++;
-            
-            Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
         });
+
+        Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
     }
 
     /**
@@ -320,7 +320,7 @@ public class VisionSubsystem extends SubsystemBase {
                 double visionYaw = botpose[5];
                 
                 // Get current Pigeon yaw
-                double pigeonYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
+                double pigeonYaw = drivetrain.getState().Pose.getRotation().getDegrees();
                 
                 // Validation checks
                 boolean xValid = (x > 0) && (x < 16.565);

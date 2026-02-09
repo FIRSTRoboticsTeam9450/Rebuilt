@@ -21,6 +21,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -248,7 +249,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void zeroEncoder() {
-        angleMotor.setPosition(0);
+        if (DriverStation.isDisabled()) {
+            angleMotor.setPosition(0);
+        }
     }
 
     @Override
