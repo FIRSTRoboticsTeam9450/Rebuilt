@@ -58,7 +58,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean previousGoodToShoot = goodToFire();
     private boolean checkZeroing = false;
     
-    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", false);
+    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", true);
 
     public CoordinationSubsystem() {
         
@@ -214,12 +214,12 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Match Data/Our Hub Active?", HubTracker.isActive());
         Logger.recordOutput("Rebuilt/Match Data/Time Left Until Shift Change", HubTracker.timeRemainingInCurrentShift().isPresent() ? HubTracker.timeRemainingInCurrentShift().get() : -1);
 
+        Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
+        Logger.recordOutput("Rebuilt/Coord/Driver Allows Shooting", driverAllowingShooting);
+        Logger.recordOutput("Rebuilt/Coord/Subsystems good to fire?", areShooterAndTurretReady());
+        Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
+        Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
         if(logDebuggingToggle.get()) {
-            Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
-            Logger.recordOutput("Rebuilt/Coord/Driver Allows Shooting", driverAllowingShooting);
-            Logger.recordOutput("Rebuilt/Coord/Subsystems good to fire?", areShooterAndTurretReady());
-            Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
-            Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
         }
     }
 

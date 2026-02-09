@@ -121,7 +121,7 @@ public class VisionSubsystem extends SubsystemBase {
     Translation2d currentTarget = ZoneTargets.SHOOTING_TARGET;
 
     // DEBUGGING
-    LoggedNetworkBoolean debuggingData = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
+    LoggedNetworkBoolean debuggingData = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", true);
 
     // -------------------------
     // Constructor (private for singleton)
