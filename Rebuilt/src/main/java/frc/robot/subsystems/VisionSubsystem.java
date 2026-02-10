@@ -95,7 +95,7 @@ public class VisionSubsystem extends SubsystemBase {
     private double maxRotationDiff = Math.toRadians(45); // radians
 
     // Validation thresholds for pose filtering
-    private static final double MAX_Z_THRESHOLD = 1; // Robot must be on ground
+    private static final double MAX_Z_THRESHOLD = 0.1; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
     private static final double MAX_YAW_DIFF_DEGREES = 5; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees

@@ -117,7 +117,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean isZeroingDone = false;
     private boolean hasSwitchedBack = false;
 
-    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", true);
+    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();

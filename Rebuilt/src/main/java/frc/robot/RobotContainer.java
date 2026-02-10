@@ -106,7 +106,7 @@ public class RobotContainer {
 
     // For tuning hood angle PID
     // DRIVER.povUp().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(3)).andThen(new InstantCommand(() ->shooterSub.setS(true))));
-    // // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
+    // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
     
     // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)));
     // DRIVER.povDown().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));

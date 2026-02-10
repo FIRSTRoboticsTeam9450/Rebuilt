@@ -58,7 +58,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean previousGoodToShoot = goodToFire();
     private boolean checkZeroing = false;
     
-    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", true);
+    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", false);
 
     public CoordinationSubsystem() {
         
