@@ -20,8 +20,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
@@ -100,10 +102,22 @@ public class RobotContainer {
               fieldCentricSupplier); // Supplier<ChassisSpeeds> of field-centric chassis speeds
 
     fuelSim.start(); // enables the simulation to run (updateSim must still be called periodically)
+    fuelSim.spawnStartingFuel();
     configureBindings();
     registeredCommands();
+    //configureFuelSim();
 
     configureAutos();
+  }
+
+  private void configureFuelSim() {
+    fuelSim.spawnStartingFuel();
+    SmartDashboard.putData(Commands.runOnce(() -> {
+                fuelSim.clearFuel();
+                fuelSim.spawnStartingFuel();
+            })
+            .withName("Reset Fuel")
+            .ignoringDisable(true));
   }
 
   private void configureAutos() {
