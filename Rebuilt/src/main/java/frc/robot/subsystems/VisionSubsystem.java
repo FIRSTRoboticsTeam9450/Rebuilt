@@ -95,10 +95,10 @@ public class VisionSubsystem extends SubsystemBase {
     private double maxRotationDiff = Math.toRadians(45); // radians
 
     // Validation thresholds for pose filtering
-    private static final double MAX_Z_THRESHOLD = 1; // Robot must be on ground
+    private static final double MAX_Z_THRESHOLD = 0.1; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 5; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
+    private static final double MAX_YAW_DIFF_DEGREES = 0.9; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -121,7 +121,7 @@ public class VisionSubsystem extends SubsystemBase {
     Translation2d currentTarget = ZoneTargets.SHOOTING_TARGET;
 
     // DEBUGGING
-    LoggedNetworkBoolean debuggingData = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", true);
+    LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
 
     // -------------------------
     // Constructor (private for singleton)
@@ -498,7 +498,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Rebuilt/Vision/Valid Measurments", validMeasurementCount);
         
-        if (debuggingData.get()) {
+        if (logDebuggingToggle.get()) {
             // Per-camera data
             for (LimelightObject limelight : LIMELIGHT_LIST) {
                 String name = limelight.getName();

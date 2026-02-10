@@ -58,7 +58,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean previousGoodToShoot = goodToFire();
     private boolean checkZeroing = false;
     
-    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", true);
+    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", false);
 
     public CoordinationSubsystem() {
         
@@ -203,7 +203,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
 
         TurretSubsystem.getInstance().setState(turretState);
-        ShooterSubsystem.getInstance().setState(shooterVelocState, shooterHoodState);
+        // ShooterSubsystem.getInstance().setState(shooterVelocState, shooterHoodState);
         TransferSubsystem.getInstance().setState(transferState);
         IntakeSubsystem.getInstance().setPos(intakeAngleState);
         IntakeSubsystem.getInstance().setState(intakeVelocState);

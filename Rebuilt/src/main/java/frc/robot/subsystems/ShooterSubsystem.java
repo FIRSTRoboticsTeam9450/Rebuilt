@@ -117,7 +117,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean isZeroingDone = false;
     private boolean hasSwitchedBack = false;
 
-    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", true);
+    private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
@@ -257,7 +257,7 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (!isZeroingDone) {
-            currentAngleState = AngleState.ZEROING;
+            currentAngleState = AngleState.ZEROING; // TODO: SWITCH BACK TO ZEROING LATER
             isZeroingDone = autoZeroing();
         }
         publishLogs();
@@ -326,7 +326,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtGoal(10)) {
                     angleMotor.setVoltage(-0.6);
                 } else {
-                    angleMotor.setControl(new VoltageOut(0));
+                    angleMotor.setControl(new VoltageOut(-.6));
                 }
                 break;
 
@@ -489,19 +489,22 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
         if(currentAngleState == AngleState.ZEROING || currentAngleState == AngleState.STORING) {
-            if(wantedAngleState == AngleState.TUNING) {
-                hoodMMRequest = new DynamicMotionMagicVoltage(0, 300, 300);
+            hoodMMRequest = new DynamicMotionMagicVoltage(0, 300, 300);
 
-                switchSlotBackTimer.restart();
-                hasSwitchedBack = false;
-            }
+            switchSlotBackTimer.restart();
+            hasSwitchedBack = false;
         }
-        
+        System.out.println("WantedAngleState " + wantedAngleState);
+        if(wantedAngleState == AngleState.ZEROING) {
+            System.out.println("PLEASE WORK");
+            isZeroingDone = false;
+        }
         currentShooterState = wantedShooterState;
         currentAngleState = wantedAngleState;
     }
 
     public Command setStateCommand(ShooterState wantedShooterState, AngleState wantedAngleState) {
+        System.out.println("SetStateCommandAngleState" + wantedAngleState);
         return new InstantCommand(() -> setState(wantedShooterState, wantedAngleState));
     }
 
@@ -510,6 +513,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command setAngleState(AngleState wantedAngleState) {
+        System.out.println("Wanted angle state" + wantedAngleState);
         return setStateCommand(currentShooterState, wantedAngleState);
     }
 
