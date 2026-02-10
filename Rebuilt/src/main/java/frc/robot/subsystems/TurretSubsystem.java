@@ -724,7 +724,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         Pose2d currentBotPose = drivetrain.getState().Pose;
         Pose2d currentBotPoseWRTTurret = currentBotPose.transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
-        Translation3d turretPoseTranslation = new Translation3d(currentBotPoseWRTTurret.getX(), currentBotPoseWRTTurret.getY(), 0.5);
+        Translation3d turretPoseTranslation = new Translation3d(currentBotPoseWRTTurret.getX(), currentBotPoseWRTTurret.getY(), 0.25);
         Rotation3d turretPoseRotation = new Rotation3d(0, 0, fieldRelativeGoalAngle.getRadians());
         Logger.recordOutput("Rebuilt/Turret/Turret Pose WRT Field", new Pose3d(turretPoseTranslation, turretPoseRotation));
 
