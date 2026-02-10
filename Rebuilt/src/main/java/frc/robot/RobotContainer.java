@@ -116,7 +116,7 @@ public class RobotContainer {
     //   new InstantCommand(() -> shooterSub.setOverrideHoodAngle(40)))
     // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
-    DRIVER.povRight().onTrue(shooterSub.setAngleState(AngleState.ZEROING));
+    // DRIVER.povRight().onTrue(shooterSub.setAngleState(AngleState.ZEROING));
     // DRIVER.povDown().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)
     //   ).onFalse(

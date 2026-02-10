@@ -202,7 +202,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 break;
         }
 
-        TurretSubsystem.getInstance().setState(turretState);
+        // TurretSubsystem.getInstance().setState(turretState);
         // ShooterSubsystem.getInstance().setState(shooterVelocState, shooterHoodState);
         TransferSubsystem.getInstance().setState(transferState);
         IntakeSubsystem.getInstance().setPos(intakeAngleState);
