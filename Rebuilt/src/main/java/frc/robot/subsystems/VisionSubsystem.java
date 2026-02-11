@@ -122,6 +122,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     // DEBUGGING
     LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
+    double loopOffset = 0;
 
     // -------------------------
     // Constructor (private for singleton)
@@ -497,7 +498,14 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
 
         Logger.recordOutput("Rebuilt/Vision/Valid Measurments", validMeasurementCount);
-        
+
+        if (loopOffset > 5) {
+            loopOffset = 0;
+            Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
+        } else {
+            loopOffset++;
+        }
+
         if (logDebuggingToggle.get()) {
             // Per-camera data
             for (LimelightObject limelight : LIMELIGHT_LIST) {

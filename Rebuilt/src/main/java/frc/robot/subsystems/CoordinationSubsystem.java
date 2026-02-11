@@ -199,11 +199,18 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterVelocState = ShooterState.NOT_SHOOTING;
                 transferState = TransferState.HOLD;
                 ledState = LEDState.UNABLE_TO_FIRE;
+                if (shouldBeIntaking) {
+                    intakeAngleState = IntakePos.INTAKING;
+                    intakeVelocState = IntakeState.INTAKING;
+                } else {
+                    intakeAngleState = IntakePos.TRENCH_STORE;
+                    intakeVelocState = IntakeState.IDLING;
+                }
                 break;
         }
 
-        // TurretSubsystem.getInstance().setState(turretState);
-        // ShooterSubsystem.getInstance().setState(shooterVelocState, shooterHoodState);
+        TurretSubsystem.getInstance().setState(turretState);
+        ShooterSubsystem.getInstance().setState(shooterVelocState, shooterHoodState);
         TransferSubsystem.getInstance().setState(transferState);
         IntakeSubsystem.getInstance().setPos(intakeAngleState);
         IntakeSubsystem.getInstance().setState(intakeVelocState);
@@ -250,7 +257,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean goodToFire() {
-        return (driverAllowingShooting && areShooterAndTurretReady());
+        return driverAllowingShooting;
+        // return (driverAllowingShooting && areShooterAndTurretReady());
     }
 
     public Command setFireCommand() {

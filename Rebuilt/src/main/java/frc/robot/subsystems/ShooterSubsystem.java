@@ -150,6 +150,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToVelocity.put(2.97, 28.3);
         shootingDistanceToVelocity.put(3.84, 31.75);
         shootingDistanceToVelocity.put(4.33, 32.95);
+        shootingDistanceToVelocity.put(5.305, 33.9);
 
         // Shooting Data Time
         shootingDistanceToTime.put(1.00, 1.08);
@@ -158,13 +159,23 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToTime.put(2.97, 1.12);
         shootingDistanceToTime.put(3.84, 1.275);
         shootingDistanceToTime.put(4.33, 1.37);
+        shootingDistanceToTime.put(5.305, 1.362);
 
 
         // Ferrying Data Velocity
-        ferryingDistanceToVelocity.put(0.0, 0.0);
+        ferryingDistanceToVelocity.put(15.697, 68.0);
+        ferryingDistanceToVelocity.put(13.1064, 57.0);
+        ferryingDistanceToVelocity.put(12.4968, 53.65);
+        ferryingDistanceToVelocity.put(10.9728, 48.0);
+        ferryingDistanceToVelocity.put(8.2296, 38.0);
+        ferryingDistanceToVelocity.put(5.4864, 31.5);
+
+
         
         // Ferrying Data Time
-        ferryingDistanceToTime.put(0.0, 0.0);
+        ferryingDistanceToTime.put(15.697, 2.59);
+        ferryingDistanceToTime.put(13.1064, 2.165);
+        ferryingDistanceToTime.put(12.4968, 2.116);
 
 
     }
@@ -282,9 +293,12 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Outtake/current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
 
-        Logger.recordOutput("Rebuilt/Shooter/Time To Shoot", getShootingDistanceToTime(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
 
         if (logDebuggingToggle.get()) { // To get rid of loop overruns
+
+            
+            Logger.recordOutput("Rebuilt/Shooter/Time To Shoot", getShootingDistanceToTime(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
+
             // Hood logs
             Logger.recordOutput("Rebuilt/Shooter/Hood/Took target", hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
             Logger.recordOutput("Rebuilt/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());

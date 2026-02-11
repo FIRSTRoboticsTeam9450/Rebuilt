@@ -469,7 +469,7 @@ public class TurretSubsystem extends SubsystemBase {
                     currentState = TurretState.AIMING;
                 }
 
-                profiledSetpointDeg = -48;
+                profiledSetpointDeg = 70;
 
                 profiledSetpointDeg = MathUtil.clamp(
                     profiledSetpointDeg, 
@@ -512,7 +512,7 @@ public class TurretSubsystem extends SubsystemBase {
                 
             case STORING:
                 // Return to zero position with no velocity
-                profiledSetpointDeg = -48;
+                profiledSetpointDeg = 70;
 
                 profiledSetpointDeg = MathUtil.clamp(
                     profiledSetpointDeg, 
@@ -954,7 +954,10 @@ public class TurretSubsystem extends SubsystemBase {
      * @return true if within tolerance
      */
     public boolean isAtGoal(double toleranceDeg) {
-        if (profiledSetpointDeg == MAX_ANGLE_DEG || profiledSetpointDeg == MIN_ANGLE_DEG) return false;
+        //should return false if 0.5 degrees off from deadzone
+        if ((Math.abs(profiledSetpointDeg - MAX_ANGLE_DEG) < 0.5) || (Math.abs(profiledSetpointDeg - MIN_ANGLE_DEG) < 0.5)) return false;
+        // if (profiledSetpointDeg == MAX_ANGLE_DEG || profiledSetpointDeg == MIN_ANGLE_DEG) return false;
+
         double error = Math.abs(getCurrentAngleDeg() - profiledSetpointDeg);
         return error < toleranceDeg;
     }

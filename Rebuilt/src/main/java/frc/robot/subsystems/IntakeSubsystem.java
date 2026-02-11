@@ -31,6 +31,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         SYS_ID,
         ZEROING,
         STORE,
+        TRENCH_STORE,
         INTAKING
     }
 
@@ -61,13 +62,15 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0); // 0
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 7.33);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.096);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
-    private double storeRevolutions = .925;
+    private double storeRevolutions = 7.6333;
+    private double trenchStoreRevolutions = 5;
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     private final VoltageOut sysIDRequest = new VoltageOut(0);
     private final SysIdRoutine m_sysIdRoutine;
@@ -97,7 +100,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private void configureMotors() {
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
 
@@ -147,7 +150,7 @@ public final class IntakeSubsystem extends SubsystemBase{
             case SYS_ID:
                 break;
             case ZEROING:
-                motorArm.setVoltage(-.6);
+                motorArm.setVoltage(.6);
                 break;
 
             case STORE:
@@ -161,11 +164,11 @@ public final class IntakeSubsystem extends SubsystemBase{
 
         switch (currentState) {
             case IDLING:
-                motorWheels.setVoltage(0);
+                motorWheels.setControl(voltageRequest.withOutput(0));
                 break;
             
             case INTAKING:
-                motorWheels.setVoltage(logIntakingTarget.get());
+                motorWheels.setControl(voltageRequest.withOutput(logIntakingTarget.get()));
                 break;
         }
     }

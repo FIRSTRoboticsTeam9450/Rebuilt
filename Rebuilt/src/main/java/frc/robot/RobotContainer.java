@@ -62,7 +62,7 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
 
-  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.4;
+  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.4; //0.4 for 40%
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -105,7 +105,7 @@ public class RobotContainer {
 
 
     // For tuning hood angle PID
-    DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() -> shooterSub.setOverrideModeAngle(true))));// .andThen(new InstantCommand(() ->shooterSub.setS(true))));
+    // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)).andThen(new InstantCommand(() -> shooterSub.setOverrideModeAngle(true))));// .andThen(new InstantCommand(() ->shooterSub.setS(true))));
     // DRIVER.povUp().onFalse(new InstantCommand(() -> shooterSub.setOverrideMode(false)));
     
     // DRIVER.povDown().onTrue(new InstantCommand(() -> shooterSub.setOverrideHoodAngle(0)));
