@@ -102,6 +102,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0);
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
+    private boolean goodToMove = true;
 
     // Motor configuration
     private TalonFXConfiguration motorConfig;
@@ -287,6 +288,11 @@ public class TurretSubsystem extends SubsystemBase {
     
     @Override
     public void periodic() {
+        if (Math.abs(turretMotor.getPosition().getValueAsDouble()) > (MAX_ANGLE_DEG + 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE) {
+            goodToMove = false;
+        } else {
+            goodToMove = true;
+        }
 
         if (Math.abs(turretEncoder.getAbsolutePosition().getValueAsDouble() - turretEncoder.getPosition().getValueAsDouble()) > allowedEncoderDiff) {
             resetEncodersRelativePosition();
@@ -459,69 +465,73 @@ public class TurretSubsystem extends SubsystemBase {
      * State machine implementation.
      */
     private void applyState() {
-        switch (currentState) {
-            case DISABLED:
-                turretMotor.stopMotor();
-                break;
+        if (goodToMove) {
+            switch (currentState) {
+                case DISABLED:
+                    turretMotor.stopMotor();
+                    break;
 
-            case INIT:
-                if (isAtGoal(20) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
-                    currentState = TurretState.AIMING;
-                }
+                case INIT:
+                    if (isAtGoal(20) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
+                        currentState = TurretState.AIMING;
+                    }
 
-                profiledSetpointDeg = 70;
+                    profiledSetpointDeg = 70;
 
-                profiledSetpointDeg = MathUtil.clamp(
-                    profiledSetpointDeg, 
-                    MIN_ANGLE_DEG, 
-                    MAX_ANGLE_DEG
-                );
-                
-                commandTurret(profiledSetpointDeg, 0.0, 0.0);
-                break;
+                    profiledSetpointDeg = MathUtil.clamp(
+                        profiledSetpointDeg, 
+                        MIN_ANGLE_DEG, 
+                        MAX_ANGLE_DEG
+                    );
+                    
+                    commandTurret(profiledSetpointDeg, 0.0, 0.0);
+                    break;
 
-            case AIMING:
-                // Track target with velocity feedforward
-                double maxVelocity = logMaxVelocityDegPerSec.get();
-                
-                // Apply motion profiling for smooth acceleration
-                profiledSetpointDeg = Math.toDegrees(
-                    velocityLimiter.calculate(Math.toRadians(robotRelativeTargetAngleDeg))
-                );
-                
-                // Clamp to physical limits
-                profiledSetpointDeg = MathUtil.clamp(
-                    profiledSetpointDeg, 
-                    MIN_ANGLE_DEG, 
-                    MAX_ANGLE_DEG
-                );
-                
-                // Clamp velocity for safety
-                double clampedVelocity = MathUtil.clamp(
-                    robotRelativeTargetVelocityDegPerSec,
-                    -maxVelocity,
-                    maxVelocity
-                );
-                
-                // Calculate acceleration for feedforward (derivative of velocity setpoint)
-                // For now, assume 0 unless tracking accelerating target
-                double accelerationDegPerSecSq = 0.0;
-                
-                commandTurret(profiledSetpointDeg, clampedVelocity, accelerationDegPerSecSq);
-                break;
-                
-            case STORING:
-                // Return to zero position with no velocity
-                profiledSetpointDeg = 70;
+                case AIMING:
+                    // Track target with velocity feedforward
+                    double maxVelocity = logMaxVelocityDegPerSec.get();
+                    
+                    // Apply motion profiling for smooth acceleration
+                    profiledSetpointDeg = Math.toDegrees(
+                        velocityLimiter.calculate(Math.toRadians(robotRelativeTargetAngleDeg))
+                    );
+                    
+                    // Clamp to physical limits
+                    profiledSetpointDeg = MathUtil.clamp(
+                        profiledSetpointDeg, 
+                        MIN_ANGLE_DEG, 
+                        MAX_ANGLE_DEG
+                    );
+                    
+                    // Clamp velocity for safety
+                    double clampedVelocity = MathUtil.clamp(
+                        robotRelativeTargetVelocityDegPerSec,
+                        -maxVelocity,
+                        maxVelocity
+                    );
+                    
+                    // Calculate acceleration for feedforward (derivative of velocity setpoint)
+                    // For now, assume 0 unless tracking accelerating target
+                    double accelerationDegPerSecSq = 0.0;
+                    
+                    commandTurret(profiledSetpointDeg, clampedVelocity, accelerationDegPerSecSq);
+                    break;
+                    
+                case STORING:
+                    // Return to zero position with no velocity
+                    profiledSetpointDeg = 70;
 
-                profiledSetpointDeg = MathUtil.clamp(
-                    profiledSetpointDeg, 
-                    MIN_ANGLE_DEG, 
-                    MAX_ANGLE_DEG
-                );
-                
-                commandTurret(profiledSetpointDeg, 0.0, 0.0);
-                break;
+                    profiledSetpointDeg = MathUtil.clamp(
+                        profiledSetpointDeg, 
+                        MIN_ANGLE_DEG, 
+                        MAX_ANGLE_DEG
+                    );
+                    
+                    commandTurret(profiledSetpointDeg, 0.0, 0.0);
+                    break;
+            }
+        } else {
+            turretMotor.stopMotor();
         }
     }
     
@@ -955,7 +965,8 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public boolean isAtGoal(double toleranceDeg) {
         //should return false if 0.5 degrees off from deadzone
-        if ((Math.abs(profiledSetpointDeg - MAX_ANGLE_DEG) < 0.5) || (Math.abs(profiledSetpointDeg - MIN_ANGLE_DEG) < 0.5)) return false;
+        if ((Math.abs(Math.abs(profiledSetpointDeg) - MAX_ANGLE_DEG) < 0.5)) 
+            return false;
         // if (profiledSetpointDeg == MAX_ANGLE_DEG || profiledSetpointDeg == MIN_ANGLE_DEG) return false;
 
         double error = Math.abs(getCurrentAngleDeg() - profiledSetpointDeg);

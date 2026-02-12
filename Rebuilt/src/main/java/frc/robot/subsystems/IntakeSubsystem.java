@@ -51,22 +51,24 @@ public final class IntakeSubsystem extends SubsystemBase{
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 45); //45
-    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 30); //30
+    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 100); //30
 
 
-    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.1); // .1
-    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.45); // .33
+    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.145); // .1
+    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.2); // .33
     private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Intake/Angle/kA", 0); // 0
-    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 25); // 25
+    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 30); // 25
     private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Intake/Angle/kI", 0); // 0
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0); // 0
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.096);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.1);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
     private double storeRevolutions = 7.6333;
     private double trenchStoreRevolutions = 5;
+
+    private boolean hasReachedIntakeLocation = false;
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
@@ -149,12 +151,21 @@ public final class IntakeSubsystem extends SubsystemBase{
         switch (currentPos) {
             case SYS_ID:
                 break;
+
             case ZEROING:
                 motorArm.setVoltage(.6);
                 break;
 
+            case TRENCH_STORE:
+                motorArm.setControl(request.withPosition(trenchStoreRevolutions));
+                break;
+
             case STORE:
-                motorArm.setControl(request.withPosition(storeRevolutions));
+                if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
+                    motorArm.setControl(request.withPosition(storeRevolutions + 1.5));
+                } else {
+                    motorArm.setControl(request.withPosition(storeRevolutions));
+                }
                 break;
             
             case INTAKING:
@@ -168,7 +179,11 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
             
             case INTAKING:
-                motorWheels.setControl(voltageRequest.withOutput(logIntakingTarget.get()));
+                if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
+                    motorWheels.setControl(voltageRequest.withOutput(-logIntakingTarget.get()));
+                } else {
+                    motorWheels.setControl(voltageRequest.withOutput(logIntakingTarget.get()));
+                }
                 break;
         }
     }
@@ -180,6 +195,19 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Angle/Target", currentPos == IntakePos.INTAKING ? logIntakeTarget.get() : storeRevolutions);
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Voltage", motorArm.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Velocity", motorArm.getVelocity().getValueAsDouble());
+
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Veloc", motorWheels.getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Voltage", motorWheels.getMotorVoltage().getValueAsDouble());
+    }
+
+    private void updateReachedIntakeHeightLogic() {
+        if (currentPos != IntakePos.INTAKING) {
+            hasReachedIntakeLocation = false;
+        } else {
+            if (Math.abs(motorArm.getPosition().getValueAsDouble() - logIntakeTarget.get()) < 1) {
+                hasReachedIntakeLocation = true;
+            }
+        }
     }
 
     public IntakePos getCurrentIntakePos() {

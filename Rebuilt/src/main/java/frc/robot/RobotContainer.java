@@ -62,7 +62,7 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
 
-  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.4; //0.4 for 40%
+  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.2; //0.4 for 40%
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);

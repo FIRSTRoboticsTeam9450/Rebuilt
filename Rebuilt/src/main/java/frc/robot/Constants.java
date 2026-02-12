@@ -100,7 +100,7 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.362060546875;
+      public static final double ENCODER_MAGNET_OFFSET = 0.404052734375;
 
       //Lantern motot to turret gear reduction 161:1 (1/161)
       public static final double ROTOR_TO_SENSOR_RATIO = 0.0625850; //Both Cycoidals: 0.001827990359168
@@ -109,7 +109,7 @@ public final class Constants {
       public static final double TURRET_OFFSET_TO_ZERO = 179.5; 
       public static final double TURRET_OFFSET_TO_TARGET = 0; //V1: 5
 
-      public static final double TOTAL_ROTATION_DEGREES = 300;
+      public static final double TOTAL_ROTATION_DEGREES = 330;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
       public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 2.24; //Lantern: 2.24
@@ -224,6 +224,7 @@ public final class Constants {
     }
 
     public static final class ZoneConstants {
+
       public static final class ZoneConstantsWelded {
         public static final Translation2d RED_CORNER = new Translation2d(16.54, 8.069326);
         public static final double MAJOR_ZONE_X_LOW = 0;
@@ -244,21 +245,42 @@ public final class Constants {
         public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.437636;
         public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.631436;
 
-        public static final double TRENCH_12_DEADZONE_X_LOW = 4.549394; // Currently just covering the trench, no extra deadzone area
-        public static final double TRENCH_12_DEADZONE_X_HIGH = 4.701794;
-        public static final double TRENCH_1_DEADZONE_Y_LOW = 6.37203;
-        public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.069326;
+        public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.535424 - .762; // 4.535424
+        public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.687824 + .762; // 4.687824
+        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.535424 - 1.524; // 4.535424
+        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.687824 + 1.524; // 4.687824
+        public static final double TRENCH_1_DEADZONE_Y_LOW = 6.3456185;
+        public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.042656;
 
         public static final double TRENCH_2_DEADZONE_Y_LOW = 0;
         public static final double TRENCH_2_DEADZONE_Y_HIGH = 1.6970375;
 
-        public static final double TRENCH_34_DEADZONE_X_LOW = 11.839194;
-        public static final double TRENCH_34_DEADZONE_X_HIGH = 11.99;
+        public static final double HARD_TRENCH_34_DEADZONE_X_LOW = 11.825224 - .762;
+        public static final double HARD_TRENCH_34_DEADZONE_X_HIGH = 11.977624 + .762;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.825224 - 1.524;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.977624 + 1.524;
         public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
         public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
 
         public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
         public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
+
+        // TODO: FIX THE TRENCH DEADZONE VALUES TO ACTUALLY BE WELDED AND NOT ANDYMARK
+        // public static final double TRENCH_12_DEADZONE_X_LOW = 4.549394; // Currently just covering the trench, no extra deadzone area
+        // public static final double TRENCH_12_DEADZONE_X_HIGH = 4.701794;
+        // public static final double TRENCH_1_DEADZONE_Y_LOW = 6.37203;
+        // public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.069326;
+
+        // public static final double TRENCH_2_DEADZONE_Y_LOW = 0;
+        // public static final double TRENCH_2_DEADZONE_Y_HIGH = 1.6970375;
+
+        // public static final double TRENCH_34_DEADZONE_X_LOW = 11.839194;
+        // public static final double TRENCH_34_DEADZONE_X_HIGH = 11.99;
+        // public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
+        // public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
+
+        // public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
+        // public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
       }
       public static final class ZoneConstantsAndyMark {
         public static final Translation2d RED_CORNER = new Translation2d(16.513048, 8.042656);
@@ -303,8 +325,8 @@ public final class Constants {
       }
       public static final class ZoneTargets {
         public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
-        public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 7.613);
-        public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(0.455,0.561);
+        public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 7.313);
+        public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(0.455,0.861);
       }
     }
 

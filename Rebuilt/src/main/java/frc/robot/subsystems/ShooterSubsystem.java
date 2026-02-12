@@ -349,7 +349,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
 
             case STORING:
-                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtGoal()) {
+                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtGoal(15)) {
                     angleMotor.setControl(hoodMMRequest.withPosition(0).withSlot(slotNum));
                 }
                 break;
@@ -368,17 +368,29 @@ public class ShooterSubsystem extends SubsystemBase {
     // --------------------------------------- GETTERS --------------------------------------- //
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
+            double distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
             switch (coordSub.getCurrentZone()) {
+
                 case SHOOTING_ZONE:
                     targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
                     break;
 
                 case FERRY_ZONE_TOP:
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
+
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.80;
+                    if(distance > 14.55) {
+                        targetShooterVeloc = 49;
+                    }
                     break;
                     
                 case FERRY_ZONE_BOTTOM:
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
+                    
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.80;
+                    if(distance > 14.55) {
+                        targetShooterVeloc = 49;
+                    }
                     break;
                     
                 case SOFT_TRENCH_DEADZONE:
@@ -488,7 +500,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return Math.abs(targetShooterVeloc - shooterLeftMotor.getVelocity().getValueAsDouble()) < tolerance;
     }
 
-    public boolean isShooterReady() {
+    public boolean isShooterReady() { //TODO: Add back at some point ¯\_(ツ)_/¯
         // return (isAngleWithinTolerance() && isVelocityWithinTolerance());
         // return (isAngleWithinTolerance());
         return true;
