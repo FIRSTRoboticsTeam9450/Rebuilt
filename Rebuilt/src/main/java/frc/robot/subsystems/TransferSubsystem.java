@@ -36,7 +36,7 @@ public class TransferSubsystem extends SubsystemBase {
     private final TalonFX motor = new TalonFX(TransferConstants.DeviceIDs.kDrivingMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     /** Voltage request */
-    private VoltageOut voltageRequest = new VoltageOut(0.0).withEnableFOC(RobotConstants.ENABLE_FOC);;
+    private VoltageOut voltageRequest = new VoltageOut(0.0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     /**
      * Constructor - initializes the transfer subsystem and configures the motor
@@ -88,7 +88,7 @@ public class TransferSubsystem extends SubsystemBase {
     private void applyState() {
         // Set request voltage
         switch (currentState) {
-            case HOLD:
+            case HOLD: // Very slowly move fuel in
                 voltageRequest.Output = 0.65;
                 break;
 
