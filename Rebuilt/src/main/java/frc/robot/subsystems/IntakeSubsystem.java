@@ -143,6 +143,7 @@ public final class IntakeSubsystem extends SubsystemBase{
             currentPos = IntakePos.ZEROING;
             isZeroing = isZeroingDone();
         }
+        updateReachedIntakeHeightLogic();
         applyState();
         publishLogs();
     }
@@ -154,7 +155,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
             case ZEROING:
                 //TODO: make sure this volt makes it go INTO bumper
-                motorArm.setVoltage(.6);
+                motorArm.setVoltage(-.6);
                 break;
 
             case TRENCH_STORE:
