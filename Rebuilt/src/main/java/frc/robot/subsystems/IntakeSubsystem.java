@@ -149,6 +149,7 @@ public final class IntakeSubsystem extends SubsystemBase{
             currentPos = IntakePos.ZEROING;
             isZeroing = isZeroingDone();
         }
+        updateReachedIntakeHeightLogic();
         applyState();
         publishLogs();
     }
@@ -159,7 +160,8 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case ZEROING:
-                motorArm.setVoltage(.6);
+                //TODO: make sure this volt makes it go INTO bumper
+                motorArm.setVoltage(-.6);
                 break;
 
             case TRENCH_STORE:
@@ -167,16 +169,16 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case STORE:
-                // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
-                //     motorArm.setControl(request.withPosition(storeRevolutions + 1.5));
-                // } else {
                     motorArm.setControl(request.withPosition(storeRevolutions));
-                // }
                 break;
             
             case INTAKING:
+                //TODO: test this, never triggered due to being on store instead of intaking
+                // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
+                //     motorArm.setControl(request.withPosition(logIntakeTarget.get() + 1.5));
+                // } else {
                     motorArm.setControl(request.withPosition(logIntakeTarget.get()));
-                
+                // }
                 break;
         }
 

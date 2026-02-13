@@ -416,7 +416,6 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Rotation2d updateTargetFromPose(Translation2d targetPosition) {
-        double targetAngle = 0;
 
         if (targetPosition != null) {
             // Calculate vector from robot to target
@@ -953,10 +952,10 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Checks if turret is within tolerance of target.
      * 
-     * @return true if within default tolerance (1.0°)
+     * @return true if within default tolerance (7.5°)
      */
     public boolean isAtGoal() {
-        return isAtGoal(5);
+        return isAtGoal(7.5);
     }
     
     /**
@@ -967,7 +966,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public boolean isAtGoal(double toleranceDeg) {
         //should return false if 0.5 degrees off from deadzone
-        if ((Math.abs(Math.abs(profiledSetpointDeg) - MAX_ANGLE_DEG) < 0.5)) 
+        if ((Math.abs(Math.abs(profiledSetpointDeg) - MAX_ANGLE_DEG) < 0.5)) //TODO: logic needs fixing (┬┬﹏┬┬)
             return false;
         // if (profiledSetpointDeg == MAX_ANGLE_DEG || profiledSetpointDeg == MIN_ANGLE_DEG) return false;
 

@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
-import frc.robot.commands.GoToPosCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -30,16 +29,9 @@ import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.ShooterSubsystem.AngleState;
-import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.IntakeSubsystem.IntakePos;
-import frc.robot.subsystems.IntakeSubsystem.IntakeState;
-import frc.robot.subsystems.LEDSubsystem.LEDState;
-import frc.robot.subsystems.TransferSubsystem.TransferState;
-import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.util.BezierCurve;
 
 
@@ -55,9 +47,12 @@ public class RobotContainer {
   public static LEDSubsystem ledSub = LEDSubsystem.getInstance();
 
 
-
-  public BezierCurve driveBezier = new BezierCurve("drive", 117.4, 0.054, 91.4, 0.76, 0.1, 0.01);
-  public BezierCurve rotateBezier = new BezierCurve("rotate", 120.1, 0.145, 92.2, 0.362, 0.035, 0.03);
+  /**
+   * Woojins Drive: 117.4, 0.054, 91.4, 0.76, 0.1, 0.01
+   * Woojins Rotate: 120.1, 0.145, 92.2, 0.362, 0.035, 0.03
+   */
+  public BezierCurve driveBezier = new BezierCurve("drive", 88.2, 0.035, 92, 0.839, 0.1, 0.01);
+  public BezierCurve rotateBezier = new BezierCurve("rotate", 97.3, 0.193, 72.1, 0.822, 0.035, 0.03);
 
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
@@ -118,26 +113,26 @@ public class RobotContainer {
     // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
     // DRIVER.povRight().onTrue(shooterSub.setAngleState(AngleState.ZEROING));
-    DRIVER.povDown().whileTrue(
-        CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)
-      ).onFalse(
-        new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
-      );
-    DRIVER.povLeft().whileTrue(
-        CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT)
-      ).onFalse(
-        new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
-      );
-    DRIVER.povRight().whileTrue(
-        CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT)
-      ).onFalse(
-        new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
-      );
-    DRIVER.povUp().whileTrue(
-        CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT)
-      ).onFalse(
-        new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
-      );
+    // DRIVER.povDown().whileTrue(
+    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)
+    //   ).onFalse(
+    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+    //   );
+    // DRIVER.povLeft().whileTrue(
+    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT)
+    //   ).onFalse(
+    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+    //   );
+    // DRIVER.povRight().whileTrue(
+    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT)
+    //   ).onFalse(
+    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+    //   );
+    // DRIVER.povUp().whileTrue(
+    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT)
+    //   ).onFalse(
+    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+    //   );
 
     DRIVER.rightTrigger().onTrue(
       CoordinationSubsystem.getInstance().setFireCommand()

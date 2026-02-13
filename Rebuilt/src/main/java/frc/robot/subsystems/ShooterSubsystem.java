@@ -141,7 +141,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
-    // TODO: put in shooting data and ferrying data
     public void addData() {
         // Shooting Data Velocity
         shootingDistanceToVelocity.put(1.00, 25.0);
@@ -268,7 +267,7 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (!isZeroingDone) {
-            currentAngleState = AngleState.ZEROING; // TODO: SWITCH BACK TO ZEROING LATER
+            currentAngleState = AngleState.ZEROING;
             isZeroingDone = autoZeroing();
         }
         publishLogs();

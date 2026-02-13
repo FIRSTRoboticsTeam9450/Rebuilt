@@ -149,47 +149,27 @@ public class VisionSubsystem extends SubsystemBase {
      */
     private void configureLimelights() {
         // Front Left Limelight
-        LimelightObject limelightFL = new LimelightObject(FrontLeft.NAME);
-        limelightFL.location = Location.FRONT_LEFT;
-        limelightFL.offsetX = FrontLeft.LOCATION_X;
-        limelightFL.offsetY = FrontLeft.LOCATION_Y;
-        limelightFL.offsetZ = FrontLeft.LOCATION_Z;
-        limelightFL.offsetPitch = FrontLeft.PITCH;
-        limelightFL.offsetRoll = FrontLeft.ROLL;
-        limelightFL.offsetYaw = FrontLeft.YAW;
+        LimelightObject limelightFL = new LimelightObject(FrontLeft.NAME)
+                                        .withLocation(Location.FRONT_LEFT)
+                                        .withPose3d(FrontLeft.POSE);
         LIMELIGHT_LIST.add(limelightFL);
 
         // Front Right Limelight
-        LimelightObject limelightFR = new LimelightObject(FrontRight.NAME);
-        limelightFR.location = Location.FRONT_RIGHT;
-        limelightFR.offsetX = FrontRight.LOCATION_X;
-        limelightFR.offsetY = FrontRight.LOCATION_Y;
-        limelightFR.offsetZ = FrontRight.LOCATION_Z;
-        limelightFR.offsetPitch = FrontRight.PITCH;
-        limelightFR.offsetRoll = FrontRight.ROLL;
-        limelightFR.offsetYaw = FrontRight.YAW;
+        LimelightObject limelightFR = new LimelightObject(FrontRight.NAME)
+                                        .withLocation(Location.FRONT_RIGHT)
+                                        .withPose3d(FrontRight.POSE);
         LIMELIGHT_LIST.add(limelightFR);
 
         // Back Left Limelight
-        LimelightObject limelightBL = new LimelightObject(BackLeft.NAME);
-        limelightBL.location = Location.BACK_LEFT;
-        limelightBL.offsetX = BackLeft.LOCATION_X;
-        limelightBL.offsetY = BackLeft.LOCATION_Y;
-        limelightBL.offsetZ = BackLeft.LOCATION_Z;
-        limelightBL.offsetPitch = BackLeft.PITCH;
-        limelightBL.offsetRoll = BackLeft.ROLL;
-        limelightBL.offsetYaw = BackLeft.YAW;
+        LimelightObject limelightBL = new LimelightObject(BackLeft.NAME)
+                                        .withLocation(Location.BACK_LEFT)
+                                        .withPose3d(BackLeft.POSE);
         LIMELIGHT_LIST.add(limelightBL);
 
         // Back Right Limelight
-        LimelightObject limelightBR = new LimelightObject(BackRight.NAME);
-        limelightBR.location = Location.BACK_RIGHT;
-        limelightBR.offsetX = BackRight.LOCATION_X;
-        limelightBR.offsetY = BackRight.LOCATION_Y;
-        limelightBR.offsetZ = BackRight.LOCATION_Z;
-        limelightBR.offsetPitch = BackRight.PITCH;
-        limelightBR.offsetRoll = BackRight.ROLL;
-        limelightBR.offsetYaw = BackRight.YAW;
+        LimelightObject limelightBR = new LimelightObject(BackRight.NAME)
+                                        .withLocation(Location.BACK_RIGHT)
+                                        .withPose3d(BackRight.POSE);
         LIMELIGHT_LIST.add(limelightBR);
 
         setLLIMUModes(0);
