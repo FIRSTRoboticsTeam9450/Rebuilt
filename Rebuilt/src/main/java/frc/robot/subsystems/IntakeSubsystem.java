@@ -168,11 +168,11 @@ public final class IntakeSubsystem extends SubsystemBase{
             
             case INTAKING:
                 //TODO: test this, never triggered due to being on store instead of intaking
-                // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
-                //     motorArm.setControl(request.withPosition(logIntakeTarget.get() + 1.5));
-                // } else {
+                if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 40) {
+                    motorArm.setControl(request.withPosition(logIntakeTarget.get() + 1.5));
+                } else {
                     motorArm.setControl(request.withPosition(logIntakeTarget.get()));
-                // }
+                }
                 break;
         }
 

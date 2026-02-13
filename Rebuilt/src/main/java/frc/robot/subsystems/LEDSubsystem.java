@@ -35,7 +35,7 @@ public class LEDSubsystem extends SubsystemBase{
     public static final int END_INDEX = 14;
     public static final RGBWColor EMPTY_COLOR = new RGBWColor(0, 0, 0);
 
-    private TeamCANdleAnimationCommand teamUniqueDisabledCommand;
+    // private TeamCANdleAnimationCommand teamUniqueDisabledCommand;
 
     public static synchronized LEDSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new LEDSubsystem();
@@ -66,7 +66,7 @@ public class LEDSubsystem extends SubsystemBase{
     public LEDSubsystem() {
         configureCANdle();
 
-        teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(INSTANCE);
+        // teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(INSTANCE);
     }
 
     private void configureCANdle() {
@@ -89,7 +89,7 @@ public class LEDSubsystem extends SubsystemBase{
     private void applyState() {
         switch (currentState) {
             case TEAM_UNIQUE_DISABLED:
-                CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
+                // CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
                 break;
 
             case DISABLED:
@@ -128,9 +128,9 @@ public class LEDSubsystem extends SubsystemBase{
     }
 
     public void removeLEDColor() {
-        if (teamUniqueDisabledCommand.isScheduled()) {
-            CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
-        }
+        // if (teamUniqueDisabledCommand.isScheduled()) {
+        //     CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
+        // }
         candle.setControl(emptyColorRequest);
         candle.setControl(solidColorRequest.withColor(EMPTY_COLOR).withLEDStartIndex(0).withLEDEndIndex(HIGHEST_INDEX));
     }
