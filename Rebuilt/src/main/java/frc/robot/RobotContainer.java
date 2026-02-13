@@ -20,6 +20,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -46,7 +48,6 @@ import frc.robot.subsystems.LEDSubsystem.LEDState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.util.BezierCurve;
-import frc.robot.util.FuelSim;
 
 
 public class RobotContainer {
@@ -60,7 +61,7 @@ public class RobotContainer {
   public static IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
   public static LEDSubsystem ledSub = LEDSubsystem.getInstance();
 
-  public static FuelSim fuelSim = new FuelSim(); // creates a new fuelSim of FuelSim
+  public static FuelSim fuelSim;
   
   public BezierCurve driveBezier = new BezierCurve("drive", 117.4, 0.054, 91.4, 0.76, 0.1, 0.01);
   public BezierCurve rotateBezier = new BezierCurve("rotate", 120.1, 0.145, 92.2, 0.362, 0.035, 0.03);
@@ -83,6 +84,9 @@ public class RobotContainer {
 
   public static double pigeonOffset = 0;
 
+  Supplier<ChassisSpeeds> fieldCentricSupplier;
+  Supplier<Pose2d> poseSupplier;
+
   public RobotContainer() {
 
     TurretSubsystem.getInstance().setDriverController(DRIVER);
@@ -91,9 +95,21 @@ public class RobotContainer {
 
     // fuelSim.spawnStartingFuel(); // spawns fuel in the depots and neutral zone
 
-    Supplier<ChassisSpeeds> fieldCentricSupplier = () -> drivetrain.getState().Speeds;
-    Supplier<Pose2d> poseSupplier = () -> drivetrain.getState().Pose;
-      // Register a robot for collision with fuel
+    this.fieldCentricSupplier = () -> drivetrain.getState().Speeds;
+    this.poseSupplier = () -> drivetrain.getState().Pose;
+
+     fuelSim = new FuelSim(); // creates a new fuelSim of FuelSim
+
+    configureBindings();
+    registeredCommands();
+    configureAutos();
+
+    configureFuelSim();
+  }
+
+  private void configureFuelSim() {
+
+    // Register a robot for collision with fuel
       fuelSim.registerRobot(
               0.6858, // from left to right in meters
               0.6858, // from front to back in meters
@@ -103,21 +119,27 @@ public class RobotContainer {
 
     fuelSim.start(); // enables the simulation to run (updateSim must still be called periodically)
     fuelSim.spawnStartingFuel();
-    configureBindings();
-    registeredCommands();
-    //configureFuelSim();
-
-    configureAutos();
-  }
-
-  private void configureFuelSim() {
-    fuelSim.spawnStartingFuel();
+    System.out.println(fuelSim);
     SmartDashboard.putData(Commands.runOnce(() -> {
                 fuelSim.clearFuel();
                 fuelSim.spawnStartingFuel();
             })
             .withName("Reset Fuel")
             .ignoringDisable(true));
+
+    SmartDashboard.putData("Fuel Count", new Sendable() {
+    @Override
+    public void initSendable(SendableBuilder builder) {
+        builder.addDoubleProperty(
+            "count",
+            () -> fuelSim.getFuelCount(),  
+            null
+        );
+      }
+    });
+
+    //SmartDashboard.putNumber("fuel visible", fuelSim.getFuelCount().stream().filter((f) -> f.isActive()).count());
+    //didn't work
   }
 
   private void configureAutos() {

@@ -37,7 +37,7 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
-import frc.robot.util.FuelSim;
+import frc.robot.FuelSim;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -319,13 +319,13 @@ public class ShooterSubsystem extends SubsystemBase {
                 Distance distance = Meters.of(.55);
                 shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
                 double currentTime = Timer.getFPGATimestamp();
-                if(currentTime - previousTime > .2) {
-                    RobotContainer.fuelSim.launchFuel(launchVelocity, launchAngle, turretAngle, distance);
-                    previousTime = currentTime;
-                }
-                if(RobotContainer.fuelSim.getFuelCount() > 8) {
-                    RobotContainer.fuelSim.clearFuel();
-                }
+                // if(currentTime - previousTime > .2) {
+                //     RobotContainer.fuelSim.launchFuel(launchVelocity, launchAngle, turretAngle, distance);
+                //     previousTime = currentTime;
+                // }
+                // if(RobotContainer.fuelSim.getFuelCount() > 8) {
+                //     RobotContainer.fuelSim.clearFuel();
+                // }
                 break;
 
             case NOT_SHOOTING:

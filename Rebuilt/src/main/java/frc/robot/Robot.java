@@ -169,5 +169,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void simulationPeriodic() {
       RobotContainer.fuelSim.updateSim();
+      //System.out.println(m_robotContainer.fuelSim.getFuelCount());
   }
 }
