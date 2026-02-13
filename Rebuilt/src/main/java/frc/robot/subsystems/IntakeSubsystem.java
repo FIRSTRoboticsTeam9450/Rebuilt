@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -78,6 +79,11 @@ public final class IntakeSubsystem extends SubsystemBase{
     private final SysIdRoutine m_sysIdRoutine;
 
     private boolean isZeroing = false;
+    private boolean jamTimerStarted = false;
+    private boolean unjamTimerStarted = false;
+    private boolean unjammed = true;
+    private Timer jamTimer = new Timer();
+    private Timer unjamTimer = new Timer();
 
     public IntakeSubsystem() {
         configureMotors();
@@ -169,7 +175,8 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
             
             case INTAKING:
-                motorArm.setControl(request.withPosition(logIntakeTarget.get()));
+                    motorArm.setControl(request.withPosition(logIntakeTarget.get()));
+                
                 break;
         }
 
@@ -179,13 +186,39 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
             
             case INTAKING:
-                // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
+            
+                    // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
                 //     motorWheels.setControl(voltageRequest.withOutput(-logIntakingTarget.get()));
                 // } else {
+                // else if(checkJam()) {
+                //     motorWheels.setControl(voltageRequest.withOutput(-1));
+                //     if(!unjamTimerStarted) {
+                //         unjamTimerStarted = true;
+                //         unjamTimer.restart();
+                //     }
+                //     if(unjamTimer.get() > 1) {
+                //         unjammed = true;
+                //         unjamTimerStarted = false;
+                //         jamTimerStarted = false;
+                //     }
+                // }
+                // else {
                     motorWheels.setControl(voltageRequest.withOutput(logIntakingTarget.get()));
                 // }
                 break;
         }
+    }
+
+    private boolean checkJam() {
+        if(motorWheels.getMotorVoltage().getValueAsDouble() > 3 && Math.abs(motorArm.getPosition().getValueAsDouble() - logIntakeTarget.get()) > 1 && !jamTimerStarted) {
+            jamTimerStarted = true;
+            unjammed = false;
+            jamTimer.restart();
+        }
+        if(jamTimerStarted && jamTimer.get() > 1) {
+            return true;
+        }
+        return false;
     }
 
     private void publishLogs() {
