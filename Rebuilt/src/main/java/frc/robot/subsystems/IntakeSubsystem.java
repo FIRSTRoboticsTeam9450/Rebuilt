@@ -153,6 +153,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case ZEROING:
+                //TODO: make sure this volt makes it go INTO bumper
                 motorArm.setVoltage(.6);
                 break;
 
@@ -161,15 +162,16 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case STORE:
-                // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
-                //     motorArm.setControl(request.withPosition(storeRevolutions + 1.5));
-                // } else {
                     motorArm.setControl(request.withPosition(storeRevolutions));
-                // }
                 break;
             
             case INTAKING:
-                motorArm.setControl(request.withPosition(logIntakeTarget.get()));
+                //TODO: test this, never triggered due to being on store instead of intaking
+                // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
+                //     motorArm.setControl(request.withPosition(logIntakeTarget.get() + 1.5));
+                // } else {
+                    motorArm.setControl(request.withPosition(logIntakeTarget.get()));
+                // }
                 break;
         }
 

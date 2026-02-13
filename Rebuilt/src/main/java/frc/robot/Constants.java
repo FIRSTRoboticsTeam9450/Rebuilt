@@ -11,8 +11,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -126,6 +128,7 @@ public final class Constants {
         public static final double PITCH = 28.1;
         public static final double ROLL = 0;
         public static final double YAW = 45;
+        public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
       }
 
       public static final class FrontRight {
@@ -136,6 +139,7 @@ public final class Constants {
         public static final double PITCH = 28.1;
         public static final double ROLL = 0;
         public static final double YAW = -45;
+        public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
       }
 
       public static final class BackLeft {
@@ -146,6 +150,7 @@ public final class Constants {
         public static final double PITCH = 0;
         public static final double ROLL = 0;
         public static final double YAW = 135;
+        public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
       }
 
       public static final class BackRight {
@@ -156,6 +161,7 @@ public final class Constants {
         public static final double PITCH = 0;
         public static final double ROLL = 0;
         public static final double YAW = -135;
+        public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
       }
 
     }
@@ -180,6 +186,10 @@ public final class Constants {
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 7.313);
+      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(0.455,0.861);
+
+      /* ========= HARD CODED POSES ======== */
       public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();
       public static final Translation2d BLUE_RIGHT_FERRY_TARGET = new Translation2d();
 
@@ -325,8 +335,8 @@ public final class Constants {
       }
       public static final class ZoneTargets {
         public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
-        public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 7.313);
-        public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(0.455,0.861);
+        public static final Translation2d FERRY_TOP_TARGET = ImportantFieldPoses.FERRY_TOP_TARGET;
+        public static final Translation2d FERRY_BOTTOM_TARGET = ImportantFieldPoses.FERRY_BOTTOM_TARGET;
       }
     }
 
