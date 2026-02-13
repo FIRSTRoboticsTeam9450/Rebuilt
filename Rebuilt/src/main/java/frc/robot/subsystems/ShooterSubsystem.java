@@ -148,9 +148,9 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToVelocity.put(1.9, 26.5);
         shootingDistanceToVelocity.put(2.32, 27.3);
         shootingDistanceToVelocity.put(2.97, 28.3);
-        shootingDistanceToVelocity.put(3.84, 31.75);
-        shootingDistanceToVelocity.put(4.33, 32.95);
-        shootingDistanceToVelocity.put(5.305, 33.9);
+        shootingDistanceToVelocity.put(3.85, 31.0);
+        shootingDistanceToVelocity.put(4.1, 32.25);
+        shootingDistanceToVelocity.put(4.766, 33.5);
 
         // Shooting Data Time
         shootingDistanceToTime.put(1.00, 1.08);
@@ -493,7 +493,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isVelocityWithinTolerance() {
-        return isVelocityWithinTolerance(1.0);
+        return isVelocityWithinTolerance(10);
     }
 
     public boolean isVelocityWithinTolerance(double tolerance) {

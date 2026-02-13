@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.701759036144578,
-        "y": 0.3851445783132522
+        "x": 7.7265763195435095,
+        "y": 0.4703994293865924
       },
       "isLocked": false,
       "linkedName": "Shoot&Ferry Neutral End"
@@ -38,8 +38,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 0.5,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 200.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -52,7 +52,7 @@
   "reversed": false,
   "folder": "Shoot & Ferry",
   "idealStartingState": {
-    "velocity": 5.0,
+    "velocity": 0.5,
     "rotation": -88.63607246839702
   },
   "useDefaultConstraints": false

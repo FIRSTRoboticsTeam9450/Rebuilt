@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.276036144578313,
-        "y": 7.619289156626506
+        "x": 3.273387109593749,
+        "y": 7.663
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 7.663
       },
       "prevControl": {
-        "x": 3.276036144578313,
-        "y": 7.695783132530121
+        "x": 3.288616271756223,
+        "y": 7.664291817397828
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,15 +33,15 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "setFire",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
+      "name": "SetFire",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": 0.0,
       "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 0.5,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -49,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -1.3639275316028807
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": "Shoot & Ferry",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -0.9548412538721617
+    "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

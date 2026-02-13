@@ -62,11 +62,11 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0); // 0
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.1);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 0.73);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
     private double storeRevolutions = 6.25;
-    private double trenchStoreRevolutions = 5;
+    private double trenchStoreRevolutions = 4.5;
 
     private boolean hasReachedIntakeLocation = false;
 
@@ -161,11 +161,11 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case STORE:
-                if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
-                    motorArm.setControl(request.withPosition(storeRevolutions + 1.5));
-                } else {
+                // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
+                //     motorArm.setControl(request.withPosition(storeRevolutions + 1.5));
+                // } else {
                     motorArm.setControl(request.withPosition(storeRevolutions));
-                }
+                // }
                 break;
             
             case INTAKING:
@@ -179,11 +179,11 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
             
             case INTAKING:
-                if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
-                    motorWheels.setControl(voltageRequest.withOutput(-logIntakingTarget.get()));
-                } else {
+                // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
+                //     motorWheels.setControl(voltageRequest.withOutput(-logIntakingTarget.get()));
+                // } else {
                     motorWheels.setControl(voltageRequest.withOutput(logIntakingTarget.get()));
-                }
+                // }
                 break;
         }
     }

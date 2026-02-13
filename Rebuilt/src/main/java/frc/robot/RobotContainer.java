@@ -62,7 +62,7 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
 
-  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.2; //0.4 for 40%
+  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.5; //0.4 for 40%
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -91,6 +91,7 @@ public class RobotContainer {
 
   private void configureAutos() {
     autoChooser.addOption("Outpost + Neutral Ferry", drivetrain.getAutoPath("Outpost + Neutral Ferry", false));
+    autoChooser.addOption("Shoot & Ferry", drivetrain.getAutoPath("Shoot & Ferry", false));
   }
 
   private void configureBindings() {
@@ -117,26 +118,26 @@ public class RobotContainer {
     // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
     // DRIVER.povRight().onTrue(shooterSub.setAngleState(AngleState.ZEROING));
-    // DRIVER.povDown().whileTrue(
-    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)
-    //   ).onFalse(
-    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
-    //   );
-    // DRIVER.povLeft().whileTrue(
-    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT)
-    //   ).onFalse(
-    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
-    //   );
-    // DRIVER.povRight().whileTrue(
-    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT)
-    //   ).onFalse(
-    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
-    //   );
-    // DRIVER.povUp().whileTrue(
-    //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT)
-    //   ).onFalse(
-    //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
-    //   );
+    DRIVER.povDown().whileTrue(
+        CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)
+      ).onFalse(
+        new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+      );
+    DRIVER.povLeft().whileTrue(
+        CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT)
+      ).onFalse(
+        new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+      );
+    DRIVER.povRight().whileTrue(
+        CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT)
+      ).onFalse(
+        new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+      );
+    DRIVER.povUp().whileTrue(
+        CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT)
+      ).onFalse(
+        new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
+      );
 
     DRIVER.rightTrigger().onTrue(
       CoordinationSubsystem.getInstance().setFireCommand()
@@ -159,8 +160,8 @@ public class RobotContainer {
 
   public void registeredCommands() {
     // Intake Commands
-    NamedCommands.registerCommand("SetIntake", coordSub.setIntakeCommand());
-    NamedCommands.registerCommand("SetFire", coordSub.setFireCommand());
+    NamedCommands.registerCommand("SetIntake", CoordinationSubsystem.getInstance().setIntakeCommand());
+    NamedCommands.registerCommand("SetFire", CoordinationSubsystem.getInstance().setFireCommand());
 
     }
   public Command getAutonomousCommand() {

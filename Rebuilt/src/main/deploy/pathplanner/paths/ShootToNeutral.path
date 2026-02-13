@@ -42,29 +42,29 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "setIntake",
+      "name": "SetIntake",
       "waypointRelativePos": 0.2332506203473969,
       "endWaypointRelativePos": null,
       "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 0.5,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 3.0,
+    "velocity": 0.5,
     "rotation": -90.96286362563626
   },
   "reversed": false,
   "folder": "Shoot & Ferry",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -1.3639275316028807
+    "rotation": 0.0
   },
   "useDefaultConstraints": false
 }

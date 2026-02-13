@@ -817,11 +817,13 @@ public class TurretSubsystem extends SubsystemBase {
      * @param wantedState Desired state
      */
     public void setState(TurretState wantedState) {
-        previousState = currentState;
-        currentState = wantedState;
-        
-        // Reset motion profile on state change
-        velocityLimiter.reset(Math.toRadians(getCurrentAngleDeg()));
+        if (currentState != TurretState.DISABLED) {
+            previousState = currentState;
+            currentState = wantedState;
+            
+            // Reset motion profile on state change
+            velocityLimiter.reset(Math.toRadians(getCurrentAngleDeg()));
+        }
     }
 
     public Command setStateCommand(TurretState state) {
