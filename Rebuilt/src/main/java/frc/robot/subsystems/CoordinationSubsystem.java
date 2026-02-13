@@ -53,11 +53,11 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean driverAllowingShooting = false;
     private boolean shouldBeIntaking = false;
     private boolean overrideTrench = false;
+    private boolean hardOverrideTrench = false;
 
     private boolean update = false;
     private boolean previousGoodToShoot = goodToFire();
     private boolean checkZeroing = false;
-    
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", false);
 
     public CoordinationSubsystem() {
@@ -114,15 +114,20 @@ public class CoordinationSubsystem extends SubsystemBase {
                         }
                         break;
                     case SOFT_TRENCH_DEADZONE:
-                        if(!overrideTrench) {
+                        if(!overrideTrench || !hardOverrideTrench) {
                             setState(AbsoluteStates.TRENCH);
                         }
                         else {
-                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+                            setState(AbsoluteStates.SHOOTING);
                         }
                         break;
                     case HARD_TRENCH_DEADZONE:
-                        setState(AbsoluteStates.TRENCH);
+                        if(!hardOverrideTrench) {
+                            setState(AbsoluteStates.TRENCH);
+                        }
+                        else {
+                            setState(AbsoluteStates.SHOOTING);
+                        }
                         break;
                     case BACK_DEADZONE:
                         break;
@@ -277,6 +282,11 @@ public class CoordinationSubsystem extends SubsystemBase {
     public Command setIntakeCommand() {
         return new InstantCommand(() -> shouldBeIntaking = !shouldBeIntaking)
         .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState()));
+    }
+
+    public Command setHardTrenchOverride(boolean value) {
+        return new InstantCommand(() -> hardOverrideTrench = value)
+        .andThen(new InstantCommand(() -> update = true));
     }
 
     // ============================ Getters & Setters ============================

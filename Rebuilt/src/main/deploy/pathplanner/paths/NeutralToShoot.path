@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.7265763195435095,
-        "y": 0.4703994293865924
+        "x": 6.80793152639087,
+        "y": 0.6644793152639101
       },
       "isLocked": false,
       "linkedName": "Shoot&Ferry Neutral End"
     },
     {
       "anchor": {
-        "x": 3.3306746987951805,
-        "y": 0.6036987951807224
+        "x": 3.392125534950071,
+        "y": 0.6903566333808839
       },
       "prevControl": {
-        "x": 5.658302760195772,
-        "y": 0.6036987951807221
+        "x": 5.719753596350662,
+        "y": 0.6903566333808836
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,7 +30,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.7493775933609946,
+      "waypointRelativePos": 0.46908315565031805,
       "rotationDegrees": 180.0
     }
   ],

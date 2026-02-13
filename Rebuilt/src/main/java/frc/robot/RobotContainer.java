@@ -81,17 +81,17 @@ public class RobotContainer {
 
     TurretSubsystem.getInstance().setDriverController(DRIVER);
 
-    autoChooser = new LoggedDashboardChooser<>("Rebuilt/Auto Chooser");
-
     configureBindings();
-    registeredCommands();
 
+    registeredCommands();
+    autoChooser = new LoggedDashboardChooser<>("Rebuilt/Auto Chooser");
     configureAutos();
   }
 
   private void configureAutos() {
     autoChooser.addOption("Outpost + Neutral Ferry", drivetrain.getAutoPath("Outpost + Neutral Ferry", false));
     autoChooser.addOption("Shoot & Ferry", drivetrain.getAutoPath("Shoot & Ferry", false));
+    autoChooser.addOption("Test", drivetrain.getAutoPath("Test", false));
   }
 
   private void configureBindings() {
@@ -162,6 +162,8 @@ public class RobotContainer {
     // Intake Commands
     NamedCommands.registerCommand("SetIntake", CoordinationSubsystem.getInstance().setIntakeCommand());
     NamedCommands.registerCommand("SetFire", CoordinationSubsystem.getInstance().setFireCommand());
+    NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
+    NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
 
     }
   public Command getAutonomousCommand() {
