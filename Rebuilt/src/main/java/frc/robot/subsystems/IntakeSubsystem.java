@@ -65,7 +65,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.1);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
-    private double storeRevolutions = 7.6333;
+    private double storeRevolutions = 6.25;
     private double trenchStoreRevolutions = 5;
 
     private boolean hasReachedIntakeLocation = false;

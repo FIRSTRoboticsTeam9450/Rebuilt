@@ -245,20 +245,20 @@ public final class Constants {
         public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.437636;
         public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.631436;
 
-        public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.535424 - .762; // 4.535424
-        public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.687824 + .762; // 4.687824
-        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.535424 - 1.524; // 4.535424
-        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.687824 + 1.524; // 4.687824
-        public static final double TRENCH_1_DEADZONE_Y_LOW = 6.3456185;
-        public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.042656;
+        public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.549394 - .762; // 4.535424
+        public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + .762; // 4.687824
+        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.549394 - 1.524; // 4.535424
+        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + 1.524; // 4.687824
+        public static final double TRENCH_1_DEADZONE_Y_LOW = 6.37203;
+        public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.069326;
 
         public static final double TRENCH_2_DEADZONE_Y_LOW = 0;
         public static final double TRENCH_2_DEADZONE_Y_HIGH = 1.6970375;
 
-        public static final double HARD_TRENCH_34_DEADZONE_X_LOW = 11.825224 - .762;
-        public static final double HARD_TRENCH_34_DEADZONE_X_HIGH = 11.977624 + .762;
-        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.825224 - 1.524;
-        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.977624 + 1.524;
+        public static final double HARD_TRENCH_34_DEADZONE_X_LOW = 11.839194 - .762;
+        public static final double HARD_TRENCH_34_DEADZONE_X_HIGH = 11.99 + .762;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.839194 - 1.524;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.99 + 1.524;
         public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
         public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
 

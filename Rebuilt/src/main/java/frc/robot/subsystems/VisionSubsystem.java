@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants.TurretConstants;
@@ -123,6 +125,9 @@ public class VisionSubsystem extends SubsystemBase {
     // DEBUGGING
     LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
     double loopOffset = 0;
+
+    private boolean useCustomTarget = false;
+    private Translation2d customTarget = new Translation2d();
 
     // -------------------------
     // Constructor (private for singleton)
@@ -499,6 +504,8 @@ public class VisionSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Rebuilt/Vision/Valid Measurments", validMeasurementCount);
 
+        Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
+
         if (loopOffset > 5) {
             loopOffset = 0;
             Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
@@ -543,7 +550,6 @@ public class VisionSubsystem extends SubsystemBase {
             Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
             Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
             Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
-            Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
             Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
             Logger.recordOutput("Rebuilt/Vision/CurrentTargetFromMethod", new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()));
             // Logger.recordOutput("Rebuilt/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
@@ -765,10 +771,15 @@ public class VisionSubsystem extends SubsystemBase {
         else if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.BACK_DEADZONE;
         }
+        if(useCustomTarget) {
+            currentTarget = customTarget;
+        }
         lastAdjustedTargetPose = currentTarget;
     }
 
-
+    public Command setCustomTarget(boolean value) {
+        return new InstantCommand(() -> useCustomTarget = value);
+    }
     public boolean inZone(ZoneState currentZone) {
         return false;
     }
