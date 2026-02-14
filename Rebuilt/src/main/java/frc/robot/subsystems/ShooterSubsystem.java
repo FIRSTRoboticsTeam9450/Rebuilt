@@ -31,6 +31,7 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
+import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -116,7 +117,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean isOverrideAngle = false;
     private boolean isZeroingDone = false;
     private boolean hasSwitchedBack = false;
-
+    private boolean hasReachedShooterVelocity = false;
+    
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
     // Timer
@@ -270,6 +272,9 @@ public class ShooterSubsystem extends SubsystemBase {
             currentAngleState = AngleState.ZEROING;
             isZeroingDone = autoZeroing();
         }
+        
+        updateReachedShooterVelocityLogic();
+
         publishLogs();
         if(switchSlotBackTimer.get() > 2 && currentAngleState == AngleState.AIMING && !hasSwitchedBack) {
             hasSwitchedBack = true;
@@ -500,9 +505,22 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isShooterReady() { //TODO: Add back at some point ¯\_(ツ)_/¯
-        // return (isAngleWithinTolerance() && isVelocityWithinTolerance());
+        if(!hasReachedShooterVelocity) {
+            return (isAngleWithinTolerance() && isVelocityWithinTolerance());
+        }
+        return (isAngleWithinTolerance() && isVelocityWithinTolerance(3));
         // return (isAngleWithinTolerance());
-        return true;
+        // return true;
+    }
+    
+    private void updateReachedShooterVelocityLogic() {
+        if (currentShooterState != ShooterState.SHOOTING) {
+            hasReachedShooterVelocity = false;
+        } else {
+            if (Math.abs(shooterLeftMotor.getVelocity().getValueAsDouble() - getShooterVeloc()) < 1) {
+                hasReachedShooterVelocity = true;
+            }
+        }
     }
 
     // -------------------------------------- SETTERS -------------------------------------- //

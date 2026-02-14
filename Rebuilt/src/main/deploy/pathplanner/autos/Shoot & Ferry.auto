@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "ShootPreload"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "ShootPreload"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetFire"
+                }
+              }
+            ]
           }
         },
         {
@@ -17,9 +30,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "ShootToNeutral"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "ShootToNeutral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "SetIntake"
+                }
+              }
+            ]
           }
         },
         {

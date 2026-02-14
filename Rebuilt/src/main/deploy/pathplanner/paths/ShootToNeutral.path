@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.0028433734939757,
-        "y": 7.663
+        "x": 2.4605420827389435,
+        "y": 7.4572753209700435
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.171879518072288,
-        "y": 7.247746987951807
+        "x": 5.9927960057061345,
+        "y": 7.4572753209700435
       },
       "isLocked": false,
       "linkedName": "Shoot&Ferry Preload End"
@@ -30,7 +30,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.20165975103734582,
+      "waypointRelativePos": 0.2857142857142835,
       "rotationDegrees": 0.0
     },
     {
@@ -43,22 +43,22 @@
   "eventMarkers": [
     {
       "name": "SetIntake",
-      "waypointRelativePos": 0.2332506203473969,
+      "waypointRelativePos": 0.6968264686022928,
       "endWaypointRelativePos": null,
       "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 0.5,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.5,
-    "rotation": -90.96286362563626
+    "velocity": 2.0,
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "Shoot & Ferry",

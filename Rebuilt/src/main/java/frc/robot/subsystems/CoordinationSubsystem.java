@@ -258,8 +258,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean goodToFire() {
-        return driverAllowingShooting;
-        // return (driverAllowingShooting && areShooterAndTurretReady());
+        // return driverAllowingShooting;
+        return (driverAllowingShooting && areShooterAndTurretReady());
     }
 
     public Command setFireCommand() {

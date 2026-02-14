@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.625722891566265,
-        "y": 7.663
+        "x": 3.5991440798858774,
+        "y": 7.4572753209700435
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.273387109593749,
-        "y": 7.663
+        "x": 3.2468082979133612,
+        "y": 7.4572753209700435
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.0028433734939757,
-        "y": 7.663
+        "x": 2.4605420827389435,
+        "y": 7.4572753209700435
       },
       "prevControl": {
-        "x": 3.288616271756223,
-        "y": 7.664291817397828
+        "x": 2.74631790077363,
+        "y": 7.4572753209700435
       },
       "nextControl": null,
       "isLocked": false,
@@ -35,13 +35,13 @@
     {
       "name": "SetFire",
       "waypointRelativePos": 0.0,
-      "endWaypointRelativePos": 0.0,
+      "endWaypointRelativePos": null,
       "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 0.5,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
