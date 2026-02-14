@@ -1,0 +1,72 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.6214261553671427,
+        "y": 0.39803016676819203
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.867132667617689,
+        "y": 0.6256633380884444
+      },
+      "isLocked": false,
+      "linkedName": "RightFerryStart"
+    },
+    {
+      "anchor": {
+        "x": 7.623067047075606,
+        "y": 1.337289586305278
+      },
+      "prevControl": {
+        "x": 7.623067047075606,
+        "y": 0.6644793152639101
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "RightSideFerryStart"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.3134328358208931,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.3642679900744358,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.7096774193548293,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 0.5,
+    "maxAcceleration": 1.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.5,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": "Right Side Shoot & Ferry",
+  "idealStartingState": {
+    "velocity": 0.0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": false
+}

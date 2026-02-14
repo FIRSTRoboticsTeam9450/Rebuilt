@@ -111,7 +111,7 @@ public final class Constants {
       public static final double TURRET_OFFSET_TO_ZERO = 179.5; 
       public static final double TURRET_OFFSET_TO_TARGET = 0; //V1: 5
 
-      public static final double TOTAL_ROTATION_DEGREES = 330;
+      public static final double TOTAL_ROTATION_DEGREES = 300;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
       public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 2.24; //Lantern: 2.24

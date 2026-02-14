@@ -225,6 +225,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Coord/Subsystems good to fire?", areShooterAndTurretReady());
         Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
         Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
+        Logger.recordOutput("Rebuilt/Coord/OverridingTrench?", hardOverrideTrench);
 
         if(logDebuggingToggle.get()) {
         }
@@ -277,7 +278,9 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     public Command setHardTrenchOverride(boolean value) {
         return new InstantCommand(() -> hardOverrideTrench = value)
-        .andThen(new InstantCommand(() -> update = true));
+        .andThen(new InstantCommand(() -> update = true))
+        .andThen(new InstantCommand(() -> currentState = AbsoluteStates.PREPARING_FOR_SHOOTING)
+        .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState())));
     }
 
     // ============================ Getters & Setters ============================
@@ -350,7 +353,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
         return false;
     }
-    public boolean getOverridinTrench() {
+    public boolean getOverridingTrench() {
         if(overrideTrench) {
             return true;
         }

@@ -676,7 +676,7 @@ public class TurretSubsystem extends SubsystemBase {
     private void updateDriverFeedback() {
         if (driverController != null) {
             if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled() && !DriverStation.isAutonomous()) {
-                if (CoordinationSubsystem.getInstance().getInDeadzone() && CoordinationSubsystem.getInstance().getOverridinTrench()) {
+                if (CoordinationSubsystem.getInstance().getInDeadzone() && CoordinationSubsystem.getInstance().getOverridingTrench()) {
                     if (controllersCurrentRumbling != 0.15) {
                         controllersCurrentRumbling = 0.15;
                         driverController.setRumble(RumbleType.kBothRumble, 0.15);
