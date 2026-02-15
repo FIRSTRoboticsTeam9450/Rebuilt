@@ -9,18 +9,14 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.pathfinding.Pathfinder;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -47,6 +43,8 @@ public class Robot extends LoggedRobot {
   // sendableBuilder used to send the field2d to the network table which Elastic will look at to get the feild 2d
   private NetworkTable networkTable;
   private final SendableBuilderImpl sendableBuilder = new SendableBuilderImpl();
+
+  private double updateValuesOffset = 0;
 
   /*** 
    * This function is run when the robot is first started up and should be used for any
@@ -105,18 +103,27 @@ public class Robot extends LoggedRobot {
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
+    updateValuesOffset = 0;
     // SignalLogger.stop();
   }
 
   @Override
   public void disabledPeriodic() {
+    if (updateValuesOffset > 50) {
+      updateValuesOffset = 0;
+      TurretSubsystem.getInstance().updateTunableParameters();
+      ShooterSubsystem.getInstance().updateShooterConstants();
+      IntakeSubsystem.getInstance().updateConstants();
+    } else {
+      updateValuesOffset++;
+    }
+  }
 
-    FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
-
-    TurretSubsystem.getInstance().updateTunableParameters();
-    ShooterSubsystem.getInstance().updateShooterConstants();
-    IntakeSubsystem.getInstance().updateConstants();
+  @Override
+  public void disabledExit() {
+      FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

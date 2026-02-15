@@ -63,9 +63,12 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0); // 0
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 0.73);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 0.7);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
+    private double intakingTargetVolts = logIntakingTarget.get();
+    
+    private double intakeRevolutions = logIntakeTarget.get();
     private double storeRevolutions = 6.25;
     private double trenchStoreRevolutions = 4.5;
 
@@ -74,9 +77,6 @@ public final class IntakeSubsystem extends SubsystemBase{
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
-
-    private final VoltageOut sysIDRequest = new VoltageOut(0);
-    private final SysIdRoutine m_sysIdRoutine;
 
     private boolean isZeroing = false;
     private boolean jamTimerStarted = false;
@@ -87,23 +87,6 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     public IntakeSubsystem() {
         configureMotors();
-
-        //sys id
-        m_sysIdRoutine =
-            new SysIdRoutine(
-                new SysIdRoutine.Config(
-                    null,        // Use default ramp rate (1 V/s)
-                    Volt.of(1), // Reduce dynamic step voltage to 1 to prevent brownout
-                    null,        // Use default timeout (10 s)
-                                // Log state with Phoenix SignalLogger class
-                    (state) -> SignalLogger.writeString("state", state.toString())
-                ),
-                new SysIdRoutine.Mechanism(
-                    (volts) -> motorArm.setControl(sysIDRequest.withOutput(volts.in(Volt))),
-                    null,
-                    this
-                )
-            );
     }
 
     private void configureMotors() {
@@ -177,7 +160,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 40) {
                 //     motorArm.setControl(request.withPosition(logIntakeTarget.get() + 1.5));
                 // } else {
-                    motorArm.setControl(request.withPosition(logIntakeTarget.get()));
+                    motorArm.setControl(request.withPosition(intakeRevolutions));
                 // }
                 break;
         }
@@ -205,7 +188,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 //     }
                 // }
                 // else {
-                    motorWheels.setControl(voltageRequest.withOutput(logIntakingTarget.get()));
+                    motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts));
                 // }
                 break;
         }
@@ -285,20 +268,14 @@ public final class IntakeSubsystem extends SubsystemBase{
         if (gainsChanged) {
             configureMotors();
         }
+
+        intakeRevolutions = logIntakeTarget.get();
+        intakingTargetVolts = logIntakingTarget.get();
     }
 
     public void zeroEncoders() {
         if (DriverStation.isDisabled()) {
             motorArm.setPosition(0);
         }
-    }
-
-    // ================== SYS ID COMMANDS ================
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutine.quasistatic(direction);
-    }
-
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutine.dynamic(direction);
     }
 }

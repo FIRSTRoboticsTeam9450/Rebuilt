@@ -172,8 +172,8 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     private void publishClimbLogs() {
-        Logger.recordOutput("Rebuilt/Climb/ElevatorMotorPosition",getElevatorPosition());
-        Logger.recordOutput("Rebuilt/Climb/TelescopeMotorPosition",getTelescopePosition());
+        Logger.recordOutput("Rebuilt/Climb/ElevatorMotorPosition", getElevatorPosition());
+        Logger.recordOutput("Rebuilt/Climb/TelescopeMotorPosition", getTelescopePosition());
     }
 
     public void periodic() {

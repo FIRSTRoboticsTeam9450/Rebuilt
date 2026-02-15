@@ -87,6 +87,7 @@ public class RobotContainer {
   private void configureAutos() {
     autoChooser.addOption("Outpost + Neutral Ferry", drivetrain.getAutoPath("Outpost + Neutral Ferry", false));
     autoChooser.addOption("Shoot & Ferry", drivetrain.getAutoPath("Shoot & Ferry", false));
+    autoChooser.addOption("Ferry Only", drivetrain.getAutoPath("Ferry Only", false));
     autoChooser.addOption("Test", drivetrain.getAutoPath("Test", false));
     autoChooser.addOption("Right Side Shoot & Ferry", drivetrain.getAutoPath("Right Side Shoot & Ferry", false));
   }

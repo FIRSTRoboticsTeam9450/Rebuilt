@@ -4,8 +4,9 @@
   "holonomicMode": true,
   "pathFolders": [
     "Experimental",
-    "Right Side Shoot & Ferry",
+    "Ferry Only",
     "Outpost",
+    "Right Side Shoot & Ferry",
     "Shoot & Ferry",
     "Testing"
   ],

@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -13,11 +14,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.RobotConstants.LimelightConstants;
 import frc.robot.Constants.RobotConstants.TurretConstants;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
+import frc.robot.Constants.RobotConstants.LimelightConstants.PipelineIndexs;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsAndyMark;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
@@ -28,7 +32,9 @@ import frc.robot.util.LimelightObject.Location;
 import com.ctre.phoenix6.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
@@ -84,13 +90,15 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Standard deviations for vision measurements (for filtering/fusion)
     public Vector<N3> disabledStdDev = VecBuilder.fill(2, 2, 0.5);
-    public Vector<N3> enabledStdDev = VecBuilder.fill(1, 1, 999);
+    public Vector<N3> enabledStdDev = VecBuilder.fill(1, 1, 450);
 
     public double visionStdDevX = 0.5;
     public double visionStdDevY = 0.5;
-    public double visionStdDevTheta = 999.0;
+    public double visionStdDevTheta = 450.0;
     private boolean firstMeasurment = true;
     private double validMeasurementCount = 0;
+    private double updateVisionOffset = 0;
+    private double updateTargetAndZoneOffset = 0;
 
     // Maximum allowed differences for fusion; if exceeded, fallback to higher confidence camera
     private double maxTranslationDiff = 2.5; // meters
@@ -104,6 +112,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
+    private List<Pose2d> aprilTagPoseList = List.of();
 
     // Logging
     private volatile Pose2d lastFusedPose = null;   // Last fused pose from vision
@@ -129,15 +138,26 @@ public class VisionSubsystem extends SubsystemBase {
     private boolean useCustomTarget = false;
     private Translation2d customTarget = new Translation2d();
 
+    private double cooldownCount = 0;
+    private boolean limelightPipelineSwitchingEnabled = false;
+
     // -------------------------
     // Constructor (private for singleton)
     // -------------------------
-    @SuppressWarnings("static-access")
+
     private VisionSubsystem() {
         drivetrain = RobotContainer.drivetrain;
 
         // Configure camera offsets and add to internal list
         configureLimelights();
+
+        //This bit causes an crashing error V
+        // Map<Pose2d, Integer> temp = FieldConstants.aprilTagPoseToTagIDsMap1_10;
+        // temp.putAll(FieldConstants.aprilTagPoseToTagIDsMap11_20);
+        // temp.putAll(FieldConstants.aprilTagPoseToTagIDsMap21_30);
+        // temp.putAll(FieldConstants.aprilTagPoseToTagIDsMap31_32);
+
+        // aprilTagPoseList = temp.keySet().stream().toList();
 
         // Initialize drivetrain vision standard deviations
         drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
@@ -173,18 +193,7 @@ public class VisionSubsystem extends SubsystemBase {
         LIMELIGHT_LIST.add(limelightBR);
 
         setLLIMUModes(0);
-        // resetIMUFusion();
-    }
 
-    public void resetIMUFusion() {
-        setLLIMUModes(1);
-
-        for (LimelightObject limelight : LIMELIGHT_LIST) {
-            double robotYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
-            LimelightHelpers.SetRobotOrientation_NoFlush(limelight.getName(), robotYaw, 0, 0, 0, 0, 0);
-        }
-
-        setLLIMUModes(4);
     }
 
     /**
@@ -192,11 +201,31 @@ public class VisionSubsystem extends SubsystemBase {
      * Updates vision data and logs key metrics.
      */
     @Override
-    public void periodic() { 
+    public void periodic() {
 
-        updateTargetAndZone();
-        updateVision();  // Compute fused vision pose
-        publishLogs();   // Print/log fusion confidence and pose
+        // if (limelightPipelineSwitchingEnabled && cooldownCount > 100) {
+        //     cooldownCount = 0;
+        //     Pose2d currentPose = drivetrain.getState().Pose;
+        //     Pose2d closestTag = currentPose.nearest(aprilTagPoseList);
+        //     updateLLPipeline(currentPose.getTranslation().getDistance(closestTag.getTranslation()));
+        // } else {
+        //     cooldownCount++;
+        // }
+
+        if (updateTargetAndZoneOffset > 10) {
+            updateTargetAndZoneOffset = 0;
+            updateTargetAndZone();
+        } else {
+            updateTargetAndZoneOffset++;
+        }
+
+        if (updateVisionOffset > 6) {
+            updateVisionOffset = 0;
+            updateVision();  // Compute fused vision pose
+            publishLogs();   // Print/log fusion confidence and pose
+        } else {
+            updateVisionOffset++;
+        }
     }
 
     // -------------------------
@@ -286,6 +315,8 @@ public class VisionSubsystem extends SubsystemBase {
         Pose2d pose = (Pose2d) pe.pose;
         int tagCount = pe.tagCount;
 
+        if (tagCount == 0 || ambiguity > 0.8) return VisionMeasurement.invalid();
+
         // Get Pose3d data for validation
         // We need to get the raw 3D pose for validation
         LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults(limelightName);
@@ -340,7 +371,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         // Consider measurement valid if at least 1 tag, low ambiguity, AND pose validation passes
-        boolean valid = tagCount > 0 && poseValid;
+        boolean valid = tagCount > 0 && poseValid && ambiguity < 0.5;
 
         // Confidence weighted: 70% ambiguity, 30% tag count
         double tagFactor = Math.min(tagCount / 2.0, 1.0);
@@ -461,6 +492,41 @@ public class VisionSubsystem extends SubsystemBase {
         //     .sum() / totalConfidence;
         double fusedRotation = inliers.get(0).pose().getRotation().getRadians();
         return Optional.of(new Pose2d(fusedX, fusedY, new Rotation2d(fusedRotation)));
+    }
+
+    private void updateLLPipeline(double distance) {
+        int targetPipelineIndex = 0;
+        if (DriverStation.isFMSAttached()) {
+            if (distance < 1.25) {
+                targetPipelineIndex = PipelineIndexs.COMP_CLOSE;
+            } else if (distance < 2.5) {
+                targetPipelineIndex = PipelineIndexs.COMP_MED;
+            } else {
+                targetPipelineIndex = PipelineIndexs.COMP_FAR;
+            }
+        } else if (LimelightConstants.isAtNorthField) {
+            if (distance < 1.25) {
+                targetPipelineIndex = PipelineIndexs.NF_CLOSE;
+            } else if (distance < 2.5) {
+                targetPipelineIndex = PipelineIndexs.NF_MED;
+            } else {
+                targetPipelineIndex = PipelineIndexs.NF_FAR;
+            }
+        } else {
+            if (distance < 1.25) {
+                targetPipelineIndex = PipelineIndexs.LAB_CLOSE;
+            } else if (distance < 2.5) {
+                targetPipelineIndex = PipelineIndexs.LAB_MED;
+            } else {
+                targetPipelineIndex = PipelineIndexs.LAB_FAR;
+            }
+        }
+        
+        for (LimelightObject limelight : LIMELIGHT_LIST) {
+            if (LimelightHelpers.getCurrentPipelineIndex(limelight.getName()) != targetPipelineIndex) {
+                LimelightHelpers.setPipelineIndex(limelight.getName(), PipelineIndexs.COMP_CLOSE);
+            }
+        }
     }
 
     // -------------------------

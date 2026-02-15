@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FO - Start To Neutral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FO - Neutral Ferry"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FO - Neutral Return"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Test Autos",
+  "choreoAuto": false
+}

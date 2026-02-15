@@ -27,7 +27,6 @@ public class ResetIMU extends Command {
         } else {
             RobotContainer.pigeonOffset = drivetrain.getPigeon2().getRotation2d().getDegrees() + 180;
         }
-        // VisionSubsystem.getInstance().resetIMUFusion();
     }
 
     @Override

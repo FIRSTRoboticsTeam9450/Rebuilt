@@ -170,6 +170,8 @@ public class TurretSubsystem extends SubsystemBase {
 
     //Testing Stuff
     public double testTargetSetpoint = 0;
+
+    private double loopOffset = 0;
     
     // ========================= Constructor =========================
     
@@ -298,29 +300,33 @@ public class TurretSubsystem extends SubsystemBase {
             resetEncodersRelativePosition();
         }
         
-        // Update target based on current mode
-        updateTargetFromMode();
-        
-        // Convert field-relative goal to robot-relative 
-        Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.plus(
-            new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget)));
-        
-        // Find best angle considering wrapping and limits
+        if (loopOffset > 1) {
+            loopOffset = 0;
+            // Update target based on current mode
+            updateTargetFromMode();
+            
+            // Convert field-relative goal to robot-relative 
+            Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.plus(
+                new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget)));
+            
+            // Find best angle considering wrapping and limits
 
-        robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
+            robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
 
-        // Convert RPS to degrees/sec
-        double currentVelocityDegPerSec = turretMotor.getVelocity().getValueAsDouble() 
-            * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
+            // Convert RPS to degrees/sec
+            double currentVelocityDegPerSec = turretMotor.getVelocity().getValueAsDouble() 
+                * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
 
-        // Calculate stopping distance: v² / (2a)
-        double maxDeceleration = logMaxAccelerationDegPerSecSq.get();
-        degreesToStopWithCurrentVelocity = Math.pow(currentVelocityDegPerSec, 2) 
-            / (2 * maxDeceleration);
+            // Calculate stopping distance: v² / (2a)
+            double maxDeceleration = logMaxAccelerationDegPerSecSq.get();
+            degreesToStopWithCurrentVelocity = Math.pow(currentVelocityDegPerSec, 2) 
+                / (2 * maxDeceleration);
 
-        previousRobotRelativeTargetVelocityDegPerSec = robotRelativeTargetVelocityDegPerSec;
-        robotRelativeTargetVelocityDegPerSec = calculateVelocity();
-        // robotRelativeTargetVelocityDegPerSec = CoordinationSubsystem.getInstance().getVelocityTurret(0.02);
+            previousRobotRelativeTargetVelocityDegPerSec = robotRelativeTargetVelocityDegPerSec;
+            robotRelativeTargetVelocityDegPerSec = calculateVelocity();
+        } else {
+            loopOffset = 0;
+        }
 
         // Driver feedback for out-of-range targets
         updateDriverFeedback();

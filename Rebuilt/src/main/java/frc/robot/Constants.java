@@ -4,11 +4,14 @@
 
 package frc.robot;
 
+import java.util.Map;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -102,7 +105,7 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.404052734375;
+      public static final double ENCODER_MAGNET_OFFSET = 0.35009765625;
 
       //Lantern motot to turret gear reduction 161:1 (1/161)
       public static final double ROTOR_TO_SENSOR_RATIO = 0.0625850; //Both Cycoidals: 0.001827990359168
@@ -119,6 +122,25 @@ public final class Constants {
     }
     
     public static final class LimelightConstants {
+
+      public static final boolean isAtNorthField = false;
+
+      public static final class PipelineIndexs{
+        //NorthField
+        public static final int NF_CLOSE = 0;
+        public static final int NF_MED = 1;
+        public static final int NF_FAR = 2;
+
+        //Lab
+        public static final int LAB_CLOSE = 3;
+        public static final int LAB_MED = 4;
+        public static final int LAB_FAR = 5;
+
+        //Comp
+        public static final int COMP_CLOSE = 6;
+        public static final int COMP_MED = 7;
+        public static final int COMP_FAR = 8;
+      }
 
       public static final class FrontLeft {
         public static final String NAME = "limelight-fl";
@@ -197,6 +219,42 @@ public final class Constants {
       public static final Translation2d RED_RIGHT_FERRY_TARGET = new Translation2d();
     }
 
+    public static final class AprilTagIDs {
+      public static final int RED_BOTTOM_TRENCH_NEUTRAL_SIDE = 1;
+      public static final int RED_BOTTOM_HUB_NEUTRAL_SIDE = 2;
+      public static final int RED_NEUTRAL_HUB_SIDE_LOWER = 3;
+      public static final int RED_NEUTRAL_HUB_SIDE_HIGHER = 4;
+      public static final int RED_TOP_HUB_NEUTRAL_SIDE = 5;
+      public static final int RED_TOP_TRENCH_NEUTRAL_SIDE = 6;
+      public static final int RED_TOP_TRENCH_ALLIANCE_SIDE = 7;
+      public static final int RED_TOP_HUB_ALLIANCE_SIDE = 8;
+      public static final int RED_ALLIANCE_HUB_SIDE_HIGHER = 9;
+      public static final int RED_ALLIANCE_HUB_SIDE_LOWER = 10;
+      public static final int RED_BOTTOM_HUB_ALLIANCE_SIDE = 11;
+      public static final int RED_BOTTOM_TRENCH_ALLIANCE_SIDE = 12;
+      public static final int RED_OUTPOST_LOWER = 13;
+      public static final int RED_OUTPOST_HIGHER = 14;
+      public static final int RED_TOWER_LOWER = 15;
+      public static final int RED_TOWER_HIGHER = 16;
+
+      public static final int BLUE_TOP_TRENCH_NEUTRAL_SIDE = 17;
+      public static final int BLUE_TOP_HUB_NEUTRAL_SIDE = 18;
+      public static final int BLUE_NEUTRAL_HUB_SIDE_HIGHER = 19;
+      public static final int BLUE_NEUTRAL_HUB_SIDE_LOWER = 20;
+      public static final int BLUE_BOTTOM_HUB_NEUTRAL_SIDE = 21;
+      public static final int BLUE_BOTTOM_TRENCH_NEUTRAL_SIDE = 22;
+      public static final int BLUE_BOTTOM_TRENCH_ALLIANCE_SIDE = 23;
+      public static final int BLUE_BOTTOM_HUB_ALLIANCE_SIDE = 24;
+      public static final int BLUE_ALLIANCE_HUB_SIDE_LOWER = 25;
+      public static final int BLUE_ALLIANCE_HUB_SIDE_HIGHER = 26;
+      public static final int BLUE_TOP_HUB_ALLIANCE_SIDE = 27;
+      public static final int BLUE_TOP_TRENCH_ALLIANCE_SIDE = 28;
+      public static final int BLUE_OUTPOST_HIGHER = 29;
+      public static final int BLUE_OUTPOST_LOWER = 30;
+      public static final int BLUE_TOWER_HIGHER = 31;
+      public static final int BLUE_TOWER_LOWER = 32;
+    }
+
     public static Pose3d getTag3dPose(int tagID) {
       return FIELD_LAYOUT.getTagPose(tagID).orElseThrow(() -> {
         final String errorMsg = String.format("getTagPose called for unexpected tag, %d", tagID);
@@ -204,6 +262,49 @@ public final class Constants {
       });
     }
 
+    public static final Map<Pose2d, Integer> aprilTagPoseToTagIDsMap1_10 = Map.of(
+      getTag3dPose(1).toPose2d(), 1,
+      getTag3dPose(2).toPose2d(), 2,
+      getTag3dPose(3).toPose2d(), 3,
+      getTag3dPose(4).toPose2d(), 4,
+      getTag3dPose(5).toPose2d(), 5,
+      getTag3dPose(6).toPose2d(), 6,
+      getTag3dPose(7).toPose2d(), 7,
+      getTag3dPose(8).toPose2d(), 8,
+      getTag3dPose(9).toPose2d(), 9,
+      getTag3dPose(10).toPose2d(), 10
+    );
+
+    public static final Map<Pose2d, Integer> aprilTagPoseToTagIDsMap11_20 = Map.of(
+      getTag3dPose(11).toPose2d(), 11,
+      getTag3dPose(12).toPose2d(), 12,
+      getTag3dPose(13).toPose2d(), 13,
+      getTag3dPose(14).toPose2d(), 14,
+      getTag3dPose(15).toPose2d(), 15,
+      getTag3dPose(16).toPose2d(), 16,
+      getTag3dPose(17).toPose2d(), 17,
+      getTag3dPose(18).toPose2d(), 18,
+      getTag3dPose(19).toPose2d(), 19,
+      getTag3dPose(20).toPose2d(), 20
+    );
+
+    public static final Map<Pose2d, Integer> aprilTagPoseToTagIDsMap21_30 = Map.of(
+      getTag3dPose(21).toPose2d(), 21,
+      getTag3dPose(22).toPose2d(), 22,
+      getTag3dPose(23).toPose2d(), 23,
+      getTag3dPose(24).toPose2d(), 24,
+      getTag3dPose(25).toPose2d(), 25,
+      getTag3dPose(26).toPose2d(), 26,
+      getTag3dPose(27).toPose2d(), 27,
+      getTag3dPose(28).toPose2d(), 28,
+      getTag3dPose(29).toPose2d(), 29,
+      getTag3dPose(30).toPose2d(), 30
+    );
+
+    public static final Map<Pose2d, Integer> aprilTagPoseToTagIDsMap31_32 = Map.of(
+      getTag3dPose(31).toPose2d(), 31,
+      getTag3dPose(32).toPose2d(), 32
+    );
 
     /**BLUE                      RED
      * -----------------------------
