@@ -73,6 +73,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
     
     private CommandXboxController driverController;
+    private double controllersCurrentRumbling = 0.0;
     
     // ========================= Configuration =========================
     
@@ -85,6 +86,8 @@ public class TurretSubsystem extends SubsystemBase {
     private final double degreeOffsetToTarget = TurretConstants.TURRET_OFFSET_TO_TARGET;
     private final double encoderToAngleMultiplier = TurretConstants.ABS_ENCDR_POS_TO_ANGLE;
     
+    private final double allowedEncoderDiff = 0.05;
+    
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 360); //360
@@ -94,8 +97,8 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 80); //80
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.15);
-    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.08); //if still 0.08, then not tuned fully
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.19); //old good values: 0.19
+    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.04); //old good values: 0.05
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0);
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
@@ -133,7 +136,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.AIMING;
+    private TurretState currentState = TurretState.INIT;
     private TurretState previousState = currentState;
     
     // Target management
@@ -284,11 +287,15 @@ public class TurretSubsystem extends SubsystemBase {
     
     @Override
     public void periodic() {
+
+        if (Math.abs(turretEncoder.getAbsolutePosition().getValueAsDouble() - turretEncoder.getPosition().getValueAsDouble()) > allowedEncoderDiff) {
+            resetEncodersRelativePosition();
+        }
         
         // Update target based on current mode
         updateTargetFromMode();
         
-        // Convert field-relative goal to robot-relative
+        // Convert field-relative goal to robot-relative 
         Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.plus(
             new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget)));
         
@@ -361,8 +368,14 @@ public class TurretSubsystem extends SubsystemBase {
                 previousAnglesTimestamp = Timer.getFPGATimestamp();
 
                 desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
-
+                
                 targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
+
+                // Other method of using future casting!!! It works :)
+                // Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(.02);
+                // desiredVelocity = (findBestWrappedAngle(updateTargetFromPose(futureTarget).plus(
+                // new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget))).getDegrees()) - robotRelativeTargetAngleDeg)/.02;
+                // targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
             }
         }
         Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);
@@ -396,26 +409,25 @@ public class TurretSubsystem extends SubsystemBase {
         }
     }
 
-    public double updateTargetFromPose(Translation2d targetPosition) {
+    public Rotation2d updateTargetFromPose(Translation2d targetPosition) {
         double targetAngle = 0;
 
         if (targetPosition != null) {
-            Pose2d robotPose = VisionSubsystem.getInstance().getCurrentBotPoseAllianceUnspecific();
-            
             // Calculate vector from robot to target
-            Translation2d robotToTarget = targetPosition.minus(robotPose.getTranslation());
+            Translation2d robotToTarget = targetPosition;
             
             // Calculate angle to target
             Rotation2d angleToTarget = new Rotation2d(
                 robotToTarget.getX(), 
                 robotToTarget.getY()
             );
+
             
             // Update field-relative goal (target is stationary, so velocity = 0)
-            targetAngle = angleToTarget.getDegrees();
+            return angleToTarget;
         }
 
-        return targetAngle;
+        return null;
     }
     
     /**
@@ -656,16 +668,31 @@ public class TurretSubsystem extends SubsystemBase {
         if (driverController != null) {
             if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled() && !DriverStation.isAutonomous()) {
                 if (CoordinationSubsystem.getInstance().getInDeadzone() && CoordinationSubsystem.getInstance().getOverridinTrench()) {
-                    driverController.setRumble(RumbleType.kBothRumble, 0.1);
+                    if (controllersCurrentRumbling != 0.15) {
+                        controllersCurrentRumbling = 0.15;
+                        driverController.setRumble(RumbleType.kBothRumble, 0.15);
+                    }
                 } else if (profiledSetpointDeg == MIN_ANGLE_DEG) {
-                    driverController.setRumble(RumbleType.kLeftRumble, 0.05);
+                    if (controllersCurrentRumbling != 0.05) {
+                        controllersCurrentRumbling = 0.05;
+                        driverController.setRumble(RumbleType.kLeftRumble, 0.05);
+                    }
                 } else if (profiledSetpointDeg == MAX_ANGLE_DEG) {
-                    driverController.setRumble(RumbleType.kRightRumble, 0.05);
+                    if (controllersCurrentRumbling != 0.1) {
+                        controllersCurrentRumbling = 0.1;
+                        driverController.setRumble(RumbleType.kRightRumble, 0.1);
+                    }
                 } else {
-                    driverController.setRumble(RumbleType.kBothRumble, 0.0);
+                    if (controllersCurrentRumbling != 0.0) {
+                        controllersCurrentRumbling = 0.0;
+                        driverController.setRumble(RumbleType.kBothRumble, 0.0);
+                    }
                 }
             } else {
-                driverController.setRumble(RumbleType.kBothRumble, 0.0);
+                if (controllersCurrentRumbling != 0.0) {
+                    controllersCurrentRumbling = 0.0;
+                    driverController.setRumble(RumbleType.kBothRumble, 0.0);
+                }
             }
         }
     }
@@ -676,6 +703,8 @@ public class TurretSubsystem extends SubsystemBase {
      * Publishes telemetry data to AdvantageKit Logger.
      */
     private void publishLogs() {
+        
+
         // State information
         Logger.recordOutput("Rebuilt/Turret/State/CurrentState", currentState);
         Logger.recordOutput("Rebuilt/Turret/State/TargetMode", currentTargetMode);
@@ -695,7 +724,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         Pose2d currentBotPose = drivetrain.getState().Pose;
         Pose2d currentBotPoseWRTTurret = currentBotPose.transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
-        Translation3d turretPoseTranslation = new Translation3d(currentBotPoseWRTTurret.getX(), currentBotPoseWRTTurret.getY(), 0.5);
+        Translation3d turretPoseTranslation = new Translation3d(currentBotPoseWRTTurret.getX(), currentBotPoseWRTTurret.getY(), 0.25);
         Rotation3d turretPoseRotation = new Rotation3d(0, 0, fieldRelativeGoalAngle.getRadians());
         Logger.recordOutput("Rebuilt/Turret/Turret Pose WRT Field", new Pose3d(turretPoseTranslation, turretPoseRotation));
 
@@ -717,6 +746,8 @@ public class TurretSubsystem extends SubsystemBase {
             Logger.recordOutput("Rebuilt/Turret/Device/MotorRevolutions", 
                 turretMotor.getPosition().getValueAsDouble());
             Logger.recordOutput("Rebuilt/Turret/Device/AbsoluteEncoderPosition", 
+                turretEncoder.getAbsolutePosition().getValueAsDouble());
+            Logger.recordOutput("Rebuilt/Turret/Device/Encoder Relative Position", 
                 turretEncoder.getPosition().getValueAsDouble());
             Logger.recordOutput("Rebuilt/Turret/Device/MotorOutputVolts", 
                 turretMotor.getMotorVoltage().getValueAsDouble());
@@ -821,7 +852,7 @@ public class TurretSubsystem extends SubsystemBase {
      * Call this when the turret is at its mechanical zero position.
      */
     public void zero() {
-        turretOffset = -turretEncoder.getPosition().getValueAsDouble() * encoderToAngleMultiplier;
+        turretOffset = -turretEncoder.getAbsolutePosition().getValueAsDouble() * encoderToAngleMultiplier;
     }
     
     /**
@@ -836,6 +867,10 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public void syncMotorPosToEncoder() {
         turretMotor.setPosition(getCurrentAngleDeg() / TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION);
+    }
+
+    public void resetEncodersRelativePosition() {
+        turretEncoder.setPosition(turretEncoder.getAbsolutePosition().getValueAsDouble());
     }
     
     /**
@@ -855,7 +890,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return Current angle in degrees, range [-135, +135]
      */
     public double getCurrentAngleDeg() {
-        return turretEncoder.getPosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
+        return turretEncoder.getAbsolutePosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
     }
     
     /**
@@ -919,6 +954,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return true if within tolerance
      */
     public boolean isAtGoal(double toleranceDeg) {
+        if (profiledSetpointDeg == MAX_ANGLE_DEG || profiledSetpointDeg == MIN_ANGLE_DEG) return false;
         double error = Math.abs(getCurrentAngleDeg() - profiledSetpointDeg);
         return error < toleranceDeg;
     }

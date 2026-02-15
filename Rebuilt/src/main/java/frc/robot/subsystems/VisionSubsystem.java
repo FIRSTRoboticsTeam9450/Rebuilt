@@ -1,11 +1,13 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
@@ -79,19 +81,24 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    private double visionStdDevX = 0.5;
-    private double visionStdDevY = 0.5;
-    private double visionStdDevTheta = 999.0;
+    public Vector<N3> disabledStdDev = VecBuilder.fill(1, 1, 0.5);
+    public Vector<N3> enabledStdDev = VecBuilder.fill(0.5, 0.5, 999);
+
+    public double visionStdDevX = 0.5;
+    public double visionStdDevY = 0.5;
+    public double visionStdDevTheta = 999.0;
+    private boolean firstMeasurment = true;
+    private double validMeasurementCount = 0;
 
     // Maximum allowed differences for fusion; if exceeded, fallback to higher confidence camera
     private double maxTranslationDiff = 2.5; // meters
     private double maxRotationDiff = Math.toRadians(45); // radians
 
     // Validation thresholds for pose filtering
-    private static final double MAX_Z_THRESHOLD = 1; // Robot must be on ground
+    private static final double MAX_Z_THRESHOLD = 0.1; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 2.5; // Vision yaw must match Pigeon within 0.01 degrees
+    private static final double MAX_YAW_DIFF_DEGREES = 0.9; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -114,7 +121,7 @@ public class VisionSubsystem extends SubsystemBase {
     Translation2d currentTarget = ZoneTargets.SHOOTING_TARGET;
 
     // DEBUGGING
-    LoggedNetworkBoolean debuggingData = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
+    LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
 
     // -------------------------
     // Constructor (private for singleton)
@@ -215,7 +222,8 @@ public class VisionSubsystem extends SubsystemBase {
      * Sends fused pose to drivetrain for odometry correction.
      */
     private void updateVision() {
-        double robotYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
+        // double robotYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
+        double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
         
         // Collect vision measurements from all limelights
         List<VisionMeasurement> measurements = new ArrayList<>();
@@ -226,8 +234,15 @@ public class VisionSubsystem extends SubsystemBase {
             
             //If not seeing a tag, dont run through this process
             if (LimelightHelpers.getTV(limelight.getName())) {
-                // Get pose estimate using MegaTag2
-                LimelightHelpers.PoseEstimate pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight.getName());
+                LimelightHelpers.PoseEstimate pe;
+
+                if (validMeasurementCount > 15) {
+                    // Get pose estimate using MegaTag2
+                    pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight.getName());
+                } else {
+                    // Get pose estimate using MegaTag2
+                    pe = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight.getName());
+                }
                 
                 // Create vision measurement
                 VisionMeasurement vm = createVisionMeasurement(pe, limelight.getName());
@@ -253,11 +268,18 @@ public class VisionSubsystem extends SubsystemBase {
                 .orElse(0.0);
             
             // Set standard deviations and add measurement
-            drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+            if (firstMeasurment) {
+                firstMeasurment = false;
+                drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0, 0, 0));
+            } else {
+                drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+            }
             drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
-            
-            Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
+
+            validMeasurementCount++;
         });
+
+        Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
     }
 
     /**
@@ -290,28 +312,36 @@ public class VisionSubsystem extends SubsystemBase {
             double[] botpose = LimelightHelpers.getBotPose_wpiBlue(limelightName);
             
             if (botpose != null && botpose.length >= 6) {
+                double x = botpose[0];
+                double y = botpose[1];
                 double z = botpose[2];
                 double roll = botpose[3];
                 double pitch = botpose[4];
                 double visionYaw = botpose[5];
                 
                 // Get current Pigeon yaw
-                double pigeonYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
+                double pigeonYaw = drivetrain.getState().Pose.getRotation().getDegrees();
                 
                 // Validation checks
+                boolean xValid = (x > 0) && (x < 16.565);
+                boolean yValid = (y > 0) && (y < 8.095);
                 boolean zValid = Math.abs(z) <= MAX_Z_THRESHOLD;
                 boolean rollValid = Math.abs(roll) <= MAX_ROLL_THRESHOLD;
                 boolean pitchValid = Math.abs(pitch) <= MAX_PITCH_THRESHOLD;
+                
                 
                 // Yaw difference check (handle angle wrapping)
                 double yawDiff = Math.abs(visionYaw - pigeonYaw);
                 // Normalize to [-180, 180]
                 while (yawDiff > 180) yawDiff -= 360;
                 while (yawDiff < -180) yawDiff += 360;
-                boolean yawValid = Math.abs(yawDiff) <= MAX_YAW_DIFF_DEGREES;
+                boolean yawValid = true;
+                if (DriverStation.isEnabled()) {
+                    yawValid = Math.abs(yawDiff) <= MAX_YAW_DIFF_DEGREES;
+                }
                 
                 // Pose is only valid if all checks pass
-                poseValid = zValid && rollValid && pitchValid && yawValid;
+                poseValid = xValid && yValid && zValid && rollValid && pitchValid && yawValid;
                 
                 // Optional: Log which check failed for debugging
                 if (!poseValid) {
@@ -465,8 +495,10 @@ public class VisionSubsystem extends SubsystemBase {
         // Fusion thresholds
         Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
         Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
+
+        Logger.recordOutput("Rebuilt/Vision/Valid Measurments", validMeasurementCount);
         
-        if (debuggingData.get()) {
+        if (logDebuggingToggle.get()) {
             // Per-camera data
             for (LimelightObject limelight : LIMELIGHT_LIST) {
                 String name = limelight.getName();
@@ -509,6 +541,8 @@ public class VisionSubsystem extends SubsystemBase {
             // Logger.recordOutput("Rebuilt/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
             Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
             Logger.recordOutput("Rebuilt/Vision/CurrentTargetWRTRobot", getTargetRelativeToBot());
+            Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getAdjustedCurrentTarget()));
+            Logger.recordOutput("Rebuilt/Vision/CurrentTargetWRTRobot", new Pose2d(currentTarget, new Rotation2d()));
             // getAdjustedFutureTarget(.5);
 
         }
@@ -723,7 +757,7 @@ public class VisionSubsystem extends SubsystemBase {
         else if(currentX > ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.BACK_DEADZONE;
         }
-
+        lastAdjustedTargetPose = currentTarget;
     }
 
 
@@ -740,6 +774,10 @@ public class VisionSubsystem extends SubsystemBase {
         this.visionStdDevTheta = thetaRadians;
 
         drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+    }
+
+    public void setVisionMeasurementStdDevs(Vector<N3> vector) {
+        drivetrain.setVisionMeasurementStdDevs(vector);
     }
 
     public void setLLIMUModes(int mode) {

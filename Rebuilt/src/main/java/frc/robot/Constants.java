@@ -100,14 +100,14 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.455322265625;
+      public static final double ENCODER_MAGNET_OFFSET = 0.362060546875;
 
       //Lantern motot to turret gear reduction 161:1 (1/161)
-      public static final double ROTOR_TO_SENSOR_RATIO = 0.001827990359168;
-      public static final double SENSOR_TO_MECHANISM_RATIO = 0.311279 * 0.9849444;// Non-Lantern: 0.4565217391 * 1.06;
+      public static final double ROTOR_TO_SENSOR_RATIO = 0.0625850; //Both Cycoidals: 0.001827990359168
+      public static final double SENSOR_TO_MECHANISM_RATIO = 0.933333;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
-      public static final double TURRET_OFFSET_TO_ZERO = 179.5;
-      public static final double TURRET_OFFSET_TO_TARGET = 5;
+      public static final double TURRET_OFFSET_TO_ZERO = 179.5; 
+      public static final double TURRET_OFFSET_TO_TARGET = 0; //V1: 5
 
       public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
@@ -303,8 +303,8 @@ public final class Constants {
       }
       public static final class ZoneTargets {
         public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
-        public static final Translation2d FERRY_TOP_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
-        public static final Translation2d FERRY_BOTTOM_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
+        public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 7.613);
+        public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(0.455,0.561);
       }
     }
 

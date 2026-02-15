@@ -21,6 +21,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -41,7 +42,8 @@ public class ShooterSubsystem extends SubsystemBase {
         ZEROING,
         AIMING,
         DEADZONE,
-        STORING
+        STORING,
+        TUNING
     }
 
     public enum ShooterState {
@@ -62,7 +64,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetShooterVeloc = 0;
 
     private double hoodAngleMax = 13;
-    private double hoodAngleMin = 3.5;
+    private double hoodAngleMin = 3.5; //3.5 for 270/300 turret, 4.4 for 360
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
     private double distanceAwayToUseSpecificDegree = 4.185;
@@ -90,6 +92,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logHoodMMKI = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kI", 0);
     private LoggedNetworkNumber logHoodMMKD = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kD", 0);
     private LoggedNetworkNumber logHoodMMKG = new LoggedNetworkNumber("/Tuning/Shooter/Angle/kG", 0.3);
+
+    private LoggedNetworkNumber logHoodMotorRevTarget = new LoggedNetworkNumber("/Tuning/Shooter/Angle/Target", 3.5);
     private DynamicMotionMagicVoltage hoodMMRequest;
 
     // Shooter Outtake Velocity Motion Magic Parameters
@@ -140,22 +144,20 @@ public class ShooterSubsystem extends SubsystemBase {
     // TODO: put in shooting data and ferrying data
     public void addData() {
         // Shooting Data Velocity
-        shootingDistanceToVelocity.put(1.276, 25.25);
-        shootingDistanceToVelocity.put(1.8, 27.0);
-        shootingDistanceToVelocity.put(2.5, 27.2);
-        shootingDistanceToVelocity.put(3.2, 27.72);
-        shootingDistanceToVelocity.put(3.375, 28.5);
-        shootingDistanceToVelocity.put(3.7, 29.75);
-        shootingDistanceToVelocity.put(4.41, 31.0);
+        shootingDistanceToVelocity.put(1.00, 25.0);
+        shootingDistanceToVelocity.put(1.9, 26.5);
+        shootingDistanceToVelocity.put(2.32, 27.3);
+        shootingDistanceToVelocity.put(2.97, 28.3);
+        shootingDistanceToVelocity.put(3.84, 31.75);
+        shootingDistanceToVelocity.put(4.33, 32.95);
 
         // Shooting Data Time
-        shootingDistanceToTime.put(1.276, 0.96);
-        shootingDistanceToTime.put(1.8, 1.125);
-        shootingDistanceToTime.put(2.5, 1.044);
-        shootingDistanceToTime.put(3.2, 1.04);
-        shootingDistanceToTime.put(3.375, 1.036);
-        shootingDistanceToTime.put(3.7, 1.0925);
-        shootingDistanceToTime.put(4.41, 1.134);
+        shootingDistanceToTime.put(1.00, 1.08);
+        shootingDistanceToTime.put(1.9, 1.125);
+        shootingDistanceToTime.put(2.32, 1.103);
+        shootingDistanceToTime.put(2.97, 1.12);
+        shootingDistanceToTime.put(3.84, 1.275);
+        shootingDistanceToTime.put(4.33, 1.37);
 
 
         // Ferrying Data Velocity
@@ -247,13 +249,15 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void zeroEncoder() {
-        angleMotor.setPosition(0);
+        if (DriverStation.isDisabled()) {
+            angleMotor.setPosition(0);
+        }
     }
 
     @Override
     public void periodic() {
         if (!isZeroingDone) {
-            currentAngleState = AngleState.ZEROING;
+            currentAngleState = AngleState.ZEROING; // TODO: SWITCH BACK TO ZEROING LATER
             isZeroingDone = autoZeroing();
         }
         publishLogs();
@@ -277,6 +281,8 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
+
+        Logger.recordOutput("Rebuilt/Shooter/Time To Shoot", getShootingDistanceToTime(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
 
         if (logDebuggingToggle.get()) { // To get rid of loop overruns
             // Hood logs
@@ -320,7 +326,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtGoal(10)) {
                     angleMotor.setVoltage(-0.6);
                 } else {
-                    angleMotor.setControl(new VoltageOut(0));
+                    angleMotor.setControl(new VoltageOut(-.6));
                 }
                 break;
 
@@ -333,6 +339,11 @@ public class ShooterSubsystem extends SubsystemBase {
                     angleMotor.setControl(hoodMMRequest.withPosition(0).withSlot(slotNum));
                 }
                 break;
+
+            case TUNING:
+                double targetAngle = MathUtil.clamp(logHoodMotorRevTarget.get(), hoodAngleMin, hoodAngleMax);
+                angleMotor.setControl(hoodMMRequest.withPosition(targetAngle).withSlot(slotNum));
+                break;
                 
             default:
                 break;
@@ -340,12 +351,12 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
 
-    // -------------------------------------- GETTERS -------------------------------------- //
+    // --------------------------------------- GETTERS --------------------------------------- //
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
             switch (coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()) + 0.1);
+                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
                     break;
 
                 case FERRY_ZONE_TOP:
@@ -425,17 +436,12 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double hoodAngleFunction(double distance) {
-        double wantedAngle = (-35.0/(distance - .6)) + 48.0;//Min distance away 4.5
+        // double wantedAngle = (-35.0/(distance - .6)) + 48.0;
+        double wantedAngle = (-60/(distance + 0.9)) + 40;
         double wantedRevs = getAsRevs(wantedAngle);
-        if(wantedRevs != MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax)) {
-            // System.out.println("DEBUGGING: Didn't use calculated angle: " + wantedRevs);
-        }
         if(distance <= distanceAwayToUseLowDegree) {
             wantedRevs = 0; 
         }
-        // if(distance >= distanceAwayToUseSpecificDegree) {
-        //     wantedRevs = getAsRevs(40);
-        // }
         return MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax);
     }
 
@@ -469,7 +475,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isShooterReady() {
-        return (isAngleWithinTolerance() && isVelocityWithinTolerance());
+        // return (isAngleWithinTolerance() && isVelocityWithinTolerance());
+        // return (isAngleWithinTolerance());
+        return true;
     }
 
     // -------------------------------------- SETTERS -------------------------------------- //
@@ -481,19 +489,22 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
         if(currentAngleState == AngleState.ZEROING || currentAngleState == AngleState.STORING) {
-            if(wantedAngleState == AngleState.AIMING) {
-                hoodMMRequest = new DynamicMotionMagicVoltage(0, 300, 300);
+            hoodMMRequest = new DynamicMotionMagicVoltage(0, 300, 300);
 
-                switchSlotBackTimer.restart();
-                hasSwitchedBack = false;
-            }
+            switchSlotBackTimer.restart();
+            hasSwitchedBack = false;
         }
-        
+        System.out.println("WantedAngleState " + wantedAngleState);
+        if(wantedAngleState == AngleState.ZEROING) {
+            System.out.println("PLEASE WORK");
+            isZeroingDone = false;
+        }
         currentShooterState = wantedShooterState;
         currentAngleState = wantedAngleState;
     }
 
     public Command setStateCommand(ShooterState wantedShooterState, AngleState wantedAngleState) {
+        System.out.println("SetStateCommandAngleState" + wantedAngleState);
         return new InstantCommand(() -> setState(wantedShooterState, wantedAngleState));
     }
 
@@ -502,6 +513,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command setAngleState(AngleState wantedAngleState) {
+        System.out.println("Wanted angle state" + wantedAngleState);
         return setStateCommand(currentShooterState, wantedAngleState);
     }
 
