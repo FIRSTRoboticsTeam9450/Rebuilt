@@ -12,7 +12,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 
@@ -20,19 +19,30 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private static volatile ClimberSubsystem climberInstance;
 
-    private TalonFX tapeClimbMotor = new TalonFX(0, RobotConstants.MAIN_SYSTEMS_CANBUS); //temporary deviceID value
+    private TalonFX telescopeClimbMotor = new TalonFX(0, RobotConstants.MAIN_SYSTEMS_CANBUS); //temporary deviceID value
     private TalonFX elevatorClimbMotor = new TalonFX(0, RobotConstants.MAIN_SYSTEMS_CANBUS); //temporary deviceID value
 
-    // --------- all of these should be in a command ----------
+    private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/MM/Velocity", 0.1);
+    private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/MM/Acceleration", 1);
+    private LoggedNetworkNumber logMMJerk = new LoggedNetworkNumber("/Tuning/Climb/MM/Jerk", 1000);
     
-    // Placeholder name and used to say how many bars the bot will climb up
-    //private LoggedNetworkNumber barsToClimb = new LoggedNetworkNumber("/Tuning/Climb/barsToClimb", 1);
-     
-    // Each one says the distance the motor should move to the next climb 
-    // private LoggedNetworkNumber L3Climb = new LoggedNetworkNumber("/Tuning/Climb/L3Climb", 0.0);
-    // private LoggedNetworkNumber L2Climb = new LoggedNetworkNumber("/Tuning/Climb/L2Climb", 0.0);
-    // private LoggedNetworkNumber L1Climb = new LoggedNetworkNumber("/Tuning/Climb/L1Climb", 0.0);
+    // for motor 1/ telescope motor
+    private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.24);
+    private LoggedNetworkNumber logTelescopeMMKV = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kV", 0.33);
+    private LoggedNetworkNumber logTelescopeMMKA = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kA", 0.1);
+    private LoggedNetworkNumber logTelescopeMMKP = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kP", 0.5);
+    private LoggedNetworkNumber logTelescopeMMKI = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kI", 0.0);
+    private LoggedNetworkNumber logTelescopeMMKD = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kD", 0.0);
 
+    // for motor 2/ elevator motor
+    private LoggedNetworkNumber logElevatorMMKS = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kS", 0.24);
+    private LoggedNetworkNumber logElevatorMMKV = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kV", 0.33);
+    private LoggedNetworkNumber logElevatorMMKA = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kA", 0.1);
+    private LoggedNetworkNumber logElevatorMMKP = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kP", 0.5);
+    private LoggedNetworkNumber logElevatorMMKI = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kI", 0.0);
+    private LoggedNetworkNumber logElevatorMMKD = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kD", 0.0);
+
+    // climbDistances holds a position value for the motor to go to for each bar
     private LoggedNetworkNumber[] climbDistances = 
     {  
         new LoggedNetworkNumber("/Tuning/Climb/L3Climb", 0.0),
@@ -40,24 +50,15 @@ public class ClimberSubsystem extends SubsystemBase {
         new LoggedNetworkNumber("/Tuning/Climb/L1Climb", 0.0)
     };
 
-    private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/MM/Velocity", 0.1);
-    private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/MM/Acceleration", 1);
-    private LoggedNetworkNumber logMMJerk = new LoggedNetworkNumber("/Tuning/Climb/MM/Jerk", 1000);
-    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Climb/MM/kS", 0.24);
-    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Climb/MM/kV", 0.33);
-    private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Climb/MM/kA", 0.1);
-    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Climb/MM/kP", 0.5);
-    private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Climb/MM/kI", 0.0);
-    private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Climb/MM/kD", 0.0);
-    private LoggedNetworkNumber logKG = new LoggedNetworkNumber("/Tuning/Climb/kG");
+    // Input from the user before the match to say what climb they want to do
+    private LoggedNetworkNumber barsToClimb = new LoggedNetworkNumber("/Tuning/Climb/barsToClimb", 1);
 
     private TalonFXConfiguration climbConfig1;
     private TalonFXConfiguration climbConfig2;
     boolean atTarget;
 
-    private int climbCounter;
-
-    Timer delayStopwatch = new Timer();
+    // index for the list climbDistance
+    private int climbCounter = 0;
 
     private DynamicMotionMagicVoltage controlRequest = 
                         new DynamicMotionMagicVoltage(0, 
@@ -66,36 +67,39 @@ public class ClimberSubsystem extends SubsystemBase {
                             .withJerk(logMMJerk.get())
                             .withSlot(0)
                             .withEnableFOC(true);
-    // MotionMagic type may change
-
-    public enum IHateMyLife {
-        STOWING,
+    
+    public enum ClimbMasterStates {
+        STOWING, // may not be needed
         STANDBY,
-        LOCKING1,
-        LOCKING2,
-        HAND1,
-        HAND2
+        LOCKING1, // may not be needed
+        LOCKING2, // may not be needed
+        
+        // -------------- vvv I'm not sure at this point how the elevator and telescope work 
+        // together because the climber was finished on winter break
+        
+        TelescopeExtend, // Telescope extend while elavtor retract
+        ElevatorExtend //elevator extend while Telescope retract
     }
 
     public enum ElevatorStates {
-        STOWING,
+        STOWING, // may not be needed
         STANDBY,
         EXTENDING,
-        LOCKING, //this will be removed later on
+        LOCKING, // may not be needed
         RETRACTING
     }
 
-    public enum TapeClimbStates {
-        STOWING,
+    public enum TelescopeStates {
+        STOWING, // may not be needed
         STANDBY,
         EXTENDING,
-        LOCKING, //this will be removed later on
+        LOCKING, // may not be needed
         RETRACTING
     }
 
-    private IHateMyLife currentMasterState = IHateMyLife.STANDBY;
-    private ElevatorStates currentElevatorState = ElevatorStates.STANDBY;
-    private TapeClimbStates currentTapeClimbState = TapeClimbStates.STANDBY;
+    private ClimbMasterStates currentClimbMasterStates = ClimbMasterStates.STANDBY;
+    public ElevatorStates currentElevatorState = ElevatorStates.STANDBY;
+    private TelescopeStates currentTelescopeState = TelescopeStates.STANDBY;
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
@@ -111,12 +115,12 @@ public class ClimberSubsystem extends SubsystemBase {
 
         Slot0Configs slot0Configs = new Slot0Configs()
                                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-                                        .withKS(logMMKS.get())
-                                        .withKV(logMMKV.get())
-                                        .withKA(logMMKA.get())
-                                        .withKP(logMMKP.get())
-                                        .withKI(logMMKI.get())
-                                        .withKD(logMMKD.get());
+                                        .withKS(logTelescopeMMKS.get())
+                                        .withKV(logTelescopeMMKV.get())
+                                        .withKA(logTelescopeMMKA.get())
+                                        .withKP(logTelescopeMMKP.get())
+                                        .withKI(logTelescopeMMKI.get())
+                                        .withKD(logTelescopeMMKD.get());
 
         
 
@@ -129,35 +133,31 @@ public class ClimberSubsystem extends SubsystemBase {
 
         Slot1Configs slot1Configs = new Slot1Configs()
                                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-                                        .withKS(0)
-                                        .withKV(0)
-                                        .withKA(0)
-                                        .withKP(0)
-                                        .withKI(0)
-                                        .withKD(0);
+                                        .withKS(logElevatorMMKS.get())
+                                        .withKV(logElevatorMMKV.get())
+                                        .withKA(logElevatorMMKA.get())
+                                        .withKP(logElevatorMMKP.get())
+                                        .withKI(logElevatorMMKI.get())
+                                        .withKD(logElevatorMMKD.get());
 
         MotionMagicConfigs mmConfigs = new MotionMagicConfigs().withMotionMagicAcceleration(logMMAcceleration.get())
                                                                .withMotionMagicCruiseVelocity(logMMVelocity.get())
                                                                .withMotionMagicJerk(logMMJerk.get());
 
-        climbConfig2.Slot0 = slot0Configs;
-        climbConfig1.Slot1 = slot1Configs;
+        climbConfig1.Slot0 = slot0Configs;
+        climbConfig2.Slot1 = slot1Configs;
 
-        climbConfig2.MotionMagic = mmConfigs;
         climbConfig1.MotionMagic = mmConfigs;
+        climbConfig2.MotionMagic = mmConfigs;
         
+        telescopeClimbMotor.getConfigurator().apply(climbConfig1);
         elevatorClimbMotor.getConfigurator().apply(climbConfig2);
-        tapeClimbMotor.getConfigurator().apply(climbConfig1);
     }
 
     /* ----------- Updaters ----------- */
 
-    public void setNumberofClimbs(int numClimbs) {
-        this.climbCounter = numClimbs;
-    }
-
-    public void setTapeTarget(double setpoint) {
-         tapeClimbMotor.setControl(controlRequest.withPosition(setpoint) //in rotations
+    public void setTelescopeTarget(double setpoint) {
+         telescopeClimbMotor.setControl(controlRequest.withPosition(setpoint) //in rotations
                                                  .withVelocity(null)); //in rotations per second
     }
 
@@ -167,12 +167,13 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void resetEncoders() {
-        tapeClimbMotor.setPosition(0);
+        telescopeClimbMotor.setPosition(0);
         elevatorClimbMotor.setPosition(0);
     }
 
     private void publishClimbLogs() {
-        Logger.recordOutput("Rebuilt/Climb/MotorPosition", getMotorPosition());
+        Logger.recordOutput("Rebuilt/Climb/ElevatorMotorPosition",getElevatorPosition());
+        Logger.recordOutput("Rebuilt/Climb/TelescopeMotorPosition",getTelescopePosition());
     }
 
     public void periodic() {
@@ -180,57 +181,30 @@ public class ClimberSubsystem extends SubsystemBase {
         publishClimbLogs();
     }
 
-    public boolean atTarget(double target) {
-        return Math.abs(target - getMotorPosition()) < 0.05 && tapeClimbMotor.getVelocity().getValueAsDouble() < 0.1;
+    public boolean ElevatorAtTarget() {
+        atTarget = (Math.abs(climbDistances[climbCounter].get()) - getElevatorPosition() < 0.05 && elevatorClimbMotor.getVelocity().getValueAsDouble() < 0.1);
+        return atTarget;
     }
 
-    // public boolean endClimbSequence() {
-    //     return climbCounter == 0;
-    // }
-
-    public void resetStopwatch() {
-        delayStopwatch.stop();
-        delayStopwatch.reset();
+    public boolean TelescopeAtTarget() {
+        atTarget = (Math.abs(climbDistances[climbCounter].get()) - getTelescopePosition() < 0.05 && telescopeClimbMotor.getVelocity().getValueAsDouble() < 0.1);
+        return atTarget;
     }
 
-    /*
-    public void setState(int num) {
-        switch (num) {
-            case 1:
-                currentElevatorState = ElevatorStates.STANDBY;
-                break;
-            case 2:
-                currentElevatorState = ElevatorStates.EXTENDING;
-                break;
-            case 3:
-                currentElevatorState = ElevatorStates.RETRACTING;
-                break;
-            case 4:
-                currentElevatorState = ElevatorStates.LOCKING;
-                break;
-            case 5:
-                currentElevatorState = ElevatorStates.STOWING;
-                break;
-        
-            default:
-                break;
-        }
-    }
-    */
+    // public boolean endClimbSequence() { return climbCounter == 0; }
 
-    /*
     public void masterStates() {
-        switch (currentMasterState) {
-            case HAND1:
+        switch (currentClimbMasterStates) {
+            case TelescopeExtend:
                 currentElevatorState = ElevatorStates.RETRACTING;
-                currentTapeClimbState = TapeClimbStates.EXTENDING;
+                currentTelescopeState = TelescopeStates.EXTENDING;
                 break;
-            case HAND2:
+            case ElevatorExtend:
                 currentElevatorState = ElevatorStates.EXTENDING;
-                currentTapeClimbState = TapeClimbStates.RETRACTING;
+                currentTelescopeState = TelescopeStates.RETRACTING;
                 break;
             case LOCKING1:
-                currentTapeClimbState = TapeClimbStates.LOCKING;
+                currentTelescopeState = TelescopeStates.LOCKING;
                 break;
             case LOCKING2:
                 currentElevatorState = ElevatorStates.LOCKING;
@@ -239,85 +213,93 @@ public class ClimberSubsystem extends SubsystemBase {
                 break;
             case STOWING:
                 currentElevatorState = ElevatorStates.STOWING;
-                currentTapeClimbState = TapeClimbStates.STOWING;
+                currentTelescopeState = TelescopeStates.STOWING;
                 break;
             default:
                 break;
         }
     }
-    */
+    
 
     private void applyStates() {
-        //consider merging these two switches
-        //stuff to consider- the motion magic configs
+        // for traversing climbDistances the list
+        // add +1 to climbCounter each time
+        // stop repeating when climbCounter is greater than or maybe equal to barsToClimb
 
-        //0 (climb count) + 3 = 3
+        // climbDistances holds a position value for the motor to go to for each bar
 
-        //maximum num of climbs - climb count = currentGoal
-        //for instance, 3 - 2 = 1
-        //therefore, 2 + 1 = 3
+        // ------------ The state Locking and Stowing may not be useful and could be removed ----
 
         switch (currentElevatorState) {
             case STANDBY:
-                setElevatorTarget(Math.round(Math.abs(getMotorPosition())));
-                //502 bad code
+                // Makes the motor stay at it's current position there is probably a better way to do this
+                setElevatorTarget(Math.round(Math.abs(getElevatorPosition())));
                 break;
             case EXTENDING:
-                setElevatorTarget(7);
-                // if(atTarget()) {
+                setElevatorTarget(climbDistances[climbCounter].get());
+                // if(ElevatorAtTarget()) {
                 //     currentElevatorState = ElevatorStates.LOCKING;
                 // }
-                // break;
+                break;
             case LOCKING:
                 setElevatorTarget(5); //temporary value
-                // if(atTarget()) {
+                // if(ElevatorAtTarget()) {
                 //     currentElevatorState = ElevatorStates.RETRACTING;
                 // }
-                // break;
+                break;
             case RETRACTING:
                 setElevatorTarget(0);
-                // if(atTarget()) {
+                // if(ElevatorAtTarget()) {
                 //     currentElevatorState = ElevatorStates.STANDBY;
                 // }
                 break;
             case STOWING:
                 setElevatorTarget(0);
-                // if(atTarget()) {
+                // if(ElevatorAtTarget()) {
                 //     currentElevatorState = ElevatorStates.STANDBY;
                 // } 
-                // break;
+                break;
+            default:
+                break;
         }
-        switch(currentTapeClimbState) {
-            case EXTENDING:
-                setTapeTarget(7);
-                // if(atTarget()) {
-                //     currentElevatorState = ElevatorStates.LOCKING;
-                // }
-                // break;
-            case RETRACTING:
-                setTapeTarget(0);
-                // if(atTarget()) {
-                //     currentElevatorState = ElevatorStates.STANDBY;
-                // }
-                // break;
-            case LOCKING:
-                setTapeTarget(5);
-                // if(atTarget()) {
-                //     currentElevatorState = ElevatorStates.RETRACTING;
-                // }
-                // break;
+        switch(currentTelescopeState) {
             case STANDBY:
-                setTapeTarget(Math.round(Math.abs(getMotorPosition())));
-                //make sure to set what happens during state standbyaa
+                // Makes the motor stay at it's current position there is probably a better way to do this
+                setTelescopeTarget(Math.round(Math.abs(getTelescopePosition())));
+                break;
+            case EXTENDING:
+                setTelescopeTarget(climbDistances[climbCounter].get());
+                if(TelescopeAtTarget()) {
+                    currentTelescopeState = TelescopeStates.LOCKING;
+                }
+                break;
+            case LOCKING:
+                setTelescopeTarget(5);
+                // if(TelescopeAtTarget()) {
+                //     currentTelescopeState = TelescopeStates.RETRACTING;
+                // }
+                break;
+            case RETRACTING:
+                setTelescopeTarget(0);
+                // if(TelescopeAtTarget()) {
+                //     currentTelescopeState = TelescopeStates.STANDBY;
+                // }
                 break;
             case STOWING:
-                setTapeTarget(0);
+                setTelescopeTarget(0);
                 break;
-        }
+            default:
+                break;
+        } 
     }
 
-    public double getMotorPosition() {
-        return tapeClimbMotor.getPosition().getValueAsDouble();
+
+    public double getElevatorPosition() {
+        return elevatorClimbMotor.getPosition().getValueAsDouble();
+    }
+
+    public double getTelescopePosition() {
+        return telescopeClimbMotor.getPosition().getValueAsDouble();
     }
 
     public static synchronized ClimberSubsystem getInstance() {
@@ -327,6 +309,6 @@ public class ClimberSubsystem extends SubsystemBase {
         System.out.println("acquired" + climberInstance); //temporary
 
         return climberInstance;
-    }
-    
+    } 
+
 }
