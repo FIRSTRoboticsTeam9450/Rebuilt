@@ -5,47 +5,21 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "ShootPreload"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SetFire"
-                }
-              }
-            ]
+            "pathName": "ShootPreload"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.75
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "ShootToNeutral"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "SetIntake"
-                }
-              }
-            ]
+            "pathName": "ShootToNeutral"
           }
         },
         {

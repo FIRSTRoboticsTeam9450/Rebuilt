@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -54,7 +55,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     public CoordinationSubsystem() {
         
     }
-    
+
 
     @Override
     public void periodic() {
@@ -246,7 +247,10 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean isTurretReady() {
-        return TurretSubsystem.getInstance().isAtGoal() && TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING;
+        if (DriverStation.isAutonomous() && (currentZone == ZoneState.FERRY_ZONE_TOP || currentZone == ZoneState.FERRY_ZONE_BOTTOM)) {
+            return TurretSubsystem.getInstance().isAtTotalGoal() && TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING;
+        }
+        return TurretSubsystem.getInstance().isAtProfiledGoal() && TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING;
     }
 
     public boolean areShooterAndTurretReady() {

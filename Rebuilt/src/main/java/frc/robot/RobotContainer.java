@@ -79,6 +79,7 @@ public class RobotContainer {
     configureBindings();
 
     registeredCommands();
+    
     autoChooser = new LoggedDashboardChooser<>("Rebuilt/Auto Chooser");
     configureAutos();
   }

@@ -83,8 +83,8 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    public Vector<N3> disabledStdDev = VecBuilder.fill(1, 1, 0.5);
-    public Vector<N3> enabledStdDev = VecBuilder.fill(0.5, 0.5, 999);
+    public Vector<N3> disabledStdDev = VecBuilder.fill(2, 2, 0.5);
+    public Vector<N3> enabledStdDev = VecBuilder.fill(1, 1, 999);
 
     public double visionStdDevX = 0.5;
     public double visionStdDevY = 0.5;
@@ -100,7 +100,7 @@ public class VisionSubsystem extends SubsystemBase {
     private static final double MAX_Z_THRESHOLD = 0.25; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 1.0; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
+    private static final double MAX_YAW_DIFF_DEGREES = 0.85; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();

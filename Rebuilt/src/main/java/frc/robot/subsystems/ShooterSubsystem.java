@@ -150,8 +150,8 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToVelocity.put(2.32, 27.3);
         shootingDistanceToVelocity.put(2.97, 28.3);
         shootingDistanceToVelocity.put(3.85, 31.0);
-        shootingDistanceToVelocity.put(4.1, 32.25);
-        shootingDistanceToVelocity.put(4.766, 33.5);
+        shootingDistanceToVelocity.put(4.1, 32.5);
+        shootingDistanceToVelocity.put(4.766, 34.2);
 
         // Shooting Data Time
         shootingDistanceToTime.put(1.00, 1.08);
@@ -341,7 +341,7 @@ public class ShooterSubsystem extends SubsystemBase {
         }
         switch (currentAngleState) {
             case ZEROING:
-                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtGoal(10)) {
+                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtProfiledGoal(10)) {
                     angleMotor.setVoltage(-0.6);
                 } else {
                     angleMotor.setControl(new VoltageOut(-.6));
@@ -353,7 +353,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
 
             case STORING:
-                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtGoal(15)) {
+                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtProfiledGoal(15)) {
                     angleMotor.setControl(hoodMMRequest.withPosition(0).withSlot(slotNum));
                 }
                 break;
@@ -382,7 +382,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 case FERRY_ZONE_TOP:
                     distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
 
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.80;
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.85;
                     if(distance > 14.55) {
                         targetShooterVeloc = 49;
                     }
@@ -391,7 +391,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 case FERRY_ZONE_BOTTOM:
                     distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
                     
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.80;
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.85;
                     if(distance > 14.55) {
                         targetShooterVeloc = 49;
                     }
@@ -489,7 +489,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Checks
     public boolean isAngleWithinTolerance() {
-        return isAngleWithinTolerance(1.0);
+        return isAngleWithinTolerance(2.75);
     }
 
     public boolean isAngleWithinTolerance(double tolerance) {
@@ -497,7 +497,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isVelocityWithinTolerance() {
-        return isVelocityWithinTolerance(10);
+        return isVelocityWithinTolerance(14);
     }
 
     public boolean isVelocityWithinTolerance(double tolerance) {
@@ -508,7 +508,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(!hasReachedShooterVelocity) {
             return (isAngleWithinTolerance() && isVelocityWithinTolerance());
         }
-        return (isAngleWithinTolerance() && isVelocityWithinTolerance(3));
+        return (isAngleWithinTolerance() && isVelocityWithinTolerance(10));
         // return (isAngleWithinTolerance());
         // return true;
     }
@@ -517,7 +517,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if (currentShooterState != ShooterState.SHOOTING) {
             hasReachedShooterVelocity = false;
         } else {
-            if (Math.abs(shooterLeftMotor.getVelocity().getValueAsDouble() - getShooterVeloc()) < 1) {
+            if (Math.abs(shooterLeftMotor.getVelocity().getValueAsDouble() - getShooterVeloc()) < 3) {
                 hasReachedShooterVelocity = true;
             }
         }

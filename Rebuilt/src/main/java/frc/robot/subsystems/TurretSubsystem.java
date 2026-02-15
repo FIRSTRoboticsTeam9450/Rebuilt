@@ -471,7 +471,7 @@ public class TurretSubsystem extends SubsystemBase {
                     break;
 
                 case INIT:
-                    if (isAtGoal(20) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
+                    if (isAtProfiledGoal(20) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
                         currentState = TurretState.AIMING;
                     }
 
@@ -765,7 +765,7 @@ public class TurretSubsystem extends SubsystemBase {
             Logger.recordOutput("Rebuilt/Turret/Device/MotorVelocity (RPS)", 
                 turretMotor.getVelocity().getValueAsDouble());
 
-            Logger.recordOutput("Rebuilt/Turret/Pos/AtGoal", isAtGoal());
+            Logger.recordOutput("Rebuilt/Turret/Pos/AtGoal", isAtProfiledGoal());
             Logger.recordOutput("Rebuilt/Turret/Target/TargetOutOfRange", isTargetOutOfRange());
         }
     }
@@ -954,8 +954,11 @@ public class TurretSubsystem extends SubsystemBase {
      * 
      * @return true if within default tolerance (7.5°)
      */
-    public boolean isAtGoal() {
-        return isAtGoal(7.5);
+    public boolean isAtProfiledGoal() {
+        if (DriverStation.isAutonomous()) {
+            return isAtProfiledGoal(12.5);
+        }
+        return isAtProfiledGoal(7.5);
     }
     
     /**
@@ -964,7 +967,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @param toleranceDeg Allowable error in degrees
      * @return true if within tolerance
      */
-    public boolean isAtGoal(double toleranceDeg) {
+    public boolean isAtProfiledGoal(double toleranceDeg) {
         //should return false if 0.5 degrees off from deadzone
         if ((Math.abs(Math.abs(profiledSetpointDeg) - MAX_ANGLE_DEG) < 0.5)) //TODO: logic needs fixing (┬┬﹏┬┬)
             return false;
@@ -972,6 +975,18 @@ public class TurretSubsystem extends SubsystemBase {
 
         double error = Math.abs(getCurrentAngleDeg() - profiledSetpointDeg);
         return error < toleranceDeg;
+    }
+
+    public boolean isAtTotalGoal() {
+        if (DriverStation.isAutonomous()) {
+            return isAtTotalGoal(12.5);
+        }
+        return isAtTotalGoal(7.5);
+    }
+
+    public boolean isAtTotalGoal(double tolerance) {
+        double error = Math.abs(getCurrentAngleDeg() - robotRelativeTargetAngleDeg);
+        return error < tolerance;
     }
     
     /**
