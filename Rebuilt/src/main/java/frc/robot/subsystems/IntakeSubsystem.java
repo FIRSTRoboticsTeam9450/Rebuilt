@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -31,6 +32,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         SYS_ID,
         ZEROING,
         STORE,
+        TRENCH_STORE,
         INTAKING
     }
 
@@ -50,29 +52,38 @@ public final class IntakeSubsystem extends SubsystemBase{
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
     private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 45); //45
-    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 30); //30
+    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 100); //30
 
 
-    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.1); // .1
-    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.45); // .33
+    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.145); // .1
+    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.2); // .33
     private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Intake/Angle/kA", 0); // 0
-    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 25); // 25
+    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 30); // 25
     private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Intake/Angle/kI", 0); // 0
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0); // 0
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 7.33);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 0.73);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
-    private double storeRevolutions = .925;
+    private double storeRevolutions = 6.25;
+    private double trenchStoreRevolutions = 4.5;
+
+    private boolean hasReachedIntakeLocation = false;
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     private final VoltageOut sysIDRequest = new VoltageOut(0);
     private final SysIdRoutine m_sysIdRoutine;
 
     private boolean isZeroing = false;
+    private boolean jamTimerStarted = false;
+    private boolean unjamTimerStarted = false;
+    private boolean unjammed = true;
+    private Timer jamTimer = new Timer();
+    private Timer unjamTimer = new Timer();
 
     public IntakeSubsystem() {
         configureMotors();
@@ -97,7 +108,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private void configureMotors() {
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
 
@@ -138,6 +149,7 @@ public final class IntakeSubsystem extends SubsystemBase{
             currentPos = IntakePos.ZEROING;
             isZeroing = isZeroingDone();
         }
+        updateReachedIntakeHeightLogic();
         applyState();
         publishLogs();
     }
@@ -146,28 +158,69 @@ public final class IntakeSubsystem extends SubsystemBase{
         switch (currentPos) {
             case SYS_ID:
                 break;
+
             case ZEROING:
+                //TODO: make sure this volt makes it go INTO bumper
                 motorArm.setVoltage(-.6);
                 break;
 
+            case TRENCH_STORE:
+                motorArm.setControl(request.withPosition(trenchStoreRevolutions));
+                break;
+
             case STORE:
-                motorArm.setControl(request.withPosition(storeRevolutions));
+                    motorArm.setControl(request.withPosition(storeRevolutions));
                 break;
             
             case INTAKING:
-                motorArm.setControl(request.withPosition(logIntakeTarget.get()));
+                //TODO: test this, never triggered due to being on store instead of intaking
+                // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 40) {
+                //     motorArm.setControl(request.withPosition(logIntakeTarget.get() + 1.5));
+                // } else {
+                    motorArm.setControl(request.withPosition(logIntakeTarget.get()));
+                // }
                 break;
         }
 
         switch (currentState) {
             case IDLING:
-                motorWheels.setVoltage(0);
+                motorWheels.setControl(voltageRequest.withOutput(0));
                 break;
             
             case INTAKING:
-                motorWheels.setVoltage(logIntakingTarget.get());
+            
+                    // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
+                //     motorWheels.setControl(voltageRequest.withOutput(-logIntakingTarget.get()));
+                // } else {
+                // else if(checkJam()) {
+                //     motorWheels.setControl(voltageRequest.withOutput(-1));
+                //     if(!unjamTimerStarted) {
+                //         unjamTimerStarted = true;
+                //         unjamTimer.restart();
+                //     }
+                //     if(unjamTimer.get() > 1) {
+                //         unjammed = true;
+                //         unjamTimerStarted = false;
+                //         jamTimerStarted = false;
+                //     }
+                // }
+                // else {
+                    motorWheels.setControl(voltageRequest.withOutput(logIntakingTarget.get()));
+                // }
                 break;
         }
+    }
+
+    private boolean checkJam() {
+        if(motorWheels.getMotorVoltage().getValueAsDouble() > 3 && Math.abs(motorArm.getPosition().getValueAsDouble() - logIntakeTarget.get()) > 1 && !jamTimerStarted) {
+            jamTimerStarted = true;
+            unjammed = false;
+            jamTimer.restart();
+        }
+        if(jamTimerStarted && jamTimer.get() > 1) {
+            return true;
+        }
+        return false;
     }
 
     private void publishLogs() {
@@ -177,6 +230,19 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Angle/Target", currentPos == IntakePos.INTAKING ? logIntakeTarget.get() : storeRevolutions);
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Voltage", motorArm.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Velocity", motorArm.getVelocity().getValueAsDouble());
+
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Veloc", motorWheels.getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Voltage", motorWheels.getMotorVoltage().getValueAsDouble());
+    }
+
+    private void updateReachedIntakeHeightLogic() {
+        if (currentPos != IntakePos.INTAKING) {
+            hasReachedIntakeLocation = false;
+        } else {
+            if (Math.abs(motorArm.getPosition().getValueAsDouble() - logIntakeTarget.get()) < 1) {
+                hasReachedIntakeLocation = true;
+            }
+        }
     }
 
     public IntakePos getCurrentIntakePos() {

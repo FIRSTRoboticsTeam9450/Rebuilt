@@ -1,0 +1,81 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SitStill"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetHardTrenchOverrideTrue"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "SetHardTrenchOverrideFalse"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightSidePreloadToNeutral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightSideLeftFerry"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightSideFerryTurn"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightSideRightFerry"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RightSideFerryEnd"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Test Autos",
+  "choreoAuto": false
+}

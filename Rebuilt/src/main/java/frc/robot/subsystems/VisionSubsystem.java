@@ -9,6 +9,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants.TurretConstants;
@@ -95,10 +97,10 @@ public class VisionSubsystem extends SubsystemBase {
     private double maxRotationDiff = Math.toRadians(45); // radians
 
     // Validation thresholds for pose filtering
-    private static final double MAX_Z_THRESHOLD = 0.1; // Robot must be on ground
+    private static final double MAX_Z_THRESHOLD = 0.25; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 0.9; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
+    private static final double MAX_YAW_DIFF_DEGREES = 1.0; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -122,6 +124,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     // DEBUGGING
     LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
+    double loopOffset = 0;
+
+    private boolean useCustomTarget = false;
+    private Translation2d customTarget = new Translation2d();
 
     // -------------------------
     // Constructor (private for singleton)
@@ -143,47 +149,27 @@ public class VisionSubsystem extends SubsystemBase {
      */
     private void configureLimelights() {
         // Front Left Limelight
-        LimelightObject limelightFL = new LimelightObject(FrontLeft.NAME);
-        limelightFL.location = Location.FRONT_LEFT;
-        limelightFL.offsetX = FrontLeft.LOCATION_X;
-        limelightFL.offsetY = FrontLeft.LOCATION_Y;
-        limelightFL.offsetZ = FrontLeft.LOCATION_Z;
-        limelightFL.offsetPitch = FrontLeft.PITCH;
-        limelightFL.offsetRoll = FrontLeft.ROLL;
-        limelightFL.offsetYaw = FrontLeft.YAW;
+        LimelightObject limelightFL = new LimelightObject(FrontLeft.NAME)
+                                        .withLocation(Location.FRONT_LEFT)
+                                        .withPose3d(FrontLeft.POSE);
         LIMELIGHT_LIST.add(limelightFL);
 
         // Front Right Limelight
-        LimelightObject limelightFR = new LimelightObject(FrontRight.NAME);
-        limelightFR.location = Location.FRONT_RIGHT;
-        limelightFR.offsetX = FrontRight.LOCATION_X;
-        limelightFR.offsetY = FrontRight.LOCATION_Y;
-        limelightFR.offsetZ = FrontRight.LOCATION_Z;
-        limelightFR.offsetPitch = FrontRight.PITCH;
-        limelightFR.offsetRoll = FrontRight.ROLL;
-        limelightFR.offsetYaw = FrontRight.YAW;
+        LimelightObject limelightFR = new LimelightObject(FrontRight.NAME)
+                                        .withLocation(Location.FRONT_RIGHT)
+                                        .withPose3d(FrontRight.POSE);
         LIMELIGHT_LIST.add(limelightFR);
 
         // Back Left Limelight
-        LimelightObject limelightBL = new LimelightObject(BackLeft.NAME);
-        limelightBL.location = Location.BACK_LEFT;
-        limelightBL.offsetX = BackLeft.LOCATION_X;
-        limelightBL.offsetY = BackLeft.LOCATION_Y;
-        limelightBL.offsetZ = BackLeft.LOCATION_Z;
-        limelightBL.offsetPitch = BackLeft.PITCH;
-        limelightBL.offsetRoll = BackLeft.ROLL;
-        limelightBL.offsetYaw = BackLeft.YAW;
+        LimelightObject limelightBL = new LimelightObject(BackLeft.NAME)
+                                        .withLocation(Location.BACK_LEFT)
+                                        .withPose3d(BackLeft.POSE);
         LIMELIGHT_LIST.add(limelightBL);
 
         // Back Right Limelight
-        LimelightObject limelightBR = new LimelightObject(BackRight.NAME);
-        limelightBR.location = Location.BACK_RIGHT;
-        limelightBR.offsetX = BackRight.LOCATION_X;
-        limelightBR.offsetY = BackRight.LOCATION_Y;
-        limelightBR.offsetZ = BackRight.LOCATION_Z;
-        limelightBR.offsetPitch = BackRight.PITCH;
-        limelightBR.offsetRoll = BackRight.ROLL;
-        limelightBR.offsetYaw = BackRight.YAW;
+        LimelightObject limelightBR = new LimelightObject(BackRight.NAME)
+                                        .withLocation(Location.BACK_RIGHT)
+                                        .withPose3d(BackRight.POSE);
         LIMELIGHT_LIST.add(limelightBR);
 
         setLLIMUModes(0);
@@ -497,7 +483,16 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
 
         Logger.recordOutput("Rebuilt/Vision/Valid Measurments", validMeasurementCount);
-        
+
+        Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
+
+        if (loopOffset > 5) {
+            loopOffset = 0;
+            Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
+        } else {
+            loopOffset++;
+        }
+
         if (logDebuggingToggle.get()) {
             // Per-camera data
             for (LimelightObject limelight : LIMELIGHT_LIST) {
@@ -535,7 +530,6 @@ public class VisionSubsystem extends SubsystemBase {
             Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
             Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
             Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
-            Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
             Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
             Logger.recordOutput("Rebuilt/Vision/CurrentTargetFromMethod", new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()));
             // Logger.recordOutput("Rebuilt/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
@@ -718,49 +712,54 @@ public class VisionSubsystem extends SubsystemBase {
         Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
         double currentX = currentPose.getX();
         double currentY = currentPose.getY();
-        if(currentX > ZoneConstantsAndyMark.MAJOR_ZONE_X_LOW && currentX < ZoneConstantsAndyMark.MAJOR_ZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MAJOR_ZONE_Y_LOW && currentY < ZoneConstantsAndyMark.MAJOR_ZONE_Y_HIGH) { // CHANGE DURING COMP TO WELDED
+        if(currentX > ZoneConstantsWelded.MAJOR_ZONE_X_LOW && currentX < ZoneConstantsWelded.MAJOR_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MAJOR_ZONE_Y_LOW && currentY < ZoneConstantsWelded.MAJOR_ZONE_Y_HIGH) { // CHANGE DURING COMP TO WELDED
             currentZone = ZoneState.SHOOTING_ZONE;
             currentTarget = ZoneTargets.SHOOTING_TARGET;
         }
-        else if(currentX > ZoneConstantsAndyMark.MID_ZONE_X_LOW && currentX < ZoneConstantsAndyMark.MID_ZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MID_ZONE_1_Y_LOW && currentY < ZoneConstantsAndyMark.MID_ZONE_1_Y_HIGH) {
+        else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_1_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_1_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_TOP;
             currentTarget = ZoneTargets.FERRY_TOP_TARGET;
         }
-        else if(currentX > ZoneConstantsAndyMark.MID_ZONE_X_LOW && currentX < ZoneConstantsAndyMark.MID_ZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MID_ZONE_2_Y_LOW && currentY < ZoneConstantsAndyMark.MID_ZONE_2_Y_HIGH) {
+        else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_BOTTOM;
             currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
         }
-        if(currentX > ZoneConstantsAndyMark.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_1_DEADZONE_Y_HIGH) {
+        if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
         }
-        else if(currentX > ZoneConstantsAndyMark.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_2_DEADZONE_Y_HIGH) {
+        else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
         }
-        else if(currentX > ZoneConstantsAndyMark.SOFT_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.SOFT_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_3_DEADZONE_Y_HIGH) {
+        else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
         }
-        else if(currentX > ZoneConstantsAndyMark.SOFT_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.SOFT_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_4_DEADZONE_Y_HIGH) {
+        else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
         }
-        if(currentX > ZoneConstantsAndyMark.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_1_DEADZONE_Y_HIGH) {
+        if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
         }
-        else if(currentX > ZoneConstantsAndyMark.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_2_DEADZONE_Y_HIGH) {
+        else if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
         }
-        else if(currentX > ZoneConstantsAndyMark.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_3_DEADZONE_Y_HIGH) {
+        else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
         }
-        else if(currentX > ZoneConstantsAndyMark.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.TRENCH_4_DEADZONE_Y_HIGH) {
+        else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
         }
-        else if(currentX > ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsAndyMark.MID_ZONE_2_DEADZONE_Y_HIGH) {
+        else if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.BACK_DEADZONE;
+        }
+        if(useCustomTarget) {
+            currentTarget = customTarget;
         }
         lastAdjustedTargetPose = currentTarget;
     }
 
-
+    public Command setCustomTarget(boolean value) {
+        return new InstantCommand(() -> useCustomTarget = value);
+    }
     public boolean inZone(ZoneState currentZone) {
         return false;
     }

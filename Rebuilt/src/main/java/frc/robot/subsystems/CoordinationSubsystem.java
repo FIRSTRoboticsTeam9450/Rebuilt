@@ -1,24 +1,16 @@
 package frc.robot.subsystems;
 
-import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
 import frc.robot.commands.GoToPosCommand;
@@ -31,7 +23,6 @@ import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.subsystems.VisionSubsystem.ZoneState;
 import frc.robot.util.HubTracker;
-import frc.robot.util.HubTracker.Shift;
 
 public class CoordinationSubsystem extends SubsystemBase {
 
@@ -53,11 +44,11 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean driverAllowingShooting = false;
     private boolean shouldBeIntaking = false;
     private boolean overrideTrench = false;
+    private boolean hardOverrideTrench = false;
 
     private boolean update = false;
     private boolean previousGoodToShoot = goodToFire();
     private boolean checkZeroing = false;
-    
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", false);
 
     public CoordinationSubsystem() {
@@ -114,15 +105,20 @@ public class CoordinationSubsystem extends SubsystemBase {
                         }
                         break;
                     case SOFT_TRENCH_DEADZONE:
-                        if(!overrideTrench) {
+                        if(!overrideTrench || !hardOverrideTrench) {
                             setState(AbsoluteStates.TRENCH);
                         }
                         else {
-                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+                            setState(AbsoluteStates.SHOOTING);
                         }
                         break;
                     case HARD_TRENCH_DEADZONE:
-                        setState(AbsoluteStates.TRENCH);
+                        if(!hardOverrideTrench) {
+                            setState(AbsoluteStates.TRENCH);
+                        }
+                        else {
+                            setState(AbsoluteStates.SHOOTING);
+                        }
                         break;
                     case BACK_DEADZONE:
                         break;
@@ -199,11 +195,18 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterVelocState = ShooterState.NOT_SHOOTING;
                 transferState = TransferState.HOLD;
                 ledState = LEDState.UNABLE_TO_FIRE;
+                if (shouldBeIntaking) {
+                    intakeAngleState = IntakePos.INTAKING;
+                    intakeVelocState = IntakeState.INTAKING;
+                } else {
+                    intakeAngleState = IntakePos.TRENCH_STORE;
+                    intakeVelocState = IntakeState.IDLING;
+                }
                 break;
         }
 
-        // TurretSubsystem.getInstance().setState(turretState);
-        // ShooterSubsystem.getInstance().setState(shooterVelocState, shooterHoodState);
+        TurretSubsystem.getInstance().setState(turretState);
+        ShooterSubsystem.getInstance().setState(shooterVelocState, shooterHoodState);
         TransferSubsystem.getInstance().setState(transferState);
         IntakeSubsystem.getInstance().setPos(intakeAngleState);
         IntakeSubsystem.getInstance().setState(intakeVelocState);
@@ -214,11 +217,16 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Match Data/Our Hub Active?", HubTracker.isActive());
         Logger.recordOutput("Rebuilt/Match Data/Time Left Until Shift Change", HubTracker.timeRemainingInCurrentShift().isPresent() ? HubTracker.timeRemainingInCurrentShift().get() : -1);
 
+        Logger.recordOutput("Rebuilt/Coord/Intakeing", shouldBeIntaking);
+        Logger.recordOutput("Rebuilt/Coord/Firing", driverAllowingShooting);
+
         Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
         Logger.recordOutput("Rebuilt/Coord/Driver Allows Shooting", driverAllowingShooting);
         Logger.recordOutput("Rebuilt/Coord/Subsystems good to fire?", areShooterAndTurretReady());
         Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
         Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
+        Logger.recordOutput("Rebuilt/Coord/OverridingTrench?", hardOverrideTrench);
+
         if(logDebuggingToggle.get()) {
         }
     }
@@ -250,6 +258,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean goodToFire() {
+        // return driverAllowingShooting;
         return (driverAllowingShooting && areShooterAndTurretReady());
     }
 
@@ -265,6 +274,13 @@ public class CoordinationSubsystem extends SubsystemBase {
     public Command setIntakeCommand() {
         return new InstantCommand(() -> shouldBeIntaking = !shouldBeIntaking)
         .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState()));
+    }
+
+    public Command setHardTrenchOverride(boolean value) {
+        return new InstantCommand(() -> hardOverrideTrench = value)
+        .andThen(new InstantCommand(() -> update = true))
+        .andThen(new InstantCommand(() -> currentState = AbsoluteStates.PREPARING_FOR_SHOOTING)
+        .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState())));
     }
 
     // ============================ Getters & Setters ============================
@@ -337,7 +353,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
         return false;
     }
-    public boolean getOverridinTrench() {
+    public boolean getOverridingTrench() {
         if(overrideTrench) {
             return true;
         }

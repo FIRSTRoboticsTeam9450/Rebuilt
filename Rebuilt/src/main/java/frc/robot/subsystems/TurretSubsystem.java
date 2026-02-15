@@ -94,14 +94,15 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720); //720
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 80); //80
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 205);
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.19); //old good values: 0.19
-    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.04); //old good values: 0.05
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.19);
+    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.04);
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0);
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
+    private boolean goodToMove = true;
 
     // Motor configuration
     private TalonFXConfiguration motorConfig;
@@ -287,6 +288,11 @@ public class TurretSubsystem extends SubsystemBase {
     
     @Override
     public void periodic() {
+        if (Math.abs(turretMotor.getPosition().getValueAsDouble()) > (MAX_ANGLE_DEG + 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE) {
+            goodToMove = false;
+        } else {
+            goodToMove = true;
+        }
 
         if (Math.abs(turretEncoder.getAbsolutePosition().getValueAsDouble() - turretEncoder.getPosition().getValueAsDouble()) > allowedEncoderDiff) {
             resetEncodersRelativePosition();
@@ -410,7 +416,6 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Rotation2d updateTargetFromPose(Translation2d targetPosition) {
-        double targetAngle = 0;
 
         if (targetPosition != null) {
             // Calculate vector from robot to target
@@ -459,69 +464,73 @@ public class TurretSubsystem extends SubsystemBase {
      * State machine implementation.
      */
     private void applyState() {
-        switch (currentState) {
-            case DISABLED:
-                turretMotor.stopMotor();
-                break;
+        if (goodToMove) {
+            switch (currentState) {
+                case DISABLED:
+                    turretMotor.stopMotor();
+                    break;
 
-            case INIT:
-                if (isAtGoal(20) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
-                    currentState = TurretState.AIMING;
-                }
+                case INIT:
+                    if (isAtGoal(20) && ShooterSubsystem.getInstance().getCurrentAngleState() != ShooterSubsystem.AngleState.ZEROING) {
+                        currentState = TurretState.AIMING;
+                    }
 
-                profiledSetpointDeg = -48;
+                    profiledSetpointDeg = 70;
 
-                profiledSetpointDeg = MathUtil.clamp(
-                    profiledSetpointDeg, 
-                    MIN_ANGLE_DEG, 
-                    MAX_ANGLE_DEG
-                );
-                
-                commandTurret(profiledSetpointDeg, 0.0, 0.0);
-                break;
+                    profiledSetpointDeg = MathUtil.clamp(
+                        profiledSetpointDeg, 
+                        MIN_ANGLE_DEG, 
+                        MAX_ANGLE_DEG
+                    );
+                    
+                    commandTurret(profiledSetpointDeg, 0.0, 0.0);
+                    break;
 
-            case AIMING:
-                // Track target with velocity feedforward
-                double maxVelocity = logMaxVelocityDegPerSec.get();
-                
-                // Apply motion profiling for smooth acceleration
-                profiledSetpointDeg = Math.toDegrees(
-                    velocityLimiter.calculate(Math.toRadians(robotRelativeTargetAngleDeg))
-                );
-                
-                // Clamp to physical limits
-                profiledSetpointDeg = MathUtil.clamp(
-                    profiledSetpointDeg, 
-                    MIN_ANGLE_DEG, 
-                    MAX_ANGLE_DEG
-                );
-                
-                // Clamp velocity for safety
-                double clampedVelocity = MathUtil.clamp(
-                    robotRelativeTargetVelocityDegPerSec,
-                    -maxVelocity,
-                    maxVelocity
-                );
-                
-                // Calculate acceleration for feedforward (derivative of velocity setpoint)
-                // For now, assume 0 unless tracking accelerating target
-                double accelerationDegPerSecSq = 0.0;
-                
-                commandTurret(profiledSetpointDeg, clampedVelocity, accelerationDegPerSecSq);
-                break;
-                
-            case STORING:
-                // Return to zero position with no velocity
-                profiledSetpointDeg = -48;
+                case AIMING:
+                    // Track target with velocity feedforward
+                    double maxVelocity = logMaxVelocityDegPerSec.get();
+                    
+                    // Apply motion profiling for smooth acceleration
+                    profiledSetpointDeg = Math.toDegrees(
+                        velocityLimiter.calculate(Math.toRadians(robotRelativeTargetAngleDeg))
+                    );
+                    
+                    // Clamp to physical limits
+                    profiledSetpointDeg = MathUtil.clamp(
+                        profiledSetpointDeg, 
+                        MIN_ANGLE_DEG, 
+                        MAX_ANGLE_DEG
+                    );
+                    
+                    // Clamp velocity for safety
+                    double clampedVelocity = MathUtil.clamp(
+                        robotRelativeTargetVelocityDegPerSec,
+                        -maxVelocity,
+                        maxVelocity
+                    );
+                    
+                    // Calculate acceleration for feedforward (derivative of velocity setpoint)
+                    // For now, assume 0 unless tracking accelerating target
+                    double accelerationDegPerSecSq = 0.0;
+                    
+                    commandTurret(profiledSetpointDeg, clampedVelocity, accelerationDegPerSecSq);
+                    break;
+                    
+                case STORING:
+                    // Return to zero position with no velocity
+                    profiledSetpointDeg = 70;
 
-                profiledSetpointDeg = MathUtil.clamp(
-                    profiledSetpointDeg, 
-                    MIN_ANGLE_DEG, 
-                    MAX_ANGLE_DEG
-                );
-                
-                commandTurret(profiledSetpointDeg, 0.0, 0.0);
-                break;
+                    profiledSetpointDeg = MathUtil.clamp(
+                        profiledSetpointDeg, 
+                        MIN_ANGLE_DEG, 
+                        MAX_ANGLE_DEG
+                    );
+                    
+                    commandTurret(profiledSetpointDeg, 0.0, 0.0);
+                    break;
+            }
+        } else {
+            turretMotor.stopMotor();
         }
     }
     
@@ -667,7 +676,7 @@ public class TurretSubsystem extends SubsystemBase {
     private void updateDriverFeedback() {
         if (driverController != null) {
             if (currentState == TurretState.AIMING && isTargetOutOfRange() && DriverStation.isEnabled() && !DriverStation.isAutonomous()) {
-                if (CoordinationSubsystem.getInstance().getInDeadzone() && CoordinationSubsystem.getInstance().getOverridinTrench()) {
+                if (CoordinationSubsystem.getInstance().getInDeadzone() && CoordinationSubsystem.getInstance().getOverridingTrench()) {
                     if (controllersCurrentRumbling != 0.15) {
                         controllersCurrentRumbling = 0.15;
                         driverController.setRumble(RumbleType.kBothRumble, 0.15);
@@ -807,11 +816,13 @@ public class TurretSubsystem extends SubsystemBase {
      * @param wantedState Desired state
      */
     public void setState(TurretState wantedState) {
-        previousState = currentState;
-        currentState = wantedState;
-        
-        // Reset motion profile on state change
-        velocityLimiter.reset(Math.toRadians(getCurrentAngleDeg()));
+        if (currentState != TurretState.DISABLED) {
+            previousState = currentState;
+            currentState = wantedState;
+            
+            // Reset motion profile on state change
+            velocityLimiter.reset(Math.toRadians(getCurrentAngleDeg()));
+        }
     }
 
     public Command setStateCommand(TurretState state) {
@@ -941,10 +952,10 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Checks if turret is within tolerance of target.
      * 
-     * @return true if within default tolerance (1.0°)
+     * @return true if within default tolerance (7.5°)
      */
     public boolean isAtGoal() {
-        return isAtGoal(5);
+        return isAtGoal(7.5);
     }
     
     /**
@@ -954,7 +965,11 @@ public class TurretSubsystem extends SubsystemBase {
      * @return true if within tolerance
      */
     public boolean isAtGoal(double toleranceDeg) {
-        if (profiledSetpointDeg == MAX_ANGLE_DEG || profiledSetpointDeg == MIN_ANGLE_DEG) return false;
+        //should return false if 0.5 degrees off from deadzone
+        if ((Math.abs(Math.abs(profiledSetpointDeg) - MAX_ANGLE_DEG) < 0.5)) //TODO: logic needs fixing (┬┬﹏┬┬)
+            return false;
+        // if (profiledSetpointDeg == MAX_ANGLE_DEG || profiledSetpointDeg == MIN_ANGLE_DEG) return false;
+
         double error = Math.abs(getCurrentAngleDeg() - profiledSetpointDeg);
         return error < toleranceDeg;
     }

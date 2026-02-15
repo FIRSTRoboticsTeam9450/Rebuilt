@@ -31,6 +31,7 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
+import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -116,7 +117,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean isOverrideAngle = false;
     private boolean isZeroingDone = false;
     private boolean hasSwitchedBack = false;
-
+    private boolean hasReachedShooterVelocity = false;
+    
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
     // Timer
@@ -141,15 +143,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
     }
 
-    // TODO: put in shooting data and ferrying data
     public void addData() {
         // Shooting Data Velocity
         shootingDistanceToVelocity.put(1.00, 25.0);
         shootingDistanceToVelocity.put(1.9, 26.5);
         shootingDistanceToVelocity.put(2.32, 27.3);
         shootingDistanceToVelocity.put(2.97, 28.3);
-        shootingDistanceToVelocity.put(3.84, 31.75);
-        shootingDistanceToVelocity.put(4.33, 32.95);
+        shootingDistanceToVelocity.put(3.85, 31.0);
+        shootingDistanceToVelocity.put(4.1, 32.25);
+        shootingDistanceToVelocity.put(4.766, 33.5);
 
         // Shooting Data Time
         shootingDistanceToTime.put(1.00, 1.08);
@@ -158,13 +160,23 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToTime.put(2.97, 1.12);
         shootingDistanceToTime.put(3.84, 1.275);
         shootingDistanceToTime.put(4.33, 1.37);
+        shootingDistanceToTime.put(5.305, 1.362);
 
 
         // Ferrying Data Velocity
-        ferryingDistanceToVelocity.put(0.0, 0.0);
+        ferryingDistanceToVelocity.put(15.697, 68.0);
+        ferryingDistanceToVelocity.put(13.1064, 57.0);
+        ferryingDistanceToVelocity.put(12.4968, 53.65);
+        ferryingDistanceToVelocity.put(10.9728, 48.0);
+        ferryingDistanceToVelocity.put(8.2296, 38.0);
+        ferryingDistanceToVelocity.put(5.4864, 31.5);
+
+
         
         // Ferrying Data Time
-        ferryingDistanceToTime.put(0.0, 0.0);
+        ferryingDistanceToTime.put(15.697, 2.59);
+        ferryingDistanceToTime.put(13.1064, 2.165);
+        ferryingDistanceToTime.put(12.4968, 2.116);
 
 
     }
@@ -257,9 +269,12 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (!isZeroingDone) {
-            currentAngleState = AngleState.ZEROING; // TODO: SWITCH BACK TO ZEROING LATER
+            currentAngleState = AngleState.ZEROING;
             isZeroingDone = autoZeroing();
         }
+        
+        updateReachedShooterVelocityLogic();
+
         publishLogs();
         if(switchSlotBackTimer.get() > 2 && currentAngleState == AngleState.AIMING && !hasSwitchedBack) {
             hasSwitchedBack = true;
@@ -282,9 +297,12 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Outtake/current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
 
-        Logger.recordOutput("Rebuilt/Shooter/Time To Shoot", getShootingDistanceToTime(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
 
         if (logDebuggingToggle.get()) { // To get rid of loop overruns
+
+            
+            Logger.recordOutput("Rebuilt/Shooter/Time To Shoot", getShootingDistanceToTime(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
+
             // Hood logs
             Logger.recordOutput("Rebuilt/Shooter/Hood/Took target", hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
             Logger.recordOutput("Rebuilt/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());
@@ -335,7 +353,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
 
             case STORING:
-                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtGoal()) {
+                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtGoal(15)) {
                     angleMotor.setControl(hoodMMRequest.withPosition(0).withSlot(slotNum));
                 }
                 break;
@@ -354,17 +372,29 @@ public class ShooterSubsystem extends SubsystemBase {
     // --------------------------------------- GETTERS --------------------------------------- //
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
+            double distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
             switch (coordSub.getCurrentZone()) {
+
                 case SHOOTING_ZONE:
                     targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
                     break;
 
                 case FERRY_ZONE_TOP:
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
+
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.80;
+                    if(distance > 14.55) {
+                        targetShooterVeloc = 49;
+                    }
                     break;
                     
                 case FERRY_ZONE_BOTTOM:
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
+                    
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.80;
+                    if(distance > 14.55) {
+                        targetShooterVeloc = 49;
+                    }
                     break;
                     
                 case SOFT_TRENCH_DEADZONE:
@@ -467,17 +497,30 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isVelocityWithinTolerance() {
-        return isVelocityWithinTolerance(1.0);
+        return isVelocityWithinTolerance(10);
     }
 
     public boolean isVelocityWithinTolerance(double tolerance) {
         return Math.abs(targetShooterVeloc - shooterLeftMotor.getVelocity().getValueAsDouble()) < tolerance;
     }
 
-    public boolean isShooterReady() {
-        // return (isAngleWithinTolerance() && isVelocityWithinTolerance());
+    public boolean isShooterReady() { //TODO: Add back at some point ¯\_(ツ)_/¯
+        if(!hasReachedShooterVelocity) {
+            return (isAngleWithinTolerance() && isVelocityWithinTolerance());
+        }
+        return (isAngleWithinTolerance() && isVelocityWithinTolerance(3));
         // return (isAngleWithinTolerance());
-        return true;
+        // return true;
+    }
+    
+    private void updateReachedShooterVelocityLogic() {
+        if (currentShooterState != ShooterState.SHOOTING) {
+            hasReachedShooterVelocity = false;
+        } else {
+            if (Math.abs(shooterLeftMotor.getVelocity().getValueAsDouble() - getShooterVeloc()) < 1) {
+                hasReachedShooterVelocity = true;
+            }
+        }
     }
 
     // -------------------------------------- SETTERS -------------------------------------- //
