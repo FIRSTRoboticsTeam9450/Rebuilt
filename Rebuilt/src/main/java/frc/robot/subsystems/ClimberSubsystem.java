@@ -46,15 +46,15 @@ public class ClimberSubsystem extends SubsystemBase {
     // private LoggedNetworkNumber logKG = new LoggedNetworkNumber("/Tuning/Climb/kG"); not being used
 
     // for motor 2/ elevator motor
-    private LoggedNetworkNumber logElevatorMMKS = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kS", 0.24);
-    private LoggedNetworkNumber logElevatorMMKV = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kV", 0.33);
-    private LoggedNetworkNumber logElevatorMMKA = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kA", 0.1);
-    private LoggedNetworkNumber logElevatorMMKP = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kP", 0.5);
-    private LoggedNetworkNumber logElevatorMMKI = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kI", 0.0);
-    private LoggedNetworkNumber logElevatorMMKD = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kD", 0.0);
+    // private LoggedNetworkNumber logElevatorMMKS = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kS", 0.24);
+    // private LoggedNetworkNumber logElevatorMMKV = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kV", 0.33);
+    // private LoggedNetworkNumber logElevatorMMKA = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kA", 0.1);
+    // private LoggedNetworkNumber logElevatorMMKP = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kP", 0.5);
+    // private LoggedNetworkNumber logElevatorMMKI = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kI", 0.0);
+    // private LoggedNetworkNumber logElevatorMMKD = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kD", 0.0);
 
     private TalonFXConfiguration climbConfig1;
-    private TalonFXConfiguration climbConfig2;
+    // private TalonFXConfiguration climbConfig2;
     boolean atTarget;
 
     private LoggedNetworkNumber barsToClimb = new LoggedNetworkNumber("/Tuning/Climb/barsToClimb", 1);
@@ -73,14 +73,14 @@ public class ClimberSubsystem extends SubsystemBase {
     // MotionMagic type may change
 
     
-    public enum ClimbMasterStates {
-        STOWING,
-        STANDBY,
-        LOCKING1, //this will be removed later on
-        LOCKING2, //this will be removed later on
-        TapeExtend, // tape extend while elavtor retract
-        ElevatorExtend //elevator extend while tape retract
-    }
+    // public enum ClimbMasterStates {
+    //     STOWING,
+    //     STANDBY,
+    //     LOCKING1, //this will be removed later on
+    //     LOCKING2, //this will be removed later on
+    //     TapeExtend, // tape extend while elavtor retract
+    //     ElevatorExtend //elevator extend while tape retract
+    // }
 
     public enum ElevatorStates {
         STOWING,
@@ -90,17 +90,17 @@ public class ClimberSubsystem extends SubsystemBase {
         RETRACTING
     }
 
-    public enum TapeClimbStates {
-        STOWING,
-        STANDBY,
-        EXTENDING,
-        LOCKING, //this will be removed later on
-        RETRACTING
-    }
+    // public enum TapeClimbStates {
+    //     STOWING,
+    //     STANDBY,
+    //     EXTENDING,
+    //     LOCKING, //this will be removed later on
+    //     RETRACTING
+    // }
 
-    private ClimbMasterStates currentClimbMasterStates = ClimbMasterStates.STANDBY;
+    // private ClimbMasterStates currentClimbMasterStates = ClimbMasterStates.STANDBY;
     public ElevatorStates currentElevatorState = ElevatorStates.STANDBY;
-    private TapeClimbStates currentTapeClimbState = TapeClimbStates.STANDBY;
+    // private TapeClimbStates currentTapeClimbState = TapeClimbStates.STANDBY;
 
     /* ----------- Initializaton ----------- */
     public ClimberSubsystem() {
@@ -127,42 +127,42 @@ public class ClimberSubsystem extends SubsystemBase {
 
         //MOTOR II
 
-        climbConfig2 = new TalonFXConfiguration();
+        // climbConfig2 = new TalonFXConfiguration();
 
-        climbConfig2.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        climbConfig2.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        // climbConfig2.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        // climbConfig2.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        Slot1Configs slot1Configs = new Slot1Configs()
-                                        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-                                        .withKS(logElevatorMMKS.get())
-                                        .withKV(logElevatorMMKV.get())
-                                        .withKA(logElevatorMMKA.get())
-                                        .withKP(logElevatorMMKP.get())
-                                        .withKI(logElevatorMMKI.get())
-                                        .withKD(logElevatorMMKD.get());
+        // Slot1Configs slot1Configs = new Slot1Configs()
+        //                                 .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+        //                                 .withKS(logElevatorMMKS.get())
+        //                                 .withKV(logElevatorMMKV.get())
+        //                                 .withKA(logElevatorMMKA.get())
+        //                                 .withKP(logElevatorMMKP.get())
+        //                                 .withKI(logElevatorMMKI.get())
+        //                                 .withKD(logElevatorMMKD.get());
 
         MotionMagicConfigs mmConfigs = new MotionMagicConfigs().withMotionMagicAcceleration(logMMAcceleration.get())
                                                                .withMotionMagicCruiseVelocity(logMMVelocity.get())
                                                                .withMotionMagicJerk(logMMJerk.get());
 
         climbConfig1.Slot0 = slot0Configs;
-        climbConfig2.Slot1 = slot1Configs;
+        // climbConfig2.Slot1 = slot1Configs;
 
         climbConfig1.MotionMagic = mmConfigs;
-        climbConfig2.MotionMagic = mmConfigs;
+        // climbConfig2.MotionMagic = mmConfigs;
         
-        tapeClimbMotor.getConfigurator().apply(climbConfig1);
-        elevatorClimbMotor.getConfigurator().apply(climbConfig2);
+        // tapeClimbMotor.getConfigurator().apply(climbConfig1);
+        elevatorClimbMotor.getConfigurator().apply(climbConfig1);
     }
 
     /* ----------- Updaters ----------- */
 
     // public void setNumberofClimbs(int numClimbs) {this.climbCounter = numClimbs;}
 
-    public void setTapeTarget(double setpoint) {
-         tapeClimbMotor.setControl(controlRequest.withPosition(setpoint) //in rotations
-                                                 .withVelocity(null)); //in rotations per second
-    }
+    // public void setTapeTarget(double setpoint) {
+    //      tapeClimbMotor.setControl(controlRequest.withPosition(setpoint) //in rotations
+    //                                              .withVelocity(null)); //in rotations per second
+    // }
 
     public void setElevatorTarget(double setpoint) {
         elevatorClimbMotor.setControl(controlRequest.withPosition(setpoint)
@@ -192,32 +192,32 @@ public class ClimberSubsystem extends SubsystemBase {
 
     // public void resetStopwatch() {delayStopwatch.stop(); delayStopwatch.reset();}
 
-    public void masterStates() {
-        switch (currentClimbMasterStates) {
-            case TapeExtend:
-                currentElevatorState = ElevatorStates.RETRACTING;
-                currentTapeClimbState = TapeClimbStates.EXTENDING;
-                break;
-            case ElevatorExtend:
-                currentElevatorState = ElevatorStates.EXTENDING;
-                currentTapeClimbState = TapeClimbStates.RETRACTING;
-                break;
-            case LOCKING1:
-                currentTapeClimbState = TapeClimbStates.LOCKING;
-                break;
-            case LOCKING2:
-                currentElevatorState = ElevatorStates.LOCKING;
-                break;
-            case STANDBY:
-                break;
-            case STOWING:
-                currentElevatorState = ElevatorStates.STOWING;
-                currentTapeClimbState = TapeClimbStates.STOWING;
-                break;
-            default:
-                break;
-        }
-    }
+    // public void masterStates() {
+    //     switch (currentClimbMasterStates) {
+    //         case TapeExtend:
+    //             currentElevatorState = ElevatorStates.RETRACTING;
+    //             currentTapeClimbState = TapeClimbStates.EXTENDING;
+    //             break;
+    //         case ElevatorExtend:
+    //             currentElevatorState = ElevatorStates.EXTENDING;
+    //             currentTapeClimbState = TapeClimbStates.RETRACTING;
+    //             break;
+    //         case LOCKING1:
+    //             currentTapeClimbState = TapeClimbStates.LOCKING;
+    //             break;
+    //         case LOCKING2:
+    //             currentElevatorState = ElevatorStates.LOCKING;
+    //             break;
+    //         case STANDBY:
+    //             break;
+    //         case STOWING:
+    //             currentElevatorState = ElevatorStates.STOWING;
+    //             currentTapeClimbState = TapeClimbStates.STOWING;
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }
     
 
     private void applyStates() {
@@ -233,6 +233,9 @@ public class ClimberSubsystem extends SubsystemBase {
         // for traversing climbDistances
         // add +1 to climbCounter each time
         // stop repeating when climbCounter is greater than or maybe equal to barsToClimb
+
+
+        // ------------ The state Locking and Stowing may not be useful and could be removed ----
 
         switch (currentElevatorState) {
             case STANDBY:
@@ -266,35 +269,35 @@ public class ClimberSubsystem extends SubsystemBase {
             default:
                 break;
         }
-        switch(currentTapeClimbState) {
-            case EXTENDING:
-                setTapeTarget(climbDistances[climbCounter].get());
-                // if(atTarget()) {
-                    // currentElevatorState = ElevatorStates.LOCKING;
-                // }
-                break;
-            case RETRACTING:
-                setTapeTarget(0);
-                // if(atTarget()) {
-                //     currentElevatorState = ElevatorStates.STANDBY;
-                // }
-                break;
-            case LOCKING:
-                setTapeTarget(5);
-                // if(atTarget()) {
-                //     currentElevatorState = ElevatorStates.RETRACTING;
-                // }
-                break;
-            case STANDBY:
-                setTapeTarget(Math.round(Math.abs(getMotorPosition())));
-                //make sure to set what happens during state standbyaa
-                break;
-            case STOWING:
-                setTapeTarget(0);
-                break;
-            default:
-                break;
-        } 
+        // switch(currentTapeClimbState) {
+        //     case EXTENDING:
+        //         setTapeTarget(climbDistances[climbCounter].get());
+        //         // if(atTarget()) {
+        //             // currentElevatorState = ElevatorStates.LOCKING;
+        //         // }
+        //         break;
+        //     case RETRACTING:
+        //         setTapeTarget(0);
+        //         // if(atTarget()) {
+        //         //     currentElevatorState = ElevatorStates.STANDBY;
+        //         // }
+        //         break;
+        //     case LOCKING:
+        //         setTapeTarget(5);
+        //         // if(atTarget()) {
+        //         //     currentElevatorState = ElevatorStates.RETRACTING;
+        //         // }
+        //         break;
+        //     case STANDBY:
+        //         setTapeTarget(Math.round(Math.abs(getMotorPosition())));
+        //         //make sure to set what happens during state standbyaa
+        //         break;
+        //     case STOWING:
+        //         setTapeTarget(0);
+        //         break;
+        //     default:
+        //         break;
+        // } 
     }
 
 
