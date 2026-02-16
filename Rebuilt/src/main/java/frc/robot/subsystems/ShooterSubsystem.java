@@ -145,13 +145,13 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() {
         // Shooting Data Velocity
-        shootingDistanceToVelocity.put(1.00, 25.0);
-        shootingDistanceToVelocity.put(1.9, 26.5);
-        shootingDistanceToVelocity.put(2.32, 27.3);
-        shootingDistanceToVelocity.put(2.97, 28.3);
-        shootingDistanceToVelocity.put(3.85, 31.0);
-        shootingDistanceToVelocity.put(4.1, 32.5);
-        shootingDistanceToVelocity.put(4.766, 34.2);
+        shootingDistanceToVelocity.put(1.00, 25.5);
+        shootingDistanceToVelocity.put(1.9, 27.25);
+        shootingDistanceToVelocity.put(2.32, 27.75);
+        shootingDistanceToVelocity.put(2.97, 28.75);
+        shootingDistanceToVelocity.put(3.85, 31.25);
+        shootingDistanceToVelocity.put(4.1, 32.65);
+        shootingDistanceToVelocity.put(4.766, 34.5);
 
         // Shooting Data Time
         shootingDistanceToTime.put(1.00, 1.08);
@@ -376,13 +376,13 @@ public class ShooterSubsystem extends SubsystemBase {
             switch (coordSub.getCurrentZone()) {
 
                 case SHOOTING_ZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()) + 0.4);
                     break;
 
                 case FERRY_ZONE_TOP:
                     distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
 
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.85;
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.95;
                     if(distance > 14.55) {
                         targetShooterVeloc = 49;
                     }
@@ -391,7 +391,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 case FERRY_ZONE_BOTTOM:
                     distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
                     
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.85;
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.95;
                     if(distance > 14.55) {
                         targetShooterVeloc = 49;
                     }

@@ -3,62 +3,49 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.625722891566265,
-        "y": 7.663
+        "x": 4.396,
+        "y": 0.425
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.592666666666667,
-        "y": 7.192200000000001
+        "x": 4.362477777777778,
+        "y": -0.133500000000001
       },
       "isLocked": false,
       "linkedName": "TopTrenchStart"
     },
     {
       "anchor": {
-        "x": 7.690831325301204,
+        "x": 8.191,
         "y": 6.766927710843373
       },
       "prevControl": {
-        "x": 7.899711111111111,
-        "y": 7.757377777777778
+        "x": 8.312179785809908,
+        "y": 7.7378888888888895
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Shoot&Ferry Neutral Start"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.30290456431534873,
+      "waypointRelativePos": 0.35,
       "rotationDegrees": 0.0
     },
     {
       "waypointRelativePos": 0.8323651452282188,
-      "rotationDegrees": -90.0
+      "rotationDegrees": -115.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.08635235732009972,
-      "maxWaypointRelativePos": 0.3344913151364752,
-      "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 1.0,
-        "maxAngularVelocity": 180.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.7791563275434266,
+      "minWaypointRelativePos": 0.7573200992555844,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.75,
-        "maxAcceleration": 1.0,
+        "maxVelocity": 1.75,
+        "maxAcceleration": 2.0,
         "maxAngularVelocity": 180.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -92,16 +79,16 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 1.75,
-    "maxAcceleration": 2.0,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.5,
-    "rotation": -90.0
+    "velocity": 0.35,
+    "rotation": -115.0
   },
   "reversed": false,
   "folder": "Ferry Only",

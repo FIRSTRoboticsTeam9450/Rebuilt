@@ -219,13 +219,13 @@ public class VisionSubsystem extends SubsystemBase {
             updateTargetAndZoneOffset++;
         }
 
-        if (updateVisionOffset > 6) {
-            updateVisionOffset = 0;
+        // if (updateVisionOffset > ) {
+        //     updateVisionOffset = 0;
             updateVision();  // Compute fused vision pose
             publishLogs();   // Print/log fusion confidence and pose
-        } else {
-            updateVisionOffset++;
-        }
+        // } else {
+        //     updateVisionOffset++;
+        // }
     }
 
     // -------------------------

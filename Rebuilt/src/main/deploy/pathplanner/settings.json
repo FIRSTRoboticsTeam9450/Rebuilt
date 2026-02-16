@@ -5,12 +5,15 @@
   "pathFolders": [
     "Experimental",
     "Ferry Only",
+    "Climb",
     "Outpost",
     "Right Side Shoot & Ferry",
     "Shoot & Ferry",
     "Testing"
   ],
   "autoFolders": [
+    "Ferry",
+    "Climb",
     "Test Autos"
   ],
   "defaultMaxVel": 5.0,

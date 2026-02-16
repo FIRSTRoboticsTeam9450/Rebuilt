@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.690831325301204,
-        "y": 1.2921445783132537
+        "x": 8.191,
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.8668,
-        "y": 0.5172555555555561
+        "x": 7.366968674698796,
+        "y": 3.2251109772423026
       },
       "isLocked": false,
       "linkedName": "Shoot&Ferry Neutral End"
@@ -30,14 +30,14 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.46908315565031805,
+      "waypointRelativePos": 0.3029045643153552,
       "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.705707196029768,
+      "minWaypointRelativePos": 0.5151364764268034,
       "maxWaypointRelativePos": 0.9339950372208439,
       "constraints": {
         "maxVelocity": 1.0,
@@ -66,8 +66,8 @@
   "reversed": false,
   "folder": "Ferry Only",
   "idealStartingState": {
-    "velocity": 0.5,
-    "rotation": -90.0
+    "velocity": 0.35,
+    "rotation": -115.0
   },
   "useDefaultConstraints": false
 }

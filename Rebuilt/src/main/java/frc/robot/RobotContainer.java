@@ -88,8 +88,7 @@ public class RobotContainer {
     autoChooser.addOption("Outpost + Neutral Ferry", drivetrain.getAutoPath("Outpost + Neutral Ferry", false));
     autoChooser.addOption("Shoot & Ferry", drivetrain.getAutoPath("Shoot & Ferry", false));
     autoChooser.addOption("Ferry Only", drivetrain.getAutoPath("Ferry Only", false));
-    autoChooser.addOption("Test", drivetrain.getAutoPath("Test", false));
-    autoChooser.addOption("Right Side Shoot & Ferry", drivetrain.getAutoPath("Right Side Shoot & Ferry", false));
+    autoChooser.addOption("Climb", drivetrain.getAutoPath("Ferry + Climb", false));
   }
 
   private void configureBindings() {
@@ -162,6 +161,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("SetFire", CoordinationSubsystem.getInstance().setFireCommand());
     NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
     NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
+
+    NamedCommands.registerCommand("ForceTrench", CoordinationSubsystem.getInstance().setForceTrenchCommand());
 
     }
   public Command getAutonomousCommand() {

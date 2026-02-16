@@ -42,10 +42,13 @@ public class CoordinationSubsystem extends SubsystemBase {
     private AbsoluteStates currentState = AbsoluteStates.INIT;
     private ZoneState previousZone = ZoneState.SHOOTING_ZONE;
     private ZoneState currentZone = ZoneState.SHOOTING_ZONE;
+
     private boolean driverAllowingShooting = false;
     private boolean shouldBeIntaking = false;
+
     private boolean overrideTrench = false;
     private boolean hardOverrideTrench = false;
+    private boolean forceTrench = false;
 
     private boolean update = false;
     private boolean previousGoodToShoot = goodToFire();
@@ -80,7 +83,9 @@ public class CoordinationSubsystem extends SubsystemBase {
 
                 switch (currentZone) {
                     case SHOOTING_ZONE:
-                        if(goodToFire()) {
+                        if (forceTrench) {
+                            setState(AbsoluteStates.TRENCH);
+                        } else if(goodToFire()) {
                             setState(AbsoluteStates.SHOOTING);
                         }
                         else {
@@ -89,7 +94,9 @@ public class CoordinationSubsystem extends SubsystemBase {
                         break;
                         
                     case FERRY_ZONE_TOP:
-                        if(goodToFire()) {
+                        if (forceTrench) {
+                            setState(AbsoluteStates.TRENCH);
+                        } else if(goodToFire()) {
                             setState(AbsoluteStates.SHOOTING);
                         }
                         else {
@@ -98,7 +105,9 @@ public class CoordinationSubsystem extends SubsystemBase {
                         break; 
                         
                     case FERRY_ZONE_BOTTOM:
-                        if(goodToFire()) {
+                        if (forceTrench) {
+                            setState(AbsoluteStates.TRENCH);
+                        } else if(goodToFire()) {
                             setState(AbsoluteStates.SHOOTING);
                         }
                         else {
@@ -285,6 +294,11 @@ public class CoordinationSubsystem extends SubsystemBase {
         .andThen(new InstantCommand(() -> update = true))
         .andThen(new InstantCommand(() -> currentState = AbsoluteStates.PREPARING_FOR_SHOOTING)
         .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState())));
+    }
+
+    public Command setForceTrenchCommand() {
+        return new InstantCommand(() -> forceTrench = !forceTrench)
+        .alongWith(new InstantCommand(() -> update = true));
     }
 
     // ============================ Getters & Setters ============================

@@ -7,25 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "FO - Start To Neutral"
+            "pathName": "C - Start"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "FO - Neutral Ferry"
+            "pathName": "C - Ferry"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "FO - Neutral Return"
+            "pathName": "C - Return"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C - Climb"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Test Autos",
+  "folder": "Climb",
   "choreoAuto": false
 }

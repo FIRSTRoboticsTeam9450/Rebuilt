@@ -300,8 +300,8 @@ public class TurretSubsystem extends SubsystemBase {
             resetEncodersRelativePosition();
         }
         
-        if (loopOffset > 1) {
-            loopOffset = 0;
+        // if (loopOffset >= 1) {
+            // loopOffset = 0;
             // Update target based on current mode
             updateTargetFromMode();
             
@@ -324,9 +324,9 @@ public class TurretSubsystem extends SubsystemBase {
 
             previousRobotRelativeTargetVelocityDegPerSec = robotRelativeTargetVelocityDegPerSec;
             robotRelativeTargetVelocityDegPerSec = calculateVelocity();
-        } else {
-            loopOffset = 0;
-        }
+        // } else {
+        //     loopOffset++;
+        // }
 
         // Driver feedback for out-of-range targets
         updateDriverFeedback();

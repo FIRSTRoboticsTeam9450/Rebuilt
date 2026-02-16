@@ -112,7 +112,7 @@ public final class Constants {
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.933333;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
       public static final double TURRET_OFFSET_TO_ZERO = 179.5; 
-      public static final double TURRET_OFFSET_TO_TARGET = 0; //V1: 5
+      public static final double TURRET_OFFSET_TO_TARGET = -5; //V1: 5
 
       public static final double TOTAL_ROTATION_DEGREES = 300;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
@@ -208,8 +208,8 @@ public final class Constants {
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
-      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 7.313);
-      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(0.455,0.861);
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 6.95);
+      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(0.455,1.3);
 
       /* ========= HARD CODED POSES ======== */
       public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();
@@ -345,7 +345,7 @@ public final class Constants {
 
         public static final double MID_ZONE_X_LOW = MAJOR_ZONE_X_HIGH;//182.11;
         public static final double MID_ZONE_X_HIGH = 16.540988; // inches 651.22;
-        public static final double MID_ZONE_1_Y_LOW = 4.3;//meters: 4.034536; // inches 158.84;
+        public static final double MID_ZONE_1_Y_LOW = 4.034536; // inches 158.84; 4.3 meters if wanting preference to outpost side
         public static final double MID_ZONE_1_Y_HIGH = 8.069326; // inches 317.69;
 
         public static final double MID_ZONE_2_Y_LOW = 0;
