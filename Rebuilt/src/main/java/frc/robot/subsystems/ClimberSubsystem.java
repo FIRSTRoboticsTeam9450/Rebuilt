@@ -77,8 +77,8 @@ public class ClimberSubsystem extends SubsystemBase {
         // -------------- vvv I'm not sure at this point how the elevator and telescope work 
         // together because the climber was finished on winter break
         
-        TelescopeExtend, // Telescope extend while elavtor retract
-        ElevatorExtend //elevator extend while Telescope retract
+        REACHING, // Telescope extend while elavtor retract
+        PULLING //elevator extend while Telescope retract
     }
 
     public enum ElevatorStates {
@@ -186,20 +186,39 @@ public class ClimberSubsystem extends SubsystemBase {
         return atTarget;
     }
 
+    public boolean ElevatorAtTarget(double position) {
+        atTarget = (Math.abs(position) - getElevatorPosition() < 0.05 && elevatorClimbMotor.getVelocity().getValueAsDouble() < 0.1);
+        return atTarget;
+    }
+
     public boolean TelescopeAtTarget() {
         atTarget = (Math.abs(climbDistances[climbCounter].get()) - getTelescopePosition() < 0.05 && telescopeClimbMotor.getVelocity().getValueAsDouble() < 0.1);
         return atTarget;
+    }
+
+    public boolean TelescopeAtTarget(double position) {
+        atTarget = (Math.abs(position) - getTelescopePosition() < 0.05 && telescopeClimbMotor.getVelocity().getValueAsDouble() < 0.1);
+        return atTarget;
+    }
+
+    public void OverrideState(ElevatorStates elevatorState, TelescopeStates telescopeState) {
+        try {
+            currentElevatorState = elevatorState;
+            currentTelescopeState = telescopeState;
+        } catch (IllegalArgumentException e) {
+            System.out.println("read state names bruh");
+        }
     }
 
     // public boolean endClimbSequence() { return climbCounter == 0; }
 
     public void masterStates() {
         switch (currentClimbMasterStates) {
-            case TelescopeExtend:
+            case REACHING:
                 currentElevatorState = ElevatorStates.RETRACTING;
                 currentTelescopeState = TelescopeStates.EXTENDING;
                 break;
-            case ElevatorExtend:
+            case PULLING:
                 currentElevatorState = ElevatorStates.EXTENDING;
                 currentTelescopeState = TelescopeStates.RETRACTING;
                 break;
