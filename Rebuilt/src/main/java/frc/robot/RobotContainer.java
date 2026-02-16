@@ -61,7 +61,7 @@ public class RobotContainer {
   public static IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
   public static LEDSubsystem ledSub = LEDSubsystem.getInstance();
 
-  public static FuelSim fuelSim;
+  public FuelSim fuelSim;
   
   public BezierCurve driveBezier = new BezierCurve("drive", 117.4, 0.054, 91.4, 0.76, 0.1, 0.01);
   public BezierCurve rotateBezier = new BezierCurve("rotate", 120.1, 0.145, 92.2, 0.362, 0.035, 0.03);
@@ -113,13 +113,23 @@ public class RobotContainer {
       fuelSim.registerRobot(
               0.6858, // from left to right in meters
               0.6858, // from front to back in meters
-              .01, // from floor to top of bumpers in meters
+              .15, // from floor to top of bumpers in meters
               poseSupplier, // Supplier<Pose2d> of robot pose
               fieldCentricSupplier); // Supplier<ChassisSpeeds> of field-centric chassis speeds
+      
+      fuelSim.registerIntake(
+              0.3429,
+              0.5429,
+              -0.20,
+              0.20,
+              () -> true//,
+              //(fuel) -> intakeSubsystem.addFuel(fuel)
+      );
+
+      fuelSim.enableAirResistance();
 
     fuelSim.start(); // enables the simulation to run (updateSim must still be called periodically)
     fuelSim.spawnStartingFuel();
-    System.out.println(fuelSim);
     SmartDashboard.putData(Commands.runOnce(() -> {
                 fuelSim.clearFuel();
                 fuelSim.spawnStartingFuel();

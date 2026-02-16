@@ -168,7 +168,7 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
-      RobotContainer.fuelSim.updateSim();
+      m_robotContainer.fuelSim.updateSim();
       //System.out.println(m_robotContainer.fuelSim.getFuelCount());
   }
 }
