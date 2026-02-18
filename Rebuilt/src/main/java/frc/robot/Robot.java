@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -116,6 +117,7 @@ public class Robot extends LoggedRobot {
       TurretSubsystem.getInstance().updateTunableParameters();
       ShooterSubsystem.getInstance().updateShooterConstants();
       IntakeSubsystem.getInstance().updateConstants();
+      ClimberSubsystem.getInstance().updateClimberConstants();
     } else {
       updateValuesOffset++;
     }

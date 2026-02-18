@@ -394,7 +394,21 @@ public class TurretSubsystem extends SubsystemBase {
                 desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
                 
                 targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
+           targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
 
+                // if(targetVeloc != desiredVelocity) {
+                //     System.out.println("CANT KEEP UP");
+                //     double angleWentTo = targetVeloc * (time);
+                //     double angleWentToRad = angleWentTo * Math.PI/180;
+                //     if(Math.abs(drivetrain.getState().Speeds.omegaRadiansPerSecond) > 1) {
+                //         RobotContainer.maxAngularRate = targetVeloc;
+                //     }
+                //     else if(Math.abs(drivetrain.getState().Speeds.vxMetersPerSecond) > .1) {
+                //         RobotContainer.maxSpeed = Math.abs(((drivetrain.getState().Speeds.vyMetersPerSecond)/(Math.tan(angleWentToRad))));
+                //     }
+                // }
+
+                
                 // Other method of using future casting!!! It works :)
                 // Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(.02);
                 // desiredVelocity = (findBestWrappedAngle(updateTargetFromPose(futureTarget).plus(

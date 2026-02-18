@@ -198,7 +198,7 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
-        lastAdjustedTargetPose = getAdjustedTarget(getTargetRelativeToBot(), lastAdjustedTargetPose);
+
 
         // if (limelightPipelineSwitchingEnabled && cooldownCount > 100) {
         //     cooldownCount = 0;
@@ -219,10 +219,10 @@ public class VisionSubsystem extends SubsystemBase {
         if (updateVisionOffset > 1) {
             updateVisionOffset = 0;
             updateVision();  // Compute fused vision pose
-            publishLogs();   // Print/log fusion confidence and pose
         } else {
             updateVisionOffset++;
         }
+        publishLogs();   // Print/log fusion confidence and pose
     }
 
     // -------------------------
@@ -649,6 +649,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
     
     public Translation2d getAdjustedCurrentTarget() {
+        lastAdjustedTargetPose = getAdjustedTarget(getTargetRelativeToBot(), lastAdjustedTargetPose);
         return lastAdjustedTargetPose;
     }
     /**
