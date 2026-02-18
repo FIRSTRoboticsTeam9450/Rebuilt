@@ -56,10 +56,15 @@ public final class Constants {
     public static final class ClimberConstants {
 
       public static final class DeviceIDs {
-        public static final int kClimbMotorFrontID = -1;
-        public static final int kClimbMotorBackID = -1;
-        public static final int kClimbServoTopID = -1;
-        public static final int kClimbServoBottomID = -1;
+        public static final int kElevator = 45;
+        public static final int kTelescope = 46;
+      }
+
+      public static final class ClimbPositions {
+        public static final double kElevatorFullyUp = 0;
+        public static final double kTelescopeFullyUp = 40;
+        public static final double kElevatorDown = -128.35;
+        public static final double kTelescopeClipped = 0;
       }
 
     }
@@ -208,8 +213,8 @@ public final class Constants {
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
-      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 6.95);
-      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(0.455,1.3);
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 6.95); // Used to be .455, 6.95
+      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(0.960,1.971);
 
       /* ========= HARD CODED POSES ======== */
       public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();

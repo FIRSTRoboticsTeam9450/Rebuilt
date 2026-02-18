@@ -120,7 +120,9 @@ public class TurretSubsystem extends SubsystemBase {
         /** Holding current position, no active tracking */
         AIMING,
         /** Moving to safe storage position (0°) */
-        STORING
+        STORING,
+
+        CLIMB
     }
     
     /**
@@ -311,7 +313,7 @@ public class TurretSubsystem extends SubsystemBase {
             
             // Find best angle considering wrapping and limits
 
-            robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
+            robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees()); // Jumppoint
 
             // Convert RPS to degrees/sec
             double currentVelocityDegPerSec = turretMotor.getVelocity().getValueAsDouble() 
@@ -373,8 +375,9 @@ public class TurretSubsystem extends SubsystemBase {
                 }
             }
             if (allowVeloc) {
-                // Calculate desired velocity (derivative of target position)
-                double desiredVelocity = (robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / (Timer.getFPGATimestamp() - previousAnglesTimestamp);
+                // Calculate desired velocity (derivative of target position) jumppoint
+                double time = Timer.getFPGATimestamp() - previousAnglesTimestamp;
+                double desiredVelocity = (robotRelativeTargetAngleDeg - previousRobotRelativeTargetAngleDeg) / (time);
                 
                 previousRobotRelativeTargetAngleDeg = robotRelativeTargetAngleDeg;
                 previousAnglesTimestamp = Timer.getFPGATimestamp();
@@ -382,6 +385,18 @@ public class TurretSubsystem extends SubsystemBase {
                 desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
                 
                 targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
+
+                // if(targetVeloc != desiredVelocity) {
+                //     System.out.println("CANT KEEP UP");
+                //     double angleWentTo = targetVeloc * (time);
+                //     double angleWentToRad = angleWentTo * Math.PI/180;
+                //     if(Math.abs(drivetrain.getState().Speeds.omegaRadiansPerSecond) > 1) {
+                //         RobotContainer.maxAngularRate = targetVeloc;
+                //     }
+                //     else if(Math.abs(drivetrain.getState().Speeds.vxMetersPerSecond) > .1) {
+                //         RobotContainer.maxSpeed = Math.abs(((drivetrain.getState().Speeds.vyMetersPerSecond)/(Math.tan(angleWentToRad))));
+                //     }
+                // }
 
                 // Other method of using future casting!!! It works :)
                 // Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(.02);
@@ -400,7 +415,7 @@ public class TurretSubsystem extends SubsystemBase {
      * Updates the field-relative goal based on the current target mode.
      * Called every periodic cycle to recalculate aim point.
      */
-    private void updateTargetFromMode() {
+    private void updateTargetFromMode() { // jumppoint
         Translation2d targetPosition = getCurrentTargetPosition();
         
         if (targetPosition != null) {
@@ -534,6 +549,15 @@ public class TurretSubsystem extends SubsystemBase {
                     
                     commandTurret(profiledSetpointDeg, 0.0, 0.0);
                     break;
+                case CLIMB:
+                    profiledSetpointDeg = 150;
+                    profiledSetpointDeg = MathUtil.clamp(
+                        profiledSetpointDeg, 
+                        MIN_ANGLE_DEG, 
+                        MAX_ANGLE_DEG
+                    );
+                    
+                    commandTurret(profiledSetpointDeg, 0.0, 0.0);
             }
         } else {
             turretMotor.stopMotor();

@@ -36,7 +36,8 @@ public class CoordinationSubsystem extends SubsystemBase {
         STORING,
         PREPARING_FOR_SHOOTING,
         SHOOTING,
-        TRENCH
+        TRENCH,
+        CLIMB
     }
 
     private AbsoluteStates currentState = AbsoluteStates.INIT;
@@ -115,7 +116,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                         }
                         break;
                     case SOFT_TRENCH_DEADZONE:
-                        if(!overrideTrench || !hardOverrideTrench) {
+                        if(!overrideTrench && !hardOverrideTrench) {
                             setState(AbsoluteStates.TRENCH);
                         }
                         else {
@@ -213,6 +214,15 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeVelocState = IntakeState.IDLING;
                 }
                 break;
+            case CLIMB:
+                turretState = TurretState.CLIMB;
+                shooterHoodState = AngleState.STORING;
+                shooterVelocState = ShooterState.NOT_SHOOTING;
+                transferState = TransferState.NO_RUN;
+                
+                intakeAngleState = IntakePos.INTAKING;
+                intakeVelocState = IntakeState.IDLING;
+                break;
         }
 
         TurretSubsystem.getInstance().setState(turretState);
@@ -236,6 +246,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
         Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
         Logger.recordOutput("Rebuilt/Coord/OverridingTrench?", hardOverrideTrench);
+
 
         if(logDebuggingToggle.get()) {
         }

@@ -85,6 +85,8 @@ public final class IntakeSubsystem extends SubsystemBase{
     private Timer jamTimer = new Timer();
     private Timer unjamTimer = new Timer();
 
+    private boolean reversing = false;
+
     public IntakeSubsystem() {
         configureMotors();
     }
@@ -188,12 +190,18 @@ public final class IntakeSubsystem extends SubsystemBase{
                 //     }
                 // }
                 // else {
+                if(reversing) {
+                    intakingTargetVolts = -intakingTargetVolts;
+                }
                     motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts));
                 // }
                 break;
         }
     }
 
+    public Command setReverse(boolean value) {
+        return new InstantCommand(() -> reversing = value);
+    }
     private boolean checkJam() {
         if(motorWheels.getMotorVoltage().getValueAsDouble() > 3 && Math.abs(motorArm.getPosition().getValueAsDouble() - logIntakeTarget.get()) > 1 && !jamTimerStarted) {
             jamTimerStarted = true;

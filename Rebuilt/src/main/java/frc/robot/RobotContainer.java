@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -32,6 +33,9 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.ClimberSubsystem.ClimbMasterStates;
+import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
+import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.util.BezierCurve;
 
 
@@ -39,7 +43,7 @@ public class RobotContainer {
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   public final static VisionSubsystem vision = VisionSubsystem.getInstance();
   public final static CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
-
+  public final static ClimberSubsystem climbSub = ClimberSubsystem.getInstance();
   public static TurretSubsystem turretSub = TurretSubsystem.getInstance();
   public static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
   public static TransferSubsystem transferSub = TransferSubsystem.getInstance();
@@ -115,28 +119,38 @@ public class RobotContainer {
     // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
     // DRIVER.povRight().onTrue(shooterSub.setAngleState(AngleState.ZEROING));
-    // DRIVER.povDown().whileTrue(
+    // DRIVER.x().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)
     //   ).onFalse(
     //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
     //   );
-    // DRIVER.povLeft().whileTrue(
+    // DRIVER.y().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT)
     //   ).onFalse(
     //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
     //   );
-    // DRIVER.povRight().whileTrue(
+    // DRIVER.a().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT)
     //   ).onFalse(
     //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
     //   );
-    // DRIVER.povUp().whileTrue(
+    // DRIVER.b().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT)
     //   ).onFalse(
     //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
     //   );
 
-    DRIVER.rightTrigger().onTrue(
+    // OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setClimbState(ClimbMasterStates.OVERRIDE)));
+    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(0)));
+    // OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)));
+    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(40)));
+    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0)));
+    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorTarget(1)).andThen(new InstantCommand(() -> climbSub.setTelescopeTarget(1))));
+
+    // OPERATOR.x().onTrue(new InstantCommand(() -> climbSub.zeroMotors()));
+    // OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+
+    OPERATOR.rightTrigger().onTrue(
       CoordinationSubsystem.getInstance().setFireCommand()
     );
 
@@ -144,10 +158,21 @@ public class RobotContainer {
       CoordinationSubsystem.getInstance().setIntakeCommand()
     );
 
-    DRIVER.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
-    DRIVER.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
-    
+    OPERATOR.leftTrigger().onTrue(
+      CoordinationSubsystem.getInstance().setIntakeCommand()
+    );
+
+    OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
+    OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+
+    OPERATOR.a().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    OPERATOR.a().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+
+    OPERATOR.rightStick().onTrue(IntakeSubsystem.getInstance().setReverse(true).andThen(TransferSubsystem.getInstance().setReverse(true)))
+    .onFalse(IntakeSubsystem.getInstance().setReverse(false).andThen(TransferSubsystem.getInstance().setReverse(false)));
+
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
+
 
     DRIVER.back().onTrue(
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)
