@@ -288,15 +288,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
+        SwerveDriveState driveState = getState();
+
         m_field.setRobotPose(getState().Pose);
-        Logger.recordOutput("Rebuilt/Drive/Pose 2D", getState().Pose);
+        Logger.recordOutput("Rebuilt/Drive/Pose 2D", driveState.Pose);
         Logger.recordOutput("Rebuilt/Drive/Pigeon Offset", RobotContainer.pigeonOffset);
         Logger.recordOutput("Rebuilt/Drive/Pigeon Yaw", getPigeon2().getYaw().getValueAsDouble());
         
         Logger.recordOutput("Rebuilt/Drive/maxSpeed", RobotContainer.maxSpeed);
         Logger.recordOutput("Rebuilt/Drive/maxRotationSpeed", RobotContainer.maxAngularRate);
-        Logger.recordOutput("Rebuilt/Drive/CurrentRotationSpeed", getState().Speeds.omegaRadiansPerSecond);
-        Logger.recordOutput("Rebuilt/Drive/currentXSpeed", getState().Speeds.vxMetersPerSecond);
+        Logger.recordOutput("Rebuilt/Drive/CurrentRotationSpeed", driveState.Speeds.omegaRadiansPerSecond);
+        Logger.recordOutput("Rebuilt/Drive/currentXSpeed", driveState.Speeds.vxMetersPerSecond);
     }
 
     private void startSimThread() {

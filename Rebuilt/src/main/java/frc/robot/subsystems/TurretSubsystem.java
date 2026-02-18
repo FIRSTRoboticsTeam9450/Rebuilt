@@ -394,12 +394,6 @@ public class TurretSubsystem extends SubsystemBase {
                 desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
                 
                 targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
-
-                // Other method of using future casting!!! It works :)
-                // Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(.02);
-                // desiredVelocity = (findBestWrappedAngle(updateTargetFromPose(futureTarget).plus(
-                // new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget))).getDegrees()) - robotRelativeTargetAngleDeg)/.02;
-                // targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
             }
         }
         Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);

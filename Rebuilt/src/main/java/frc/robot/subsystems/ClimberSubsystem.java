@@ -28,7 +28,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private LoggedNetworkNumber logMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/MM/Velocity", 4);
     private LoggedNetworkNumber logMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/MM/Acceleration", 1);
-    private LoggedNetworkNumber logMMJerk = new LoggedNetworkNumber("/Tuning/Climb/MM/Jerk", 1000);
     
     // for motor 1/ telescope motor
     private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0);
@@ -70,7 +69,6 @@ public class ClimberSubsystem extends SubsystemBase {
                         new DynamicMotionMagicVoltage(0, 
                             logMMVelocity.get(), 
                             logMMAcceleration.get())
-                            .withJerk(logMMJerk.get())
                             .withSlot(0)
                             .withEnableFOC(true);
 
@@ -78,7 +76,6 @@ public class ClimberSubsystem extends SubsystemBase {
                         new DynamicMotionMagicVoltage(0, 
                             logMMVelocity.get(), 
                             logMMAcceleration.get())
-                            .withJerk(logMMJerk.get())
                             .withSlot(0)
                             .withEnableFOC(true);
     
@@ -174,8 +171,7 @@ public class ClimberSubsystem extends SubsystemBase {
                                         .withKG(logElevatorMMKG.get());
 
         MotionMagicConfigs mmConfigs = new MotionMagicConfigs().withMotionMagicAcceleration(logMMAcceleration.get())
-                                                               .withMotionMagicCruiseVelocity(logMMVelocity.get())
-                                                               .withMotionMagicJerk(logMMJerk.get());
+                                                               .withMotionMagicCruiseVelocity(logMMVelocity.get());
 
         telescopeConfig.Slot0 = slot0Configs;
         elevatorConfig.Slot0 = elevatorSlot0Configs;
@@ -197,7 +193,6 @@ public class ClimberSubsystem extends SubsystemBase {
     public void setElevatorTarget(double setpoint) {
         currentElevatorSetpoint = setpoint;
         elevatorClimbMotor.setControl(elevatorRequest.withPosition(setpoint));
-        System.out.println("SETTING CONTROL");
     }
 
     public void setClimbState(ClimbMasterStates state) {

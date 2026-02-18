@@ -300,7 +300,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc);
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
 
 
