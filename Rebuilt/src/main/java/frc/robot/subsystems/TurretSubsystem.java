@@ -394,7 +394,6 @@ public class TurretSubsystem extends SubsystemBase {
                 desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
                 
                 targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
-           targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
 
                 // if(targetVeloc != desiredVelocity) {
                 //     System.out.println("CANT KEEP UP");
