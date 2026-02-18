@@ -49,15 +49,15 @@ public final class Constants {
 
     public static final class LEDConstants {
       public static final class DeviceIDs {
-        public static final int kCANDleID = 40;
+        public static final int kCANDleID = 45;
       }
     }
 
     public static final class ClimberConstants {
 
       public static final class DeviceIDs {
-        public static final int kElevator = 45;
-        public static final int kTelescope = 46;
+        public static final int kElevator = 40;
+        public static final int kTelescope = 41;
       }
 
       public static final class ClimbPositions {

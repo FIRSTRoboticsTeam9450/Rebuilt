@@ -38,8 +38,6 @@ public class TransferSubsystem extends SubsystemBase {
     /** Voltage request */
     private VoltageOut voltageRequest = new VoltageOut(0.0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
-
-    private boolean reverse = false;
     /**
      * Constructor - initializes the transfer subsystem and configures the motor
      */
@@ -91,17 +89,10 @@ public class TransferSubsystem extends SubsystemBase {
         // Set request voltage
         switch (currentState) {
             case HOLD: // Very slowly move fuel in
-                if(reverse) {
-                    voltageRequest.Output = -12;
-
-                }
-                voltageRequest.Output = 0.65;
+                voltageRequest.Output = 0.55;
                 break;
 
             case RUN_IN: // Move fuel in
-                if(reverse) {
-                    voltageRequest.Output = -12;
-                }
                 voltageRequest.Output = 12;
                 break;
             
@@ -123,10 +114,6 @@ public class TransferSubsystem extends SubsystemBase {
     public void setState(TransferState wantedState) {
         previousState = currentState;
         currentState = wantedState;
-    }
-
-    public Command setReverse(boolean value) {
-        return new InstantCommand(() -> reverse = value);
     }
 
     /**

@@ -27,15 +27,13 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
+import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.ClimberSubsystem.ClimbMasterStates;
-import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
-import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.util.BezierCurve;
 
 
@@ -119,22 +117,22 @@ public class RobotContainer {
     // .andThen(new InstantCommand(() ->shooterSub.setOverrideModeAngle(true))));
 
     // DRIVER.povRight().onTrue(shooterSub.setAngleState(AngleState.ZEROING));
-    // DRIVER.x().whileTrue(
+    // DRIVER.povDown().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)
     //   ).onFalse(
     //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
     //   );
-    // DRIVER.y().whileTrue(
+    // DRIVER.povLeft().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_LEFT)
     //   ).onFalse(
     //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
     //   );
-    // DRIVER.a().whileTrue(
+    // DRIVER.povRight().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_RIGHT)
     //   ).onFalse(
     //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
     //   );
-    // DRIVER.b().whileTrue(
+    // DRIVER.povUp().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.FAR_RIGHT)
     //   ).onFalse(
     //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
@@ -147,7 +145,7 @@ public class RobotContainer {
     // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0)));
     // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorTarget(1)).andThen(new InstantCommand(() -> climbSub.setTelescopeTarget(1))));
 
-    OPERATOR.x().onTrue(new InstantCommand(() -> climbSub.zeroMotors()));
+    OPERATOR.x().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().zeroMotors()));
     OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
 
     OPERATOR.rightTrigger().onTrue(
@@ -168,11 +166,13 @@ public class RobotContainer {
     OPERATOR.leftStick().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
     OPERATOR.leftStick().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
 
-    OPERATOR.b().onTrue(IntakeSubsystem.getInstance().setReverse(true).andThen(TransferSubsystem.getInstance().setReverse(true)))
-    .onFalse(IntakeSubsystem.getInstance().setReverse(false).andThen(TransferSubsystem.getInstance().setReverse(false)));
-
+    OPERATOR.b().onTrue(
+      CoordinationSubsystem.getInstance().setRejectingCommand(true)
+    ).onFalse(
+      CoordinationSubsystem.getInstance().setRejectingCommand(false)
+    );
+    
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
-
 
     DRIVER.back().onTrue(
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)
@@ -188,8 +188,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
 
     NamedCommands.registerCommand("ForceTrench", CoordinationSubsystem.getInstance().setForceTrenchCommand());
+  }
 
-    }
   public Command getAutonomousCommand() {
     return autoChooser.get();
   }

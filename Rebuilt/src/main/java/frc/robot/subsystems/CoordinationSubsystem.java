@@ -46,6 +46,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private boolean driverAllowingShooting = false;
     private boolean shouldBeIntaking = false;
+    private boolean rejecting = false;
 
     private boolean overrideTrench = false;
     private boolean hardOverrideTrench = false;
@@ -116,7 +117,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                         }
                         break;
                     case SOFT_TRENCH_DEADZONE:
-                        if(!overrideTrench && !hardOverrideTrench) {
+                        if(!overrideTrench || !hardOverrideTrench) {
                             setState(AbsoluteStates.TRENCH);
                         }
                         else {
@@ -174,42 +175,59 @@ public class CoordinationSubsystem extends SubsystemBase {
                 turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
-                transferState = TransferState.HOLD;
-                ledState = LEDState.PREPARING_TO_FIRE;
-                if (shouldBeIntaking) {
-                    intakeAngleState = IntakePos.INTAKING;
-                    intakeVelocState = IntakeState.INTAKING;
+                if (!rejecting) {
+                    transferState = TransferState.HOLD;
+                    if (shouldBeIntaking) {
+                        intakeAngleState = IntakePos.INTAKING;
+                        intakeVelocState = IntakeState.INTAKING;
+                    } else {
+                        intakeAngleState = IntakePos.STORE;
+                        intakeVelocState = IntakeState.IDLING;
+                    }
                 } else {
+                    transferState = TransferState.RUN_OUT;
                     intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
+                ledState = LEDState.PREPARING_TO_FIRE;
                 break;
 
             case SHOOTING:
                 turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
-                transferState = TransferState.RUN_IN;
-                ledState = LEDState.GOOD_TO_FIRE;
-                if (shouldBeIntaking) {
-                    intakeAngleState = IntakePos.INTAKING;
-                    intakeVelocState = IntakeState.INTAKING;
+                if (!rejecting) {
+                    transferState = TransferState.RUN_IN;
+                    if (shouldBeIntaking) {
+                        intakeAngleState = IntakePos.INTAKING;
+                        intakeVelocState = IntakeState.INTAKING;
+                    } else {
+                        intakeAngleState = IntakePos.STORE;
+                        intakeVelocState = IntakeState.IDLING;
+                    }
                 } else {
+                    transferState = TransferState.RUN_OUT;
                     intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
+                ledState = LEDState.GOOD_TO_FIRE;
                 break;
 
             case TRENCH:
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
                 shooterVelocState = ShooterState.NOT_SHOOTING;
-                transferState = TransferState.HOLD;
-                ledState = LEDState.UNABLE_TO_FIRE;
-                if (shouldBeIntaking) {
-                    intakeAngleState = IntakePos.INTAKING;
-                    intakeVelocState = IntakeState.INTAKING;
+                if (!rejecting) {
+                    transferState = TransferState.HOLD;
+                    if (shouldBeIntaking) {
+                        intakeAngleState = IntakePos.INTAKING;
+                        intakeVelocState = IntakeState.INTAKING;
+                    } else {
+                        intakeAngleState = IntakePos.TRENCH_STORE;
+                        intakeVelocState = IntakeState.IDLING;
+                    }
                 } else {
+                    transferState = TransferState.RUN_OUT;
                     intakeAngleState = IntakePos.TRENCH_STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
@@ -246,7 +264,6 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
         Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
         Logger.recordOutput("Rebuilt/Coord/OverridingTrench?", hardOverrideTrench);
-
 
         if(logDebuggingToggle.get()) {
         }
@@ -298,6 +315,11 @@ public class CoordinationSubsystem extends SubsystemBase {
     public Command setIntakeCommand() {
         return new InstantCommand(() -> shouldBeIntaking = !shouldBeIntaking)
         .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState()));
+    }
+
+    public Command setRejectingCommand(boolean value) {
+        return new InstantCommand(() -> rejecting = value)
+        .alongWith(new InstantCommand(() -> update = true));
     }
 
     public Command setHardTrenchOverride(boolean value) {

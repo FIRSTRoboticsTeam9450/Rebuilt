@@ -132,6 +132,9 @@ public class ShooterSubsystem extends SubsystemBase {
     InterpolatingDoubleTreeMap ferryingDistanceToTime = new InterpolatingDoubleTreeMap();
     InterpolatingDoubleTreeMap ferryingDistanceToVelocity = new InterpolatingDoubleTreeMap();
 
+    // Cached Values
+    private double cachedDistanceToTarget = 0.0;
+
     // ----------------------------- CONSTRUCTOR ---------------------------- //
     public ShooterSubsystem() {
         configureAngleMotors();
@@ -268,6 +271,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        cachedDistanceToTarget = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
+
         if (!isZeroingDone) {
             currentAngleState = AngleState.ZEROING;
             isZeroingDone = autoZeroing();
@@ -279,7 +284,8 @@ public class ShooterSubsystem extends SubsystemBase {
         if(switchSlotBackTimer.get() > 2 && currentAngleState == AngleState.AIMING && !hasSwitchedBack) {
             hasSwitchedBack = true;
             slotNum = 0;
-            hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration);
+            hoodMMRequest.withVelocity(hoodMMVelocity)
+                         .withAcceleration(hoodMMAcceleration);
         }
         applyState();
     }
@@ -301,10 +307,10 @@ public class ShooterSubsystem extends SubsystemBase {
         if (logDebuggingToggle.get()) { // To get rid of loop overruns
 
             
-            Logger.recordOutput("Rebuilt/Shooter/Time To Shoot", getShootingDistanceToTime(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
+            Logger.recordOutput("Rebuilt/Shooter/Time To Shoot", getShootingDistanceToTime(cachedDistanceToTarget));
 
             // Hood logs
-            Logger.recordOutput("Rebuilt/Shooter/Hood/Took target", hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget())));
+            Logger.recordOutput("Rebuilt/Shooter/Hood/Took target", hoodAngleFunction(cachedDistanceToTarget));
             Logger.recordOutput("Rebuilt/Shooter/Hood/voltage", angleMotor.getMotorVoltage().getValueAsDouble());
             Logger.recordOutput("Rebuilt/Shooter/Hood/Request Accel", hoodMMRequest.Acceleration);
             Logger.recordOutput("Rebuilt/Shooter/Hood/Request Veloc", hoodMMRequest.Velocity);
@@ -372,41 +378,36 @@ public class ShooterSubsystem extends SubsystemBase {
     // --------------------------------------- GETTERS --------------------------------------- //
     public double getShooterVeloc() {
         if(!isTuningShooterVelocity) {
-            double distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
             switch (coordSub.getCurrentZone()) {
 
                 case SHOOTING_ZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()) + 0.4);
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget + 0.4);
                     break;
 
                 case FERRY_ZONE_TOP:
-                    distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
-
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.95;
-                    if(distance > 14.55) {
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget) * 0.95;
+                    if(cachedDistanceToTarget > 14.55) {
                         targetShooterVeloc = 49;
                     }
                     break;
                     
                 case FERRY_ZONE_BOTTOM:
-                    distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
-                    
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(distance) * 0.95;
-                    if(distance > 14.55) {
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget) * 0.95;
+                    if(cachedDistanceToTarget > 14.55) {
                         targetShooterVeloc = 49;
                     }
                     break;
                     
                 case SOFT_TRENCH_DEADZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
                     break;
 
                 case HARD_TRENCH_DEADZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
                     break;
 
                 case BACK_DEADZONE:
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
                     break;
 
                 default:
@@ -423,15 +424,15 @@ public class ShooterSubsystem extends SubsystemBase {
         if(!isOverrideAngle) {
             switch (coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
-                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetHoodHeight = hoodAngleFunction(cachedDistanceToTarget);
                     break;
                     
                 case FERRY_ZONE_TOP:
-                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetHoodHeight = hoodAngleFunction(cachedDistanceToTarget);
                     break; 
                     
                 case FERRY_ZONE_BOTTOM:
-                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetHoodHeight = hoodAngleFunction(cachedDistanceToTarget);
                     break;
 
                 case HARD_TRENCH_DEADZONE:
@@ -439,11 +440,11 @@ public class ShooterSubsystem extends SubsystemBase {
                     break;
 
                 case SOFT_TRENCH_DEADZONE:
-                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetHoodHeight = hoodAngleFunction(cachedDistanceToTarget);
                     break;
 
                 case BACK_DEADZONE:
-                    targetHoodHeight = hoodAngleFunction(visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget()));
+                    targetHoodHeight = hoodAngleFunction(cachedDistanceToTarget);
                     break;
 
                 default:
@@ -532,7 +533,8 @@ public class ShooterSubsystem extends SubsystemBase {
      */
     public void setState(ShooterState wantedShooterState, AngleState wantedAngleState) {
         if(currentAngleState == AngleState.ZEROING || currentAngleState == AngleState.STORING) {
-            hoodMMRequest = new DynamicMotionMagicVoltage(0, 300, 300);
+            hoodMMRequest.withVelocity(300)
+                         .withAcceleration(300);
 
             switchSlotBackTimer.restart();
             hasSwitchedBack = false;

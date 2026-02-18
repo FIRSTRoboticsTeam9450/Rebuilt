@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -21,8 +20,6 @@ import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.PipelineIndexs;
-import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsAndyMark;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
 import frc.robot.util.LimelightHelpers;
@@ -32,9 +29,7 @@ import frc.robot.util.LimelightObject.Location;
 import com.ctre.phoenix6.Utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.littletonrobotics.junction.Logger;
@@ -203,6 +198,8 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
 
+        lastAdjustedTargetPose = getAdjustedTarget(getTargetRelativeToBot(), lastAdjustedTargetPose);
+
         // if (limelightPipelineSwitchingEnabled && cooldownCount > 100) {
         //     cooldownCount = 0;
         //     Pose2d currentPose = drivetrain.getState().Pose;
@@ -219,13 +216,13 @@ public class VisionSubsystem extends SubsystemBase {
             updateTargetAndZoneOffset++;
         }
 
-        // if (updateVisionOffset > ) {
-        //     updateVisionOffset = 0;
+        if (updateVisionOffset > 1) {
+            updateVisionOffset = 0;
             updateVision();  // Compute fused vision pose
             publishLogs();   // Print/log fusion confidence and pose
-        // } else {
-        //     updateVisionOffset++;
-        // }
+        } else {
+            updateVisionOffset++;
+        }
     }
 
     // -------------------------
@@ -237,63 +234,65 @@ public class VisionSubsystem extends SubsystemBase {
      * Sends fused pose to drivetrain for odometry correction.
      */
     private void updateVision() {
-        // double robotYaw = drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset;
         double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
-        
-        // Collect vision measurements from all limelights
-        List<VisionMeasurement> measurements = new ArrayList<>();
-        
-        for (LimelightObject limelight : LIMELIGHT_LIST) {
-            // Update robot orientation for this limelight
-            LimelightHelpers.SetRobotOrientation_NoFlush(limelight.getName(), robotYaw, 0, 0, 0, 0, 0);
-            
-            //If not seeing a tag, dont run through this process
-            if (LimelightHelpers.getTV(limelight.getName())) {
-                LimelightHelpers.PoseEstimate pe;
 
-                if (validMeasurementCount > 15) {
-                    // Get pose estimate using MegaTag2
-                    pe = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight.getName());
+        List<limelightNetworkTableData> llDataList = new ArrayList<>(LIMELIGHT_LIST.size());
+        for (LimelightObject limelight : LIMELIGHT_LIST) {
+            String name = limelight.getName();
+            LimelightHelpers.SetRobotOrientation_NoFlush(name, robotYaw, 0, 0, 0, 0, 0);
+            boolean hasTarget = LimelightHelpers.getTV(name);
+
+            if (hasTarget) {
+                if (validMeasurementCount < 15) {
+                    llDataList.add(new limelightNetworkTableData(
+                        name,
+                        true,
+                        LimelightHelpers.getBotPoseEstimate_wpiBlue(name),
+                        LimelightHelpers.getBotPose_wpiBlue(name),
+                        LimelightHelpers.getRawFiducials(name)
+                    ));
                 } else {
-                    // Get pose estimate using MegaTag2
-                    pe = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight.getName());
+                    llDataList.add(new limelightNetworkTableData(
+                        name,
+                        true,
+                        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name),
+                        LimelightHelpers.getBotPose_wpiBlue(name),
+                        LimelightHelpers.getRawFiducials(name)
+                    ));
                 }
-                
-                // Create vision measurement
-                VisionMeasurement vm = createVisionMeasurement(pe, limelight.getName());
-                
-                // Only add valid measurements
-                if (vm.isValid()) {
-                    measurements.add(vm);
-                }
+            } else {
+                llDataList.add(new limelightNetworkTableData(name, false, null, null, null));
             }
         }
-        // Fuse all valid measurements
+
+        // === STEP 2: Process snapshots — no more NT reads below this line ===
+        List<VisionMeasurement> measurements = new ArrayList<>(llDataList.size());
+        for (limelightNetworkTableData snap : llDataList) {
+            if (!snap.hasATarget) continue;
+            VisionMeasurement vm = createVisionMeasurement(snap);
+            if (vm.isValid()) measurements.add(vm);
+        }
+
+        // === STEP 3: Fuse ===
         Optional<Pose2d> fusedPose = fuseVision(measurements);
-        
-        // If valid, update lastVisionPose and send to drivetrain
         fusedPose.ifPresent(pose -> {
             lastVisionPose = pose;
             lastFusedPose = pose;
-            
-            // Use the latest timestamp from all measurements
             lastVisionTimestamp = measurements.stream()
                 .mapToDouble(VisionMeasurement::timestamp)
-                .max()
-                .orElse(0.0);
-            
-            // Set standard deviations and add measurement
+                .max().orElse(0.0);
             if (firstMeasurment) {
                 firstMeasurment = false;
                 drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0, 0, 0));
             } else {
-                drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+                drivetrain.setVisionMeasurementStdDevs(
+                    VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
             }
             drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
-
             validMeasurementCount++;
         });
 
+        // Store snapshots for logging to reuse — no re-reads needed
         Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
     }
 
@@ -307,26 +306,21 @@ public class VisionSubsystem extends SubsystemBase {
      * - Roll rotation is not zero (robot tilting side-to-side)
      * - Yaw differs from Pigeon IMU by more than 0.01 degrees
      */
-    private VisionMeasurement createVisionMeasurement(LimelightHelpers.PoseEstimate pe, String limelightName) {
-        if (pe == null || pe.pose == null) return VisionMeasurement.invalid();
+    private VisionMeasurement createVisionMeasurement(limelightNetworkTableData llData) {
+        if (llData == null || llData.botPose == null) return VisionMeasurement.invalid();
 
-        double ambiguity = computeAmbiguity(limelightName);
-        double timestamp = Utils.fpgaToCurrentTime(pe.timestampSeconds);
-        Pose2d pose = (Pose2d) pe.pose;
-        int tagCount = pe.tagCount;
+        double ambiguity = computeAmbiguity(llData);
+        double timestamp = Utils.fpgaToCurrentTime(llData.megaTagEstimate.timestampSeconds);
+        int tagCount = llData.megaTagEstimate.tagCount;
 
         if (tagCount == 0 || ambiguity > 0.8) return VisionMeasurement.invalid();
-
-        // Get Pose3d data for validation
-        // We need to get the raw 3D pose for validation
-        LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults(limelightName);
         
         boolean poseValid = true;
         
-        if (results != null) {
+        if (llData.botPose != null) {
             // Extract 3D pose data from botpose array
             // botpose format: [x, y, z, roll, pitch, yaw, ...]
-            double[] botpose = LimelightHelpers.getBotPose_wpiBlue(limelightName);
+            double[] botpose = llData.botPose;
             
             if (botpose != null && botpose.length >= 6) {
                 double x = botpose[0];
@@ -362,10 +356,10 @@ public class VisionSubsystem extends SubsystemBase {
                 
                 // Optional: Log which check failed for debugging
                 if (!poseValid) {
-                    if (!zValid) Logger.recordOutput("Rebuilt/Vision/" + limelightName + "/InvalidZ", z);
-                    if (!rollValid) Logger.recordOutput("Rebuilt/Vision/" + limelightName + "/InvalidRoll", roll);
-                    if (!pitchValid) Logger.recordOutput("Rebuilt/Vision/" + limelightName + "/InvalidPitch", pitch);
-                    if (!yawValid) Logger.recordOutput("Rebuilt/Vision/" + limelightName + "/InvalidYawDiff", yawDiff);
+                    if (!zValid) Logger.recordOutput("Rebuilt/Vision/" + llData.name + "/InvalidZ", z);
+                    if (!rollValid) Logger.recordOutput("Rebuilt/Vision/" + llData.name + "/InvalidRoll", roll);
+                    if (!pitchValid) Logger.recordOutput("Rebuilt/Vision/" + llData.name + "/InvalidPitch", pitch);
+                    if (!yawValid) Logger.recordOutput("Rebuilt/Vision/" + llData.name + "/InvalidYawDiff", yawDiff);
                 }
             }
         }
@@ -377,15 +371,15 @@ public class VisionSubsystem extends SubsystemBase {
         double tagFactor = Math.min(tagCount / 2.0, 1.0);
         double confidence = (1.0 - ambiguity) * 0.7 + tagFactor * 0.3;
 
-        return new VisionMeasurement(pose, confidence, timestamp, valid);
+        return new VisionMeasurement(llData.megaTagEstimate.pose, confidence, timestamp, valid);
     }
 
     /**
      * Computes the best (lowest) ambiguity among all fiducials seen by a Limelight.
      * @Returns 1.0 if no fiducials detected (completely ambiguous).
      */
-    private double computeAmbiguity(String limelightName) {
-        LimelightHelpers.RawFiducial[] fiducials = LimelightHelpers.getRawFiducials(limelightName);
+    private double computeAmbiguity(limelightNetworkTableData llData) {
+        LimelightHelpers.RawFiducial[] fiducials = llData.fiducials;
         if (fiducials == null || fiducials.length == 0) return 1.0;
 
         double best = 1.0;
@@ -411,87 +405,53 @@ public class VisionSubsystem extends SubsystemBase {
      * @return Optional containing fused pose, or empty if no valid measurements
      */
     private Optional<Pose2d> fuseVision(List<VisionMeasurement> measurements) {
-        // Filter to only valid measurements
-        List<VisionMeasurement> validMeasurements = measurements.stream()
-            .filter(VisionMeasurement::isValid)
-            .toList();
-        
-        // No valid measurements
-        if (validMeasurements.isEmpty()) {
-            return Optional.empty();
-        }
-        
-        // Single valid measurement - use it directly
-        if (validMeasurements.size() == 1) {
-            return Optional.of(validMeasurements.get(0).pose());
-        }
-        
-        // Multiple measurements - compute mean for outlier detection
-        double meanX = validMeasurements.stream()
-            .mapToDouble(m -> m.pose().getX())
-            .average()
-            .orElse(0.0);
-        
-        double meanY = validMeasurements.stream()
-            .mapToDouble(m -> m.pose().getY())
-            .average()
-            .orElse(0.0);
+            // Filter valid
+        int validCount = 0;
+        double sumX = 0, sumY = 0;
+        VisionMeasurement best = null;
 
-        
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        //TODO: Actually average together
-        // double meanRotation = validMeasurements.stream()
-        //     .mapToDouble(m -> m.pose().getRotation().getRadians())
-        //     .average()
-        //     .orElse(0.0);
+        for (VisionMeasurement m : measurements) {
+            if (!m.isValid()) continue;
+            sumX += m.pose().getX();
+            sumY += m.pose().getY();
+            if (best == null || m.confidence() > best.confidence()) best = m;
+            validCount++;
+        }
 
-        double meanRotation = validMeasurements.get(0).pose.getRotation().getRadians();
-        
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        
-        Pose2d meanPose = new Pose2d(meanX, meanY, new Rotation2d(meanRotation));
-        
-        // Filter out outliers that differ too much from mean
-        List<VisionMeasurement> inliers = validMeasurements.stream()
-            .filter(m -> {
-                double translationDiff = m.pose().getTranslation().getDistance(meanPose.getTranslation());
-                double rotationDiff = Math.abs(m.pose().getRotation().minus(meanPose.getRotation()).getRadians());
-                
-                return translationDiff < maxTranslationDiff && rotationDiff < maxRotationDiff;
-            })
-            .toList();
-        
-        // If all measurements were outliers, fall back to highest confidence measurement
-        if (inliers.isEmpty()) {
-            return validMeasurements.stream()
-                .max((m1, m2) -> Double.compare(m1.confidence(), m2.confidence()))
-                .map(VisionMeasurement::pose);
+        if (validCount == 0) return Optional.empty();
+        if (validCount == 1) return Optional.of(best.pose());
+
+        double meanX = sumX / validCount;
+        double meanY = sumY / validCount;
+
+        // Single pass for inlier filtering + weighted fusion
+        double totalConf = 0, fusedX = 0, fusedY = 0;
+        int inlierCount = 0;
+        VisionMeasurement highestConfInlier = null;
+
+        for (VisionMeasurement m : measurements) {
+            if (!m.isValid()) continue;
+            double dx = m.pose().getX() - meanX;
+            double dy = m.pose().getY() - meanY;
+            double dist = Math.sqrt(dx*dx + dy*dy);
+            double rotDiff = Math.abs(m.pose().getRotation().minus(
+                new Rotation2d(Math.atan2(meanY, meanX))).getRadians()); // or use first pose rotation
+
+            if (dist < maxTranslationDiff && rotDiff < maxRotationDiff) {
+                fusedX += m.pose().getX() * m.confidence();
+                fusedY += m.pose().getY() * m.confidence();
+                totalConf += m.confidence();
+                inlierCount++;
+                if (highestConfInlier == null || m.confidence() > highestConfInlier.confidence())
+                    highestConfInlier = m;
+            }
         }
-        
-        // If only one inlier remains, use it
-        if (inliers.size() == 1) {
-            return Optional.of(inliers.get(0).pose());
-        }
-        // TODO: Log number of outliers
-        
-        // Fuse inliers using confidence-weighted average
-        double totalConfidence = inliers.stream()
-            .mapToDouble(VisionMeasurement::confidence)
-            .sum();
-        
-        double fusedX = inliers.stream()
-            .mapToDouble(m -> m.pose().getX() * m.confidence())
-            .sum() / totalConfidence;
-        
-        double fusedY = inliers.stream()
-            .mapToDouble(m -> m.pose().getY() * m.confidence())
-            .sum() / totalConfidence;
-        
-        // double fusedRotation = inliers.stream()
-        //     .mapToDouble(m -> m.pose().getRotation().getRadians() * m.confidence())
-        //     .sum() / totalConfidence;
-        double fusedRotation = inliers.get(0).pose().getRotation().getRadians();
-        return Optional.of(new Pose2d(fusedX, fusedY, new Rotation2d(fusedRotation)));
+
+        if (inlierCount == 0) return Optional.of(best.pose());
+        if (inlierCount == 1) return Optional.of(highestConfInlier.pose());
+
+        double rotation = highestConfInlier.pose().getRotation().getRadians();
+        return Optional.of(new Pose2d(fusedX / totalConf, fusedY / totalConf, new Rotation2d(rotation)));
     }
 
     private void updateLLPipeline(double distance) {
@@ -583,7 +543,7 @@ public class VisionSubsystem extends SubsystemBase {
                     }
                     
                     // Ambiguity for this camera
-                    Logger.recordOutput("Rebuilt/Vision/" + name + "/Ambiguity", computeAmbiguity(name));
+                    // Logger.recordOutput("Rebuilt/Vision/" + name + "/Ambiguity", computeAmbiguity(name));
                 }
             }
             
@@ -689,7 +649,6 @@ public class VisionSubsystem extends SubsystemBase {
     }
     
     public Translation2d getAdjustedCurrentTarget() {
-        lastAdjustedTargetPose = getAdjustedTarget(getTargetRelativeToBot(), lastAdjustedTargetPose);
         return lastAdjustedTargetPose;
     }
     /**
@@ -750,29 +709,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     }
 
-    // TODO: MAKE THIS WORK
-
-    // public boolean goingToHitTrench() {
-    //     double time = .5;
-    //     Pose2d currentPoseWRTField = getCurrentBotPoseAllianceUnspecific();
-    //     ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
-
-    //     // Calculate how much the robot will have moved into the future
-    //     Pose2d futurePoseWRTCurrentBot = new Pose2d(
-    //         new Translation2d((velocityRobotWRTRobot.vxMetersPerSecond * time), (velocityRobotWRTRobot.vyMetersPerSecond * time)),
-    //         new Rotation2d(velocityRobotWRTRobot.omegaRadiansPerSecond * time)); // ABSOLUTELY CORRECT
-
-    //     // Coordinate math stuff //
-    //     Pose2d targetWRTCurrentBot = new Pose2d(getTargetRelativeToBot(), new Rotation2d()); // Correct
-    //     Transform2d fieldWRTCurrentTransform = new Transform2d(currentPoseWRTField.getTranslation(), currentPoseWRTField.getRotation()).inverse(); // ABSOLUTELY CORRECT
-    //     Pose2d fieldWRTCurrentPose = new Pose2d(fieldWRTCurrentTransform.getTranslation(), fieldWRTCurrentTransform.getRotation()); // ABSOLUTELY CORRECT
-    //     Pose2d futurePoseWRTField = futurePoseWRTCurrentBot.relativeTo(fieldWRTCurrentPose); // ABSOLUTELY CORRECT
-
-    //     if(getZone(futurePoseWRTField) != null) {
-    //         return true;
-    //     }
-    // }
-
     /**
      * Get the air time of the ball to get to its target
      * @param target
@@ -794,35 +730,6 @@ public class VisionSubsystem extends SubsystemBase {
         return currentZone;
     }
 
-    public ZoneState getZone(Pose2d currentPose) {
-        double currentX = currentPose.getX();
-        double currentY = currentPose.getY();
-        // if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
-        //     return ZoneState.SOFT_TRENCH_DEADZONE;
-        // }
-        // else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_HIGH) {
-        //     return ZoneState.SOFT_TRENCH_DEADZONE;
-        // }
-        // else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_HIGH) {
-        //     return ZoneState.SOFT_TRENCH_DEADZONE;
-        // }
-        // else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_HIGH) {
-        //     return ZoneState.SOFT_TRENCH_DEADZONE;
-        // }
-        if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
-            return ZoneState.HARD_TRENCH_DEADZONE;
-        }
-        else if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_HIGH) {
-            return ZoneState.HARD_TRENCH_DEADZONE;
-        }
-        else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_HIGH) {
-            return ZoneState.HARD_TRENCH_DEADZONE;
-        }
-        else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_HIGH) {
-            return ZoneState.HARD_TRENCH_DEADZONE;
-        }
-        return null;
-    }
     /**
      * Update which zone it's in and target it's in
      */
@@ -930,4 +837,11 @@ public class VisionSubsystem extends SubsystemBase {
             return valid && pose != null;
         }
     }
+
+    private record limelightNetworkTableData(String name, 
+                                             boolean hasATarget, 
+                                             LimelightHelpers.PoseEstimate megaTagEstimate, 
+                                             double[] botPose, 
+                                             LimelightHelpers.RawFiducial[] fiducials
+                                            ) {}
 }
