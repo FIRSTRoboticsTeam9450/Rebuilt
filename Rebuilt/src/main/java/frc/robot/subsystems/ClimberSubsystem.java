@@ -30,18 +30,18 @@ public class ClimberSubsystem extends SubsystemBase {
     private TalonFX elevatorClimbMotor = new TalonFX(ClimberConstants.DeviceIDs.kElevator, RobotConstants.MAIN_SYSTEMS_CANBUS); //temporary deviceID value
 
     // for motor 1/ telescope motor
-    private LoggedNetworkNumber logTelescopeMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Velocity", 4);
+    private LoggedNetworkNumber logTelescopeMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Velocity", 20);
     private LoggedNetworkNumber logTelescopeMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Acceleration", 1);
     private double telescopeMMVeloc = logTelescopeMMVelocity.get();
     private double telescopeMMAccel = logTelescopeMMAcceleration.get();
 
-    private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0);
-    private LoggedNetworkNumber logTelescopeMMKV = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kV", 0.33);
+    private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.2);
+    private LoggedNetworkNumber logTelescopeMMKV = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kV", 0.2);
     private LoggedNetworkNumber logTelescopeMMKA = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kA", 0);
-    private LoggedNetworkNumber logTelescopeMMKP = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kP", 2);
+    private LoggedNetworkNumber logTelescopeMMKP = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kP", 0.8);
     private LoggedNetworkNumber logTelescopeMMKI = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kI", 0.0);
     private LoggedNetworkNumber logTelescopeMMKD = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kD", 0.0);
-    private LoggedNetworkNumber logTelescopeMMKG = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kG", 0.1);
+    private LoggedNetworkNumber logTelescopeMMKG = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kG", 0.125);
 
     // for motor 2/ elevator motor
     private LoggedNetworkNumber logElevatorMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Velocity", 4);
