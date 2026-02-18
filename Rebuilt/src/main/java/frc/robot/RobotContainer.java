@@ -147,8 +147,8 @@ public class RobotContainer {
     // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0)));
     // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorTarget(1)).andThen(new InstantCommand(() -> climbSub.setTelescopeTarget(1))));
 
-    // OPERATOR.x().onTrue(new InstantCommand(() -> climbSub.zeroMotors()));
-    // OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+    OPERATOR.x().onTrue(new InstantCommand(() -> climbSub.zeroMotors()));
+    OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
 
     OPERATOR.rightTrigger().onTrue(
       CoordinationSubsystem.getInstance().setFireCommand()
@@ -162,13 +162,13 @@ public class RobotContainer {
       CoordinationSubsystem.getInstance().setIntakeCommand()
     );
 
-    OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
-    OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+    OPERATOR.rightStick().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
+    OPERATOR.rightStick().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
 
-    OPERATOR.a().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
-    OPERATOR.a().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    OPERATOR.leftStick().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    OPERATOR.leftStick().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
 
-    OPERATOR.rightStick().onTrue(IntakeSubsystem.getInstance().setReverse(true).andThen(TransferSubsystem.getInstance().setReverse(true)))
+    OPERATOR.b().onTrue(IntakeSubsystem.getInstance().setReverse(true).andThen(TransferSubsystem.getInstance().setReverse(true)))
     .onFalse(IntakeSubsystem.getInstance().setReverse(false).andThen(TransferSubsystem.getInstance().setReverse(false)));
 
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
