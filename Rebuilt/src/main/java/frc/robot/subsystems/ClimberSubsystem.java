@@ -89,22 +89,22 @@ public class ClimberSubsystem extends SubsystemBase {
     
     public enum ClimbMasterStates {
         ZEROING,
-        STOWING, // may not be needed
+        //STOWING, // may not be needed
         STANDBY,
-        LOCKING1, // may not be needed
-        LOCKING2, // may not be needed
+        // LOCKING1, // may not be needed
+        // LOCKING2, // may not be needed
         L1_START,
         L1_CLIMED,
         L2_START,
         L2_CLIMBED,
         L3_START,
         L3_CLIMED,
-        OVERRIDE,
+        OVERRIDE
         // -------------- vvv I'm not sure at this point how the elevator and telescope work 
         // together because the climber was finished on winter break
         
-        REACHING, // Telescope extend while elavtor retract
-        PULLING //elevator extend while Telescope retract
+        // REACHING, // Telescope extend while elavtor retract
+        // PULLING //elevator extend while Telescope retract
     }
 
     public enum ElevatorStates {
@@ -304,51 +304,7 @@ public class ClimberSubsystem extends SubsystemBase {
         return atTarget;
     }
 
-    // public void OverrideState(ElevatorStates elevatorState, TelescopeStates telescopeState) {
-    //     try {
-    //         currentElevatorState = elevatorState;
-    //         currentTelescopeState = telescopeState;
-    //     } catch (IllegalArgumentException e) {
-    //         System.out.println("read state names bruh");
-    //     }
-    // }
-
-    // public boolean endClimbSequence() { return climbCounter == 0; }
-
-    // public void masterStates() {
-    //     switch (currentClimbMasterStates) {
-    //         case REACHING:
-    //             currentElevatorState = ElevatorStates.RETRACTING;
-    //             currentTelescopeState = TelescopeStates.EXTENDING;
-    //             break;
-    //         case PULLING:
-    //             currentElevatorState = ElevatorStates.EXTENDING;
-    //             currentTelescopeState = TelescopeStates.RETRACTING;
-    //             break;
-    //         case LOCKING1:
-    //             currentTelescopeState = TelescopeStates.LOCKING;
-    //             break;
-    //         case LOCKING2:
-    //             currentElevatorState = ElevatorStates.LOCKING;
-    //             break;
-    //         case STANDBY:
-    //             break;
-    //         case STOWING:
-    //             currentElevatorState = ElevatorStates.STOWING;
-    //             currentTelescopeState = TelescopeStates.STOWING;
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
-    
-
     private void applyStates() {
-        // for traversing climbDistances the list
-        // add +1 to climbCounter each time
-        // stop repeating when climbCounter is greater than or maybe equal to barsToClimb
-
-        // climbDistances holds a position value for the motor to go to for each bar
 
         // ------------ The state Locking and Stowing may not be useful and could be removed ----
         switch (currentClimbMasterStates) {
@@ -379,15 +335,18 @@ public class ClimberSubsystem extends SubsystemBase {
 
             case L1_CLIMED:
                 setTelescopeTarget(0);
+                telescopeConfig.Slot0.withKG(3); //temporary solution
                 setElevatorTarget(ClimbPositions.kElevatorFullyUp);
-                if(ElevatorAtTarget() && TelescopeAtTarget() && L3Climb) {
+                if(ElevatorAtTarget() && TelescopeAtTarget() && L3Climb) { //will only climb to l2 if it is an l3 climb?
                     currentClimbMasterStates = ClimbMasterStates.L2_START;
                 }
                 break;
 
             case L2_START:
                 setElevatorTarget(0);
+                elevatorConfig.Slot0.withKG(3); //"there is nothing more permanent than a temporary solution" -Russian proverb
                 setTelescopeTarget(ClimbPositions.kTelescopeFullyUp);
+                telescopeConfig.Slot0.withKG(logTelescopeMMKG.get()); //temporary solution
                 if(ElevatorAtTarget() && TelescopeAtTarget() && L3Climb) {
                     currentClimbMasterStates = ClimbMasterStates.L2_CLIMBED;
                 }
@@ -395,6 +354,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
             case L2_CLIMBED:
                 setTelescopeTarget(0);
+                telescopeConfig.Slot0.withKG(3); //temporary solution
                 setElevatorTarget(ClimbPositions.kElevatorFullyUp);
                 if(ElevatorAtTarget() && TelescopeAtTarget() && L3Climb) {
                     currentClimbMasterStates = ClimbMasterStates.L3_START;
@@ -423,69 +383,8 @@ public class ClimberSubsystem extends SubsystemBase {
                 break;
 
         }
-        // switch (currentElevatorState) {
-        //     case STANDBY:
-        //         // Makes the motor stay at it's current position there is probably a better way to do this
-        //         setElevatorTarget(Math.round(Math.abs(getElevatorPosition())));
-        //         break;
-        //     case EXTENDING:
-        //         setElevatorTarget(climbDistances[climbCounter].get());
-        //         if(ElevatorAtTarget()) {
-        //             currentElevatorState = ElevatorStates.LOCKING;
-        //         }
-        //         break;
-        //     case LOCKING:
-        //         setElevatorTarget(5); //temporary value
-        //         // if(ElevatorAtTarget()) {
-        //         //     currentElevatorState = ElevatorStates.RETRACTING;
-        //         // }
-        //         break;
-        //     case RETRACTING:
-        //         setElevatorTarget(0);
-        //         // if(ElevatorAtTarget()) {
-        //         //     currentElevatorState = ElevatorStates.STANDBY;
-        //         // }
-        //         break;
-        //     case STOWING:
-        //         setElevatorTarget(0);
-        //         // if(ElevatorAtTarget()) {
-        //         //     currentElevatorState = ElevatorStates.STANDBY;
-        //         // } 
-        //         break;
-        //     default:
-        //         break;
-        // }
-        // switch(currentTelescopeState) {
-        //     case STANDBY:
-        //         // Makes the motor stay at it's current position there is probably a better way to do this
-        //         setTelescopeTarget(Math.round(Math.abs(getTelescopePosition())));
-        //         break;
-        //     case EXTENDING:
-        //         setTelescopeTarget(climbDistances[climbCounter].get());
-        //         if(TelescopeAtTarget()) {
-        //             currentTelescopeState = TelescopeStates.LOCKING;
-        //         }
-        //         break;
-        //     case LOCKING:
-        //         setTelescopeTarget(5);
-        //         // if(TelescopeAtTarget()) {
-        //         //     currentTelescopeState = TelescopeStates.RETRACTING;
-        //         // }
-        //         break;
-        //     case RETRACTING:
-        //         setTelescopeTarget(0);
-        //         // if(TelescopeAtTarget()) {
-        //         //     currentTelescopeState = TelescopeStates.STANDBY;
-        //         // }
-        //         break;
-        //     case STOWING:
-        //         setTelescopeTarget(0);
-        //         break;
-        //     default:
-        //         break;
-        // } 
+        
     }
-
 
     public double getElevatorPosition() {
         return elevatorClimbMotor.getPosition().getValueAsDouble();
