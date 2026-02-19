@@ -350,7 +350,7 @@ public final class Constants {
 
         public static final double MID_ZONE_X_LOW = MAJOR_ZONE_X_HIGH;//182.11;
         public static final double MID_ZONE_X_HIGH = 16.540988; // inches 651.22;
-        public static final double MID_ZONE_1_Y_LOW = 4.034536; // inches 158.84; 4.3 meters if wanting preference to outpost side
+        public static final double MID_ZONE_1_Y_LOW = -0.5; //meters: 4.034536 inches 158.84; 4.3 meters if wanting preference to outpost side
         public static final double MID_ZONE_1_Y_HIGH = 8.069326; // inches 317.69;
 
         public static final double MID_ZONE_2_Y_LOW = 0;
