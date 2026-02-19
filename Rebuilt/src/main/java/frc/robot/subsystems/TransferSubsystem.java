@@ -132,5 +132,8 @@ public class TransferSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Transfer/Previous State", previousState);
 
         Logger.recordOutput("Rebuilt/Transfer/Target Speed", voltageRequest.Output);
+
+        Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Transfer/Motor Veloc", motor.getVelocity().getValueAsDouble());
     }
 }

@@ -103,6 +103,10 @@ public class RobotContainer {
                     .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+      
+      // DRIVER.rightTrigger().onTrue(
+      //   CoordinationSubsystem.getInstance().setForceTrenchCommand()
+      // );
 
 
     // For tuning hood angle PID
@@ -152,20 +156,30 @@ public class RobotContainer {
     // OPERATOR.a().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(0.1))));
 
 
-    OPERATOR.rightTrigger().onTrue(
-      CoordinationSubsystem.getInstance().setFireCommand()
-    );
-
     DRIVER.leftTrigger().onTrue(
       CoordinationSubsystem.getInstance().setIntakeCommand()
+    );
+
+    OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
+    OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+
+    // DRIVER.rightTrigger().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
+    // DRIVER.rightTrigger().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+
+    // DRIVER.rightTrigger().onTrue(
+    //   CoordinationSubsystem.getInstance().setOverrideCommand(true)
+    // ).onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+
+    OPERATOR.rightTrigger().onTrue(
+      CoordinationSubsystem.getInstance().setFireCommand()
     );
 
     OPERATOR.leftTrigger().onTrue(
       CoordinationSubsystem.getInstance().setIntakeCommand()
     );
 
-    OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
-    OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+  
+
 
     OPERATOR.x().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
     OPERATOR.x().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());

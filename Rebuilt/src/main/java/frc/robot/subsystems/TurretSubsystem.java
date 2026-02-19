@@ -522,9 +522,10 @@ public class TurretSubsystem extends SubsystemBase {
                     double maxVelocity = cachedMaxVelocity;
                     
                     // Apply motion profiling for smooth acceleration
-                    profiledSetpointDeg = Math.toDegrees(
-                        velocityLimiter.calculate(Math.toRadians(robotRelativeTargetAngleDeg))
-                    );
+                    // profiledSetpointDeg = Math.toDegrees(
+                    //     velocityLimiter.calculate(Math.toRadians(robotRelativeTargetAngleDeg)) //used to be robotRelativeTargetAngle
+                    // );
+                    profiledSetpointDeg = robotRelativeTargetAngleDeg;
                     
                     // Clamp to physical limits
                     profiledSetpointDeg = MathUtil.clamp(

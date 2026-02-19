@@ -263,7 +263,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Coord/Subsystems good to fire?", areShooterAndTurretReady());
         Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
         Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
-        Logger.recordOutput("Rebuilt/Coord/OverridingTrench?", hardOverrideTrench);
+        Logger.recordOutput("Rebuilt/Coord/OverridingTrench?", overrideTrench);
 
         if(logDebuggingToggle.get()) {
         }
@@ -308,8 +308,10 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public Command setOverrideCommand(boolean value) {
+        System.out.println("YOU CLEARLY WORK SO WHY");
         return new InstantCommand(() -> overrideTrench = value)
-        .alongWith(new InstantCommand(() -> update = true));
+        .alongWith(new InstantCommand(() -> update = true)
+        .alongWith(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState())));
     }
 
     public Command setIntakeCommand() {
