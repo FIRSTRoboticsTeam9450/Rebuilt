@@ -61,7 +61,7 @@ public final class Constants {
       }
 
       public static final class ClimbPositions {
-        public static final double kElevatorFullyUp = 0;
+        public static final double kElevatorFullyUp = -0.5;
         public static final double kTelescopeFullyUp = 40;
         public static final double kElevatorDown = -128.35;
         public static final double kTelescopeClipped = 0;

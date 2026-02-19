@@ -30,30 +30,30 @@ public class ClimberSubsystem extends SubsystemBase {
     private TalonFX elevatorClimbMotor = new TalonFX(ClimberConstants.DeviceIDs.kElevator, RobotConstants.MAIN_SYSTEMS_CANBUS); //temporary deviceID value
 
     // for motor 1/ telescope motor
-    private LoggedNetworkNumber logTelescopeMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Velocity", 20);
-    private LoggedNetworkNumber logTelescopeMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Acceleration", 1);
+    private LoggedNetworkNumber logTelescopeMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Velocity", 94);
+    private LoggedNetworkNumber logTelescopeMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Acceleration", 1400); //Needs a slower one for way down
     private double telescopeMMVeloc = logTelescopeMMVelocity.get();
     private double telescopeMMAccel = logTelescopeMMAcceleration.get();
 
-    private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.2);
+    private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.24);
     private LoggedNetworkNumber logTelescopeMMKV = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kV", 0.2);
     private LoggedNetworkNumber logTelescopeMMKA = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kA", 0);
-    private LoggedNetworkNumber logTelescopeMMKP = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kP", 0.8);
+    private LoggedNetworkNumber logTelescopeMMKP = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kP", 5);
     private LoggedNetworkNumber logTelescopeMMKI = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kI", 0.0);
     private LoggedNetworkNumber logTelescopeMMKD = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kD", 0.0);
-    private LoggedNetworkNumber logTelescopeMMKG = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kG", 0.125);
+    private LoggedNetworkNumber logTelescopeMMKG = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kG", 0.07);
 
     // for motor 2/ elevator motor
-    private LoggedNetworkNumber logElevatorMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Velocity", 4);
-    private LoggedNetworkNumber logElevatorMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Acceleration", 1);
+    private LoggedNetworkNumber logElevatorMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Velocity", 95);
+    private LoggedNetworkNumber logElevatorMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Acceleration", 1200);
 
-    private LoggedNetworkNumber logElevatorMMKS = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kS", 0);
-    private LoggedNetworkNumber logElevatorMMKV = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kV", 0.33);
+    private LoggedNetworkNumber logElevatorMMKS = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kS", 0.22);
+    private LoggedNetworkNumber logElevatorMMKV = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kV", 0.26);
     private LoggedNetworkNumber logElevatorMMKA = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kA", 0);
-    private LoggedNetworkNumber logElevatorMMKP = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kP", 2);
+    private LoggedNetworkNumber logElevatorMMKP = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kP", 8);
     private LoggedNetworkNumber logElevatorMMKI = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kI", 0.0);
     private LoggedNetworkNumber logElevatorMMKD = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kD", 0.0);
-    private LoggedNetworkNumber logElevatorMMKG = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kG", 0.3);
+    private LoggedNetworkNumber logElevatorMMKG = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kG", 0.05);
 
     // climbDistances holds a position value for the motor to go to for each bar
     private LoggedNetworkNumber[] climbDistances = 
@@ -283,13 +283,13 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public boolean ElevatorAtTarget() {
-        atTarget = (Math.abs(currentElevatorSetpoint - getElevatorPosition()) < 0.05 && elevatorClimbMotor.getVelocity().getValueAsDouble() < 0.1);
-        // return atTarget;
+        atTarget = (Math.abs(currentElevatorSetpoint - getElevatorPosition()) < 1.5);
         return false;
+        // return atTarget;
     }
 
     public boolean ElevatorAtTarget(double position) {
-        atTarget = (Math.abs(position) - getElevatorPosition() < 0.05 && elevatorClimbMotor.getVelocity().getValueAsDouble() < 0.1);
+        atTarget = (Math.abs(position) - getElevatorPosition() < 1.5);
         return atTarget;
     }
 
@@ -519,7 +519,7 @@ public class ClimberSubsystem extends SubsystemBase {
                 telescopeConfig.Slot0.kG = logTelescopeMMKG.get();
                 configureMotors();
 
-                telescopeRequest = new DynamicMotionMagicVoltage(0, logTelescopeMMVelocity.get(), logTelescopeMMAcceleration.get());//.withEnableFOC(RobotConstants.ENABLE_FOC);
+                // telescopeRequest = new DynamicMotionMagicVoltage(0, logTelescopeMMVelocity.get(), logTelescopeMMAcceleration.get());//.withEnableFOC(RobotConstants.ENABLE_FOC);
             }
             
             updateElevatorVals = (elevatorConfig.Slot0.kS != logElevatorMMKS.get())
@@ -543,10 +543,18 @@ public class ClimberSubsystem extends SubsystemBase {
                 configureMotors();
 
 
-                elevatorRequest = new DynamicMotionMagicVoltage(0, logElevatorMMVelocity.get(), logElevatorMMAcceleration.get());//.withEnableFOC(RobotConstants.ENABLE_FOC);
+                // elevatorRequest = new DynamicMotionMagicVoltage(0, logElevatorMMVelocity.get(), logElevatorMMAcceleration.get());//.withEnableFOC(RobotConstants.ENABLE_FOC);
             }
             
         }
+
+    public void setElevatorRequestConstants(double veloc, double accel) {
+        elevatorRequest.withVelocity(veloc).withAcceleration(accel);
+    }
+
+    public void setTelescopingRequestConstants(double veloc, double accel) {
+        telescopeRequest.withVelocity(veloc).withAcceleration(accel);
+    }
 
     public static synchronized ClimberSubsystem getInstance() {
         if (climberInstance == null) {

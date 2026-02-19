@@ -307,7 +307,7 @@ public class VisionSubsystem extends SubsystemBase {
      * - Yaw differs from Pigeon IMU by more than 0.01 degrees
      */
     private VisionMeasurement createVisionMeasurement(limelightNetworkTableData llData) {
-        if (llData == null || llData.botPose == null) return VisionMeasurement.invalid();
+        if (llData == null || llData.megaTagEstimate == null) return VisionMeasurement.invalid();
 
         double ambiguity = computeAmbiguity(llData);
         double timestamp = Utils.fpgaToCurrentTime(llData.megaTagEstimate.timestampSeconds);

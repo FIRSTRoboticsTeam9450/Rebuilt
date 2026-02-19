@@ -120,7 +120,7 @@ public class Robot extends LoggedRobot {
     } else if (updateValuesOffset == 30) {
       IntakeSubsystem.getInstance().updateConstants();
     } else if (updateValuesOffset == 15) {
-      ClimberSubsystem.getInstance().updateClimberConstants();
+      // ClimberSubsystem.getInstance().updateClimberConstants();
     }
     updateValuesOffset++;
   }

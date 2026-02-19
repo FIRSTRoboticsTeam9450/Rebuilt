@@ -34,6 +34,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.ClimberSubsystem.ClimbMasterStates;
 import frc.robot.util.BezierCurve;
 
 
@@ -139,14 +140,17 @@ public class RobotContainer {
     //   );
 
     // OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setClimbState(ClimbMasterStates.OVERRIDE)));
-    OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(0)));
-    OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)));
-    OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(40)));
-    OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0)));
-    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorTarget(1)).andThen(new InstantCommand(() -> climbSub.setTelescopeTarget(1))));
+    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-0.5)).alongWith(new InstantCommand(() -> climbSub.setElevatorRequestConstants(95, 1200))));
+    // OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorRequestConstants(15, 200))));
+    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(40)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(95, 1400))));
+    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0.1)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(10, 700))));
 
-    OPERATOR.x().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().zeroMotors()));
-    OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+    // // OPERATOR.x().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().zeroMotors()));
+    // OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+
+
+    // OPERATOR.a().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(0.1))));
+
 
     OPERATOR.rightTrigger().onTrue(
       CoordinationSubsystem.getInstance().setFireCommand()
@@ -160,13 +164,13 @@ public class RobotContainer {
       CoordinationSubsystem.getInstance().setIntakeCommand()
     );
 
-    OPERATOR.rightStick().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
-    OPERATOR.rightStick().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+    OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
+    OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
 
-    OPERATOR.leftStick().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
-    OPERATOR.leftStick().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    OPERATOR.x().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    OPERATOR.x().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
 
-    OPERATOR.b().onTrue(
+    OPERATOR.leftStick().onTrue(
       CoordinationSubsystem.getInstance().setRejectingCommand(true)
     ).onFalse(
       CoordinationSubsystem.getInstance().setRejectingCommand(false)
