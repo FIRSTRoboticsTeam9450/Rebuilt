@@ -32,7 +32,7 @@ public class GoToPosCommand extends Command{
         this.targetPose = targetPose;
 
         constraints = new PathConstraints(
-            0.5, 0.5,
+            1.5, 1.5,
             Units.degreesToRadians(30), Units.degreesToRadians(60) 
         );
     }

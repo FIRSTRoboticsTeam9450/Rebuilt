@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -37,6 +38,8 @@ public class TransferSubsystem extends SubsystemBase {
 
     /** Voltage request */
     private VoltageOut voltageRequest = new VoltageOut(0.0).withEnableFOC(RobotConstants.ENABLE_FOC);
+
+    private Timer stateTimer = new Timer();
 
     /**
      * Constructor - initializes the transfer subsystem and configures the motor
@@ -93,7 +96,15 @@ public class TransferSubsystem extends SubsystemBase {
                 break;
 
             case RUN_IN: // Move fuel in
-                voltageRequest.Output = 12;
+                if (stateTimer.get() > 0.25) {
+                    if (Math.abs(motor.getVelocity().getValueAsDouble()) > 10) {
+                        voltageRequest.Output = 12;
+                    } else {
+                        voltageRequest.Output = -12;
+                    }
+                } else {
+                    voltageRequest.Output = 12;
+                }
                 break;
             
             case RUN_OUT: // Move fuel out
@@ -112,6 +123,7 @@ public class TransferSubsystem extends SubsystemBase {
      * @param wantedState The desired state to transition to
      */
     public void setState(TransferState wantedState) {
+        stateTimer.restart();
         previousState = currentState;
         currentState = wantedState;
     }

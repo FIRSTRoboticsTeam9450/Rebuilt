@@ -90,15 +90,15 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 360); //360
+        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 30); //360
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720); //720
+        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 60); //720
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 205);
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 51.25);
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.19);
-    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.04);
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.009);
+    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.004);
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0);
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
@@ -230,7 +230,7 @@ public class TurretSubsystem extends SubsystemBase {
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
         
         encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         encoderConfig.MagnetSensor.MagnetOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
         
         turretEncoder.getConfigurator().apply(encoderConfig);
@@ -268,6 +268,9 @@ public class TurretSubsystem extends SubsystemBase {
         motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
         motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
         motorConfig.CurrentLimits.SupplyCurrentLowerTime = 0.5;
+
+        motorConfig.Voltage.PeakForwardVoltage = 6.5;
+        motorConfig.Voltage.PeakReverseVoltage = -6.5;
         
         // PID gains (Slot 0)
         Slot0Configs slot0 = new Slot0Configs()
@@ -418,7 +421,6 @@ public class TurretSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);
         Logger.recordOutput("Rebuilt/Turret/Veloc Net/Calculated Veloc", targetVeloc);
         return targetVeloc;
-        // return 0.0;
     }   
     
     /**
@@ -519,7 +521,7 @@ public class TurretSubsystem extends SubsystemBase {
 
                 case AIMING:
                     // Track target with velocity feedforward
-                    double maxVelocity = cachedMaxVelocity;
+                    double maxVelocity = cachedMaxVelocity / 50;
                     
                     // Apply motion profiling for smooth acceleration
                     // profiledSetpointDeg = Math.toDegrees(

@@ -92,6 +92,7 @@ public class RobotContainer {
     autoChooser.addOption("Shoot & Ferry", drivetrain.getAutoPath("Shoot & Ferry", false));
     autoChooser.addOption("Ferry Only", drivetrain.getAutoPath("Ferry Only", false));
     autoChooser.addOption("Climb", drivetrain.getAutoPath("Ferry + Climb", false));
+    autoChooser.addOption("Odom Test", drivetrain.getAutoPath("Drive Straight", false));
   }
 
   private void configureBindings() {
@@ -144,10 +145,10 @@ public class RobotContainer {
     //   );
 
     // OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setClimbState(ClimbMasterStates.OVERRIDE)));
-    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-0.5)).alongWith(new InstantCommand(() -> climbSub.setElevatorRequestConstants(95, 1200))));
-    // OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorRequestConstants(15, 200))));
-    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(40)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(95, 1400))));
-    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0.1)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(10, 700))));
+    OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-0.5)).alongWith(new InstantCommand(() -> climbSub.setElevatorRequestConstants(95, 1200))));
+    OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorRequestConstants(15, 200))));
+    OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(40)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(95, 1400))));
+    OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0.1)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(10, 700))));
 
     // // OPERATOR.x().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().zeroMotors()));
     // OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
@@ -160,15 +161,11 @@ public class RobotContainer {
       CoordinationSubsystem.getInstance().setIntakeCommand()
     );
 
-    OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
-    OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+    // OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
+    // OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
 
-    // DRIVER.rightTrigger().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
-    // DRIVER.rightTrigger().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
-
-    // DRIVER.rightTrigger().onTrue(
-    //   CoordinationSubsystem.getInstance().setOverrideCommand(true)
-    // ).onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+    DRIVER.rightTrigger().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
+    DRIVER.rightTrigger().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
 
     OPERATOR.rightTrigger().onTrue(
       CoordinationSubsystem.getInstance().setFireCommand()

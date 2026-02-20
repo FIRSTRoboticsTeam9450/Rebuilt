@@ -76,6 +76,13 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     private void applyZone() {
+        if(currentZone != ZoneState.HARD_TRENCH_DEADZONE) {
+            boolean trenchNow = VisionSubsystem.getInstance().trenchNow();
+            Logger.recordOutput("Rebuilt/Coordination/TrenchNow", trenchNow);
+            if(trenchNow) {
+                currentZone = ZoneState.HARD_TRENCH_DEADZONE;
+            }
+        }
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
             if(currentState != AbsoluteStates.INIT) {
 
@@ -89,8 +96,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                             setState(AbsoluteStates.TRENCH);
                         } else if(goodToFire()) {
                             setState(AbsoluteStates.SHOOTING);
-                        }
-                        else {
+                        } else {
                             setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
                         }
                         break;
@@ -100,8 +106,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                             setState(AbsoluteStates.TRENCH);
                         } else if(goodToFire()) {
                             setState(AbsoluteStates.SHOOTING);
-                        }
-                        else {
+                        } else {
                             setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
                         }
                         break; 
@@ -111,29 +116,30 @@ public class CoordinationSubsystem extends SubsystemBase {
                             setState(AbsoluteStates.TRENCH);
                         } else if(goodToFire()) {
                             setState(AbsoluteStates.SHOOTING);
-                        }
-                        else {
+                        } else {
                             setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
                         }
                         break;
+
                     case SOFT_TRENCH_DEADZONE:
-                        if(!overrideTrench || !hardOverrideTrench) {
+                        if(!overrideTrench && !hardOverrideTrench) {
                             setState(AbsoluteStates.TRENCH);
-                        }
-                        else {
+                        } else {
                             setState(AbsoluteStates.SHOOTING);
                         }
                         break;
+
                     case HARD_TRENCH_DEADZONE:
                         if(!hardOverrideTrench) {
                             setState(AbsoluteStates.TRENCH);
-                        }
-                        else {
+                        } else {
                             setState(AbsoluteStates.SHOOTING);
                         }
                         break;
+
                     case BACK_DEADZONE:
                         break;
+
                     default:
                         return;
                 }
@@ -308,10 +314,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public Command setOverrideCommand(boolean value) {
-        System.out.println("YOU CLEARLY WORK SO WHY");
         return new InstantCommand(() -> overrideTrench = value)
-        .alongWith(new InstantCommand(() -> update = true)
-        .alongWith(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState())));
+            .alongWith(new InstantCommand(() -> update = true));
     }
 
     public Command setIntakeCommand() {

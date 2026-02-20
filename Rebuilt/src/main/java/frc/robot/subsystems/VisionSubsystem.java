@@ -27,6 +27,7 @@ import frc.robot.util.LimelightObject;
 import frc.robot.util.LimelightObject.Location;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,12 +85,12 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    public Vector<N3> disabledStdDev = VecBuilder.fill(2, 2, 0.5);
-    public Vector<N3> enabledStdDev = VecBuilder.fill(1, 1, 450);
+    public Vector<N3> disabledStdDev = VecBuilder.fill(5, 5, 0.5);
+    public Vector<N3> enabledStdDev = VecBuilder.fill(2.5, 2.5, 300);
 
-    public double visionStdDevX = 0.5;
-    public double visionStdDevY = 0.5;
-    public double visionStdDevTheta = 450.0;
+    public double visionStdDevX = 4;
+    public double visionStdDevY = 4;
+    public double visionStdDevTheta = 300.0;
     private boolean firstMeasurment = true;
     private double validMeasurementCount = 0;
     private double updateVisionOffset = 0;
@@ -686,24 +687,18 @@ public class VisionSubsystem extends SubsystemBase {
      * @return
      */
     public Translation2d getAdjustedFutureTarget(double time) {
-        Pose2d currentPoseWRTField = getCurrentBotPoseAllianceUnspecific();
-        ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
 
         // Calculate how much the robot will have moved into the future
-        Pose2d futurePoseWRTCurrentBot = new Pose2d(
-            new Translation2d((velocityRobotWRTRobot.vxMetersPerSecond * time), (velocityRobotWRTRobot.vyMetersPerSecond * time)),
-            new Rotation2d(velocityRobotWRTRobot.omegaRadiansPerSecond * time)); // ABSOLUTELY CORRECT
+        Pose2d futurePoseWRTCurrentBot = getFuturePoseWRTCurrentBot(time);
 
         // Coordinate math stuff //
         Pose2d targetWRTCurrentBot = new Pose2d(getTargetRelativeToBot(), new Rotation2d()); // Correct
-        Transform2d fieldWRTCurrentTransform = new Transform2d(currentPoseWRTField.getTranslation(), currentPoseWRTField.getRotation()).inverse(); // ABSOLUTELY CORRECT
-        Pose2d fieldWRTCurrentPose = new Pose2d(fieldWRTCurrentTransform.getTranslation(), fieldWRTCurrentTransform.getRotation()); // ABSOLUTELY CORRECT
-        Pose2d futurePoseWRTField = futurePoseWRTCurrentBot.relativeTo(fieldWRTCurrentPose); // ABSOLUTELY CORRECT
+        Pose2d futurePoseWRTField = getFuturePoseWRTField(time); // ABSOLUTELY CORRECT
         Transform2d futurePoseToTarget = targetWRTCurrentBot.minus(futurePoseWRTCurrentBot); 
         Transform2d futurePoseToAdjustedTarget = new Transform2d(getAdjustedTarget(futurePoseToTarget.getTranslation(), futurePoseToTarget.getTranslation()), new Rotation2d());
 
         // Logging
-        Logger.recordOutput("Rebuilt/Vision/FuturePose", futurePoseWRTCurrentBot.relativeTo(fieldWRTCurrentPose));
+        Logger.recordOutput("Rebuilt/Vision/FuturePose", futurePoseWRTField);
         Logger.recordOutput("Rebuilt/Vision/FutureTarget", futurePoseWRTField.plus(futurePoseToAdjustedTarget));
 
         return getAdjustedTarget(futurePoseToTarget.getTranslation(), futurePoseToTarget.getTranslation());
@@ -729,6 +724,72 @@ public class VisionSubsystem extends SubsystemBase {
 
     public ZoneState getCurrentZone() {
         return currentZone;
+    }
+
+    public boolean trenchNow() {
+        double time = 0.95;
+        Pose2d futurePoseWRTField = getFuturePoseWRTField(time); // ABSOLUTELY CORRECT
+
+        if(getZone(futurePoseWRTField) != null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public Pose2d getFuturePoseWRTField(double time) {
+        Pose2d currentPoseWRTField = getCurrentBotPoseAllianceUnspecific();
+
+        // Calculate how much the robot will have moved into the future
+        Pose2d futurePoseWRTCurrentBot = getFuturePoseWRTCurrentBot(time);
+
+        // Coordinate math stuff //
+        Transform2d fieldWRTCurrentTransform = new Transform2d(currentPoseWRTField.getTranslation(), currentPoseWRTField.getRotation()).inverse(); // ABSOLUTELY CORRECT
+        Pose2d fieldWRTCurrentPose = new Pose2d(fieldWRTCurrentTransform.getTranslation(), fieldWRTCurrentTransform.getRotation()); // ABSOLUTELY CORRECT
+        Pose2d futurePoseWRTField = futurePoseWRTCurrentBot.relativeTo(fieldWRTCurrentPose); // ABSOLUTELY CORRECT
+        return futurePoseWRTField;
+
+    }
+
+    public Pose2d getFuturePoseWRTCurrentBot(double time) {
+        ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
+
+        // Calculate how much the robot will have moved into the future
+        Pose2d futurePoseWRTCurrentBot = new Pose2d(
+            new Translation2d((velocityRobotWRTRobot.vxMetersPerSecond * time), (velocityRobotWRTRobot.vyMetersPerSecond * time)),
+            new Rotation2d(velocityRobotWRTRobot.omegaRadiansPerSecond * time)); // ABSOLUTELY CORRECT
+
+        return futurePoseWRTCurrentBot;
+    }
+
+    public ZoneState getZone(Pose2d currentPose) {
+        double currentX = currentPose.getX();
+        double currentY = currentPose.getY();
+        // if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
+        //     return ZoneState.SOFT_TRENCH_DEADZONE;
+        // }
+        // else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_HIGH) {
+        //     return ZoneState.SOFT_TRENCH_DEADZONE;
+        // }
+        // else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_HIGH) {
+        //     return ZoneState.SOFT_TRENCH_DEADZONE;
+        // }
+        // else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_HIGH) {
+        //     return ZoneState.SOFT_TRENCH_DEADZONE;
+        // }
+        if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
+            return ZoneState.HARD_TRENCH_DEADZONE;
+        }
+        else if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_HIGH) {
+            return ZoneState.HARD_TRENCH_DEADZONE;
+        }
+        else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_HIGH) {
+            return ZoneState.HARD_TRENCH_DEADZONE;
+        }
+        else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_HIGH) {
+            return ZoneState.HARD_TRENCH_DEADZONE;
+        }
+        return null;
     }
 
     /**

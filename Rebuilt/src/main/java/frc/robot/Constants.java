@@ -110,16 +110,17 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.35009765625;
+      public static final double ENCODER_MAGNET_OFFSET = 0.09521484375;
 
-      //Lantern motot to turret gear reduction 161:1 (1/161)
-      public static final double ROTOR_TO_SENSOR_RATIO = 0.0625850; //Both Cycoidals: 0.001827990359168
+      //To find the ratios, divide if reduction, multiply if increase.
+      //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
+      public static final double ROTOR_TO_SENSOR_RATIO = 0.01632653; //1 cycoidal, 1 7.5:1: 0.0625850 //Both Cycoidals: 0.001827990359168
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.933333;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
       public static final double TURRET_OFFSET_TO_ZERO = 179.5; 
-      public static final double TURRET_OFFSET_TO_TARGET = -5; //V1: 5
+      public static final double TURRET_OFFSET_TO_TARGET = 0; //V1: 5
 
-      public static final double TOTAL_ROTATION_DEGREES = 300;
+      public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
       public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 2.24; //Lantern: 2.24
@@ -213,7 +214,7 @@ public final class Constants {
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
-      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 6.95); // Used to be .455, 6.95
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.8, 6.82); // Used to be .455, 6.95
       public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(1.270,2.618);
 
       /* ========= HARD CODED POSES ======== */
@@ -350,7 +351,7 @@ public final class Constants {
 
         public static final double MID_ZONE_X_LOW = MAJOR_ZONE_X_HIGH;//182.11;
         public static final double MID_ZONE_X_HIGH = 16.540988; // inches 651.22;
-        public static final double MID_ZONE_1_Y_LOW = 10; //meters: 4.034536 inches 158.84; 4.3 meters if wanting preference to outpost side
+        public static final double MID_ZONE_1_Y_LOW = 4.034536; // inches 158.84; 4.3 meters if wanting preference to outpost side
         public static final double MID_ZONE_1_Y_HIGH = 8.069326; // inches 317.69;
 
         public static final double MID_ZONE_2_Y_LOW = 0;
