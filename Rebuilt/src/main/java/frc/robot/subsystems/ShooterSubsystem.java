@@ -382,7 +382,7 @@ public class ShooterSubsystem extends SubsystemBase {
             switch (coordSub.getCurrentZone()) {
 
                 case SHOOTING_ZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget + 0.4);
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
                     break;
 
                 case FERRY_ZONE_TOP:

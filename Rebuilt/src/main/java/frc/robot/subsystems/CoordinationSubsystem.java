@@ -244,7 +244,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterVelocState = ShooterState.NOT_SHOOTING;
                 transferState = TransferState.NO_RUN;
                 
-                intakeAngleState = IntakePos.INTAKING;
+                intakeAngleState = IntakePos.CLIMB_STORE;
                 intakeVelocState = IntakeState.IDLING;
                 break;
         }

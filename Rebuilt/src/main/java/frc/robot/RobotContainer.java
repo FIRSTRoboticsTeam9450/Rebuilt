@@ -17,8 +17,10 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
@@ -34,7 +36,8 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.ClimberSubsystem.ClimbMasterStates;
+import frc.robot.subsystems.ClimberSubsystem.ClimbLevel;
+import frc.robot.subsystems.ClimberSubsystem.ClimbStates;
 import frc.robot.util.BezierCurve;
 
 
@@ -145,13 +148,19 @@ public class RobotContainer {
     //   );
 
     // OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setClimbState(ClimbMasterStates.OVERRIDE)));
-    OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-0.5)).alongWith(new InstantCommand(() -> climbSub.setElevatorRequestConstants(95, 1200))));
-    OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorRequestConstants(15, 200))));
-    OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(40)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(95, 1400))));
-    OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0.1)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(10, 700))));
+    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-0.5)).alongWith(new InstantCommand(() -> climbSub.setElevatorRequestConstants(95, 1200))));
+    // OPERATOR.povDown().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorRequestConstants(15, 200))));
+    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(40)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(95, 1400))));
+    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0.1)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(10, 700))));
 
     // // OPERATOR.x().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().zeroMotors()));
-    // OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+    OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+    OPERATOR.a().onTrue(
+        new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))
+        .alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L1)))
+      );
+
+    OPERATOR.b().onTrue(climbSub.GoToNextLevel());
 
 
     // OPERATOR.a().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(0.1))));
@@ -164,8 +173,11 @@ public class RobotContainer {
     // OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
     // OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
 
-    DRIVER.rightTrigger().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
-    DRIVER.rightTrigger().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
+    DRIVER.rightTrigger().onTrue(
+        CoordinationSubsystem.getInstance().setOverrideCommand(true)
+      ).onFalse(
+        CoordinationSubsystem.getInstance().setOverrideCommand(false)
+      );
 
     OPERATOR.rightTrigger().onTrue(
       CoordinationSubsystem.getInstance().setFireCommand()
@@ -176,8 +188,6 @@ public class RobotContainer {
     );
 
   
-
-
     OPERATOR.x().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
     OPERATOR.x().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
 
@@ -186,6 +196,16 @@ public class RobotContainer {
     ).onFalse(
       CoordinationSubsystem.getInstance().setRejectingCommand(false)
     );
+
+    DRIVER.leftStick().onTrue(
+      Commands.either(CoordinationSubsystem.getInstance().setRejectingCommand(true), new InstantCommand(), (() -> DriverStation.isTest()))
+      ).onFalse(
+        Commands.either(CoordinationSubsystem.getInstance().setRejectingCommand(false), new InstantCommand(), (() -> DriverStation.isTest()))
+      );
+
+      DRIVER.rightStick().onTrue(
+      Commands.either(CoordinationSubsystem.getInstance().setFireCommand(), new InstantCommand(), (() -> DriverStation.isTest()))
+      );
     
     DRIVER.start().onTrue(new ResetIMU(drivetrain));
 

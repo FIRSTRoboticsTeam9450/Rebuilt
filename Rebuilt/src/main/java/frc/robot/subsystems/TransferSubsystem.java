@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -108,7 +109,10 @@ public class TransferSubsystem extends SubsystemBase {
                 break;
             
             case RUN_OUT: // Move fuel out
-                voltageRequest.Output = -12;
+                double voltage = -12 / (stateTimer.get() * 1.8);
+                voltage = MathUtil.clamp(voltage, -12, -4);
+                voltageRequest.Output = voltage;
+
                 break;
             
             case NO_RUN: // Don't move

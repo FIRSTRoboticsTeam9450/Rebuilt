@@ -90,9 +90,9 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 30); //360
+        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 360); //360
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 60); //720
+        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720); //720
     
     private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 51.25);
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
@@ -378,13 +378,13 @@ public class TurretSubsystem extends SubsystemBase {
                 // Check if we can continue moving positive without hitting max limit
                 if (currentAngle + degreesToStopWithCurrentVelocity < MAX_ANGLE_DEG) {
                     allowVeloc = true;
-                    maxVelocity = MAX_ANGLE_DEG - currentAngle;
+                    maxVelocity = MAX_ANGLE_DEG - currentAngle / 50;
                 }
             } else {
                 // Check if we can continue moving negative without hitting min limit
                 if (currentAngle - degreesToStopWithCurrentVelocity > MIN_ANGLE_DEG) {
                     allowVeloc = true;
-                    maxVelocity = currentAngle - MIN_ANGLE_DEG; // Distance to min limit
+                    maxVelocity = currentAngle - MIN_ANGLE_DEG / 50; // Distance to min limit
                 }
             }
             if (allowVeloc) {
@@ -394,6 +394,7 @@ public class TurretSubsystem extends SubsystemBase {
                 previousRobotRelativeTargetAngleDeg = robotRelativeTargetAngleDeg;
                 previousAnglesTimestamp = Timer.getFPGATimestamp();
 
+                //Avg veloc
                 desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
                 
                 targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
@@ -409,13 +410,6 @@ public class TurretSubsystem extends SubsystemBase {
                 //         RobotContainer.maxSpeed = Math.abs(((drivetrain.getState().Speeds.vyMetersPerSecond)/(Math.tan(angleWentToRad))));
                 //     }
                 // }
-
-                
-                // Other method of using future casting!!! It works :)
-                // Translation2d futureTarget = VisionSubsystem.getInstance().getAdjustedFutureTarget(.02);
-                // desiredVelocity = (findBestWrappedAngle(updateTargetFromPose(futureTarget).plus(
-                // new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget))).getDegrees()) - robotRelativeTargetAngleDeg)/.02;
-                // targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
             }
         }
         Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);

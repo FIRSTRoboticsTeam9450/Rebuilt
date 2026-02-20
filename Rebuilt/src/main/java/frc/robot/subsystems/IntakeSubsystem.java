@@ -32,6 +32,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         SYS_ID,
         ZEROING,
         STORE,
+        CLIMB_STORE,
         TRENCH_STORE,
         INTAKING
     }
@@ -71,6 +72,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double intakeRevolutions = logIntakeTarget.get();
     private double storeRevolutions = 6.25;
     private double trenchStoreRevolutions = 4.5;
+    private double climbStoreRevolutions = 7.5;
 
     private boolean hasReachedIntakeLocation = false;
 
@@ -154,7 +156,11 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case STORE:
-                    motorArm.setControl(request.withPosition(storeRevolutions));
+                motorArm.setControl(request.withPosition(storeRevolutions));
+                break;
+
+            case CLIMB_STORE:
+                motorArm.setControl(request.withPosition(climbStoreRevolutions));
                 break;
             
             case INTAKING:

@@ -15,6 +15,10 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 import com.google.flatbuffers.Constants;
 
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants;
@@ -55,6 +59,8 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logElevatorMMKD = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kD", 0.0);
     private LoggedNetworkNumber logElevatorMMKG = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kG", 0.05);
 
+    private Timer stateDelayTimer = new Timer();
+
     // climbDistances holds a position value for the motor to go to for each bar
     private LoggedNetworkNumber[] climbDistances = 
     {  
@@ -87,52 +93,31 @@ public class ClimberSubsystem extends SubsystemBase {
                             .withSlot(0)
                             .withEnableFOC(true);
     
-    public enum ClimbMasterStates {
+    public enum ClimbStates {
         ZEROING,
-        //STOWING, // may not be needed
         STANDBY,
-        // LOCKING1, // may not be needed
-        // LOCKING2, // may not be needed
-        L1_START,
-        L1_CLIMED,
-        L2_START,
-        L2_CLIMBED,
-        L3_START,
-        L3_CLIMED,
+        INIT,
+        HANDOFF,
+        END,
         OVERRIDE
-        // -------------- vvv I'm not sure at this point how the elevator and telescope work 
-        // together because the climber was finished on winter break
-        
-        // REACHING, // Telescope extend while elavtor retract
-        // PULLING //elevator extend while Telescope retract
     }
 
-    public enum ElevatorStates {
-        STOWING, // may not be needed
-        STANDBY,
-        EXTENDING,
-        LOCKING, // may not be needed
-        RETRACTING
+    public enum ClimbLevel {
+        L1,
+        L2,
+        L3,
     }
 
-    public enum TelescopeStates {
-        STOWING, // may not be needed
-        STANDBY,
-        EXTENDING,
-        LOCKING, // may not be needed
-        RETRACTING
-    }
+    private ClimbStates currentClimbState = ClimbStates.ZEROING;
+    private ClimbLevel currentClimbLevel = ClimbLevel.L1;
+    private boolean finishedL3 = false;
 
-    private ClimbMasterStates currentClimbMasterStates = ClimbMasterStates.ZEROING;
-    // public ElevatorStates currentElevatorState = ElevatorStates.STANDBY;
     private double currentElevatorSetpoint = 0;
     private double overrideElevatorSetpoint = 0; // Min is -128.35 if zeroing at top
-;
-    // private TelescopeStates currentTelescopeState = TelescopeStates.STANDBY;
-    private double currentTelescopeSetpoint = 0;
-    private double overrideTelescopeSetpoint = 0; // Max is 40
 
-    private boolean L3Climb = false;
+    private double currentTelescopeSetpoint = 0;
+    private double overrideTelescopeSetpoint = 0;
+
     private boolean isTelescopeZeroingDone = false;
     private boolean isElevatorZeroingDone = false;
     /* ----------- Initializaton ----------- */
@@ -211,8 +196,32 @@ public class ClimberSubsystem extends SubsystemBase {
         elevatorClimbMotor.setControl(elevatorRequest.withPosition(setpoint));
     }
 
-    public void setClimbState(ClimbMasterStates state) {
-        currentClimbMasterStates = state;
+    public void setClimbState(ClimbStates state) {
+        stateDelayTimer.restart();
+        if (state == ClimbStates.INIT && currentClimbLevel == ClimbLevel.L1) {
+            setElevatorRequestConstants(95, 1200);
+            setTelescopingRequestConstants(95, 1400);
+        } else {
+            setElevatorRequestConstants(15, 600);
+            setTelescopingRequestConstants(15, 700);
+        }
+        currentClimbState = state;
+    }
+
+    public void setClimbLevel(ClimbLevel level) {
+        currentClimbLevel = level;
+    }
+
+    public Command GoToNextLevel() {
+        return Commands.either(
+                Commands.either(
+                        new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
+                        new InstantCommand(() -> setClimbLevel(ClimbLevel.L3)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))),
+                        (() -> currentClimbLevel == ClimbLevel.L1)
+                    ), 
+                new InstantCommand(), 
+                (() -> currentClimbState == ClimbStates.END)
+            );
     }
 
     public void setOverrideSetpoints(double elevatorSetpoint, double telescopeSetpoint) {
@@ -234,7 +243,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public boolean elevatorAutoZeroing() {
-        if(Math.abs(elevatorClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.3 && Math.abs(elevatorClimbMotor.getVelocity().getValueAsDouble()) < 0.02) {
+        if(Math.abs(elevatorClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(elevatorClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
             elevatorClimbMotor.setPosition(0);
             elevatorClimbMotor.setVoltage(0);
 
@@ -244,7 +253,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public boolean telescopeAutoZeroing() {
-        if(Math.abs(telescopeClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.3 && Math.abs(telescopeClimbMotor.getVelocity().getValueAsDouble()) < 0.02) {
+        if(Math.abs(telescopeClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(telescopeClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
             telescopeClimbMotor.setPosition(0);
             telescopeClimbMotor.setVoltage(0);
 
@@ -264,13 +273,13 @@ public class ClimberSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
 
-        Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbMasterStates);
+        Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbState);
     }
 
     public void periodic() {
 
         if(!isElevatorZeroingDone || !isTelescopeZeroingDone) {
-            currentClimbMasterStates = ClimbMasterStates.ZEROING;
+            currentClimbState = ClimbStates.ZEROING;
             if(!isElevatorZeroingDone) {
                 isElevatorZeroingDone = elevatorAutoZeroing();
             }
@@ -283,107 +292,130 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public boolean ElevatorAtTarget() {
-        atTarget = (Math.abs(currentElevatorSetpoint - getElevatorPosition()) < 1.5);
-        return false;
-        // return atTarget;
+        return ElevatorAtTarget(1.0);
     }
 
-    public boolean ElevatorAtTarget(double position) {
-        atTarget = (Math.abs(position) - getElevatorPosition() < 1.5);
+    public boolean ElevatorAtTarget(double tolerance) {
+        atTarget = (Math.abs(currentElevatorSetpoint - getElevatorPosition()) < tolerance);
         return atTarget;
     }
 
-    public boolean TelescopeAtTarget() {
-        atTarget = (Math.abs(currentTelescopeSetpoint - getTelescopePosition()) < 0.05 && telescopeClimbMotor.getVelocity().getValueAsDouble() < 0.1);
-        // return atTarget;
-        return false;
+    public boolean TelescopeAtTarget() {;
+        return TelescopeAtTarget(0.5);
     }
 
-    public boolean TelescopeAtTarget(double position) {
-        atTarget = (Math.abs(position) - getTelescopePosition() < 0.05 && telescopeClimbMotor.getVelocity().getValueAsDouble() < 0.1);
+    public boolean TelescopeAtTarget(double tolerance) {
+        atTarget = (Math.abs(currentTelescopeSetpoint - getTelescopePosition()) < tolerance);
         return atTarget;
     }
 
     private void applyStates() {
-
-        // ------------ The state Locking and Stowing may not be useful and could be removed ----
-        switch (currentClimbMasterStates) {
+        switch (currentClimbState) {
             case ZEROING:
                 if(!isElevatorZeroingDone) {
-                    elevatorClimbMotor.setVoltage(.7);
+                    elevatorClimbMotor.setVoltage(1.25);
                 }
                 if(!isTelescopeZeroingDone) {
-                    telescopeClimbMotor.setVoltage(-.7);
+                    telescopeClimbMotor.setVoltage(-1);
                 }
                 if(isElevatorZeroingDone && isTelescopeZeroingDone) {
-                    setClimbState(ClimbMasterStates.OVERRIDE);
+                    setClimbState(ClimbStates.OVERRIDE);
                 }
                 break;
 
             case STANDBY:
-                setElevatorTarget(0);
-                setTelescopeTarget(0);
+                setElevatorTarget(-0.5);
+                setTelescopeTarget(0.1);
                 break;
 
-            case L1_START:
-                setElevatorTarget(ClimbPositions.kElevatorFullyUp);
-                setTelescopeTarget(ClimbPositions.kTelescopeFullyUp);
-                if(ElevatorAtTarget() && TelescopeAtTarget()) {
-                    currentClimbMasterStates = ClimbMasterStates.L1_CLIMED;
+            case INIT:
+                switch (currentClimbLevel) {
+                    case L1:
+                        setElevatorTarget(ClimbPositions.kElevatorStore);
+                        setTelescopeTarget(ClimbPositions.kTelescopeL1Reach);
+                        break;
+                    
+                    case L2:
+                        setElevatorTarget(ClimbPositions.kElevatorStore);
+                        setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
+                        break;
+
+                    case L3:
+                        setElevatorTarget(ClimbPositions.kElevatorStore);
+                        setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
+                        break;
+                }
+                if (ElevatorAtTarget() && TelescopeAtTarget()) {
+                    setClimbState(ClimbStates.HANDOFF);
                 }
                 break;
 
-            case L1_CLIMED:
-                setTelescopeTarget(0);
-                telescopeConfig.Slot0.withKG(3); //temporary solution
-                setElevatorTarget(ClimbPositions.kElevatorFullyUp);
-                if(ElevatorAtTarget() && TelescopeAtTarget() && L3Climb) { //will only climb to l2 if it is an l3 climb?
-                    currentClimbMasterStates = ClimbMasterStates.L2_START;
+            case HANDOFF:
+                switch (currentClimbLevel) {
+                    case L1:
+                        setElevatorTarget(ClimbPositions.kElevatorHandoff);
+                        setTelescopeTarget(ClimbPositions.kTelescopeHandoff);
+                        break;
+                    
+                    case L2:
+                        setElevatorTarget(ClimbPositions.kElevatorHandoff);
+                        setTelescopeTarget(ClimbPositions.kTelescopeHandoff);
+                        break;
+
+                    case L3:
+                        setElevatorTarget(ClimbPositions.kElevatorHandoff);
+                        setTelescopeTarget(ClimbPositions.kTelescopeHandoff);
+                        break;
+                }
+                if (ElevatorAtTarget() && TelescopeAtTarget()) {
+                    setClimbState(ClimbStates.END);
                 }
                 break;
 
-            case L2_START:
-                setElevatorTarget(0);
-                elevatorConfig.Slot0.withKG(3); //"there is nothing more permanent than a temporary solution" -Russian proverb
-                setTelescopeTarget(ClimbPositions.kTelescopeFullyUp);
-                telescopeConfig.Slot0.withKG(logTelescopeMMKG.get()); //temporary solution
-                if(ElevatorAtTarget() && TelescopeAtTarget() && L3Climb) {
-                    currentClimbMasterStates = ClimbMasterStates.L2_CLIMBED;
-                }
-                break;
+            case END:
+                switch (currentClimbLevel) {
+                        case L1:
+                            setElevatorTarget(ClimbPositions.kElevatorClimb);
+                            setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
+                            break;
+                        
+                        case L2:
+                            setElevatorTarget(ClimbPositions.kElevatorClimb);
+                            setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
+                            break;
 
-            case L2_CLIMBED:
-                setTelescopeTarget(0);
-                telescopeConfig.Slot0.withKG(3); //temporary solution
-                setElevatorTarget(ClimbPositions.kElevatorFullyUp);
-                if(ElevatorAtTarget() && TelescopeAtTarget() && L3Climb) {
-                    currentClimbMasterStates = ClimbMasterStates.L3_START;
-                }
-                break;
+                        case L3:
+                            if (!finishedL3) {
+                                setElevatorTarget(ClimbPositions.kElevatorClimb);
+                                setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
+                            } else {
+                                setElevatorTarget(ClimbPositions.kElevatorClimb);
+                                setTelescopeTarget(ClimbPositions.kTelescopeStore);
+                            }
+                            break;
+                    }
+                    if (ElevatorAtTarget() && TelescopeAtTarget()) {
+                        // if (currentClimbLevel == ClimbLevel.L1 || currentClimbLevel == ClimbLevel.L2) {
+                        //     if (currentClimbLevel == ClimbLevel.L1) {
+                        //         setClimbLevel(ClimbLevel.L2);
+                        //     } else {
+                        //         setClimbLevel(ClimbLevel.L3);
+                        //     }
+                        //     setClimbState(ClimbStates.INIT);
+                        // } else {
+                        if (currentClimbLevel == ClimbLevel.L3) {
+                            finishedL3 = true;
+                        }
+                        // }
+                    }
+                    break;
 
-            case L3_START:
-                setTelescopeTarget(ClimbPositions.kTelescopeFullyUp);
-                setElevatorTarget(0);
-                if(ElevatorAtTarget() && TelescopeAtTarget() && L3Climb) {
-                    currentClimbMasterStates = ClimbMasterStates.L3_CLIMED;
-                }
-                break;
-
-            case L3_CLIMED:
-                setTelescopeTarget(ClimbPositions.kTelescopeFullyUp);
-                setElevatorTarget(0);
-                if(ElevatorAtTarget() && TelescopeAtTarget() && L3Climb) {
-                    currentClimbMasterStates = ClimbMasterStates.L3_CLIMED;
-                }
-                break;
-            
             case OVERRIDE:
                 setTelescopeTarget(overrideTelescopeSetpoint);
                 setElevatorTarget(overrideElevatorSetpoint);
                 break;
 
         }
-        
     }
 
     public double getElevatorPosition() {

@@ -61,10 +61,14 @@ public final class Constants {
       }
 
       public static final class ClimbPositions {
-        public static final double kElevatorFullyUp = -0.5;
-        public static final double kTelescopeFullyUp = 40;
-        public static final double kElevatorDown = -128.35;
-        public static final double kTelescopeClipped = 0;
+        public static final double kElevatorStore = -0.5;
+        public static final double kElevatorHandoff = -0.5;
+        public static final double kElevatorClimb = -128;
+
+        public static final double kTelescopeStore = 0.25;
+        public static final double kTelescopeHandoff = 10;
+        public static final double kTelescopeL1Reach = 40;
+        public static final double kTelescopeL2N3Reach = 30;
       }
 
     }
@@ -110,7 +114,7 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.09521484375;
+      public static final double ENCODER_MAGNET_OFFSET = 0.08544921875;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
