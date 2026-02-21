@@ -29,6 +29,7 @@ public class TransferSubsystem extends SubsystemBase {
     public enum TransferState {
         HOLD,
         RUN_IN,
+        SLOW_RUN_IN,
         RUN_OUT,
         NO_RUN
     }
@@ -108,6 +109,10 @@ public class TransferSubsystem extends SubsystemBase {
                 }
                 break;
             
+            case SLOW_RUN_IN:
+                voltageRequest.Output = 3;
+                break;
+                
             case RUN_OUT: // Move fuel out
                 double voltage = -12 / (stateTimer.get() * 1.8);
                 voltage = MathUtil.clamp(voltage, -12, -4);

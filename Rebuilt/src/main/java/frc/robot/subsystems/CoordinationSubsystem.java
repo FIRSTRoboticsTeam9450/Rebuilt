@@ -47,6 +47,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean driverAllowingShooting = false;
     private boolean shouldBeIntaking = false;
     private boolean rejecting = false;
+    private boolean fastTransfer = false;
 
     private boolean overrideTrench = false;
     private boolean hardOverrideTrench = false;
@@ -185,7 +186,11 @@ public class CoordinationSubsystem extends SubsystemBase {
                     transferState = TransferState.HOLD;
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
-                        intakeVelocState = IntakeState.INTAKING;
+                        if (fastTransfer) {
+                            intakeVelocState = IntakeState.INTAKING;
+                        } else {
+                            intakeVelocState = IntakeState.SLOW_INTAKING;
+                        }
                     } else {
                         intakeAngleState = IntakePos.STORE;
                         intakeVelocState = IntakeState.IDLING;
@@ -203,10 +208,18 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
                 if (!rejecting) {
-                    transferState = TransferState.RUN_IN;
+                    if (fastTransfer) {
+                        transferState = TransferState.RUN_IN;
+                    } else {
+                        transferState = TransferState.SLOW_RUN_IN;
+                    }
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
-                        intakeVelocState = IntakeState.INTAKING;
+                        if (fastTransfer) {
+                            intakeVelocState = IntakeState.INTAKING;
+                        } else {
+                            intakeVelocState = IntakeState.SLOW_INTAKING;
+                        }
                     } else {
                         intakeAngleState = IntakePos.STORE;
                         intakeVelocState = IntakeState.IDLING;
@@ -320,12 +333,17 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     public Command setIntakeCommand() {
         return new InstantCommand(() -> shouldBeIntaking = !shouldBeIntaking)
-        .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState()));
+            .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState()));
     }
 
     public Command setRejectingCommand(boolean value) {
         return new InstantCommand(() -> rejecting = value)
-        .alongWith(new InstantCommand(() -> update = true));
+            .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command setFastTransferCommand(boolean value) {
+        return new InstantCommand(() -> fastTransfer = value)
+            .alongWith(new InstantCommand(() -> update = true));
     }
 
     public Command setHardTrenchOverride(boolean value) {

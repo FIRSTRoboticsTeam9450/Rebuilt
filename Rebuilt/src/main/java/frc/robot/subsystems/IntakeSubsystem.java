@@ -39,6 +39,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     public enum IntakeState {
         IDLING,
+        SLOW_INTAKING,
         INTAKING,
     }
 
@@ -72,7 +73,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double intakeRevolutions = logIntakeTarget.get();
     private double storeRevolutions = 6.25;
     private double trenchStoreRevolutions = 4.5;
-    private double climbStoreRevolutions = 7.5;
+    private double climbStoreRevolutions = 7.75;
 
     private boolean hasReachedIntakeLocation = false;
 
@@ -176,6 +177,10 @@ public final class IntakeSubsystem extends SubsystemBase{
         switch (currentState) {
             case IDLING:
                 motorWheels.setControl(voltageRequest.withOutput(0));
+                break;
+
+            case SLOW_INTAKING:
+                motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts * 0.75));
                 break;
             
             case INTAKING:

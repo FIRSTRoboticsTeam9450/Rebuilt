@@ -154,13 +154,21 @@ public class RobotContainer {
     // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0.1)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(10, 700))));
 
     // // OPERATOR.x().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().zeroMotors()));
-    OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
-    OPERATOR.a().onTrue(
-        new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))
-        .alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L1)))
-      );
+    // OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+    // OPERATOR.a().onTrue(
+    //     new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))
+    //     .alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L1)))
+    //   );
 
-    OPERATOR.b().onTrue(climbSub.GoToNextLevel());
+    // OPERATOR.b().onTrue(climbSub.GoToNextLevel());
+    // OPERATOR.x().onTrue(
+    //   new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))
+    //   .alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)))
+    //   );
+
+    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2))));
+    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF)).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2))));
+    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END)).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2))));
 
 
     // OPERATOR.a().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(0.1))));
@@ -181,6 +189,12 @@ public class RobotContainer {
 
     OPERATOR.rightTrigger().onTrue(
       CoordinationSubsystem.getInstance().setFireCommand()
+    );
+
+    OPERATOR.rightBumper().onTrue(
+      CoordinationSubsystem.getInstance().setFastTransferCommand(true)
+    ).onFalse(
+      CoordinationSubsystem.getInstance().setFastTransferCommand(false)
     );
 
     OPERATOR.leftTrigger().onTrue(

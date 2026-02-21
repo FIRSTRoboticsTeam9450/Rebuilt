@@ -438,7 +438,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     break;
 
                 case HARD_TRENCH_DEADZONE:
-                    currentAngleState = AngleState.STORING;
+                    setAngleState(AngleState.STORING);
                     break;
 
                 case SOFT_TRENCH_DEADZONE:

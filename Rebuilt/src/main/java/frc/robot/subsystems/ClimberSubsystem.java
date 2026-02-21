@@ -103,6 +103,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public enum ClimbLevel {
+        AUTO,
         L1,
         L2,
         L3,
@@ -262,7 +263,7 @@ public class ClimberSubsystem extends SubsystemBase {
         return false;
     }
 
-    private void publishClimbLogs() {
+    private void publishLogs() {
         Logger.recordOutput("Rebuilt/Climb/Elevator/MotorPosition", getElevatorPosition());
         Logger.recordOutput("Rebuilt/Climb/Elevator/Setpoint", currentElevatorSetpoint);
         Logger.recordOutput("Rebuilt/Climb/Elevator/MotorVoltage", elevatorClimbMotor.getMotorVoltage().getValueAsDouble());
@@ -274,6 +275,7 @@ public class ClimberSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
 
         Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbState);
+        Logger.recordOutput("Rebuilt/Climb/Level", currentClimbLevel);
     }
 
     public void periodic() {
@@ -288,7 +290,7 @@ public class ClimberSubsystem extends SubsystemBase {
             }
         }
         applyStates();
-        publishClimbLogs();
+        publishLogs();
     }
 
     public boolean ElevatorAtTarget() {
@@ -330,28 +332,39 @@ public class ClimberSubsystem extends SubsystemBase {
 
             case INIT:
                 switch (currentClimbLevel) {
+                    case AUTO:
+                        setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                        break;
+
                     case L1:
                         setElevatorTarget(ClimbPositions.kElevatorStore);
-                        setTelescopeTarget(ClimbPositions.kTelescopeL1Reach);
+                        setTelescopeTarget(ClimbPositions.kTelescopeReach);
                         break;
                     
                     case L2:
                         setElevatorTarget(ClimbPositions.kElevatorStore);
-                        setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
+                        setTelescopeTarget(ClimbPositions.kTelescopeReach);
                         break;
 
                     case L3:
                         setElevatorTarget(ClimbPositions.kElevatorStore);
-                        setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
+                        setTelescopeTarget(ClimbPositions.kTelescopeReach);
                         break;
                 }
                 if (ElevatorAtTarget() && TelescopeAtTarget()) {
-                    setClimbState(ClimbStates.HANDOFF);
+                    if (currentClimbLevel != ClimbLevel.AUTO) {
+                        // setClimbState(ClimbStates.HANDOFF);
+                    } else {
+                        // setClimbState(ClimbStates.END);
+                    }
                 }
                 break;
 
             case HANDOFF:
                 switch (currentClimbLevel) {
+                    case AUTO:
+                        break;
+
                     case L1:
                         setElevatorTarget(ClimbPositions.kElevatorHandoff);
                         setTelescopeTarget(ClimbPositions.kTelescopeHandoff);
@@ -368,30 +381,35 @@ public class ClimberSubsystem extends SubsystemBase {
                         break;
                 }
                 if (ElevatorAtTarget() && TelescopeAtTarget()) {
-                    setClimbState(ClimbStates.END);
+                    if (currentClimbLevel != ClimbLevel.L3) {
+                        // setClimbState(ClimbStates.END);
+                    }
                 }
                 break;
 
             case END:
                 switch (currentClimbLevel) {
+                        case AUTO:
+                            setTelescopeTarget(ClimbPositions.kTelescopeAutoClimb);
+                            break;
                         case L1:
                             setElevatorTarget(ClimbPositions.kElevatorClimb);
-                            setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
+                            setTelescopeTarget(ClimbPositions.kTelescopeReach);
                             break;
                         
                         case L2:
                             setElevatorTarget(ClimbPositions.kElevatorClimb);
-                            setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
+                            setTelescopeTarget(ClimbPositions.kTelescopeReach);
                             break;
 
                         case L3:
-                            if (!finishedL3) {
-                                setElevatorTarget(ClimbPositions.kElevatorClimb);
-                                setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
-                            } else {
-                                setElevatorTarget(ClimbPositions.kElevatorClimb);
-                                setTelescopeTarget(ClimbPositions.kTelescopeStore);
-                            }
+                            // if (!finishedL3) {
+                            //     setElevatorTarget(ClimbPositions.kElevatorClimb);
+                            //     setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
+                            // } else {
+                            //     setElevatorTarget(ClimbPositions.kElevatorClimb);
+                            //     setTelescopeTarget(ClimbPositions.kTelescopeStore);
+                            // }
                             break;
                     }
                     if (ElevatorAtTarget() && TelescopeAtTarget()) {

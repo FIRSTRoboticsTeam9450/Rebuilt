@@ -61,14 +61,14 @@ public final class Constants {
       }
 
       public static final class ClimbPositions {
-        public static final double kElevatorStore = -0.5;
+        public static final double kElevatorStore = -1;
         public static final double kElevatorHandoff = -0.5;
-        public static final double kElevatorClimb = -128;
+        public static final double kElevatorClimb = -133.5;
 
-        public static final double kTelescopeStore = 0.25;
-        public static final double kTelescopeHandoff = 10;
-        public static final double kTelescopeL1Reach = 40;
-        public static final double kTelescopeL2N3Reach = 30;
+        public static final double kTelescopeStore = 0.5;
+        public static final double kTelescopeHandoff = 0;
+        public static final double kTelescopeReach = 40.4;
+        public static final double kTelescopeAutoClimb = 10;
       }
 
     }

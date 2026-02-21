@@ -106,6 +106,7 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
+    VisionSubsystem.getInstance().setThrottle(100);
     updateValuesOffset = 0;
     // SignalLogger.stop();
   }
@@ -127,7 +128,9 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void disabledExit() {
-      FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+    FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
+    VisionSubsystem.getInstance().setThrottle(0);
+    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledStdDev);
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
@@ -152,7 +155,6 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledStdDev);
     CoordinationSubsystem.getInstance().setHardTrenchOverride(false);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();

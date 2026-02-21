@@ -219,10 +219,10 @@ public class VisionSubsystem extends SubsystemBase {
 
         if (updateVisionOffset > 1) {
             updateVisionOffset = 0;
-            updateVision();  // Compute fused vision pose
         } else {
             updateVisionOffset++;
         }
+        updateVision();  // Compute fused vision pose
         publishLogs();   // Print/log fusion confidence and pose
     }
 
@@ -864,6 +864,12 @@ public class VisionSubsystem extends SubsystemBase {
 
     public void setVisionMeasurementStdDevs(Vector<N3> vector) {
         drivetrain.setVisionMeasurementStdDevs(vector);
+    }
+
+    public void setThrottle(int framesToSkip) {
+        for (LimelightObject limelight : LIMELIGHT_LIST) {
+            LimelightHelpers.SetThrottle(limelight.getName(), framesToSkip);
+        }
     }
 
     public void setLLIMUModes(int mode) {
