@@ -74,6 +74,11 @@ public class TransferSubsystem extends SubsystemBase {
 
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        motorConfig.CurrentLimits.StatorCurrentLimit = 100;
+        motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 100;
         
         motor.getConfigurator().apply(motorConfig);
     }
@@ -110,9 +115,9 @@ public class TransferSubsystem extends SubsystemBase {
                 break;
             
             case SLOW_RUN_IN:
-                voltageRequest.Output = 3;
+                voltageRequest.Output = 4.5;
                 break;
-                
+
             case RUN_OUT: // Move fuel out
                 double voltage = -12 / (stateTimer.get() * 1.8);
                 voltage = MathUtil.clamp(voltage, -12, -4);

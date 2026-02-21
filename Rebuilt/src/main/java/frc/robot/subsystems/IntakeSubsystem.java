@@ -100,6 +100,12 @@ public final class IntakeSubsystem extends SubsystemBase{
         motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
 
+        // motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        // motorConfig.CurrentLimits.StatorCurrentLimit = 40;
+        // motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        // motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+        // motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
+
         //Magic Motion
         var slot0Configs = motorConfig.Slot0;
         slot0Configs.kS = logMMKS.get();

@@ -137,6 +137,9 @@ public class CoordinationSubsystem extends SubsystemBase {
                             setState(AbsoluteStates.SHOOTING);
                         }
                         break;
+                    case CLIMB_DEADZONE:
+                        TransferSubsystem.getInstance().setState(TransferState.HOLD);
+                        break;
 
                     case BACK_DEADZONE:
                         break;
@@ -235,9 +238,9 @@ public class CoordinationSubsystem extends SubsystemBase {
             case TRENCH:
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
-                shooterVelocState = ShooterState.NOT_SHOOTING;
+                shooterVelocState = ShooterState.SHOOTING;
                 if (!rejecting) {
-                    transferState = TransferState.HOLD;
+                    transferState = TransferState.RUN_IN;
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
                         intakeVelocState = IntakeState.INTAKING;

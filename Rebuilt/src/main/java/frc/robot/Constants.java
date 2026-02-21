@@ -386,22 +386,11 @@ public final class Constants {
         public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
         public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
 
-        // TODO: FIX THE TRENCH DEADZONE VALUES TO ACTUALLY BE WELDED AND NOT ANDYMARK
-        // public static final double TRENCH_12_DEADZONE_X_LOW = 4.549394; // Currently just covering the trench, no extra deadzone area
-        // public static final double TRENCH_12_DEADZONE_X_HIGH = 4.701794;
-        // public static final double TRENCH_1_DEADZONE_Y_LOW = 6.37203;
-        // public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.069326;
+        public static final double CLIMB_DEADZONE_X_LOW = 0;
+        public static final double CLIMB_DEADZONE_X_HIGH = 0;
+        public static final double CLIMB_DEADZONE_Y_LOW = 0;
+        public static final double CLIMB_DEADZONE_Y_HIGH = 0;
 
-        // public static final double TRENCH_2_DEADZONE_Y_LOW = 0;
-        // public static final double TRENCH_2_DEADZONE_Y_HIGH = 1.6970375;
-
-        // public static final double TRENCH_34_DEADZONE_X_LOW = 11.839194;
-        // public static final double TRENCH_34_DEADZONE_X_HIGH = 11.99;
-        // public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
-        // public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
-
-        // public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
-        // public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
       }
       public static final class ZoneConstantsAndyMark {
         public static final Translation2d RED_CORNER = new Translation2d(16.513048, 8.042656);
@@ -443,6 +432,11 @@ public final class Constants {
 
         public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
         public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
+        
+        public static final double CLIMB_DEADZONE_X_LOW = 0;
+        public static final double CLIMB_DEADZONE_X_HIGH = 0;
+        public static final double CLIMB_DEADZONE_Y_LOW = 0;
+        public static final double CLIMB_DEADZONE_Y_HIGH = 0;
       }
       public static final class ZoneTargets {
         public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;

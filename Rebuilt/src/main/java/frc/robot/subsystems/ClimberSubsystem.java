@@ -133,6 +133,11 @@ public class ClimberSubsystem extends SubsystemBase {
         telescopeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         telescopeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+        // telescopeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        // telescopeConfig.CurrentLimits.StatorCurrentLimit = 40;
+        // telescopeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        // telescopeConfig.CurrentLimits.SupplyCurrentLimit = 20;
+
         // telescopeConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         // telescopeConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
         // telescopeConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40; // Hood angle limit
@@ -157,6 +162,11 @@ public class ClimberSubsystem extends SubsystemBase {
 
         elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         elevatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        // elevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        // elevatorConfig.CurrentLimits.StatorCurrentLimit = 40;
+        // elevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        // elevatorConfig.CurrentLimits.SupplyCurrentLimit = 20;
 
         Slot0Configs elevatorSlot0Configs = new Slot0Configs()
                                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)

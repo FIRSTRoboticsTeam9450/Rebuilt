@@ -40,6 +40,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
 import frc.robot.Constants.RobotConstants.TurretConstants;
+import frc.robot.subsystems.ShooterSubsystem.AngleState;
 
 /**
  * Subsystem controlling the turret mechanism with field-relative tracking.
@@ -179,6 +180,8 @@ public class TurretSubsystem extends SubsystemBase {
     public double testTargetSetpoint = 0;
 
     private double loopOffset = 0;
+
+    private boolean goTo0 = false;
     
     // ========================= Constructor =========================
     
@@ -553,8 +556,17 @@ public class TurretSubsystem extends SubsystemBase {
                         MIN_ANGLE_DEG, 
                         MAX_ANGLE_DEG
                     );
-                    
+
+                    if(goTo0) {
+                        profiledSetpointDeg = 0;
+                    }
+
                     commandTurret(profiledSetpointDeg, 0.0, 0.0);
+
+                    if(isAtProfiledGoal() && ShooterSubsystem.getInstance().isAngleWithinTolerance() && ShooterSubsystem.getInstance().getCurrentAngleState() == AngleState.STORING) {
+                        goTo0 = true;
+                    }
+
                     break;
                 case CLIMB:
                     profiledSetpointDeg = 150;
@@ -863,6 +875,7 @@ public class TurretSubsystem extends SubsystemBase {
             // Reset motion profile on state change
             velocityLimiter.reset(Math.toRadians(cachedAngleDeg));
         }
+        goTo0 = false;
     }
 
     public Command setStateCommand(TurretState state) {
@@ -989,6 +1002,10 @@ public class TurretSubsystem extends SubsystemBase {
         return getCurrentTargetPosition();
     }
     
+        
+    public Pose2d getTurretPose() {
+        return VisionSubsystem.getInstance().getCurrentBotPoseAllianceUnspecific().transformBy(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT);
+    }
     /**
      * Checks if turret is within tolerance of target.
      * 

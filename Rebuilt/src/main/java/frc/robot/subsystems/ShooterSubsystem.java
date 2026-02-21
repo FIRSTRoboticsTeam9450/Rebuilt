@@ -382,7 +382,7 @@ public class ShooterSubsystem extends SubsystemBase {
             switch (coordSub.getCurrentZone()) {
 
                 case SHOOTING_ZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget - 0.2);
                     break;
 
                 case FERRY_ZONE_TOP:
@@ -400,11 +400,11 @@ public class ShooterSubsystem extends SubsystemBase {
                     break;
                     
                 case SOFT_TRENCH_DEADZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
                     break;
 
                 case HARD_TRENCH_DEADZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
                     break;
 
                 case BACK_DEADZONE:

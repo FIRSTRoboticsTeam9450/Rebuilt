@@ -63,7 +63,7 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
 
-  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.5;
+  public static double maxSpeed = DEFAULT_MAX_SPEED * .5;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -181,7 +181,7 @@ public class RobotContainer {
     // OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
     // OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
 
-    DRIVER.rightTrigger().onTrue(
+    DRIVER.rightBumper().onTrue(
         CoordinationSubsystem.getInstance().setOverrideCommand(true)
       ).onFalse(
         CoordinationSubsystem.getInstance().setOverrideCommand(false)
@@ -192,9 +192,9 @@ public class RobotContainer {
     );
 
     OPERATOR.rightBumper().onTrue(
-      CoordinationSubsystem.getInstance().setFastTransferCommand(true)
-    ).onFalse(
       CoordinationSubsystem.getInstance().setFastTransferCommand(false)
+    ).onFalse(
+      CoordinationSubsystem.getInstance().setFastTransferCommand(true)
     );
 
     OPERATOR.leftTrigger().onTrue(
@@ -202,8 +202,8 @@ public class RobotContainer {
     );
 
   
-    OPERATOR.x().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
-    OPERATOR.x().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
 
     OPERATOR.leftStick().onTrue(
       CoordinationSubsystem.getInstance().setRejectingCommand(true)
