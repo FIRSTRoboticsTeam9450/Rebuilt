@@ -240,7 +240,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.STORING;
                 shooterVelocState = ShooterState.SHOOTING;
                 if (!rejecting) {
-                    transferState = TransferState.RUN_IN;
+                    transferState = TransferState.SLOW_RUN_IN;
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
                         intakeVelocState = IntakeState.INTAKING;
@@ -346,6 +346,11 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     public Command setFastTransferCommand(boolean value) {
         return new InstantCommand(() -> fastTransfer = value)
+            .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command setFastTransferCommand() {
+        return new InstantCommand(() -> fastTransfer = !fastTransfer)
             .alongWith(new InstantCommand(() -> update = true));
     }
 

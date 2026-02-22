@@ -148,6 +148,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() {
         // Shooting Data Velocity
+        // shootingDistanceToVelocity.put(1.00, 25.5);
+        // shootingDistanceToVelocity.put(1.9, 27.25);
+        // shootingDistanceToVelocity.put(2.32, 27.75);
+        // shootingDistanceToVelocity.put(2.97, 28.75);
+        // shootingDistanceToVelocity.put(3.85, 31.25);
+        // shootingDistanceToVelocity.put(4.1, 32.65);
+        // shootingDistanceToVelocity.put(4.766, 34.5);
+
         shootingDistanceToVelocity.put(1.00, 25.5);
         shootingDistanceToVelocity.put(1.9, 27.25);
         shootingDistanceToVelocity.put(2.32, 27.75);
@@ -167,19 +175,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
         // Ferrying Data Velocity
-        ferryingDistanceToVelocity.put(15.697, 68.0);
-        ferryingDistanceToVelocity.put(13.1064, 57.0);
-        ferryingDistanceToVelocity.put(12.4968, 53.65);
-        ferryingDistanceToVelocity.put(10.9728, 48.0);
-        ferryingDistanceToVelocity.put(8.2296, 38.0);
-        ferryingDistanceToVelocity.put(5.4864, 31.5);
+        ferryingDistanceToVelocity.put(4.59, 31.5);
+        ferryingDistanceToVelocity.put(4.962, 32.72);
+        ferryingDistanceToVelocity.put(7.622, 39.03);
+        ferryingDistanceToVelocity.put(11.26, 49.0);
 
 
         
         // Ferrying Data Time
-        ferryingDistanceToTime.put(15.697, 2.59);
-        ferryingDistanceToTime.put(13.1064, 2.165);
-        ferryingDistanceToTime.put(12.4968, 2.116);
+        ferryingDistanceToTime.put(4.59, 1.41);
+        ferryingDistanceToTime.put(11.26, 1.96);
 
 
     }
@@ -382,18 +387,18 @@ public class ShooterSubsystem extends SubsystemBase {
             switch (coordSub.getCurrentZone()) {
 
                 case SHOOTING_ZONE:
-                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget - 0.2);
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
                     break;
 
                 case FERRY_ZONE_TOP:
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget) * 0.95;
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
                     if(cachedDistanceToTarget > 14.55) {
                         targetShooterVeloc = 49;
                     }
                     break;
                     
                 case FERRY_ZONE_BOTTOM:
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget) * 0.95;
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
                     if(cachedDistanceToTarget > 14.55) {
                         targetShooterVeloc = 49;
                     }

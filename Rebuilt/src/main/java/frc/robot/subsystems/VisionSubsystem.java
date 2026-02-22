@@ -3,11 +3,15 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -86,8 +90,8 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    public Vector<N3> disabledStdDev = VecBuilder.fill(5, 5, 0.5);
-    public Vector<N3> enabledStdDev = VecBuilder.fill(2.5, 2.5, 300);
+    public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 0.5);
+    public Vector<N3> enabledStdDev = VecBuilder.fill(2, 2, 200);
 
     public double visionStdDevX = 4;
     public double visionStdDevY = 4;
@@ -105,7 +109,7 @@ public class VisionSubsystem extends SubsystemBase {
     private static final double MAX_Z_THRESHOLD = 0.25; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 0.85; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
+    private static final double MAX_YAW_DIFF_DEGREES = 99999999; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -130,7 +134,8 @@ public class VisionSubsystem extends SubsystemBase {
     Translation2d currentTarget = ZoneTargets.SHOOTING_TARGET;
 
     // DEBUGGING
-    LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
+    private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
+    private LoggedNetworkBoolean allowOdomVisionUpdation = new LoggedNetworkBoolean("/Tuning/Vision/Allow Vision-Odom Merging", true);
     double loopOffset = 0;
 
     private boolean useCustomTarget = false;
@@ -188,9 +193,9 @@ public class VisionSubsystem extends SubsystemBase {
         LimelightObject limelightBR = new LimelightObject(BackRight.NAME)
                                         .withLocation(Location.BACK_RIGHT)
                                         .withPose3d(BackRight.POSE);
-        LIMELIGHT_LIST.add(limelightBR);
+        // LIMELIGHT_LIST.add(limelightBR);
 
-        setLLIMUModes(0);
+        setLLIMUModes(1);
 
     }
 
@@ -273,7 +278,10 @@ public class VisionSubsystem extends SubsystemBase {
         for (limelightNetworkTableData snap : llDataList) {
             if (!snap.hasATarget) continue;
             VisionMeasurement vm = createVisionMeasurement(snap);
-            if (vm.isValid()) measurements.add(vm);
+            if (vm.isValid()) {
+                measurements.add(vm);
+                Logger.recordOutput("Rebuilt/Vision/" + snap.name + "/Pose 3D", snap.megaTagEstimate.pose);
+            }
         }
 
         // === STEP 3: Fuse ===
@@ -291,8 +299,10 @@ public class VisionSubsystem extends SubsystemBase {
                 drivetrain.setVisionMeasurementStdDevs(
                     VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
             }
-            drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
-            validMeasurementCount++;
+            if (allowOdomVisionUpdation.get()) {
+                drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
+                validMeasurementCount++;
+            }
         });
 
         // Store snapshots for logging to reuse — no re-reads needed

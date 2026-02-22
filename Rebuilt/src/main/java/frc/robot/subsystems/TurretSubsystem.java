@@ -95,11 +95,11 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720); //720
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 51.25);
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 15);
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
-    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.009);
-    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.004);
+    private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.2120);
+    private final LoggedNetworkNumber logKV = new LoggedNetworkNumber("/Tuning/Turret/kV",0.011);
     private final LoggedNetworkNumber logKA = new LoggedNetworkNumber("/Tuning/Turret/kA", 0);
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Turret", false);
@@ -328,7 +328,7 @@ public class TurretSubsystem extends SubsystemBase {
         
         // Convert field-relative goal to robot-relative 
         Rotation2d robotRelativeGoalAngle = fieldRelativeGoalAngle.plus(
-            new Rotation2d(Units.degreesToRadians(angleOffsetToZero - degreeOffsetToTarget)));
+            new Rotation2d(Units.degreesToRadians(angleOffsetToZero + degreeOffsetToTarget)));
         
         // Find best angle considering wrapping and limits
 
@@ -337,6 +337,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Convert RPS to degrees/sec
         double currentVelocityDegPerSec = cachedMotorVelocity 
             * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
+        Logger.recordOutput("Rebuilt/Turret/CurrentVelocityDegPerSec", currentVelocityDegPerSec);
 
         // Calculate stopping distance: v² / (2a)
         double maxDeceleration = currentRateLimit;
@@ -381,13 +382,13 @@ public class TurretSubsystem extends SubsystemBase {
                 // Check if we can continue moving positive without hitting max limit
                 if (currentAngle + degreesToStopWithCurrentVelocity < MAX_ANGLE_DEG) {
                     allowVeloc = true;
-                    maxVelocity = MAX_ANGLE_DEG - currentAngle / 50;
+                    // maxVelocity = MAX_ANGLE_DEG - currentAngle / (Timer.getFPGATimestamp() - previousAnglesTimestamp);
                 }
             } else {
                 // Check if we can continue moving negative without hitting min limit
                 if (currentAngle - degreesToStopWithCurrentVelocity > MIN_ANGLE_DEG) {
                     allowVeloc = true;
-                    maxVelocity = currentAngle - MIN_ANGLE_DEG / 50; // Distance to min limit
+                    // maxVelocity = currentAngle - MIN_ANGLE_DEG / (Timer.getFPGATimestamp() - previousAnglesTimestamp); // Distance to min limit
                 }
             }
             if (allowVeloc) {
@@ -398,9 +399,10 @@ public class TurretSubsystem extends SubsystemBase {
                 previousAnglesTimestamp = Timer.getFPGATimestamp();
 
                 //Avg veloc
-                desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
+                // desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
                 
-                targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
+                targetVeloc = desiredVelocity;//MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
+                Logger.recordOutput("Rebuilt/Turret/MaxVelocity", maxVelocity);
 
                 // if(targetVeloc != desiredVelocity) {
                 //     System.out.println("CANT KEEP UP");
@@ -534,11 +536,12 @@ public class TurretSubsystem extends SubsystemBase {
                     );
                     
                     // Clamp velocity for safety
-                    double clampedVelocity = MathUtil.clamp(
-                        robotRelativeTargetVelocityDegPerSec,
-                        -maxVelocity,
-                        maxVelocity
-                    );
+                    double clampedVelocity = robotRelativeTargetVelocityDegPerSec;
+                    //  MathUtil.clamp(
+                    //     robotRelativeTargetVelocityDegPerSec,
+                    //     -maxVelocity,
+                    //     maxVelocity
+                    // );
                     
                     // Calculate acceleration for feedforward (derivative of velocity setpoint)
                     // For now, assume 0 unless tracking accelerating target
@@ -563,7 +566,7 @@ public class TurretSubsystem extends SubsystemBase {
 
                     commandTurret(profiledSetpointDeg, 0.0, 0.0);
 
-                    if(isAtProfiledGoal() && ShooterSubsystem.getInstance().isAngleWithinTolerance() && ShooterSubsystem.getInstance().getCurrentAngleState() == AngleState.STORING) {
+                    if(!goTo0 && isAtProfiledGoal() && ShooterSubsystem.getInstance().isAngleWithinTolerance() && ShooterSubsystem.getInstance().getCurrentAngleState() == AngleState.STORING) {
                         goTo0 = true;
                     }
 
@@ -781,6 +784,8 @@ public class TurretSubsystem extends SubsystemBase {
 
         //Debugging For Creating Velocity Safety Net
         Logger.recordOutput("Rebuilt/Turret/Pos/Distance to Stop", degreesToStopWithCurrentVelocity);
+
+        Logger.recordOutput("Rebuilt/Turret/goTo0", goTo0);
 
         if (logDebuggingToggle.get()) {
 

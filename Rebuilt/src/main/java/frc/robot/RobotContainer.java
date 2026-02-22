@@ -166,9 +166,9 @@ public class RobotContainer {
     //   .alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)))
     //   );
 
-    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2))));
-    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF)).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2))));
-    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END)).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2))));
+    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))));
+    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
+    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
 
 
     // OPERATOR.a().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(0.1))));
@@ -181,20 +181,20 @@ public class RobotContainer {
     // OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setOverrideCommand(true));
     // OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setOverrideCommand(false));
 
-    DRIVER.rightBumper().onTrue(
+    DRIVER.rightTrigger().onTrue(
         CoordinationSubsystem.getInstance().setOverrideCommand(true)
       ).onFalse(
         CoordinationSubsystem.getInstance().setOverrideCommand(false)
       );
 
-    OPERATOR.rightTrigger().onTrue(
+    OPERATOR.rightBumper().onTrue(
       CoordinationSubsystem.getInstance().setFireCommand()
     );
 
-    OPERATOR.rightBumper().onTrue(
-      CoordinationSubsystem.getInstance().setFastTransferCommand(false)
-    ).onFalse(
+    OPERATOR.rightTrigger().onTrue(
       CoordinationSubsystem.getInstance().setFastTransferCommand(true)
+    ).onFalse(
+      CoordinationSubsystem.getInstance().setFastTransferCommand(false)
     );
 
     OPERATOR.leftTrigger().onTrue(
@@ -233,6 +233,7 @@ public class RobotContainer {
     // Intake Commands
     NamedCommands.registerCommand("SetIntake", CoordinationSubsystem.getInstance().setIntakeCommand());
     NamedCommands.registerCommand("SetFire", CoordinationSubsystem.getInstance().setFireCommand());
+    NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());
     NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
     NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
 

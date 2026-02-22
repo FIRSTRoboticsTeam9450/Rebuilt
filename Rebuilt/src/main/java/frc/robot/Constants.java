@@ -67,7 +67,7 @@ public final class Constants {
 
         public static final double kTelescopeStore = 0.5;
         public static final double kTelescopeHandoff = 0;
-        public static final double kTelescopeReach = 40.4;
+        public static final double kTelescopeReach = 44.4;
         public static final double kTelescopeAutoClimb = 10;
       }
 
@@ -122,7 +122,7 @@ public final class Constants {
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.933333;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
       public static final double TURRET_OFFSET_TO_ZERO = 179.5; 
-      public static final double TURRET_OFFSET_TO_TARGET = 0; //V1: 5
+      public static final double TURRET_OFFSET_TO_TARGET = 3; //V1: 5
 
       public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
@@ -218,8 +218,8 @@ public final class Constants {
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
-      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.8, 6.82); // Used to be .455, 6.95
-      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(1.270,2.618);
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
+      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(1.270,1.8);
 
       /* ========= HARD CODED POSES ======== */
       public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();
@@ -366,10 +366,10 @@ public final class Constants {
         public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.437636;
         public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.631436;
 
-        public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.549394 - .762; // 4.535424
+        public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.549394 - .762; // used to be -.762 4.535424
         public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + .762; // 4.687824
-        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.549394 - 1.524; // 4.535424
-        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + 1.524; // 4.687824
+        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.549394 - 1.1; // 4.535424
+        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + 1.1; // 4.687824
         public static final double TRENCH_1_DEADZONE_Y_LOW = 6.37203;
         public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.069326;
 
@@ -378,8 +378,8 @@ public final class Constants {
 
         public static final double HARD_TRENCH_34_DEADZONE_X_LOW = 11.839194 - .762;
         public static final double HARD_TRENCH_34_DEADZONE_X_HIGH = 11.99 + .762;
-        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.839194 - 1.524;
-        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.99 + 1.524;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.839194 - 1.1; //1.524
+        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.99 + 1.1;
         public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
         public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
 
@@ -415,8 +415,8 @@ public final class Constants {
 
         public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.535424 - .762; // 4.535424
         public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.687824 + .762; // 4.687824
-        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.535424 - 1.524; // 4.535424
-        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.687824 + 1.524; // 4.687824
+        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.535424 - 1.1; // 4.535424
+        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.687824 + 1.1; // 4.687824
         public static final double TRENCH_1_DEADZONE_Y_LOW = 6.3456185;
         public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.042656;
 
@@ -425,14 +425,14 @@ public final class Constants {
 
         public static final double HARD_TRENCH_34_DEADZONE_X_LOW = 11.825224 - .762;
         public static final double HARD_TRENCH_34_DEADZONE_X_HIGH = 11.977624 + .762;
-        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.825224 - 1.524;
-        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.977624 + 1.524;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.825224 - 1.1;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.977624 + 1.1;
         public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
         public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
 
         public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
         public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
-        
+
         public static final double CLIMB_DEADZONE_X_LOW = 0;
         public static final double CLIMB_DEADZONE_X_HIGH = 0;
         public static final double CLIMB_DEADZONE_Y_LOW = 0;
