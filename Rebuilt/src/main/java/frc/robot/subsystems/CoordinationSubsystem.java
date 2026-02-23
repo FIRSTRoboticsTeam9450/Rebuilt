@@ -270,7 +270,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TransferSubsystem.getInstance().setState(transferState);
         IntakeSubsystem.getInstance().setPos(intakeAngleState);
         IntakeSubsystem.getInstance().setState(intakeVelocState);
-        LEDSubsystem.getInstance().setState(ledState);
+        // LEDSubsystem.getInstance().setState(ledState);
     }
 
     private void publishLogs() {

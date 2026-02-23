@@ -23,7 +23,6 @@ import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
-import frc.robot.Constants.RobotConstants.LimelightConstants.PipelineIndexs;
 import frc.robot.Constants.FieldConstants.ZoneConstants;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
@@ -113,7 +112,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
-    private List<Pose2d> aprilTagPoseList = List.of();
 
     // Logging
     private volatile Pose2d lastFusedPose = null;   // Last fused pose from vision
@@ -141,9 +139,6 @@ public class VisionSubsystem extends SubsystemBase {
     private boolean useCustomTarget = false;
     private Translation2d customTarget = new Translation2d();
 
-    private double cooldownCount = 0;
-    private boolean limelightPipelineSwitchingEnabled = false;
-
     // -------------------------
     // Constructor (private for singleton)
     // -------------------------
@@ -153,14 +148,6 @@ public class VisionSubsystem extends SubsystemBase {
 
         // Configure camera offsets and add to internal list
         configureLimelights();
-
-        //This bit causes an crashing error V
-        // Map<Pose2d, Integer> temp = FieldConstants.aprilTagPoseToTagIDsMap1_10;
-        // temp.putAll(FieldConstants.aprilTagPoseToTagIDsMap11_20);
-        // temp.putAll(FieldConstants.aprilTagPoseToTagIDsMap21_30);
-        // temp.putAll(FieldConstants.aprilTagPoseToTagIDsMap31_32);
-
-        // aprilTagPoseList = temp.keySet().stream().toList();
 
         // Initialize drivetrain vision standard deviations
         drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
@@ -193,7 +180,7 @@ public class VisionSubsystem extends SubsystemBase {
         LimelightObject limelightBR = new LimelightObject(BackRight.NAME)
                                         .withLocation(Location.BACK_RIGHT)
                                         .withPose3d(BackRight.POSE);
-        // LIMELIGHT_LIST.add(limelightBR);
+        LIMELIGHT_LIST.add(limelightBR);
 
         setLLIMUModes(1);
 
@@ -205,17 +192,6 @@ public class VisionSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
-
-
-
-        // if (limelightPipelineSwitchingEnabled && cooldownCount > 100) {
-        //     cooldownCount = 0;
-        //     Pose2d currentPose = drivetrain.getState().Pose;
-        //     Pose2d closestTag = currentPose.nearest(aprilTagPoseList);
-        //     updateLLPipeline(currentPose.getTranslation().getDistance(closestTag.getTranslation()));
-        // } else {
-        //     cooldownCount++;
-        // }
 
         if (updateTargetAndZoneOffset > 10) {
             updateTargetAndZoneOffset = 0;
@@ -465,41 +441,6 @@ public class VisionSubsystem extends SubsystemBase {
 
         double rotation = highestConfInlier.pose().getRotation().getRadians();
         return Optional.of(new Pose2d(fusedX / totalConf, fusedY / totalConf, new Rotation2d(rotation)));
-    }
-
-    private void updateLLPipeline(double distance) {
-        int targetPipelineIndex = 0;
-        if (DriverStation.isFMSAttached()) {
-            if (distance < 1.25) {
-                targetPipelineIndex = PipelineIndexs.COMP_CLOSE;
-            } else if (distance < 2.5) {
-                targetPipelineIndex = PipelineIndexs.COMP_MED;
-            } else {
-                targetPipelineIndex = PipelineIndexs.COMP_FAR;
-            }
-        } else if (LimelightConstants.isAtNorthField) {
-            if (distance < 1.25) {
-                targetPipelineIndex = PipelineIndexs.NF_CLOSE;
-            } else if (distance < 2.5) {
-                targetPipelineIndex = PipelineIndexs.NF_MED;
-            } else {
-                targetPipelineIndex = PipelineIndexs.NF_FAR;
-            }
-        } else {
-            if (distance < 1.25) {
-                targetPipelineIndex = PipelineIndexs.LAB_CLOSE;
-            } else if (distance < 2.5) {
-                targetPipelineIndex = PipelineIndexs.LAB_MED;
-            } else {
-                targetPipelineIndex = PipelineIndexs.LAB_FAR;
-            }
-        }
-        
-        for (LimelightObject limelight : LIMELIGHT_LIST) {
-            if (LimelightHelpers.getCurrentPipelineIndex(limelight.getName()) != targetPipelineIndex) {
-                LimelightHelpers.setPipelineIndex(limelight.getName(), PipelineIndexs.COMP_CLOSE);
-            }
-        }
     }
 
     // -------------------------

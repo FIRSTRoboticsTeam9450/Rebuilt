@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.lang.System.Logger.Level;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -22,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
 import frc.robot.commands.ResetIMU;
@@ -50,7 +53,7 @@ public class RobotContainer {
   public static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
   public static TransferSubsystem transferSub = TransferSubsystem.getInstance();
   public static IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
-  public static LEDSubsystem ledSub = LEDSubsystem.getInstance();
+  // public static LEDSubsystem ledSub = LEDSubsystem.getInstance();
 
 
   /**
@@ -58,7 +61,7 @@ public class RobotContainer {
    * Woojins Rotate: 120.1, 0.145, 92.2, 0.362, 0.035, 0.03
    */
   public BezierCurve driveBezier = new BezierCurve("drive", 88.2, 0.035, 92, 0.839, 0.1, 0.01);
-  public BezierCurve rotateBezier = new BezierCurve("rotate", 97.3, 0.193, 72.1, 0.822, 0.035, 0.03);
+  public BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
 
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
@@ -96,6 +99,7 @@ public class RobotContainer {
     autoChooser.addOption("Ferry Only", drivetrain.getAutoPath("Ferry Only", false));
     autoChooser.addOption("Climb", drivetrain.getAutoPath("Ferry + Climb", false));
     autoChooser.addOption("Odom Test", drivetrain.getAutoPath("Drive Straight", false));
+    autoChooser.addOption("Push", drivetrain.getAutoPath("Push + Climb", false));
   }
 
   private void configureBindings() {
@@ -154,7 +158,7 @@ public class RobotContainer {
     // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0.1)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(10, 700))));
 
     // // OPERATOR.x().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().zeroMotors()));
-    // OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+    OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
     // OPERATOR.a().onTrue(
     //     new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))
     //     .alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L1)))
@@ -166,9 +170,9 @@ public class RobotContainer {
     //   .alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)))
     //   );
 
-    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))));
-    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
-    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
+    OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))));
+    OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
+    OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
 
 
     // OPERATOR.a().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(0.1))));
@@ -205,6 +209,10 @@ public class RobotContainer {
     OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
     OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
 
+    OPERATOR.x().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()));
+    OPERATOR.leftBumper().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust()));
+    OPERATOR.a().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
+
     OPERATOR.leftStick().onTrue(
       CoordinationSubsystem.getInstance().setRejectingCommand(true)
     ).onFalse(
@@ -236,6 +244,9 @@ public class RobotContainer {
     NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());
     NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
     NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
+
+    NamedCommands.registerCommand("ClimberUp", CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new WaitCommand(0.15)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)))));
+    NamedCommands.registerCommand("ClimberDown", new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
 
     NamedCommands.registerCommand("ForceTrench", CoordinationSubsystem.getInstance().setForceTrenchCommand());
   }

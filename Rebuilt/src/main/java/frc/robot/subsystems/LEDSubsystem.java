@@ -25,7 +25,8 @@ import frc.robot.Constants.RobotConstants.LEDConstants;
 import frc.robot.commands.TeamCANdleAnimationCommand;
 
 /**
- * I WANT MY LEDs!!!!!!!
+ * I WANT MY LEDs!!!!!!! <br> <br/>
+ * Currently Disabled due to not having weight on robot. （；´д｀）ゞ
  */
 public class LEDSubsystem extends SubsystemBase{
     private static volatile LEDSubsystem INSTANCE;

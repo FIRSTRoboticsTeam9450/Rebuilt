@@ -209,12 +209,15 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void setClimbState(ClimbStates state) {
         stateDelayTimer.restart();
-        if (state == ClimbStates.INIT && currentClimbLevel == ClimbLevel.L1) {
+        if (state == ClimbStates.INIT && currentClimbLevel == ClimbLevel.L1 || state == ClimbStates.STANDBY) {
             setElevatorRequestConstants(95, 1200);
             setTelescopingRequestConstants(95, 1400);
+        } else if (state == ClimbStates.END) {
+            setElevatorRequestConstants(50, 600);
+            setTelescopingRequestConstants(95, 700);
         } else {
-            setElevatorRequestConstants(15, 600);
-            setTelescopingRequestConstants(15, 700);
+            setElevatorRequestConstants(50, 600);
+            setTelescopingRequestConstants(30, 700);
         }
         currentClimbState = state;
     }
@@ -404,12 +407,16 @@ public class ClimberSubsystem extends SubsystemBase {
                             break;
                         case L1:
                             setElevatorTarget(ClimbPositions.kElevatorClimb);
-                            setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                            if (getElevatorPosition() < -45) {
+                                setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                            }
                             break;
                         
                         case L2:
                             setElevatorTarget(ClimbPositions.kElevatorClimb);
-                            setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                            if (getElevatorPosition() < -45) {
+                                setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                            }
                             break;
 
                         case L3:

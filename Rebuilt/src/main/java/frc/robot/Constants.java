@@ -114,43 +114,24 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.08544921875;
+      public static final double ENCODER_MAGNET_OFFSET = 0.083984375;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
-      public static final double ROTOR_TO_SENSOR_RATIO = 0.01632653; //1 cycoidal, 1 7.5:1: 0.0625850 //Both Cycoidals: 0.001827990359168
-      public static final double SENSOR_TO_MECHANISM_RATIO = 0.933333;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
+      public static final double ROTOR_TO_SENSOR_RATIO = 0.01632653; //42.552137677193921189;// 0.02350058198; //1 cycoidal, 1 7.5:1: 0.0625850 //Both Cycoidals: 0.001827990359168
+      public static final double SENSOR_TO_MECHANISM_RATIO = 0.92;// * 1.0087424;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
-      public static final double TURRET_OFFSET_TO_ZERO = 179.5; 
-      public static final double TURRET_OFFSET_TO_TARGET = 3; //V1: 5
+      public static final double TURRET_OFFSET_TO_ZERO = 180; 
+      public static final double TURRET_OFFSET_TO_TARGET = 0;//3; //V1: 5
 
       public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
-      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 2.24; //Lantern: 2.24
+      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 8.57; //2.24; // TODO: prob wrong, fix itttttt Lantern: 2.24
       public static final double ABS_ENCDR_POS_TO_ANGLE = 360;
     }
     
     public static final class LimelightConstants {
-
-      public static final boolean isAtNorthField = false;
-
-      public static final class PipelineIndexs{
-        //NorthField
-        public static final int NF_CLOSE = 0;
-        public static final int NF_MED = 1;
-        public static final int NF_FAR = 2;
-
-        //Lab
-        public static final int LAB_CLOSE = 3;
-        public static final int LAB_MED = 4;
-        public static final int LAB_FAR = 5;
-
-        //Comp
-        public static final int COMP_CLOSE = 6;
-        public static final int COMP_MED = 7;
-        public static final int COMP_FAR = 8;
-      }
 
       public static final class FrontLeft {
         public static final String NAME = "limelight-fl";
@@ -218,8 +199,8 @@ public final class Constants {
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
-      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
-      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(1.270,1.8);
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,1.8); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
+      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,1.8);
 
       /* ========= HARD CODED POSES ======== */
       public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();
@@ -271,45 +252,6 @@ public final class Constants {
         return new RuntimeException(errorMsg);
       });
     }
-
-    public static final Map<Pose2d, Integer> aprilTagPoseToTagIDsMap1_10 = Map.of(
-      getTag3dPose(1).toPose2d(), 1,
-      getTag3dPose(2).toPose2d(), 2,
-      getTag3dPose(3).toPose2d(), 3,
-      getTag3dPose(4).toPose2d(), 4,
-      getTag3dPose(5).toPose2d(), 5,
-      getTag3dPose(6).toPose2d(), 6,
-      getTag3dPose(7).toPose2d(), 7,
-      getTag3dPose(8).toPose2d(), 8,
-      getTag3dPose(9).toPose2d(), 9,
-      getTag3dPose(10).toPose2d(), 10
-    );
-
-    public static final Map<Pose2d, Integer> aprilTagPoseToTagIDsMap11_20 = Map.of(
-      getTag3dPose(11).toPose2d(), 11,
-      getTag3dPose(12).toPose2d(), 12,
-      getTag3dPose(13).toPose2d(), 13,
-      getTag3dPose(14).toPose2d(), 14,
-      getTag3dPose(15).toPose2d(), 15,
-      getTag3dPose(16).toPose2d(), 16,
-      getTag3dPose(17).toPose2d(), 17,
-      getTag3dPose(18).toPose2d(), 18,
-      getTag3dPose(19).toPose2d(), 19,
-      getTag3dPose(20).toPose2d(), 20
-    );
-
-    public static final Map<Pose2d, Integer> aprilTagPoseToTagIDsMap21_30 = Map.of(
-      getTag3dPose(21).toPose2d(), 21,
-      getTag3dPose(22).toPose2d(), 22,
-      getTag3dPose(23).toPose2d(), 23,
-      getTag3dPose(24).toPose2d(), 24,
-      getTag3dPose(25).toPose2d(), 25,
-      getTag3dPose(26).toPose2d(), 26,
-      getTag3dPose(27).toPose2d(), 27,
-      getTag3dPose(28).toPose2d(), 28,
-      getTag3dPose(29).toPose2d(), 29,
-      getTag3dPose(30).toPose2d(), 30
-    );
 
     public static final Map<Pose2d, Integer> aprilTagPoseToTagIDsMap31_32 = Map.of(
       getTag3dPose(31).toPose2d(), 31,

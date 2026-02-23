@@ -3,17 +3,19 @@
   "robotLength": 0.7688595,
   "holonomicMode": true,
   "pathFolders": [
+    "Climb",
     "Experimental",
     "Ferry Only",
-    "Climb",
+    "Push",
     "Outpost",
     "Right Side Shoot & Ferry",
     "Shoot & Ferry",
     "Testing"
   ],
   "autoFolders": [
-    "Ferry",
     "Climb",
+    "Ferry",
+    "Push",
     "Test Autos"
   ],
   "defaultMaxVel": 5.0,

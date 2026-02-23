@@ -73,7 +73,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double intakeRevolutions = logIntakeTarget.get();
     private double storeRevolutions = 6.25;
     private double trenchStoreRevolutions = 4.5;
-    private double climbStoreRevolutions = 7.75;
+    private double climbStoreRevolutions = 8;
 
     private boolean hasReachedIntakeLocation = false;
 
@@ -100,11 +100,11 @@ public final class IntakeSubsystem extends SubsystemBase{
         motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
 
-        // motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        // motorConfig.CurrentLimits.StatorCurrentLimit = 40;
-        // motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        // motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
-        // motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
+        motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
 
         //Magic Motion
         var slot0Configs = motorConfig.Slot0;
@@ -123,6 +123,12 @@ public final class IntakeSubsystem extends SubsystemBase{
         TalonFXConfiguration IntakeConfig = new TalonFXConfiguration();
         IntakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         IntakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        IntakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        IntakeConfig.CurrentLimits.StatorCurrentLimit = 80;
+        IntakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        IntakeConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        IntakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
 
         motorWheels.getConfigurator().apply(IntakeConfig);
     }

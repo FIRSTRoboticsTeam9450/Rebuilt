@@ -1,0 +1,137 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.396,
+        "y": 0.425
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.775422222222224,
+        "y": 1.0824333333333334
+      },
+      "isLocked": false,
+      "linkedName": "TopTrenchStart"
+    },
+    {
+      "anchor": {
+        "x": 8.679266666666667,
+        "y": 1.6768444444444435
+      },
+      "prevControl": {
+        "x": 8.707102493805355,
+        "y": 0.22938143323266602
+      },
+      "nextControl": {
+        "x": 8.591566666666667,
+        "y": 6.237244444444444
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.502577777777777,
+        "y": 5.301777777777777
+      },
+      "prevControl": {
+        "x": 5.418055699854991,
+        "y": 4.111966988557036
+      },
+      "nextControl": {
+        "x": 5.629255555555557,
+        "y": 7.085011111111111
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.502577777777777,
+        "y": 7.6
+      },
+      "prevControl": {
+        "x": 13.502373703954039,
+        "y": 7.657141399472685
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "P - Neutral End"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.14107883817426362,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 0.848132780082997,
+      "rotationDegrees": 125.00000000000001
+    },
+    {
+      "waypointRelativePos": 1.4165975103734343,
+      "rotationDegrees": 135.0
+    },
+    {
+      "waypointRelativePos": 1.6456431535269682,
+      "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 2.178423236514502,
+      "rotationDegrees": 90.0
+    },
+    {
+      "waypointRelativePos": 2.5867219917012414,
+      "rotationDegrees": 170.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.3131513647642756,
+      "maxWaypointRelativePos": 1.986104218362279,
+      "constraints": {
+        "maxVelocity": 2.0,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 5.0,
+    "rotation": 170.0
+  },
+  "reversed": false,
+  "folder": "Push",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

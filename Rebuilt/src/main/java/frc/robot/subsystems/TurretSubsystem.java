@@ -78,7 +78,7 @@ public class TurretSubsystem extends SubsystemBase {
     
     // ========================= Configuration =========================
     
-    // Physical limits (degrees) - 330° total range
+    // Physical limits (degrees) - 270° total range
     private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     private static final double MAX_ANGLE_DEG = (TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     
@@ -95,7 +95,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720); //720
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 60);
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 70);
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
     private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.21);
@@ -171,6 +171,9 @@ public class TurretSubsystem extends SubsystemBase {
     private SlewRateLimiter velocityLimiter;
     private double currentRateLimit;
     private double profiledSetpointDeg = 0.0;
+
+    private boolean useManualAdjust = true;
+    private double manualShift = 0;
     
     // Control requests
     private final PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0).withEnableFOC(false);
@@ -180,8 +183,6 @@ public class TurretSubsystem extends SubsystemBase {
     public double testTargetSetpoint = 0;
 
     private double loopOffset = 0;
-
-    private boolean goTo0 = false;
     
     // ========================= Constructor =========================
     
@@ -528,6 +529,9 @@ public class TurretSubsystem extends SubsystemBase {
                     // );
                     profiledSetpointDeg = robotRelativeTargetAngleDeg;
                     
+                    if(useManualAdjust) {
+                        profiledSetpointDeg += manualShift;
+                    }
                     // Clamp to physical limits
                     profiledSetpointDeg = MathUtil.clamp(
                         profiledSetpointDeg, 
@@ -552,7 +556,11 @@ public class TurretSubsystem extends SubsystemBase {
                     
                 case STORING:
                     // Return to zero position with no velocity
-                    profiledSetpointDeg = 70;
+                    if (ShooterSubsystem.getInstance().getCurrentAngleState() == AngleState.STORING && ShooterSubsystem.getInstance().getAsRevs(ShooterSubsystem.getInstance().getHoodAngleDegrees()) < 0.5) {
+                        profiledSetpointDeg = 0;
+                    } else {
+                        profiledSetpointDeg = 70;
+                    }
 
                     profiledSetpointDeg = MathUtil.clamp(
                         profiledSetpointDeg, 
@@ -560,15 +568,7 @@ public class TurretSubsystem extends SubsystemBase {
                         MAX_ANGLE_DEG
                     );
 
-                    if(goTo0) {
-                        profiledSetpointDeg = 0;
-                    }
-
                     commandTurret(profiledSetpointDeg, 0.0, 0.0);
-
-                    if(!goTo0 && isAtProfiledGoal() && ShooterSubsystem.getInstance().isAngleWithinTolerance() && ShooterSubsystem.getInstance().getCurrentAngleState() == AngleState.STORING) {
-                        goTo0 = true;
-                    }
 
                     break;
                 case CLIMB:
@@ -785,8 +785,6 @@ public class TurretSubsystem extends SubsystemBase {
         //Debugging For Creating Velocity Safety Net
         Logger.recordOutput("Rebuilt/Turret/Pos/Distance to Stop", degreesToStopWithCurrentVelocity);
 
-        Logger.recordOutput("Rebuilt/Turret/goTo0", goTo0);
-
         if (logDebuggingToggle.get()) {
 
             Pose2d currentBotPose = drivetrain.getState().Pose;
@@ -856,6 +854,17 @@ public class TurretSubsystem extends SubsystemBase {
         customTargetPosition = targetPosition;
     }
     
+    public void increaseManualAdjust() {
+        manualShift += 1;
+    }
+    public void decreaseManualAdjust() {
+        manualShift -= 1;
+    }
+
+    public void resetManualAdjust() {
+        manualShift = 0;
+    }
+
     /**
      * Sets the field-relative target for the turret to track.
      * This is a lower-level method for direct angle control.
@@ -880,7 +889,6 @@ public class TurretSubsystem extends SubsystemBase {
             // Reset motion profile on state change
             velocityLimiter.reset(Math.toRadians(cachedAngleDeg));
         }
-        goTo0 = false;
     }
 
     public Command setStateCommand(TurretState state) {
