@@ -84,7 +84,7 @@ public class LEDSubsystem extends SubsystemBase{
         if (currentState == LEDState.DISABLED && !DriverStation.isFMSAttached()) {
             setState(LEDState.TEAM_UNIQUE_DISABLED);
         }
-        publishLogs();
+        // publishLogs();
     }
 
     private void applyState() {

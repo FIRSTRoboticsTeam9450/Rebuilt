@@ -95,7 +95,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 720); //720
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 70);
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 62.5);
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
     private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.21);
@@ -299,7 +299,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Apply configuration
         turretMotor.getConfigurator().apply(motorConfig);
 
-        syncMotorPosToEncoder();
+        // syncMotorPosToEncoder();
 
         //SIM
         turretMotorSimState.Orientation = ChassisReference.CounterClockwise_Positive;
@@ -311,6 +311,7 @@ public class TurretSubsystem extends SubsystemBase {
     
     @Override
     public void periodic() {
+        // cachedAngleDeg = turretMotor.getPosition().getValueAsDouble() / TurretConstants.ROTOR_TO_SENSOR_RATIO * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION + turretOffset;
         cachedAngleDeg = turretEncoder.getAbsolutePosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
         cachedMotorVelocity = turretMotor.getVelocity().getValueAsDouble();
 

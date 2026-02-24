@@ -239,17 +239,11 @@ public class CoordinationSubsystem extends SubsystemBase {
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
                 shooterVelocState = ShooterState.SHOOTING;
-                if (!rejecting) {
-                    transferState = TransferState.SLOW_RUN_IN;
-                    if (shouldBeIntaking) {
-                        intakeAngleState = IntakePos.INTAKING;
-                        intakeVelocState = IntakeState.INTAKING;
-                    } else {
-                        intakeAngleState = IntakePos.TRENCH_STORE;
-                        intakeVelocState = IntakeState.IDLING;
-                    }
+                transferState = TransferState.RUN_IN;
+                if (shouldBeIntaking) {
+                    intakeAngleState = IntakePos.INTAKING;
+                    intakeVelocState = IntakeState.INTAKING;
                 } else {
-                    transferState = TransferState.RUN_OUT;
                     intakeAngleState = IntakePos.TRENCH_STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
@@ -275,6 +269,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private void publishLogs() {
         Logger.recordOutput("Rebuilt/Match Data/Our Hub Active?", HubTracker.isActive());
+        Logger.recordOutput("Rebuilt/Match Data/We Win Auto?", DriverStation.getAlliance() == HubTracker.getAutoWinner());
         Logger.recordOutput("Rebuilt/Match Data/Time Left Until Shift Change", HubTracker.timeRemainingInCurrentShift().isPresent() ? HubTracker.timeRemainingInCurrentShift().get() : -1);
 
         Logger.recordOutput("Rebuilt/Coord/Intakeing", shouldBeIntaking);

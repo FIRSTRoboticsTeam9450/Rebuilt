@@ -286,6 +286,7 @@ public class ShooterSubsystem extends SubsystemBase {
         updateReachedShooterVelocityLogic();
 
         publishLogs();
+
         if(switchSlotBackTimer.get() > 2 && currentAngleState == AngleState.AIMING && !hasSwitchedBack) {
             hasSwitchedBack = true;
             slotNum = 0;

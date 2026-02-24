@@ -114,12 +114,12 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.083984375;
+      public static final double ENCODER_MAGNET_OFFSET = 0.08056640625;//0.0739539675;//0.082763671875;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
-      public static final double ROTOR_TO_SENSOR_RATIO = 0.01632653; //42.552137677193921189;// 0.02350058198; //1 cycoidal, 1 7.5:1: 0.0625850 //Both Cycoidals: 0.001827990359168
-      public static final double SENSOR_TO_MECHANISM_RATIO = 0.92;// * 1.0087424;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
+      public static final double ROTOR_TO_SENSOR_RATIO = 0.022211653247;//01632653; //42.552137677193921189;// 0.02350058198; //1 cycoidal, 1 7.5:1: 0.0625850 //Both Cycoidals: 0.001827990359168
+      public static final double SENSOR_TO_MECHANISM_RATIO = 0.93288943638;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
       public static final double TURRET_OFFSET_TO_ZERO = 180; 
       public static final double TURRET_OFFSET_TO_TARGET = 0;//3; //V1: 5
@@ -127,7 +127,7 @@ public final class Constants {
       public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
-      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 8.57; //2.24; // TODO: prob wrong, fix itttttt Lantern: 2.24
+      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 8.5714285714; //2.24; // TODO: prob wrong, fix itttttt Lantern: 2.24
       public static final double ABS_ENCDR_POS_TO_ANGLE = 360;
     }
     
@@ -181,6 +181,11 @@ public final class Constants {
 
   }
 
+  public static enum AlignPos {
+    LEFT,
+    RIGHT
+  }
+
   public static final class FieldConstants {
 
     public static boolean isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
@@ -208,6 +213,10 @@ public final class Constants {
 
       public static final Translation2d RED_LEFT_FERRY_TARGET = new Translation2d();
       public static final Translation2d RED_RIGHT_FERRY_TARGET = new Translation2d();
+
+      public static final Translation2d BLUE_TOWER = new Translation2d(1.063, 3.75);
+      public static final Translation2d RED_TOWER = new Translation2d(15.475, 4.325);
+
     }
 
     public static final class AprilTagIDs {
@@ -252,11 +261,6 @@ public final class Constants {
         return new RuntimeException(errorMsg);
       });
     }
-
-    public static final Map<Pose2d, Integer> aprilTagPoseToTagIDsMap31_32 = Map.of(
-      getTag3dPose(31).toPose2d(), 31,
-      getTag3dPose(32).toPose2d(), 32
-    );
 
     /**BLUE                      RED
      * -----------------------------

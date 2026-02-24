@@ -21,6 +21,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -290,10 +291,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         SwerveDriveState driveState = getState();
 
+        Rotation3d pigeonData = getPigeon2().getRotation3d();
+        double[] pigeonDataArr = {pigeonData.getX(), pigeonData.getY(), pigeonData.getZ()};
+
         m_field.setRobotPose(getState().Pose);
         Logger.recordOutput("Rebuilt/Drive/Pose 2D", driveState.Pose);
         Logger.recordOutput("Rebuilt/Drive/Pigeon Offset", RobotContainer.pigeonOffset);
-        Logger.recordOutput("Rebuilt/Drive/Pigeon Yaw", getPigeon2().getYaw().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/Pigeon Data", pigeonDataArr);
         
         Logger.recordOutput("Rebuilt/Drive/maxSpeed", RobotContainer.maxSpeed);
         Logger.recordOutput("Rebuilt/Drive/maxRotationSpeed", RobotContainer.maxAngularRate);

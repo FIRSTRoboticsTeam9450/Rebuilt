@@ -32,6 +32,7 @@ import frc.robot.util.LimelightObject.Location;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,14 +92,19 @@ public class VisionSubsystem extends SubsystemBase {
     // Standard deviations for vision measurements (for filtering/fusion)
     public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 0.5);
     public Vector<N3> enabledStdDev = VecBuilder.fill(2, 2, 200);
+    private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 200);
 
     public double visionStdDevX = 4;
     public double visionStdDevY = 4;
     public double visionStdDevTheta = 300.0;
-    private boolean firstMeasurment = true;
     private double validMeasurementCount = 0;
     private double updateVisionOffset = 0;
     private double updateTargetAndZoneOffset = 0;
+
+    private boolean firstMeasurment = true;
+    private boolean bumpDetected = false;
+    private boolean odomPoseOutsideField = false;
+    private boolean operatorForcedVisionTrust = false;
 
     // Maximum allowed differences for fusion; if exceeded, fallback to higher confidence camera
     private double maxTranslationDiff = 2.5; // meters
@@ -133,7 +139,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     // DEBUGGING
     private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
-    private LoggedNetworkBoolean allowOdomVisionUpdation = new LoggedNetworkBoolean("/Tuning/Vision/Allow Vision-Odom Merging", true);
     double loopOffset = 0;
 
     private boolean useCustomTarget = false;
@@ -218,12 +223,30 @@ public class VisionSubsystem extends SubsystemBase {
      * Sends fused pose to drivetrain for odometry correction.
      */
     private void updateVision() {
-        double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
+
+        Pose2d robotPoseData = drivetrain.getState().Pose;
+        Pigeon2 pigeonData = drivetrain.getPigeon2();
+
+        double robotTranslationX = robotPoseData.getX();
+        double robotTranslationY = robotPoseData.getY();
+
+        double robotYaw = robotPoseData.getRotation().getDegrees();
+        double robotYawRate = pigeonData.getAngularVelocityZDevice().getValueAsDouble();
+        double robotRotX = Math.abs(pigeonData.getAccumGyroX().getValueAsDouble());
+        double robotRotY = Math.abs(pigeonData.getAccumGyroY().getValueAsDouble());
+
+        if (robotTranslationX < 0 || robotTranslationX > 16.575 || robotTranslationY < 0 || robotTranslationY > 8.1) {
+            odomPoseOutsideField = true;
+        }
+
+        if (robotRotX > Units.degreesToRadians(3) || robotRotY > Units.degreesToRadians(3)) {
+            bumpDetected = true;
+        }
 
         List<limelightNetworkTableData> llDataList = new ArrayList<>(LIMELIGHT_LIST.size());
         for (LimelightObject limelight : LIMELIGHT_LIST) {
             String name = limelight.getName();
-            LimelightHelpers.SetRobotOrientation_NoFlush(name, robotYaw, 0, 0, 0, 0, 0);
+            LimelightHelpers.SetRobotOrientation_NoFlush(name, robotYaw, robotYawRate, 0, 0, 0, 0);
             boolean hasTarget = LimelightHelpers.getTV(name);
 
             if (hasTarget) {
@@ -256,7 +279,7 @@ public class VisionSubsystem extends SubsystemBase {
             VisionMeasurement vm = createVisionMeasurement(snap);
             if (vm.isValid()) {
                 measurements.add(vm);
-                Logger.recordOutput("Rebuilt/Vision/" + snap.name + "/Pose 3D", snap.megaTagEstimate.pose);
+                // Logger.recordOutput("Rebuilt/Vision/" + snap.name + "/Pose 3D", snap.megaTagEstimate.pose);
             }
         }
 
@@ -270,15 +293,15 @@ public class VisionSubsystem extends SubsystemBase {
                 .max().orElse(0.0);
             if (firstMeasurment) {
                 firstMeasurment = false;
-                drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(0, 0, 0));
+                setVisionMeasurementStdDevs(VecBuilder.fill(0, 0, 0));
+            } else if (bumpDetected || odomPoseOutsideField || operatorForcedVisionTrust) {
+                setVisionMeasurementStdDevs(badOdomStdDev);
             } else {
-                drivetrain.setVisionMeasurementStdDevs(
+                setVisionMeasurementStdDevs(
                     VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
             }
-            if (allowOdomVisionUpdation.get()) {
-                drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
-                validMeasurementCount++;
-            }
+            drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
+            validMeasurementCount++;
         });
 
         // Store snapshots for logging to reuse — no re-reads needed

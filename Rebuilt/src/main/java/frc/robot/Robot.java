@@ -15,6 +15,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -59,7 +60,7 @@ public class Robot extends LoggedRobot {
     m_robotContainer = new RobotContainer();
 
     Logger.start();
-    SignalLogger.setPath("/home/lvuser/logs/");
+    // SignalLogger.setPath("/home/lvuser/logs/");
   }
 
   @Override
@@ -121,7 +122,7 @@ public class Robot extends LoggedRobot {
     } else if (updateValuesOffset == 30) {
       IntakeSubsystem.getInstance().updateConstants();
     } else if (updateValuesOffset == 15) {
-      // ClimberSubsystem.getInstance().updateClimberConstants();
+      ClimberSubsystem.getInstance().updateClimberConstants();
     }
     updateValuesOffset++;
   }

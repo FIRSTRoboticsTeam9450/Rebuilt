@@ -26,7 +26,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.AlignPos;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
+import frc.robot.commands.PositionAlignCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -64,7 +66,7 @@ public class RobotContainer {
   public BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
 
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-  private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(1.125).in(RadiansPerSecond);
+  private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(.75).in(RadiansPerSecond);
 
   public static double maxSpeed = DEFAULT_MAX_SPEED * .5;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
@@ -111,6 +113,13 @@ public class RobotContainer {
                     .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+
+    // DRIVER.leftStick().whileTrue(
+    //     Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.LEFT), (() -> DriverStation.isTest()))
+    //   );
+    // DRIVER.rightStick().whileTrue(
+    //   Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.RIGHT), (() -> DriverStation.isTest()))
+    // );
       
       // DRIVER.rightTrigger().onTrue(
       //   CoordinationSubsystem.getInstance().setForceTrenchCommand()
@@ -158,7 +167,7 @@ public class RobotContainer {
     // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setTelescopeOverrideSetpoint(0.1)).alongWith(new InstantCommand(() -> climbSub.setTelescopingRequestConstants(10, 700))));
 
     // // OPERATOR.x().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().zeroMotors()));
-    OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+    // OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
     // OPERATOR.a().onTrue(
     //     new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))
     //     .alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L1)))
@@ -170,9 +179,9 @@ public class RobotContainer {
     //   .alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)))
     //   );
 
-    OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))));
-    OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
-    OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
+    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))));
+    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
+    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
 
 
     // OPERATOR.a().onTrue(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(-128)).alongWith(new InstantCommand(() -> climbSub.setElevatorOverrideSetpoint(0.1))));
@@ -206,12 +215,12 @@ public class RobotContainer {
     );
 
   
-    OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
-    OPERATOR.b().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    OPERATOR.a().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    OPERATOR.a().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
 
     OPERATOR.x().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()));
-    OPERATOR.leftBumper().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust()));
-    OPERATOR.a().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
+    OPERATOR.y().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust()));
+    OPERATOR.b().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
 
     OPERATOR.leftStick().onTrue(
       CoordinationSubsystem.getInstance().setRejectingCommand(true)
