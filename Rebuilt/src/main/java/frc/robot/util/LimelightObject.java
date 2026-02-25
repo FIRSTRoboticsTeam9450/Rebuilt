@@ -5,6 +5,11 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 
+/**
+ * Stores offset data for Limelights
+ * <br><br/>
+ * Offsets stored are unsued, simply placeholders
+ */
 public class LimelightObject {
     
     public enum Location {

@@ -33,9 +33,9 @@ public class PositionAlignCommand extends Command {
     CommandSwerveDrivetrain drivetrain;
 
     /* --------------- PIDs --------------- */
-    private PIDController pidX = new PIDController(2, 0, 0.0);
-    private PIDController pidY = new PIDController(2, 0, 0.0);
-    private PIDController pidR = new PIDController(4, 0, 0.0);
+    private PIDController pidX = new PIDController(4, 0, 0.0);
+    private PIDController pidY = new PIDController(5, 0, 0.0);
+    private PIDController pidR = new PIDController(6, 0, 0.0);
 
     /* --------------- Timer --------------- */
     private Timer timer = new Timer();
@@ -56,7 +56,7 @@ public class PositionAlignCommand extends Command {
     /* --------------- Drive Request --------------- */
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
                                                                              .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                                                                             .withDeadband(0.47);
+                                                                             .withDeadband(0.185);
 
 
     /*  ┌───────────────────────────┐
@@ -94,7 +94,7 @@ public class PositionAlignCommand extends Command {
         }
 
 
-        offsetArr = calculateAlignPosition(targetPose, 0.75);
+        offsetArr = calculateAlignPosition(targetPose, 1.0);
         pidX.setSetpoint(offsetArr[0]);
         pidY.setSetpoint(offsetArr[1]);
         pidR.setSetpoint(offsetArr[2]);
@@ -113,8 +113,8 @@ public class PositionAlignCommand extends Command {
         currentFieldPose = drivetrain.getState().Pose;
 
         /* ---------- Scoot ---------- */
-        if (atSetpoint(0.1, 0.3)) {
-            offsetArr = calculateAlignPosition(targetPose, 0.5);
+        if (atSetpoint(0.03, 0.1)) {
+            offsetArr = calculateAlignPosition(targetPose, 0.65);
             pidX.setSetpoint(offsetArr[0]);
             pidY.setSetpoint(offsetArr[1]);
             pidR.setSetpoint(offsetArr[2]);
@@ -143,7 +143,7 @@ public class PositionAlignCommand extends Command {
     private double[] calculateAlignPosition(Pose2d targetPose, double tagForwardOffset) {
 
         /* --------------- Offset Calculations --------------- */
-        //Calculate how far in and to the side we wish to be relative to the april tag
+        //Calculate how far in and to the side we wish to be relative to the Tower
         double tagLeftOffset;
         switch (alignSide) {
             case LEFT:

@@ -401,7 +401,7 @@ public class TurretSubsystem extends SubsystemBase {
                 previousAnglesTimestamp = Timer.getFPGATimestamp();
 
                 //Avg veloc
-                // desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
+                desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
                 
                 targetVeloc = desiredVelocity;//MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity);
                 Logger.recordOutput("Rebuilt/Turret/MaxVelocity", maxVelocity);

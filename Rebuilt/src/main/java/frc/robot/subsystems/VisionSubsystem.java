@@ -3,12 +3,10 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -17,13 +15,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
-import frc.robot.Constants.RobotConstants.LimelightConstants;
 import frc.robot.Constants.RobotConstants.TurretConstants;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
-import frc.robot.Constants.FieldConstants.ZoneConstants;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
 import frc.robot.util.LimelightHelpers;
@@ -32,7 +28,6 @@ import frc.robot.util.LimelightObject.Location;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.Pigeon2;
-import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,9 +89,12 @@ public class VisionSubsystem extends SubsystemBase {
     public Vector<N3> enabledStdDev = VecBuilder.fill(2, 2, 200);
     private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 200);
 
-    public double visionStdDevX = 4;
-    public double visionStdDevY = 4;
-    public double visionStdDevTheta = 300.0;
+    public double defaultVisionStdDevX = enabledStdDev.get(0);
+    public double defaultVisionStdDevY = enabledStdDev.get(1);
+    public double defaultVisionStdDevTheta = enabledStdDev.get(2);
+    public double currentVisionStdDevX = 0;
+    public double currentVisionStdDevY = 0;
+    private double currentVisionStdDevTheta = 0.0;
     private double validMeasurementCount = 0;
     private double updateVisionOffset = 0;
     private double updateTargetAndZoneOffset = 0;
@@ -155,7 +153,7 @@ public class VisionSubsystem extends SubsystemBase {
         configureLimelights();
 
         // Initialize drivetrain vision standard deviations
-        drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+        setVisionMeasurementStdDevs(VecBuilder.fill(defaultVisionStdDevX, defaultVisionStdDevY, defaultVisionStdDevTheta));
     }
 
     /**
@@ -232,8 +230,8 @@ public class VisionSubsystem extends SubsystemBase {
 
         double robotYaw = robotPoseData.getRotation().getDegrees();
         double robotYawRate = pigeonData.getAngularVelocityZDevice().getValueAsDouble();
-        double robotRotX = Math.abs(pigeonData.getAccumGyroX().getValueAsDouble());
-        double robotRotY = Math.abs(pigeonData.getAccumGyroY().getValueAsDouble());
+        double robotRotX = Math.abs(pigeonData.getRotation3d().getX());
+        double robotRotY = Math.abs(pigeonData.getRotation3d().getY());
 
         if (robotTranslationX < 0 || robotTranslationX > 16.575 || robotTranslationY < 0 || robotTranslationY > 8.1) {
             odomPoseOutsideField = true;
@@ -293,12 +291,12 @@ public class VisionSubsystem extends SubsystemBase {
                 .max().orElse(0.0);
             if (firstMeasurment) {
                 firstMeasurment = false;
-                setVisionMeasurementStdDevs(VecBuilder.fill(0, 0, 0));
+                setVisionMeasurementStdDevs(0, 0, 0);
             } else if (bumpDetected || odomPoseOutsideField || operatorForcedVisionTrust) {
+                bumpDetected = false;
+                odomPoseOutsideField = false;
                 setVisionMeasurementStdDevs(badOdomStdDev);
             } else {
-                setVisionMeasurementStdDevs(
-                    VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
             }
             drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
             validMeasurementCount++;
@@ -477,9 +475,11 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
         
         // Standard deviations
-        Logger.recordOutput("Rebuilt/Vision/Config/StdDev X", visionStdDevX);
-        Logger.recordOutput("Rebuilt/Vision/Config/StdDev Y", visionStdDevY);
-        Logger.recordOutput("Rebuilt/Vision/Config/StdDev Theta", visionStdDevTheta);
+        Logger.recordOutput("Rebuilt/Vision/Config/StdDev X", currentVisionStdDevX);
+        Logger.recordOutput("Rebuilt/Vision/Config/StdDev Y", currentVisionStdDevY);
+        Logger.recordOutput("Rebuilt/Vision/Config/StdDev Theta", currentVisionStdDevTheta);
+
+        Logger.recordOutput("Rebuilt/Vision/Operator Overriden Vision Trust", operatorForcedVisionTrust);
         
         // Fusion thresholds
         Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
@@ -848,14 +848,14 @@ public class VisionSubsystem extends SubsystemBase {
      * Updates vision measurement standard deviations for fusion/filtering.
      */
     public void setVisionMeasurementStdDevs(double xMeters, double yMeters, double thetaRadians) {
-        this.visionStdDevX = xMeters;
-        this.visionStdDevY = yMeters;
-        this.visionStdDevTheta = thetaRadians;
-
-        drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDevX, visionStdDevY, visionStdDevTheta));
+        setVisionMeasurementStdDevs(VecBuilder.fill(defaultVisionStdDevX, defaultVisionStdDevY, defaultVisionStdDevTheta));
     }
 
     public void setVisionMeasurementStdDevs(Vector<N3> vector) {
+        this.currentVisionStdDevX = vector.get(0);
+        this.currentVisionStdDevY = vector.get(1);
+        this.currentVisionStdDevTheta = vector.get(2);
+
         drivetrain.setVisionMeasurementStdDevs(vector);
     }
 
@@ -879,6 +879,10 @@ public class VisionSubsystem extends SubsystemBase {
     @SuppressWarnings("static-access")
     public void setDrivetrainInstance(CommandSwerveDrivetrain drivetrain) {
         this.drivetrain = drivetrain;
+    }
+
+    public Command setOperatorOverrideVisionTrustCommand(boolean value) {
+        return new InstantCommand(() -> operatorForcedVisionTrust = value);
     }
 
     // -------------------------

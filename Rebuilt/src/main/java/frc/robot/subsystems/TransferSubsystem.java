@@ -119,7 +119,7 @@ public class TransferSubsystem extends SubsystemBase {
                 break;
 
             case RUN_OUT: // Move fuel out
-                double voltage = -12 / (stateTimer.get() * 1.8);
+                double voltage = -12 / (stateTimer.get() * 1.23);
                 voltage = MathUtil.clamp(voltage, -12, -4);
                 voltageRequest.Output = voltage;
 

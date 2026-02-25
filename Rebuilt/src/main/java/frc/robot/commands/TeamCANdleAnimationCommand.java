@@ -12,7 +12,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LEDSubsystem;
 
-/* Displays a custom CANdle animation. */
+/**
+ * Displays a custom CANdle animation. 
+ * <br><br/>
+ * Unused due to not having enough weight to put LEDs on robot.
+ */
 public class TeamCANdleAnimationCommand extends Command {
   // Command data
   private LEDSubsystem m_leds;

@@ -114,7 +114,7 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.08056640625;//0.0739539675;//0.082763671875;
+      public static final double ENCODER_MAGNET_OFFSET = 0.0634765625;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
@@ -135,9 +135,9 @@ public final class Constants {
 
       public static final class FrontLeft {
         public static final String NAME = "limelight-fl";
-        public static final double LOCATION_X = -0.2862961;
-        public static final double LOCATION_Y = 0.28271978;
-        public static final double LOCATION_Z = 0.21090128;
+        public static final double LOCATION_X = 0.271457252;
+        public static final double LOCATION_Y = -0.26510724;
+        public static final double LOCATION_Z = 0.22526;
         public static final double PITCH = 28.1;
         public static final double ROLL = 0;
         public static final double YAW = 45;
@@ -146,9 +146,9 @@ public final class Constants {
 
       public static final class FrontRight {
         public static final String NAME = "limelight-fr";
-        public static final double LOCATION_X = 0.2862961;
-        public static final double LOCATION_Y = 0.28271978;
-        public static final double LOCATION_Z = 0.21090128;
+        public static final double LOCATION_X = 0.271457252;
+        public static final double LOCATION_Y = 0.26510724;
+        public static final double LOCATION_Z = 0.22526;
         public static final double PITCH = 28.1;
         public static final double ROLL = 0;
         public static final double YAW = -45;
@@ -157,10 +157,10 @@ public final class Constants {
 
       public static final class BackLeft {
         public static final String NAME = "limelight-bl";
-        public static final double LOCATION_X = -0.2862961;
-        public static final double LOCATION_Y = -0.28271978;
-        public static final double LOCATION_Z = 0.21090128;
-        public static final double PITCH = 0;
+        public static final double LOCATION_X = -0.271457252;
+        public static final double LOCATION_Y = -0.26510724;
+        public static final double LOCATION_Z = 0.22526;
+        public static final double PITCH = 28.1;
         public static final double ROLL = 0;
         public static final double YAW = 135;
         public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
@@ -168,10 +168,10 @@ public final class Constants {
 
       public static final class BackRight {
         public static final String NAME = "limelight-br";
-        public static final double LOCATION_X = 0.2862961;
-        public static final double LOCATION_Y = -0.28271978;
-        public static final double LOCATION_Z = 0.21090128;
-        public static final double PITCH = 0;
+        public static final double LOCATION_X = -0.271457252;
+        public static final double LOCATION_Y = 0.26510724;
+        public static final double LOCATION_Z = 0.22526;
+        public static final double PITCH = 28.1;
         public static final double ROLL = 0;
         public static final double YAW = -135;
         public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
@@ -204,8 +204,8 @@ public final class Constants {
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
-      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,1.8); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
-      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,1.8);
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,6.1976); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
+      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,6.1976); //(2.54, 1.8), (2.54, 6.1976)
 
       /* ========= HARD CODED POSES ======== */
       public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();

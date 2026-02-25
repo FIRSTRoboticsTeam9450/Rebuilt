@@ -238,6 +238,22 @@ public class ClimberSubsystem extends SubsystemBase {
             );
     }
 
+    public Command setClimeStateAndLevelCommand() {
+        return Commands.either(
+                Commands.either(
+                    new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
+                    new InstantCommand(() -> setClimbLevel(ClimbLevel.L3)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))),
+                    (() -> currentClimbLevel == ClimbLevel.L1)
+                    ), 
+                Commands.either(
+                    new InstantCommand(() -> setClimbState(ClimbStates.HANDOFF)), 
+                    new InstantCommand(() -> setClimbState(ClimbStates.END)), 
+                    (() -> currentClimbState == ClimbStates.INIT)
+                    ), 
+                (() -> currentClimbState == ClimbStates.END)
+            );
+    }
+
     public void setOverrideSetpoints(double elevatorSetpoint, double telescopeSetpoint) {
         overrideElevatorSetpoint = elevatorSetpoint;
         overrideTelescopeSetpoint = telescopeSetpoint;
@@ -334,13 +350,13 @@ public class ClimberSubsystem extends SubsystemBase {
                     telescopeClimbMotor.setVoltage(-1);
                 }
                 if(isElevatorZeroingDone && isTelescopeZeroingDone) {
-                    setClimbState(ClimbStates.OVERRIDE);
+                    setClimbState(ClimbStates.STANDBY);
                 }
                 break;
 
             case STANDBY:
-                setElevatorTarget(-0.5);
-                setTelescopeTarget(0.1);
+                setElevatorTarget(ClimbPositions.kElevatorStore);
+                setTelescopeTarget(ClimbPositions.kTelescopeStore);
                 break;
 
             case INIT:

@@ -69,6 +69,8 @@ public class Robot extends LoggedRobot {
 
     CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
 
+    SignalLogger.enableAutoLogging(false);
+
     // Creates a network table which is read by Elastic (Seems like advantage scope doesn't see it)
     networkTable = NetworkTableInstance.getDefault()
             .getTable("FieldTable") // Name of the folder Field2d is stored in
@@ -122,7 +124,7 @@ public class Robot extends LoggedRobot {
     } else if (updateValuesOffset == 30) {
       IntakeSubsystem.getInstance().updateConstants();
     } else if (updateValuesOffset == 15) {
-      ClimberSubsystem.getInstance().updateClimberConstants();
+      // ClimberSubsystem.getInstance().updateClimberConstants();
     }
     updateValuesOffset++;
   }
