@@ -17,7 +17,6 @@ import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlu
 import frc.robot.commands.GoToPosCommand;
 import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
-import frc.robot.subsystems.LEDSubsystem.LEDState;
 import frc.robot.subsystems.ShooterSubsystem.AngleState;
 import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
@@ -158,20 +157,20 @@ public class CoordinationSubsystem extends SubsystemBase {
         TransferState transferState = TransferState.NO_RUN;
         IntakePos intakeAngleState = IntakePos.STORE;
         IntakeState intakeVelocState = IntakeState.IDLING;
-        LEDState ledState = LEDState.DISABLED;
+        // LEDState ledState = LEDState.DISABLED;
 
         switch (currentState) {
             case INIT:
                 turretState = TurretState.INIT;
                 shooterHoodState = AngleState.ZEROING;
                 intakeAngleState = IntakePos.ZEROING;
-                ledState = LEDState.INIT;
+                // ledState = LEDState.INIT;
                 break;
 
             case STORING:
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
-                ledState = LEDState.STORING;
+                // ledState = LEDState.STORING;
                 if (shouldBeIntaking) {
                     intakeAngleState = IntakePos.INTAKING;
                     intakeVelocState = IntakeState.INTAKING;
@@ -203,7 +202,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
-                ledState = LEDState.PREPARING_TO_FIRE;
+                // ledState = LEDState.PREPARING_TO_FIRE;
                 break;
 
             case SHOOTING:
@@ -232,7 +231,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
-                ledState = LEDState.GOOD_TO_FIRE;
+                // ledState = LEDState.GOOD_TO_FIRE;
                 break;
 
             case TRENCH:
@@ -305,10 +304,11 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean isTurretReady() {
-        if (DriverStation.isAutonomous() && (currentZone == ZoneState.FERRY_ZONE_TOP || currentZone == ZoneState.FERRY_ZONE_BOTTOM)) {
-            return TurretSubsystem.getInstance().isAtTotalGoal() && TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING;
-        }
-        return TurretSubsystem.getInstance().isAtProfiledGoal() && TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING;
+        return TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING && TurretSubsystem.getInstance().isAtTotalGoal();
+        // if (DriverStation.isAutonomous() && (currentZone == ZoneState.FERRY_ZONE_TOP || currentZone == ZoneState.FERRY_ZONE_BOTTOM)) {
+        //     return TurretSubsystem.getInstance().isAtTotalGoal() && TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING;
+        // }
+        // return TurretSubsystem.getInstance().isAtProfiledGoal() && TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING;
     }
 
     public boolean areShooterAndTurretReady() {

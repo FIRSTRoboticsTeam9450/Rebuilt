@@ -125,6 +125,8 @@ public class PositionAlignCommand extends Command {
 
         setSwerveRequest(
             calculateDrivePower());
+
+            publishLogs();
     }
 
 
@@ -280,7 +282,7 @@ public class PositionAlignCommand extends Command {
      *  └───────────────────────────┘
      */ 
 
-    private void logDebuggingValues() {
+    private void publishLogs() {
 
         //Field Pose we use for calculations
         Logger.recordOutput("Rebuilt/Pose-Align/Assumed Field Pose", currentFieldPose);

@@ -5,17 +5,13 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
-import com.google.flatbuffers.Constants;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -24,7 +20,6 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants.ClimbPositions;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
-import frc.robot.subsystems.ShooterSubsystem.AngleState;
 
 public class ClimberSubsystem extends SubsystemBase {
 
@@ -36,8 +31,6 @@ public class ClimberSubsystem extends SubsystemBase {
     // for motor 1/ telescope motor
     private LoggedNetworkNumber logTelescopeMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Velocity", 94);
     private LoggedNetworkNumber logTelescopeMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Acceleration", 1400); //Needs a slower one for way down
-    private double telescopeMMVeloc = logTelescopeMMVelocity.get();
-    private double telescopeMMAccel = logTelescopeMMAcceleration.get();
 
     private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.24);
     private LoggedNetworkNumber logTelescopeMMKV = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kV", 0.2);
@@ -95,7 +88,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private ClimbStates currentClimbState = ClimbStates.ZEROING;
     private ClimbLevel currentClimbLevel = ClimbLevel.L1;
-    private boolean finishedL3 = false;
 
     private double currentElevatorSetpoint = 0;
     private double overrideElevatorSetpoint = 0; // Min is -128.35 if zeroing at top
@@ -443,10 +435,6 @@ public class ClimberSubsystem extends SubsystemBase {
                         //         setClimbLevel(ClimbLevel.L3);
                         //     }
                         //     setClimbState(ClimbStates.INIT);
-                        // } else {
-                        if (currentClimbLevel == ClimbLevel.L3) {
-                            finishedL3 = true;
-                        }
                         // }
                     }
                     break;

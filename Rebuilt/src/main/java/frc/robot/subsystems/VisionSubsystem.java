@@ -4,7 +4,6 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -593,9 +592,9 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds getVelocityOfBot() {
-        ChassisSpeeds speed = drivetrain.getState().Speeds;
+        ChassisSpeeds speeds = drivetrain.getState().Speeds;
         Pose2d currentPose = getCurrentBotPoseAllianceUnspecific();
-        return ChassisSpeeds.fromRobotRelativeSpeeds(drivetrain.getState().Speeds, currentPose.getRotation());
+        return ChassisSpeeds.fromRobotRelativeSpeeds(speeds, currentPose.getRotation());
     }
 
     public Translation2d getTargetPose() {

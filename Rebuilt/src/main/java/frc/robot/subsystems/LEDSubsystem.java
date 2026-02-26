@@ -17,12 +17,10 @@ import com.ctre.phoenix6.signals.StripTypeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.LEDConstants;
-import frc.robot.commands.TeamCANdleAnimationCommand;
 
 /**
  * I WANT MY LEDs!!!!!!! <br> <br/>
@@ -84,7 +82,7 @@ public class LEDSubsystem extends SubsystemBase{
         if (currentState == LEDState.DISABLED && !DriverStation.isFMSAttached()) {
             setState(LEDState.TEAM_UNIQUE_DISABLED);
         }
-        // publishLogs();
+        publishLogs();
     }
 
     private void applyState() {

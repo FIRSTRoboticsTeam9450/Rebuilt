@@ -13,10 +13,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.ctre.phoenix6.sim.CANcoderSimState;
-import com.ctre.phoenix6.sim.ChassisReference;
-import com.ctre.phoenix6.sim.TalonFXSimState;
-import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -68,9 +64,7 @@ public class TurretSubsystem extends SubsystemBase {
     private static volatile TurretSubsystem INSTANCE;
     
     private final TalonFX turretMotor;
-    private final TalonFXSimState turretMotorSimState;
     private final CANcoder turretEncoder;
-    private final CANcoderSimState turretEncoderSimState;
     private final CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
     
     private CommandXboxController driverController;
@@ -78,7 +72,7 @@ public class TurretSubsystem extends SubsystemBase {
     
     // ========================= Configuration =========================
     
-    // Physical limits (degrees) - 270° total range
+    // Physical limits (degrees) - degree° total range depends on the constant
     private static final double MIN_ANGLE_DEG = -(TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     private static final double MAX_ANGLE_DEG = (TurretConstants.TOTAL_ROTATION_DEGREES / 2);
     
@@ -91,9 +85,9 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 360); //360
+        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 391.5); //Based off how long it takes to wrap
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 360); //720
+        new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 360);
     
     private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 62.5);
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
@@ -158,6 +152,10 @@ public class TurretSubsystem extends SubsystemBase {
     // Robot-relative targeting (calculated each cycle)
     private double robotRelativeTargetAngleDeg = 0.0;
     private double robotRelativeTargetVelocityDegPerSec = 0.0;
+    /**
+     * Used for avegering velocity, unused at the current moment.
+     */
+    @SuppressWarnings("unused")
     private double previousRobotRelativeTargetVelocityDegPerSec = 0.0;
     private double previousRobotRelativeTargetAngleDeg = 0.0;
     private double degreesToStopWithCurrentVelocity = 0.0;
@@ -181,15 +179,11 @@ public class TurretSubsystem extends SubsystemBase {
 
     //Testing Stuff
     public double testTargetSetpoint = 0;
-
-    private double loopOffset = 0;
     
     // ========================= Constructor =========================
     
     /**
      * Creates a new TurretSubsystem.
-     * 
-     * @param drivetrain Reference to drivetrain for field-relative tracking
      */
     public TurretSubsystem() {
         
@@ -198,13 +192,11 @@ public class TurretSubsystem extends SubsystemBase {
             TurretConstants.DeviceIDs.kMotorID, 
             RobotConstants.MAIN_SYSTEMS_CANBUS
         );
-        turretMotorSimState = turretMotor.getSimState();
 
         turretEncoder = new CANcoder(
             TurretConstants.DeviceIDs.kAbsEncoderID, 
             RobotConstants.MAIN_SYSTEMS_CANBUS
         );
-        turretEncoderSimState = turretEncoder.getSimState();
         
         // Configure hardware
         configureEncoder();
@@ -227,7 +219,13 @@ public class TurretSubsystem extends SubsystemBase {
     // ========================= Configuration =========================
     
     /**
-     * Configures the CANcoder absolute encoder.
+     * Configures the Encoder <br><br/>
+     * Runs upon instance construction <br><br/>
+     * Configures:
+     *  <ul>
+     *  <li> Rotation Direction
+     *  <li> Encoder Magnet Offset
+     *  <ul/>
      */
     private void configureEncoder() {
         //IRL
@@ -238,14 +236,22 @@ public class TurretSubsystem extends SubsystemBase {
         encoderConfig.MagnetSensor.MagnetOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
         
         turretEncoder.getConfigurator().apply(encoderConfig);
-
-        //Sim
-        turretEncoderSimState.Orientation = ChassisReference.Clockwise_Positive;
-        turretEncoderSimState.SensorOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
     }
     
     /**
-     * Configures the TalonFX motor controller with PID and limits.
+     * Configures the motor <br><br/>
+     * Runs upon instance construction, and constant change (tuning mode) <br><br/>
+     * Configures:
+     *  <ul>
+     *  <li> Neutral Mode Value
+     *  <li> Rotation Direction
+     *  <li> Software Limits
+     *  <li> Stator & Supply Current Limits
+     *  <li> Peak Motor Voltage
+     *  <li> Slot 0 Constants
+     *  <li> Remote Sensor Type & Ratios
+     *  <li> Peak Tourqe current
+     *  <ul/>
      */
     private void configureMotor() {
         //IRL
@@ -300,11 +306,6 @@ public class TurretSubsystem extends SubsystemBase {
         turretMotor.getConfigurator().apply(motorConfig);
 
         // syncMotorPosToEncoder();
-
-        //SIM
-        turretMotorSimState.Orientation = ChassisReference.CounterClockwise_Positive;
-        turretMotorSimState.setMotorType(MotorType.KrakenX60);
-        turretMotorSimState.addRotorPosition(0);
     }
     
     // ========================= Periodic =========================
@@ -1039,10 +1040,8 @@ public class TurretSubsystem extends SubsystemBase {
      * @return true if within tolerance
      */
     public boolean isAtProfiledGoal(double toleranceDeg) {
-        //should return false if 0.5 degrees off from deadzone
-        if ((Math.abs(Math.abs(profiledSetpointDeg) - MAX_ANGLE_DEG) < 0.5)) //TODO: logic needs fixing (┬┬﹏┬┬)
+        if ((Math.abs(Math.abs(profiledSetpointDeg) - MAX_ANGLE_DEG) < 0.5))
             return false;
-        // if (profiledSetpointDeg == MAX_ANGLE_DEG || profiledSetpointDeg == MIN_ANGLE_DEG) return false;
 
         double error = Math.abs(cachedAngleDeg - profiledSetpointDeg);
         return error < toleranceDeg;

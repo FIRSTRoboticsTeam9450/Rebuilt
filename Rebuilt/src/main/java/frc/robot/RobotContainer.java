@@ -8,28 +8,18 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.lang.System.Logger.Level;
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.NamedCommands;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.Constants.AlignPos;
-import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
-import frc.robot.commands.PositionAlignCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -37,7 +27,6 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -56,7 +45,6 @@ public class RobotContainer {
   public static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
   public static TransferSubsystem transferSub = TransferSubsystem.getInstance();
   public static IntakeSubsystem intakeSub = IntakeSubsystem.getInstance();
-  // public static LEDSubsystem ledSub = LEDSubsystem.getInstance();
 
 
   /**
@@ -71,7 +59,7 @@ public class RobotContainer {
 
   private static final double scalarFactorForSpeed = 0.3;
 
-  public static double maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed;
+  public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -125,9 +113,9 @@ public class RobotContainer {
     // );
 
     DRIVER.leftTrigger().onTrue(
-        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1)
+        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed)
     ).onFalse(
-      new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed)
+      new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1)
     );
 
 
@@ -182,12 +170,12 @@ public class RobotContainer {
 
     /* ================ TEST ONLY KEYBINDS ============== */
 
-    DRIVER.leftStick().whileTrue(
-        Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.LEFT), (() -> DriverStation.isTest()))
-      );
-    DRIVER.rightStick().whileTrue(
-      Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.RIGHT), (() -> DriverStation.isTest()))
-    );
+    // DRIVER.leftStick().whileTrue(
+    //     Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.LEFT), (() -> DriverStation.isTest()))
+    //   );
+    // DRIVER.rightStick().whileTrue(
+    //   Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.RIGHT), (() -> DriverStation.isTest()))
+    // );
 
     DRIVER.leftStick().onTrue(
       Commands.either(CoordinationSubsystem.getInstance().setRejectingCommand(true), new InstantCommand(), (() -> DriverStation.isTest()))
@@ -200,10 +188,10 @@ public class RobotContainer {
     );
     
     /* ============================== SYSID ==================================== */
-    DRIVER.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    DRIVER.a().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-    DRIVER.b().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-    DRIVER.x().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+    // DRIVER.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+    // DRIVER.a().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    // DRIVER.b().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+    // DRIVER.x().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
       
     /* =============================== DISABLED KEYBINDS ======================== */
 
@@ -230,9 +218,9 @@ public class RobotContainer {
     //   );
 
     
-    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT))));
-    // OPERATOR.povUp().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
-    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
+    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.INIT))));
+    // OPERATOR.povUp().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.HANDOFF))));
+    // OPERATOR.povRight().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.END))));
 
     
     // OPERATOR.b().onTrue(climbSub.GoToNextLevel());

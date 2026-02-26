@@ -1,20 +1,15 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.IntakeConstants;
-
-import static edu.wpi.first.units.Units.Volt;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -75,18 +70,11 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double trenchStoreRevolutions = 4.5;
     private double climbStoreRevolutions = 8;
 
-    private boolean hasReachedIntakeLocation = false;
-
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     private boolean isZeroing = false;
-    private boolean jamTimerStarted = false;
-    private boolean unjamTimerStarted = false;
-    private boolean unjammed = true;
-    private Timer jamTimer = new Timer();
-    private Timer unjamTimer = new Timer();
 
     private boolean reversing = false;
 
@@ -150,7 +138,6 @@ public final class IntakeSubsystem extends SubsystemBase{
             currentPos = IntakePos.ZEROING;
             isZeroing = isZeroingDone();
         }
-        updateReachedIntakeHeightLogic();
         applyState();
         publishLogs();
     }
@@ -161,7 +148,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case ZEROING:
-                //TODO: make sure this volt makes it go INTO bumper
+                //TODO: Make this voltage powerful enough to have it able to get to bumper when laying fully in robot
                 motorArm.setVoltage(-.6);
                 break;
 
@@ -178,12 +165,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
             
             case INTAKING:
-                //TODO: test this, never triggered due to being on store instead of intaking
-                // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 40) {
-                //     motorArm.setControl(request.withPosition(logIntakeTarget.get() + 1.5));
-                // } else {
                     motorArm.setControl(request.withPosition(intakeRevolutions));
-                // }
                 break;
 
             default:
@@ -227,21 +209,6 @@ public final class IntakeSubsystem extends SubsystemBase{
         }
     }
 
-    public Command setReverse(boolean value) {
-        return new InstantCommand(() -> reversing = value);
-    }
-    private boolean checkJam() {
-        if(motorWheels.getMotorVoltage().getValueAsDouble() > 3 && Math.abs(motorArm.getPosition().getValueAsDouble() - logIntakeTarget.get()) > 1 && !jamTimerStarted) {
-            jamTimerStarted = true;
-            unjammed = false;
-            jamTimer.restart();
-        }
-        if(jamTimerStarted && jamTimer.get() > 1) {
-            return true;
-        }
-        return false;
-    }
-
     private void publishLogs() {
         Logger.recordOutput("Rebuilt/Intake/Angle/Current Pos", currentPos);
 
@@ -253,16 +220,6 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Veloc", motorWheels.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Voltage", motorWheels.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Angle/Temp", motorArm.getDeviceTemp().getValueAsDouble());
-    }
-
-    private void updateReachedIntakeHeightLogic() {
-        if (currentPos != IntakePos.INTAKING) {
-            hasReachedIntakeLocation = false;
-        } else {
-            if (Math.abs(motorArm.getPosition().getValueAsDouble() - logIntakeTarget.get()) < 1) {
-                hasReachedIntakeLocation = true;
-            }
-        }
     }
 
     public IntakePos getCurrentIntakePos() {
