@@ -78,7 +78,9 @@ public class TransferSubsystem extends SubsystemBase {
         motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         motorConfig.CurrentLimits.StatorCurrentLimit = 80;
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+        motorConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
         
         motor.getConfigurator().apply(motorConfig);
     }
@@ -103,15 +105,15 @@ public class TransferSubsystem extends SubsystemBase {
                 break;
 
             case RUN_IN: // Move fuel in
-                if (stateTimer.get() > 0.25) {
-                    if (Math.abs(motor.getVelocity().getValueAsDouble()) > 10) {
-                        voltageRequest.Output = 12;
-                    } else {
-                        voltageRequest.Output = -12;
-                    }
-                } else {
+                // if (stateTimer.get() > 0.25) {
+                //     if (Math.abs(motor.getVelocity().getValueAsDouble()) > 10) {
+                //         voltageRequest.Output = 12;
+                //     } else {
+                //         voltageRequest.Output = -12;
+                //     }
+                // } else {
                     voltageRequest.Output = 12;
-                }
+                // }
                 break;
             
             case SLOW_RUN_IN:

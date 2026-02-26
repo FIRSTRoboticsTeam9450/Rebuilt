@@ -70,6 +70,7 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
 
     SignalLogger.enableAutoLogging(false);
+    SignalLogger.stop();
 
     // Creates a network table which is read by Elastic (Seems like advantage scope doesn't see it)
     networkTable = NetworkTableInstance.getDefault()
@@ -110,6 +111,7 @@ public class Robot extends LoggedRobot {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
     VisionSubsystem.getInstance().setThrottle(100);
+    VisionSubsystem.getInstance().setLLIMUModes(1);
     updateValuesOffset = 0;
     // SignalLogger.stop();
   }
@@ -134,6 +136,7 @@ public class Robot extends LoggedRobot {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     VisionSubsystem.getInstance().setThrottle(0);
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledStdDev);
+    VisionSubsystem.getInstance().setLLIMUModes(4);
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

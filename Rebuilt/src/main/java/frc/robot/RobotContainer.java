@@ -106,6 +106,8 @@ public class RobotContainer {
     autoChooser.addOption("Odom Test", drivetrain.getAutoPath("Drive Straight", false));
     autoChooser.addOption("Push", drivetrain.getAutoPath("Push + Climb", false));
     autoChooser.addOption("Drive Test", drivetrain.getAutoPath("Drive Straight", false));
+    autoChooser.addOption("Drive Test S", drivetrain.getAutoPath("Drive S", false));
+    autoChooser.addOption("Drive And Return", drivetrain.getAutoPath("Drive And Return", false));
   }
 
   private void configureBindings() {
@@ -175,15 +177,17 @@ public class RobotContainer {
       VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(false)
     );
 
+    OPERATOR.povUp().onTrue(ClimberSubsystem.getInstance().setClimbStateAndLevelCommand());
+
 
     /* ================ TEST ONLY KEYBINDS ============== */
 
-    // DRIVER.leftStick().whileTrue(
-    //     Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.LEFT), (() -> DriverStation.isTest()))
-    //   );
-    // DRIVER.rightStick().whileTrue(
-    //   Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.RIGHT), (() -> DriverStation.isTest()))
-    // );
+    DRIVER.leftStick().whileTrue(
+        Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.LEFT), (() -> DriverStation.isTest()))
+      );
+    DRIVER.rightStick().whileTrue(
+      Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.RIGHT), (() -> DriverStation.isTest()))
+    );
 
     DRIVER.leftStick().onTrue(
       Commands.either(CoordinationSubsystem.getInstance().setRejectingCommand(true), new InstantCommand(), (() -> DriverStation.isTest()))
@@ -196,10 +200,10 @@ public class RobotContainer {
     );
     
     /* ============================== SYSID ==================================== */
-    // DRIVER.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    // DRIVER.a().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-    // DRIVER.b().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-    // DRIVER.x().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+    DRIVER.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+    DRIVER.a().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    DRIVER.b().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+    DRIVER.x().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
       
     /* =============================== DISABLED KEYBINDS ======================== */
 
@@ -232,7 +236,9 @@ public class RobotContainer {
 
     
     // OPERATOR.b().onTrue(climbSub.GoToNextLevel());
-    // OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+    // OPERATOR.povLeft().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
+    // OPERATOR.povRight().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.INIT))));
+    // OPERATOR.povDown().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.END)));
 
   }
 

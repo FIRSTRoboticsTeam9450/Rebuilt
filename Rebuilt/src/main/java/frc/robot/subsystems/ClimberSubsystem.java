@@ -59,25 +59,9 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logElevatorMMKD = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kD", 0.0);
     private LoggedNetworkNumber logElevatorMMKG = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kG", 0.05);
 
-    private Timer stateDelayTimer = new Timer();
-
-    // climbDistances holds a position value for the motor to go to for each bar
-    private LoggedNetworkNumber[] climbDistances = 
-    {  
-        new LoggedNetworkNumber("/Tuning/Climb/L3Climb", 0.0),
-        new LoggedNetworkNumber("/Tuning/Climb/L2Climb", 0.0),
-        new LoggedNetworkNumber("/Tuning/Climb/L1Climb", 0.0)
-    };
-
-    // Input from the user before the match to say what climb they want to do
-    private LoggedNetworkNumber barsToClimb = new LoggedNetworkNumber("/Tuning/Climb/barsToClimb", 1);
-
     private TalonFXConfiguration telescopeConfig;
     private TalonFXConfiguration elevatorConfig;
     boolean atTarget;
-
-    // index for the list climbDistance
-    private int climbCounter = 0;
 
     private DynamicMotionMagicVoltage elevatorRequest = 
                         new DynamicMotionMagicVoltage(0, 
@@ -208,7 +192,6 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void setClimbState(ClimbStates state) {
-        stateDelayTimer.restart();
         if (state == ClimbStates.INIT && currentClimbLevel == ClimbLevel.L1 || state == ClimbStates.STANDBY) {
             setElevatorRequestConstants(95, 1200);
             setTelescopingRequestConstants(95, 1400);
@@ -238,20 +221,32 @@ public class ClimberSubsystem extends SubsystemBase {
             );
     }
 
-    public Command setClimeStateAndLevelCommand() {
+    public Command setClimbStateAndLevelCommand() {
         return Commands.either(
-                Commands.either(
-                    new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
-                    new InstantCommand(() -> setClimbLevel(ClimbLevel.L3)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))),
-                    (() -> currentClimbLevel == ClimbLevel.L1)
-                    ), 
-                Commands.either(
-                    new InstantCommand(() -> setClimbState(ClimbStates.HANDOFF)), 
-                    new InstantCommand(() -> setClimbState(ClimbStates.END)), 
-                    (() -> currentClimbState == ClimbStates.INIT)
-                    ), 
-                (() -> currentClimbState == ClimbStates.END)
-            );
+            new InstantCommand(() -> setClimbState(ClimbStates.INIT)),
+            Commands.either(
+                    new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)),
+                    Commands.either(
+                        new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT)).alongWith(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB))),
+                        Commands.either(
+                            Commands.either(
+                                new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
+                                new InstantCommand(() -> setClimbLevel(ClimbLevel.L3)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))),
+                                (() -> currentClimbLevel == ClimbLevel.L1)
+                                ), 
+                            Commands.either(
+                                new InstantCommand(() -> setClimbState(ClimbStates.HANDOFF)), 
+                                new InstantCommand(() -> setClimbState(ClimbStates.END)), 
+                                (() -> currentClimbState == ClimbStates.INIT)
+                                ), 
+                            (() -> currentClimbState == ClimbStates.END)
+                        ),
+                        (() -> currentClimbState == ClimbStates.STANDBY)
+                    ),
+                    (() -> currentClimbState == ClimbStates.INIT && currentClimbLevel == ClimbLevel.AUTO)
+            ),
+            (() -> currentClimbState == ClimbStates.END && currentClimbLevel == ClimbLevel.AUTO)
+        );
     }
 
     public void setOverrideSetpoints(double elevatorSetpoint, double telescopeSetpoint) {
@@ -436,13 +431,8 @@ public class ClimberSubsystem extends SubsystemBase {
                             break;
 
                         case L3:
-                            // if (!finishedL3) {
-                            //     setElevatorTarget(ClimbPositions.kElevatorClimb);
-                            //     setTelescopeTarget(ClimbPositions.kTelescopeL2N3Reach);
-                            // } else {
-                            //     setElevatorTarget(ClimbPositions.kElevatorClimb);
-                            //     setTelescopeTarget(ClimbPositions.kTelescopeStore);
-                            // }
+                            setElevatorTarget(ClimbPositions.kElevatorL3Store);
+                            setTelescopeTarget(ClimbPositions.kTelescopeStore);
                             break;
                     }
                     if (ElevatorAtTarget() && TelescopeAtTarget()) {

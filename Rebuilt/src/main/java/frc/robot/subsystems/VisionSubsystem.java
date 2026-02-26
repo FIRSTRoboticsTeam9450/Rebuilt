@@ -85,7 +85,7 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 0.5);
+    public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 200);
     public Vector<N3> enabledStdDev = VecBuilder.fill(2, 2, 200);
     private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 200);
 
@@ -95,11 +95,9 @@ public class VisionSubsystem extends SubsystemBase {
     public double currentVisionStdDevX = 0;
     public double currentVisionStdDevY = 0;
     private double currentVisionStdDevTheta = 0.0;
-    private double validMeasurementCount = 0;
     private double updateVisionOffset = 0;
     private double updateTargetAndZoneOffset = 0;
 
-    private boolean firstMeasurment = true;
     private boolean bumpDetected = false;
     private boolean odomPoseOutsideField = false;
     private boolean operatorForcedVisionTrust = false;
@@ -184,9 +182,6 @@ public class VisionSubsystem extends SubsystemBase {
                                         .withLocation(Location.BACK_RIGHT)
                                         .withPose3d(BackRight.POSE);
         LIMELIGHT_LIST.add(limelightBR);
-
-        setLLIMUModes(1);
-
     }
 
     /**
@@ -208,6 +203,7 @@ public class VisionSubsystem extends SubsystemBase {
         } else {
             updateVisionOffset++;
         }
+
         updateVision();  // Compute fused vision pose
         publishLogs();   // Print/log fusion confidence and pose
     }
@@ -230,14 +226,14 @@ public class VisionSubsystem extends SubsystemBase {
 
         double robotYaw = robotPoseData.getRotation().getDegrees();
         double robotYawRate = pigeonData.getAngularVelocityZDevice().getValueAsDouble();
-        double robotRotX = Math.abs(pigeonData.getRotation3d().getX());
-        double robotRotY = Math.abs(pigeonData.getRotation3d().getY());
+        double robotRoll = Math.abs(pigeonData.getRoll().getValueAsDouble());
+        double robotPitch = Math.abs(pigeonData.getPitch().getValueAsDouble());
 
         if (robotTranslationX < 0 || robotTranslationX > 16.575 || robotTranslationY < 0 || robotTranslationY > 8.1) {
             odomPoseOutsideField = true;
         }
 
-        if (robotRotX > Units.degreesToRadians(3) || robotRotY > Units.degreesToRadians(3)) {
+        if (robotRoll > Units.degreesToRadians(3) || robotPitch > Units.degreesToRadians(3)) {
             bumpDetected = true;
         }
 
@@ -248,23 +244,13 @@ public class VisionSubsystem extends SubsystemBase {
             boolean hasTarget = LimelightHelpers.getTV(name);
 
             if (hasTarget) {
-                if (validMeasurementCount < 15) {
-                    llDataList.add(new limelightNetworkTableData(
-                        name,
-                        true,
-                        LimelightHelpers.getBotPoseEstimate_wpiBlue(name),
-                        LimelightHelpers.getBotPose_wpiBlue(name),
-                        LimelightHelpers.getRawFiducials(name)
-                    ));
-                } else {
-                    llDataList.add(new limelightNetworkTableData(
-                        name,
-                        true,
-                        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name),
-                        LimelightHelpers.getBotPose_wpiBlue(name),
-                        LimelightHelpers.getRawFiducials(name)
-                    ));
-                }
+                llDataList.add(new limelightNetworkTableData(
+                    name,
+                    true,
+                    LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name),
+                    LimelightHelpers.getBotPose_wpiBlue(name),
+                    LimelightHelpers.getRawFiducials(name)
+                ));
             } else {
                 llDataList.add(new limelightNetworkTableData(name, false, null, null, null));
             }
@@ -289,17 +275,14 @@ public class VisionSubsystem extends SubsystemBase {
             lastVisionTimestamp = measurements.stream()
                 .mapToDouble(VisionMeasurement::timestamp)
                 .max().orElse(0.0);
-            if (firstMeasurment) {
-                firstMeasurment = false;
-                setVisionMeasurementStdDevs(0, 0, 0);
-            } else if (bumpDetected || odomPoseOutsideField || operatorForcedVisionTrust) {
+            if (bumpDetected || odomPoseOutsideField || operatorForcedVisionTrust) {
                 bumpDetected = false;
                 odomPoseOutsideField = false;
                 setVisionMeasurementStdDevs(badOdomStdDev);
             } else {
+                setVisionMeasurementStdDevs(defaultVisionStdDevX, defaultVisionStdDevY, defaultVisionStdDevTheta);
             }
             drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
-            validMeasurementCount++;
         });
 
         // Store snapshots for logging to reuse — no re-reads needed
@@ -484,8 +467,6 @@ public class VisionSubsystem extends SubsystemBase {
         // Fusion thresholds
         Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
         Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
-
-        Logger.recordOutput("Rebuilt/Vision/Valid Measurments", validMeasurementCount);
 
         Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
 

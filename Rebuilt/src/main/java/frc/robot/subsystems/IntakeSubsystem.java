@@ -103,7 +103,8 @@ public final class IntakeSubsystem extends SubsystemBase{
         motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         motorConfig.CurrentLimits.StatorCurrentLimit = 80;
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+        motorConfig.CurrentLimits.SupplyCurrentLowerTime = 5;
         motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
 
         //Magic Motion
