@@ -24,14 +24,27 @@ import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 
 public class ClimberSubsystem extends SubsystemBase {
 
+    /* ========== INSTANCE ========= */
+
     private static volatile ClimberSubsystem climberInstance;
 
-    private TalonFX telescopeClimbMotor = new TalonFX(ClimberConstants.DeviceIDs.kTelescope, RobotConstants.MAIN_SYSTEMS_CANBUS); //temporary deviceID value
-    private TalonFX elevatorClimbMotor = new TalonFX(ClimberConstants.DeviceIDs.kElevator, RobotConstants.MAIN_SYSTEMS_CANBUS); //temporary deviceID value
+    public static synchronized ClimberSubsystem getInstance() {
+        if (climberInstance == null) climberInstance = new ClimberSubsystem();
+        return climberInstance;
+    } 
 
-    // for motor 1/ telescope motor
+    /* ========== MOTORS ========= */
+
+    private TalonFX telescopeClimbMotor = new TalonFX(ClimberConstants.DeviceIDs.kTelescope, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private TalonFX elevatorClimbMotor = new TalonFX(ClimberConstants.DeviceIDs.kElevator, RobotConstants.MAIN_SYSTEMS_CANBUS);
+
+    private TalonFXConfiguration telescopeConfig;
+    private TalonFXConfiguration elevatorConfig;
+
+    /* ========== TUNING ========= */
+
     private LoggedNetworkNumber logTelescopeMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Velocity", 94);
-    private LoggedNetworkNumber logTelescopeMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Acceleration", 1400); //Needs a slower one for way down
+    private LoggedNetworkNumber logTelescopeMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Acceleration", 1400);
 
     private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.24);
     private LoggedNetworkNumber logTelescopeMMKV = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kV", 0.2);
@@ -41,7 +54,6 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logTelescopeMMKD = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kD", 0.0);
     private LoggedNetworkNumber logTelescopeMMKG = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kG", 0.07);
 
-    // for motor 2/ elevator motor
     private LoggedNetworkNumber logElevatorMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Velocity", 95);
     private LoggedNetworkNumber logElevatorMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Acceleration", 1200);
 
@@ -53,9 +65,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logElevatorMMKD = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kD", 0.0);
     private LoggedNetworkNumber logElevatorMMKG = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kG", 0.05);
 
-    private TalonFXConfiguration telescopeConfig;
-    private TalonFXConfiguration elevatorConfig;
-    boolean atTarget;
+    /* ========== CONTROL REQUESTS ========= */
 
     private DynamicMotionMagicVoltage elevatorRequest = 
                         new DynamicMotionMagicVoltage(0, 
@@ -70,6 +80,8 @@ public class ClimberSubsystem extends SubsystemBase {
                             logTelescopeMMAcceleration.get())
                             .withSlot(0)
                             .withEnableFOC(true);
+
+    /* ========== STATES & LEVELS ========= */
     
     public enum ClimbStates {
         ZEROING,
@@ -90,35 +102,30 @@ public class ClimberSubsystem extends SubsystemBase {
     private ClimbStates currentClimbState = ClimbStates.ZEROING;
     private ClimbLevel currentClimbLevel = ClimbLevel.L1;
 
+    /* ========== VARIALBES ========= */
+
     private double currentElevatorSetpoint = 0;
-    private double overrideElevatorSetpoint = 0; // Min is -128.35 if zeroing at top
+    private double overrideElevatorSetpoint = 0;
 
     private double currentTelescopeSetpoint = 0;
     private double overrideTelescopeSetpoint = 0;
 
     private boolean isTelescopeZeroingDone = false;
     private boolean isElevatorZeroingDone = false;
-    /* ----------- Initializaton ----------- */
+
+    private boolean atTarget;
+
+    /* =================== INIT =================== */
+
     public ClimberSubsystem() {
         configureMotors();
     }
 
     public void configureMotors() {
-        //MOTOR I
         telescopeConfig = new TalonFXConfiguration();
 
         telescopeConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
         telescopeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
-        // telescopeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        // telescopeConfig.CurrentLimits.StatorCurrentLimit = 40;
-        // telescopeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        // telescopeConfig.CurrentLimits.SupplyCurrentLimit = 20;
-
-        // telescopeConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-        // telescopeConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-        // telescopeConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 40; // Hood angle limit
-        // telescopeConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
 
         Slot0Configs telescopeSlot0Configs = new Slot0Configs()
                                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
@@ -133,17 +140,11 @@ public class ClimberSubsystem extends SubsystemBase {
 
         
 
-        //MOTOR II
 
         elevatorConfig = new TalonFXConfiguration();
 
         elevatorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
         elevatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-        // elevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        // elevatorConfig.CurrentLimits.StatorCurrentLimit = 40;
-        // elevatorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        // elevatorConfig.CurrentLimits.SupplyCurrentLimit = 20;
 
         Slot0Configs elevatorSlot0Configs = new Slot0Configs()
                                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
@@ -172,136 +173,7 @@ public class ClimberSubsystem extends SubsystemBase {
         elevatorClimbMotor.getConfigurator().apply(elevatorConfig);
     }
 
-    /* ----------- Updaters ----------- */
-
-    public void setTelescopeTarget(double setpoint) {
-        currentTelescopeSetpoint = setpoint;
-        telescopeClimbMotor.setControl(telescopeRequest.withPosition(setpoint)); //in rotations per second
-    }
-
-    public void setElevatorTarget(double setpoint) {
-        currentElevatorSetpoint = setpoint;
-        elevatorClimbMotor.setControl(elevatorRequest.withPosition(setpoint));
-    }
-
-    public void setClimbState(ClimbStates state) {
-        if (state == ClimbStates.INIT && currentClimbLevel == ClimbLevel.L1 || state == ClimbStates.STANDBY) {
-            setElevatorRequestConstants(95, 1200);
-            setTelescopingRequestConstants(95, 1400);
-        } else if (state == ClimbStates.END) {
-            setElevatorRequestConstants(50, 600);
-            setTelescopingRequestConstants(95, 700);
-        } else {
-            setElevatorRequestConstants(50, 600);
-            setTelescopingRequestConstants(30, 700);
-        }
-        currentClimbState = state;
-    }
-
-    public void setClimbLevel(ClimbLevel level) {
-        currentClimbLevel = level;
-    }
-
-    public Command GoToNextLevel() {
-        return Commands.either(
-                Commands.either(
-                        new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
-                        new InstantCommand(() -> setClimbLevel(ClimbLevel.L3)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))),
-                        (() -> currentClimbLevel == ClimbLevel.L1)
-                    ), 
-                new InstantCommand(), 
-                (() -> currentClimbState == ClimbStates.END)
-            );
-    }
-
-    public Command setClimbStateAndLevelCommand() {
-        return Commands.either(
-            new InstantCommand(() -> setClimbState(ClimbStates.INIT)),
-            Commands.either(
-                    new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)),
-                    Commands.either(
-                        CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB).alongWith(new WaitCommand(0.15).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
-                        Commands.either(
-                            Commands.either(
-                                new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
-                                new InstantCommand(() -> setClimbLevel(ClimbLevel.L3)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))),
-                                (() -> currentClimbLevel == ClimbLevel.L1)
-                                ), 
-                            Commands.either(
-                                new InstantCommand(() -> setClimbState(ClimbStates.HANDOFF)), 
-                                new InstantCommand(() -> setClimbState(ClimbStates.END)), 
-                                (() -> currentClimbState == ClimbStates.INIT)
-                                ), 
-                            (() -> currentClimbState == ClimbStates.END)
-                        ),
-                        (() -> currentClimbState == ClimbStates.STANDBY)
-                    ),
-                    (() -> currentClimbState == ClimbStates.INIT && currentClimbLevel == ClimbLevel.AUTO)
-            ),
-            (() -> currentClimbState == ClimbStates.END && currentClimbLevel == ClimbLevel.AUTO)
-        );
-    }
-
-    public Command setForceClimberUpCommand() {
-        return new InstantCommand(() -> setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT)));
-    }
-
-    public Command setForceClimberDownCommand() {
-        return new InstantCommand(() -> setClimbState(ClimbStates.STANDBY));
-    }
-
-    public void setOverrideSetpoints(double elevatorSetpoint, double telescopeSetpoint) {
-        overrideElevatorSetpoint = elevatorSetpoint;
-        overrideTelescopeSetpoint = telescopeSetpoint;
-    }
-
-    public void setElevatorOverrideSetpoint(double elevatorSetpoint) {
-        overrideElevatorSetpoint = elevatorSetpoint;
-    }
-
-    public void setTelescopeOverrideSetpoint(double telescopeSetpoint) {
-        overrideTelescopeSetpoint = telescopeSetpoint;
-    }
-
-    public void zeroMotors() {
-        telescopeClimbMotor.setPosition(0);
-        elevatorClimbMotor.setPosition(0);
-    }
-
-    public boolean elevatorAutoZeroing() {
-        if(Math.abs(elevatorClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(elevatorClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
-            elevatorClimbMotor.setPosition(0);
-            elevatorClimbMotor.setVoltage(0);
-
-            return true;
-        }
-        return false;
-    }
-
-    public boolean telescopeAutoZeroing() {
-        if(Math.abs(telescopeClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(telescopeClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
-            telescopeClimbMotor.setPosition(0);
-            telescopeClimbMotor.setVoltage(0);
-
-            return true;
-        }
-        return false;
-    }
-
-    private void publishLogs() {
-        Logger.recordOutput("Rebuilt/Climb/Elevator/MotorPosition", getElevatorPosition());
-        Logger.recordOutput("Rebuilt/Climb/Elevator/Setpoint", currentElevatorSetpoint);
-        Logger.recordOutput("Rebuilt/Climb/Elevator/MotorVoltage", elevatorClimbMotor.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Elevator/Velocity", elevatorClimbMotor.getVelocity().getValueAsDouble());
-
-        Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
-        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
-        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
-
-        Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbState);
-        Logger.recordOutput("Rebuilt/Climb/Level", currentClimbLevel);
-    }
+    /* =================== PERIODIC =================== */
 
     public void periodic() {
 
@@ -316,24 +188,6 @@ public class ClimberSubsystem extends SubsystemBase {
         }
         applyStates();
         publishLogs();
-    }
-
-    public boolean ElevatorAtTarget() {
-        return ElevatorAtTarget(1.0);
-    }
-
-    public boolean ElevatorAtTarget(double tolerance) {
-        atTarget = (Math.abs(currentElevatorSetpoint - getElevatorPosition()) < tolerance);
-        return atTarget;
-    }
-
-    public boolean TelescopeAtTarget() {;
-        return TelescopeAtTarget(0.5);
-    }
-
-    public boolean TelescopeAtTarget(double tolerance) {
-        atTarget = (Math.abs(currentTelescopeSetpoint - getTelescopePosition()) < tolerance);
-        return atTarget;
     }
 
     private void applyStates() {
@@ -456,6 +310,72 @@ public class ClimberSubsystem extends SubsystemBase {
         }
     }
 
+    private void publishLogs() {
+        Logger.recordOutput("Rebuilt/Climb/Elevator/MotorPosition", getElevatorPosition());
+        Logger.recordOutput("Rebuilt/Climb/Elevator/Setpoint", currentElevatorSetpoint);
+        Logger.recordOutput("Rebuilt/Climb/Elevator/MotorVoltage", elevatorClimbMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Climb/Elevator/Velocity", elevatorClimbMotor.getVelocity().getValueAsDouble());
+
+        Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
+        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
+        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
+
+        Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbState);
+        Logger.recordOutput("Rebuilt/Climb/Level", currentClimbLevel);
+    }
+
+    /* =================== ZEROING =================== */
+
+      public void zeroMotors() {
+        telescopeClimbMotor.setPosition(0);
+        elevatorClimbMotor.setPosition(0);
+    }
+
+    /**
+     * TODO: needs to have fast start, and quick deceleration, but only when bumpers and V2 and made. Otherwise, keep how is.
+     * @return
+     */
+    public boolean elevatorAutoZeroing() {
+        if(Math.abs(elevatorClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(elevatorClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
+            elevatorClimbMotor.setPosition(0);
+            elevatorClimbMotor.setVoltage(0);
+
+            return true;
+        }
+        return false;
+    }
+
+    public boolean telescopeAutoZeroing() {
+        if(Math.abs(telescopeClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(telescopeClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
+            telescopeClimbMotor.setPosition(0);
+            telescopeClimbMotor.setVoltage(0);
+
+            return true;
+        }
+        return false;
+    }
+
+    /* =================== GETTERS =================== */
+
+    public boolean ElevatorAtTarget() {
+        return ElevatorAtTarget(1.0);
+    }
+
+    public boolean ElevatorAtTarget(double tolerance) {
+        atTarget = (Math.abs(currentElevatorSetpoint - getElevatorPosition()) < tolerance);
+        return atTarget;
+    }
+
+    public boolean TelescopeAtTarget() {;
+        return TelescopeAtTarget(0.5);
+    }
+
+    public boolean TelescopeAtTarget(double tolerance) {
+        atTarget = (Math.abs(currentTelescopeSetpoint - getTelescopePosition()) < tolerance);
+        return atTarget;
+    }
+
     public double getElevatorPosition() {
         return elevatorClimbMotor.getPosition().getValueAsDouble();
     }
@@ -464,58 +384,48 @@ public class ClimberSubsystem extends SubsystemBase {
         return telescopeClimbMotor.getPosition().getValueAsDouble();
     }
 
-    public void updateClimberConstants() {
-            boolean updateElevatorVals = false;
-            boolean updateTelescopeVals = false;
+    /* =================== SETTERS =================== */
 
-            updateTelescopeVals = (telescopeConfig.Slot0.kS != logTelescopeMMKS.get())
-                        || (telescopeConfig.Slot0.kV != logTelescopeMMKV.get())
-                        || (telescopeConfig.Slot0.kA != logTelescopeMMKA.get())
-                        || (telescopeConfig.Slot0.kP != logTelescopeMMKP.get())
-                        || (telescopeConfig.Slot0.kI != logTelescopeMMKI.get())
-                        || (telescopeConfig.Slot0.kD != logTelescopeMMKD.get())
-                        || (telescopeConfig.Slot0.kG != logTelescopeMMKG.get())
-                        || (telescopeRequest.Velocity != logTelescopeMMVelocity.get())
-                        || (telescopeRequest.Acceleration!= logTelescopeMMAcceleration.get());
-
-            if (updateTelescopeVals) {
-                telescopeConfig.Slot0.kS = logTelescopeMMKS.get();
-                telescopeConfig.Slot0.kV = logTelescopeMMKV.get();
-                telescopeConfig.Slot0.kA = logTelescopeMMKA.get();
-                telescopeConfig.Slot0.kP = logTelescopeMMKP.get();
-                telescopeConfig.Slot0.kI = logTelescopeMMKI.get();
-                telescopeConfig.Slot0.kD = logTelescopeMMKD.get();
-                telescopeConfig.Slot0.kG = logTelescopeMMKG.get();
-                configureMotors();
-
-                // telescopeRequest = new DynamicMotionMagicVoltage(0, logTelescopeMMVelocity.get(), logTelescopeMMAcceleration.get());//.withEnableFOC(RobotConstants.ENABLE_FOC);
-            }
-            
-            updateElevatorVals = (elevatorConfig.Slot0.kS != logElevatorMMKS.get())
-                        || (elevatorConfig.Slot0.kV != logElevatorMMKV.get())
-                        || (elevatorConfig.Slot0.kA != logElevatorMMKA.get())
-                        || (elevatorConfig.Slot0.kP != logElevatorMMKP.get())
-                        || (elevatorConfig.Slot0.kI != logElevatorMMKI.get())
-                        || (elevatorConfig.Slot0.kD != logElevatorMMKD.get())
-                        || (elevatorConfig.Slot0.kG != logElevatorMMKG.get())
-                        || (elevatorRequest.Velocity != logElevatorMMVelocity.get())
-                        || (elevatorRequest.Acceleration != logElevatorMMAcceleration.get());;
-
-            if (updateElevatorVals) {
-                elevatorConfig.Slot0.kS = logElevatorMMKS.get();
-                elevatorConfig.Slot0.kV = logElevatorMMKV.get();
-                elevatorConfig.Slot0.kA = logElevatorMMKA.get();
-                elevatorConfig.Slot0.kP = logElevatorMMKP.get();
-                elevatorConfig.Slot0.kI = logElevatorMMKI.get();
-                elevatorConfig.Slot0.kD = logElevatorMMKD.get();
-                elevatorConfig.Slot0.kG = logElevatorMMKG.get();
-                configureMotors();
-
-
-                // elevatorRequest = new DynamicMotionMagicVoltage(0, logElevatorMMVelocity.get(), logElevatorMMAcceleration.get());//.withEnableFOC(RobotConstants.ENABLE_FOC);
-            }
-            
+    public void setClimbState(ClimbStates state) {
+        if (state == ClimbStates.INIT && currentClimbLevel == ClimbLevel.L1 || state == ClimbStates.STANDBY) {
+            setElevatorRequestConstants(95, 1200);
+            setTelescopingRequestConstants(95, 1400);
+        } else if (state == ClimbStates.END) {
+            setElevatorRequestConstants(50, 600);
+            setTelescopingRequestConstants(95, 700);
+        } else {
+            setElevatorRequestConstants(50, 600);
+            setTelescopingRequestConstants(30, 700);
         }
+        currentClimbState = state;
+    }
+
+    public void setClimbLevel(ClimbLevel level) {
+        currentClimbLevel = level;
+    }
+
+    public void setTelescopeTarget(double setpoint) {
+        currentTelescopeSetpoint = setpoint;
+        telescopeClimbMotor.setControl(telescopeRequest.withPosition(setpoint)); //in rotations per second
+    }
+
+    public void setElevatorTarget(double setpoint) {
+        currentElevatorSetpoint = setpoint;
+        elevatorClimbMotor.setControl(elevatorRequest.withPosition(setpoint));
+    }
+
+    public void setOverrideSetpoints(double elevatorSetpoint, double telescopeSetpoint) {
+        overrideElevatorSetpoint = elevatorSetpoint;
+        overrideTelescopeSetpoint = telescopeSetpoint;
+    }
+
+    public void setElevatorOverrideSetpoint(double elevatorSetpoint) {
+        overrideElevatorSetpoint = elevatorSetpoint;
+    }
+
+    public void setTelescopeOverrideSetpoint(double telescopeSetpoint) {
+        overrideTelescopeSetpoint = telescopeSetpoint;
+    }
 
     public void setElevatorRequestConstants(double veloc, double accel) {
         elevatorRequest.withVelocity(veloc).withAcceleration(accel);
@@ -525,13 +435,108 @@ public class ClimberSubsystem extends SubsystemBase {
         telescopeRequest.withVelocity(veloc).withAcceleration(accel);
     }
 
-    public static synchronized ClimberSubsystem getInstance() {
-        if (climberInstance == null) {
-            climberInstance = new ClimberSubsystem();
+    /* =================== COMMANDS =================== */
+
+    public Command GoToNextLevel() {
+        return Commands.either(
+                Commands.either(
+                        new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
+                        new InstantCommand(() -> setClimbLevel(ClimbLevel.L3)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))),
+                        (() -> currentClimbLevel == ClimbLevel.L1)
+                    ), 
+                new InstantCommand(), 
+                (() -> currentClimbState == ClimbStates.END)
+            );
+    }
+
+    public Command setClimbStateAndLevelCommand() {
+        return Commands.either(
+            new InstantCommand(() -> setClimbState(ClimbStates.INIT)),
+            Commands.either(
+                    new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)),
+                    Commands.either(
+                        CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB).alongWith(new WaitCommand(0.15).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
+                        Commands.either(
+                            Commands.either(
+                                new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
+                                new InstantCommand(() -> setClimbLevel(ClimbLevel.L3)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))),
+                                (() -> currentClimbLevel == ClimbLevel.L1)
+                                ), 
+                            Commands.either(
+                                new InstantCommand(() -> setClimbState(ClimbStates.HANDOFF)), 
+                                new InstantCommand(() -> setClimbState(ClimbStates.END)), 
+                                (() -> currentClimbState == ClimbStates.INIT)
+                                ), 
+                            (() -> currentClimbState == ClimbStates.END)
+                        ),
+                        (() -> currentClimbState == ClimbStates.STANDBY)
+                    ),
+                    (() -> currentClimbState == ClimbStates.INIT && currentClimbLevel == ClimbLevel.AUTO)
+            ),
+            (() -> currentClimbState == ClimbStates.END && currentClimbLevel == ClimbLevel.AUTO)
+        );
+    }
+
+    public Command setForceClimberUpCommand() {
+        return new InstantCommand(() -> setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT)));
+    }
+
+    public Command setForceClimberDownCommand() {
+        return new InstantCommand(() -> setClimbState(ClimbStates.STANDBY));
+    }
+
+    /* =================== UPDATER/TUNING =================== */    
+
+    public void updateClimberConstants() {
+        boolean updateElevatorVals = false;
+        boolean updateTelescopeVals = false;
+
+        updateTelescopeVals = (telescopeConfig.Slot0.kS != logTelescopeMMKS.get())
+                    || (telescopeConfig.Slot0.kV != logTelescopeMMKV.get())
+                    || (telescopeConfig.Slot0.kA != logTelescopeMMKA.get())
+                    || (telescopeConfig.Slot0.kP != logTelescopeMMKP.get())
+                    || (telescopeConfig.Slot0.kI != logTelescopeMMKI.get())
+                    || (telescopeConfig.Slot0.kD != logTelescopeMMKD.get())
+                    || (telescopeConfig.Slot0.kG != logTelescopeMMKG.get())
+                    || (telescopeRequest.Velocity != logTelescopeMMVelocity.get())
+                    || (telescopeRequest.Acceleration!= logTelescopeMMAcceleration.get());
+
+        if (updateTelescopeVals) {
+            telescopeConfig.Slot0.kS = logTelescopeMMKS.get();
+            telescopeConfig.Slot0.kV = logTelescopeMMKV.get();
+            telescopeConfig.Slot0.kA = logTelescopeMMKA.get();
+            telescopeConfig.Slot0.kP = logTelescopeMMKP.get();
+            telescopeConfig.Slot0.kI = logTelescopeMMKI.get();
+            telescopeConfig.Slot0.kD = logTelescopeMMKD.get();
+            telescopeConfig.Slot0.kG = logTelescopeMMKG.get();
+            configureMotors();
+
+            // telescopeRequest = new DynamicMotionMagicVoltage(0, logTelescopeMMVelocity.get(), logTelescopeMMAcceleration.get());//.withEnableFOC(RobotConstants.ENABLE_FOC);
         }
-        System.out.println("acquired" + climberInstance); //temporary
+        
+        updateElevatorVals = (elevatorConfig.Slot0.kS != logElevatorMMKS.get())
+                    || (elevatorConfig.Slot0.kV != logElevatorMMKV.get())
+                    || (elevatorConfig.Slot0.kA != logElevatorMMKA.get())
+                    || (elevatorConfig.Slot0.kP != logElevatorMMKP.get())
+                    || (elevatorConfig.Slot0.kI != logElevatorMMKI.get())
+                    || (elevatorConfig.Slot0.kD != logElevatorMMKD.get())
+                    || (elevatorConfig.Slot0.kG != logElevatorMMKG.get())
+                    || (elevatorRequest.Velocity != logElevatorMMVelocity.get())
+                    || (elevatorRequest.Acceleration != logElevatorMMAcceleration.get());;
 
-        return climberInstance;
-    } 
+        if (updateElevatorVals) {
+            elevatorConfig.Slot0.kS = logElevatorMMKS.get();
+            elevatorConfig.Slot0.kV = logElevatorMMKV.get();
+            elevatorConfig.Slot0.kA = logElevatorMMKA.get();
+            elevatorConfig.Slot0.kP = logElevatorMMKP.get();
+            elevatorConfig.Slot0.kI = logElevatorMMKI.get();
+            elevatorConfig.Slot0.kD = logElevatorMMKD.get();
+            elevatorConfig.Slot0.kG = logElevatorMMKG.get();
+            configureMotors();
 
+
+            // elevatorRequest = new DynamicMotionMagicVoltage(0, logElevatorMMVelocity.get(), logElevatorMMAcceleration.get());//.withEnableFOC(RobotConstants.ENABLE_FOC);
+        }
+            
+    }
 }
