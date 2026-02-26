@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants.ClimbPositions;
@@ -219,7 +220,7 @@ public class ClimberSubsystem extends SubsystemBase {
             Commands.either(
                     new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)),
                     Commands.either(
-                        new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT)).alongWith(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB))),
+                        CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB).alongWith(new WaitCommand(0.15).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
                         Commands.either(
                             Commands.either(
                                 new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
@@ -239,6 +240,14 @@ public class ClimberSubsystem extends SubsystemBase {
             ),
             (() -> currentClimbState == ClimbStates.END && currentClimbLevel == ClimbLevel.AUTO)
         );
+    }
+
+    public Command setForceClimberUpCommand() {
+        return new InstantCommand(() -> setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT)));
+    }
+
+    public Command setForceClimberDownCommand() {
+        return new InstantCommand(() -> setClimbState(ClimbStates.STANDBY));
     }
 
     public void setOverrideSetpoints(double elevatorSetpoint, double telescopeSetpoint) {

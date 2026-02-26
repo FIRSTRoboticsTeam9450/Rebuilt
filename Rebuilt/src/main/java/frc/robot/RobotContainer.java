@@ -108,10 +108,6 @@ public class RobotContainer {
             )
         );
 
-    // DRIVER.leftTrigger().onTrue(
-    //   CoordinationSubsystem.getInstance().setIntakeCommand()
-    // );
-
     DRIVER.leftTrigger().onTrue(
         new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed)
     ).onFalse(
@@ -131,8 +127,12 @@ public class RobotContainer {
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)
     );
 
-    OPERATOR.rightBumper().onTrue(
-      CoordinationSubsystem.getInstance().setFireCommand()
+    /* ==================== OPERATOR KEYBINDS ==================== */
+
+    OPERATOR.leftTrigger().onTrue(
+      CoordinationSubsystem.getInstance().setRejectingCommand(true)
+    ).onFalse(
+      CoordinationSubsystem.getInstance().setRejectingCommand(false)
     );
 
     OPERATOR.rightTrigger().onTrue(
@@ -141,23 +141,23 @@ public class RobotContainer {
       CoordinationSubsystem.getInstance().setFastTransferCommand(false)
     );
 
-    OPERATOR.leftTrigger().onTrue(
+    OPERATOR.leftBumper().onTrue(
       CoordinationSubsystem.getInstance().setIntakeCommand()
     );
 
-  
-    OPERATOR.a().onTrue(CoordinationSubsystem.getInstance().setForceTrenchCommand());
-    OPERATOR.a().onFalse(CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    OPERATOR.rightBumper().onTrue(
+      CoordinationSubsystem.getInstance().setFireCommand()
+    );
+    
+    OPERATOR.rightStick().onTrue(
+      CoordinationSubsystem.getInstance().setForceTrenchCommand()
+    );
 
     OPERATOR.x().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()));
     OPERATOR.y().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust()));
     OPERATOR.b().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
 
-    OPERATOR.leftStick().onTrue(
-      CoordinationSubsystem.getInstance().setRejectingCommand(true)
-    ).onFalse(
-      CoordinationSubsystem.getInstance().setRejectingCommand(false)
-    );
+    OPERATOR.povUp().onTrue(ClimberSubsystem.getInstance().setClimbStateAndLevelCommand());
 
     OPERATOR.povDown().onTrue(
       VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(true)
@@ -165,8 +165,8 @@ public class RobotContainer {
       VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(false)
     );
 
-    OPERATOR.povUp().onTrue(ClimberSubsystem.getInstance().setClimbStateAndLevelCommand());
-
+    OPERATOR.back().onTrue(ClimberSubsystem.getInstance().setForceClimberUpCommand());
+    OPERATOR.start().onTrue(ClimberSubsystem.getInstance().setForceClimberDownCommand());
 
     /* ================ TEST ONLY KEYBINDS ============== */
 
