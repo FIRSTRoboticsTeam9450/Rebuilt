@@ -45,7 +45,7 @@ public final class Constants {
 
     public static final boolean ENABLE_FOC = true;
 
-    public static final NeutralModeValue DEFAULT_NEUTRAL_MODE_VALUE = NeutralModeValue.Coast;
+    public static final NeutralModeValue DEFAULT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
 
     public static final class LEDConstants {
       public static final class DeviceIDs {

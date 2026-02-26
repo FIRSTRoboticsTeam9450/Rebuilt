@@ -114,7 +114,7 @@ public class ClimberSubsystem extends SubsystemBase {
         //MOTOR I
         telescopeConfig = new TalonFXConfiguration();
 
-        telescopeConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        telescopeConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
         telescopeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         // telescopeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
@@ -144,7 +144,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
         elevatorConfig = new TalonFXConfiguration();
 
-        elevatorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        elevatorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
         elevatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         // elevatorConfig.CurrentLimits.StatorCurrentLimitEnable = true;

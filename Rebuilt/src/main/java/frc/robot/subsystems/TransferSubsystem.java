@@ -72,7 +72,7 @@ public class TransferSubsystem extends SubsystemBase {
     private void configureMotor() {
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;

@@ -190,7 +190,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void configureAngleMotors() {
-        angleMotorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        angleMotorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
         angleMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         
         angleMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
