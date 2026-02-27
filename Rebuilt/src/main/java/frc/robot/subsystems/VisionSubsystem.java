@@ -19,6 +19,7 @@ import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
+import frc.robot.Constants.FieldConstants.ZoneConstants;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
 import frc.robot.util.LimelightHelpers;
@@ -127,10 +128,11 @@ public class VisionSubsystem extends SubsystemBase {
         HARD_TRENCH_DEADZONE,
         SOFT_TRENCH_DEADZONE,
         CLIMB_DEADZONE,
-        BACK_DEADZONE
+        BACK_SHOOT
     }
     ZoneState currentZone = ZoneState.SHOOTING_ZONE;
     Translation2d currentTarget = ZoneTargets.SHOOTING_TARGET;
+    Translation2d ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
 
     // DEBUGGING
     private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
@@ -766,50 +768,54 @@ public class VisionSubsystem extends SubsystemBase {
         }
         else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_1_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_1_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_TOP;
-            currentTarget = ZoneTargets.FERRY_TOP_TARGET;
+            currentTarget = ferryTarget;
         }
         else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_BOTTOM;
-            currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+            currentTarget = ferryTarget;
         }
         if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
-            currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+            currentTarget = ferryTarget;
         }
         else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
-            currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+            currentTarget = ferryTarget;
         }
         else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
-            currentTarget = ZoneTargets.FERRY_TOP_TARGET;
+            currentTarget = ferryTarget;
         }
         else if(currentX > ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
-            currentTarget = ZoneTargets.FERRY_TOP_TARGET;
+            currentTarget = ferryTarget;
         }
         if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
-            currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+            currentTarget = ferryTarget;
         }
         else if(currentX > ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
-            currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+            currentTarget = ferryTarget;
         }
         else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_3_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
-            currentTarget = ZoneTargets.FERRY_TOP_TARGET;
+            currentTarget = ferryTarget;
         }
         else if(currentX > ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.HARD_TRENCH_34_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_4_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.HARD_TRENCH_DEADZONE;
-            currentTarget = ZoneTargets.FERRY_TOP_TARGET;
+            currentTarget = ferryTarget;
         }
-        else if(turretX > ZoneConstantsWelded.CLIMB_DEADZONE_X_LOW && turretX < ZoneConstantsWelded.CLIMB_DEADZONE_X_HIGH && turretY > ZoneConstantsWelded.CLIMB_DEADZONE_Y_LOW && turretY < ZoneConstantsWelded.CLIMB_DEADZONE_Y_HIGH) {
+        else if(turretX > ZoneConstantsWelded.OUR_CLIMB_DEADZONE_X_LOW && turretX < ZoneConstantsWelded.OUR_CLIMB_DEADZONE_X_HIGH && turretY > ZoneConstantsWelded.CLIMB_DEADZONE_Y_LOW && turretY < ZoneConstantsWelded.CLIMB_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.CLIMB_DEADZONE;
             currentTarget = ZoneTargets.SHOOTING_TARGET;
         }
+        else if(turretX > ZoneConstantsWelded.THEIR_CLIMB_DEADZONE_X_LOW && turretX < ZoneConstantsWelded.THEIR_CLIMB_DEADZONE_X_HIGH && turretY > ZoneConstantsWelded.CLIMB_DEADZONE_Y_LOW && turretY < ZoneConstantsWelded.CLIMB_DEADZONE_Y_HIGH) {
+            currentZone = ZoneState.CLIMB_DEADZONE;
+            currentTarget = ferryTarget;
+        }
         else if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
-            currentZone = ZoneState.BACK_DEADZONE;
+            currentZone = ZoneState.BACK_SHOOT;
         }
         if(useCustomTarget) {
             currentTarget = customTarget;
@@ -820,6 +826,16 @@ public class VisionSubsystem extends SubsystemBase {
     public Command setCustomTarget(boolean value) {
         return new InstantCommand(() -> useCustomTarget = value);
     }
+
+    public void setFerryTarget(String target) {
+        if(target.equals("top")) {
+            ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
+        }
+        else if(target.equals("bottom")) {
+            ferryTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+        }
+    }
+
     public boolean inZone(ZoneState currentZone) {
         return false;
     }
