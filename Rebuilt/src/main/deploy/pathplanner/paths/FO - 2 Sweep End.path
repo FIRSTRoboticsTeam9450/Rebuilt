@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.5548359486447931,
-        "y": 8.1
+        "x": 7.25,
+        "y": 1.248
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5548359486447954,
-        "y": 8.1
+        "x": 8.25,
+        "y": 1.2480000000000002
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "FO - 2 Sweep End"
     },
     {
       "anchor": {
-        "x": 16.575,
-        "y": 5.141255349500714
+        "x": 2.0725333333333333,
+        "y": 1.6476111111111105
       },
       "prevControl": {
-        "x": 15.575,
-        "y": 5.141255349500714
+        "x": 1.0725333333333333,
+        "y": 1.6476111111111105
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,10 +45,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Ferry Only",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -115.0
   },
   "useDefaultConstraints": true
 }

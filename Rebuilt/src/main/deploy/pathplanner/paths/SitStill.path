@@ -12,7 +12,7 @@
         "y": 0.39803016676819203
       },
       "isLocked": false,
-      "linkedName": "OutpostSideStartAgainstWall"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -25,7 +25,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "OutpostSideStartAgainstWall"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],

@@ -7,25 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "StartToOutpost"
+            "pathName": "FO - Start to 2 Sweep"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "OutpostToNeutral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Neutral Ferry"
+            "pathName": "FO - 2 Sweep"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Test Autos",
+  "folder": "Ferry",
   "choreoAuto": false
 }

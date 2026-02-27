@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.AlignPos;
+import frc.robot.commands.PositionAlignCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -87,15 +89,15 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
-    autoChooser.addOption("Outpost + Neutral Ferry", drivetrain.getAutoPath("Outpost + Neutral Ferry", false));
-    autoChooser.addOption("Shoot & Ferry", drivetrain.getAutoPath("Shoot & Ferry", false));
-    autoChooser.addOption("Ferry Only", drivetrain.getAutoPath("Ferry Only", false));
-    autoChooser.addOption("Climb", drivetrain.getAutoPath("Ferry + Climb", false));
-    autoChooser.addOption("Odom Test", drivetrain.getAutoPath("Drive Straight", false));
-    autoChooser.addOption("Push", drivetrain.getAutoPath("Push + Climb", false));
-    autoChooser.addOption("Drive Test", drivetrain.getAutoPath("Drive Straight", false));
-    autoChooser.addOption("Drive Test S", drivetrain.getAutoPath("Drive S", false));
-    autoChooser.addOption("Drive And Return", drivetrain.getAutoPath("Drive And Return", false));
+    autoChooser.addOption("FO - Left 2 Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", true));
+    autoChooser.addOption("FO - Right 2 Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", false));
+    autoChooser.addOption("P - Climb", drivetrain.getAutoPath("Push + Climb", false));
+    autoChooser.addOption("O - Climb", drivetrain.getAutoPath("Outpost", false));
+
+
+    // autoChooser.addOption("Drive Test", drivetrain.getAutoPath("Drive Straight", false));
+    // autoChooser.addOption("Drive Test S", drivetrain.getAutoPath("Drive S", false));
+    // autoChooser.addOption("Drive And Return", drivetrain.getAutoPath("Drive And Return", false));
   }
 
   private void configureBindings() {
@@ -170,12 +172,12 @@ public class RobotContainer {
 
     /* ================ TEST ONLY KEYBINDS ============== */
 
-    // DRIVER.leftStick().whileTrue(
-    //     Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.LEFT), (() -> DriverStation.isTest()))
-    //   );
-    // DRIVER.rightStick().whileTrue(
-    //   Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.RIGHT), (() -> DriverStation.isTest()))
-    // );
+    DRIVER.leftStick().whileTrue(
+        Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.LEFT), (() -> DriverStation.isTest()))
+      );
+    DRIVER.rightStick().whileTrue(
+      Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.RIGHT), (() -> DriverStation.isTest()))
+    );
 
     DRIVER.leftStick().onTrue(
       Commands.either(CoordinationSubsystem.getInstance().setRejectingCommand(true), new InstantCommand(), (() -> DriverStation.isTest()))

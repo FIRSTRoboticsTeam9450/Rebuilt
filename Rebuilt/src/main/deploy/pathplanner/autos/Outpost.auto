@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "FO - Start To 2 Neutral"
+            "pathName": "O - Start"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 13.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "FO - Neutral Ferry 1 Long Sweep"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "FO - Neutral Ferry 2nd Sweep"
+            "pathName": "O - Climb"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Ferry",
+  "folder": "Autos That Need Testing",
   "choreoAuto": false
 }

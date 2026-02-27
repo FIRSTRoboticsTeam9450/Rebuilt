@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.396,
+        "x": 3.6,
         "y": 0.425
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.043664218027484,
+        "x": 3.247664218027484,
         "y": 0.4250000000000003
       },
       "isLocked": false,
-      "linkedName": "TopTrenchStart"
+      "linkedName": "BottomTrenchStart"
     },
     {
       "anchor": {

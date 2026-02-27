@@ -1,0 +1,86 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.592666666666667,
+        "y": 4.064233333333333
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.3639386002331793,
+        "y": 3.2038686788067645
+      },
+      "isLocked": false,
+      "linkedName": "AgainstHubStart"
+    },
+    {
+      "anchor": {
+        "x": 1.0883444444444443,
+        "y": 1.1701333333333321
+      },
+      "prevControl": {
+        "x": 2.180239799857894,
+        "y": 2.729521508738023
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "O - Sit"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.06058091286306795,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 0.47717842323651144,
+      "rotationDegrees": -125.00000000000001
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.2332506203473923,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.8466501240694742,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -125.00000000000001
+  },
+  "reversed": false,
+  "folder": "Outpost",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": false
+}

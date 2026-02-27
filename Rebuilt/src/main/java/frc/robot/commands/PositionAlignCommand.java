@@ -8,7 +8,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
@@ -51,7 +50,6 @@ public class PositionAlignCommand extends Command {
     private double debuggingXPower;
     private double debuggingYPower;
     private double debuggingRPower;
-    private Pose3d debuggingTargetPose;
 
     /* --------------- Drive Request --------------- */
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
@@ -204,18 +202,18 @@ public class PositionAlignCommand extends Command {
         double time = timer.get();
 
         //Powers in which the drive request will use
-        double xPower = pidX.calculate(currentFieldPose.getX()) * (MathUtil.clamp(time * 0.7, 1, 0));
-        double yPower = pidY.calculate(currentFieldPose.getY()) * (MathUtil.clamp(time * 0.7, 1, 0));
+        double xPower = pidX.calculate(currentFieldPose.getX()) * (MathUtil.clamp(time, 1, 0));
+        double yPower = pidY.calculate(currentFieldPose.getY()) * (MathUtil.clamp(time, 1, 0));
 
         //Adjustments of the power depending on certain conditions
-        xPower = MathUtil.clamp(xPower, -1, 1);
-        yPower = MathUtil.clamp(yPower, -1, 1);
+        xPower = MathUtil.clamp(xPower, -3.5, 3.5);
+        yPower = MathUtil.clamp(yPower, -3.5, 3.5);
 
         xPower += .05*Math.signum(xPower);
         yPower += .05*Math.signum(yPower);
 
         double rPower = pidR.calculate(currentFieldPose.getRotation().getRadians());
-        rPower = MathUtil.clamp(rPower, -3, 3);
+        rPower = MathUtil.clamp(rPower, -5, 5);
 
         //Flips power depending on alliance due to IMU being different
         if (redAlliance) {
@@ -295,7 +293,7 @@ public class PositionAlignCommand extends Command {
         Logger.recordOutput("Rebuilt/Pose-Align/Current Drive Command", drivetrain.getCurrentCommand().getName());
 
         //Distance to targeted reef side
-        Logger.recordOutput("Rebuilt/Pose-Align/Distance to Target", Math.sqrt(Math.pow((debuggingTargetPose.getX() - currentFieldPose.getX()), 2) + Math.pow((debuggingTargetPose.getY() - currentFieldPose.getY()), 2)));
+        // Logger.recordOutput("Rebuilt/Pose-Align/Distance to Target", Math.sqrt(Math.pow((debuggingTargetPose.getX() - currentFieldPose.getX()), 2) + Math.pow((debuggingTargetPose.getY() - currentFieldPose.getY()), 2)));
 
     }
 
