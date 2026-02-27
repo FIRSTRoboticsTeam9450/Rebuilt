@@ -334,12 +334,12 @@ public final class Constants {
         public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
 
         public static final double OUR_CLIMB_DEADZONE_X_LOW = 0;
-        public static final double OUR_CLIMB_DEADZONE_X_HIGH = .9652;
-        public static final double CLIMB_DEADZONE_Y_LOW = 3.148838;
-        public static final double CLIMB_DEADZONE_Y_HIGH = 4.920488;
+        public static final double OUR_CLIMB_DEADZONE_X_HIGH = .662;
+        public static final double CLIMB_DEADZONE_Y_LOW = 2.838;
+        public static final double CLIMB_DEADZONE_Y_HIGH = 4.533;
 
-        public static final double THEIR_CLIMB_DEADZONE_X_LOW = 14.469436;
-        public static final double THEIR_CLIMB_DEADZONE_X_HIGH = 15.434564;
+        public static final double THEIR_CLIMB_DEADZONE_X_LOW = 15.684;
+        public static final double THEIR_CLIMB_DEADZONE_X_HIGH = 16.400528;
 
       }
       public static final class ZoneConstantsAndyMark {
@@ -384,12 +384,12 @@ public final class Constants {
         public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
 
         public static final double OUR_CLIMB_DEADZONE_X_LOW = 0;
-        public static final double OUR_CLIMB_DEADZONE_X_HIGH = .9752;
-        public static final double CLIMB_DEADZONE_Y_LOW = 3.133344;
-        public static final double CLIMB_DEADZONE_Y_HIGH = 4.327144;
+        public static final double OUR_CLIMB_DEADZONE_X_HIGH = .662;
+        public static final double CLIMB_DEADZONE_Y_LOW = 2.838;
+        public static final double CLIMB_DEADZONE_Y_HIGH = 4.533;
 
-        public static final double THEIR_CLIMB_DEADZONE_X_LOW = 14.425328;
-        public static final double THEIR_CLIMB_DEADZONE_X_HIGH = 15.400528;
+        public static final double THEIR_CLIMB_DEADZONE_X_LOW = 15.684;
+        public static final double THEIR_CLIMB_DEADZONE_X_HIGH = 16.400528;
 
       }
       public static final class ZoneTargets {
