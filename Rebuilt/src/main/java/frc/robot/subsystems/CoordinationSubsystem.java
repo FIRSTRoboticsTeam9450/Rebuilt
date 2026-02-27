@@ -153,7 +153,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                         break;
 
                     case BACK_SHOOT:
-                        setState(AbsoluteStates.SHOOTING);
+                        setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
                         break;
 
                     default:

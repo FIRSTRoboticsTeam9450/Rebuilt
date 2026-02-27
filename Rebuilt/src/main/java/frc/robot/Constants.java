@@ -204,6 +204,9 @@ public final class Constants {
 
       public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,6.1976); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
       public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,1.8); //(2.54, 1.8), (2.54, 6.1976)
+      public static final Translation2d NEUTRAL_TARGET_BOTTOM = new Translation2d(8.749,  1.544);
+      public static final Translation2d NEUTRAL_TARGET_TOP = new Translation2d(8.749,  6);
+
 
       /* ========= HARD CODED POSES ======== */
       public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();
@@ -393,6 +396,8 @@ public final class Constants {
         public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
         public static final Translation2d FERRY_TOP_TARGET = ImportantFieldPoses.FERRY_TOP_TARGET;
         public static final Translation2d FERRY_BOTTOM_TARGET = ImportantFieldPoses.FERRY_BOTTOM_TARGET;
+        public static final Translation2d NEUTRAL_TOP_TARGET = ImportantFieldPoses.NEUTRAL_TARGET_TOP;
+        public static final Translation2d NEUTRAL_BOTTOM_TARGET = ImportantFieldPoses.NEUTRAL_TARGET_BOTTOM;
       }
     }
 

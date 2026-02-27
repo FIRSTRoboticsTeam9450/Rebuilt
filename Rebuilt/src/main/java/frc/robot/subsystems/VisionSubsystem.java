@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -19,7 +18,6 @@ import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
-import frc.robot.Constants.FieldConstants.ZoneConstants;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
 import frc.robot.util.LimelightHelpers;
@@ -133,6 +131,7 @@ public class VisionSubsystem extends SubsystemBase {
     ZoneState currentZone = ZoneState.SHOOTING_ZONE;
     Translation2d currentTarget = ZoneTargets.SHOOTING_TARGET;
     Translation2d ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
+    Translation2d neutralTarget = ZoneTargets.NEUTRAL_TOP_TARGET;
 
     // DEBUGGING
     private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
@@ -819,6 +818,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
         else if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.BACK_SHOOT;
+            currentTarget = neutralTarget;
         }
         if(useCustomTarget) {
             currentTarget = customTarget;
@@ -833,9 +833,11 @@ public class VisionSubsystem extends SubsystemBase {
     public void setFerryTarget(String target) {
         if(target.equals("top")) {
             ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
+            neutralTarget = ZoneTargets.NEUTRAL_TOP_TARGET;
         }
         else if(target.equals("bottom")) {
             ferryTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+            neutralTarget = ZoneTargets.NEUTRAL_BOTTOM_TARGET;
         }
     }
 
