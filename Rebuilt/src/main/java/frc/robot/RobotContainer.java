@@ -91,7 +91,8 @@ public class RobotContainer {
   private void configureAutos() {
     autoChooser.addOption("FO - Left 2 Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", true));
     autoChooser.addOption("FO - Right 2 Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", false));
-    autoChooser.addOption("P - Climb", drivetrain.getAutoPath("Push + Climb", false));
+    autoChooser.addOption("P - Bottom Start", drivetrain.getAutoPath("P - Bottom Start", false));
+    autoChooser.addOption("P - Top Start", drivetrain.getAutoPath("P - Top Start", false));
     autoChooser.addOption("O - Climb", drivetrain.getAutoPath("Outpost", false));
 
 

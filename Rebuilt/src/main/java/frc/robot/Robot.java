@@ -133,7 +133,7 @@ public class Robot extends LoggedRobot {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     VisionSubsystem.getInstance().setThrottle(0);
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledStdDev);
-    VisionSubsystem.getInstance().setLLIMUModes(4);
+    VisionSubsystem.getInstance().setLLIMUModes(0);
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

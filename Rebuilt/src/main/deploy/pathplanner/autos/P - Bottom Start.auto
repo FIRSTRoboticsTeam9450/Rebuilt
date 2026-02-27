@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "P - Start"
+            "pathName": "P - Start 1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "P - Corner"
+            "pathName": "P - Corner 1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "P - Climb"
+            "pathName": "P - Climb 1"
           }
         }
       ]

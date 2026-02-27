@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Start 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Corner 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Cimb 2"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Push",
+  "choreoAuto": false
+}

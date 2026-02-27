@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 5.502577777777777,
-        "y": 7.6
+        "y": 7.5
       },
       "prevControl": null,
       "nextControl": {
         "x": 4.118557898299841,
-        "y": 7.6
+        "y": 7.5
       },
       "isLocked": false,
       "linkedName": "P - Neutral End"
@@ -32,10 +32,10 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.40397022332505717,
+      "minWaypointRelativePos": 0.7890818858560756,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.75,
+        "maxVelocity": 0.35,
         "maxAcceleration": 1.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -47,19 +47,19 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "SetIntake",
-      "waypointRelativePos": 0.21339950372208064,
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.3543424317617839,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "SetIntake"
+          "name": "ForceTrench"
         }
       }
     },
     {
       "name": "SetFire",
-      "waypointRelativePos": 0.310669975186096,
+      "waypointRelativePos": 0.6937965260545792,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -69,13 +69,44 @@
       }
     },
     {
-      "name": "ForceTrench",
-      "waypointRelativePos": 0.3543424317617839,
+      "name": "SetIntake",
+      "waypointRelativePos": 0.8903225806451635,
       "endWaypointRelativePos": null,
       "command": {
-        "type": "named",
+        "type": "sequential",
         "data": {
-          "name": "ForceTrench"
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "SetIntake"
+              }
+            },
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 0.1
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "SetIntake"
+              }
+            },
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 0.1
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "SetIntake"
+              }
+            }
+          ]
         }
       }
     }
@@ -96,7 +127,7 @@
   "folder": "Push",
   "idealStartingState": {
     "velocity": 4.0,
-    "rotation": 170.0
+    "rotation": 165.0
   },
   "useDefaultConstraints": true
 }

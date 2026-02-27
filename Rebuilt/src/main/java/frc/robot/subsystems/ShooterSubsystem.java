@@ -112,7 +112,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private boolean isZeroingDone = false;
     private boolean hasSwitchedBack = false;
     private boolean hasReachedShooterVelocity = false;
-    
+    private boolean swappedMotors = false;
+
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
     // Timer
@@ -131,10 +132,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // ----------------------------- CONSTRUCTOR ---------------------------- //
     public ShooterSubsystem() {
+        swappedMotors = false;
         configureAngleMotors();
         configureShooterMotors();
         addData();
-
         hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withEnableFOC(RobotConstants.ENABLE_FOC).withSlot(slotNum);
         outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
 
@@ -156,7 +157,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToVelocity.put(2.97, 28.75);
         shootingDistanceToVelocity.put(3.85, 31.25);
         shootingDistanceToVelocity.put(4.1, 32.65);
-        shootingDistanceToVelocity.put(4.766, 34.5);
+        shootingDistanceToVelocity.put(4.766, 34.5 * 1.03);
 
         // Shooting Data Time
         shootingDistanceToTime.put(1.00, 1.08);
@@ -277,6 +278,12 @@ public class ShooterSubsystem extends SubsystemBase {
             isZeroingDone = autoZeroing();
         }
         
+        if(!shooterLeftMotor.isConnected() && !swappedMotors) {
+            swappedMotors = true;
+            shooterLeftMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+            shooterRightMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+        }
+
         updateReachedShooterVelocityLogic();
 
         publishLogs();
@@ -412,7 +419,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     break;
 
                 case BACK_SHOOT:
-                    targetShooterVeloc = 35;
+                    targetShooterVeloc = 70;
                     break;
 
                 default:

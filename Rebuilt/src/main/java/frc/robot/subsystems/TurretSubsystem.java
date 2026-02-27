@@ -1016,6 +1016,10 @@ public class TurretSubsystem extends SubsystemBase {
     public Translation2d getCurrentTarget() {
         return getCurrentTargetPosition();
     }
+
+    public double getCurrentProfiledSetpoint() {
+        return profiledSetpointDeg;
+    }
     
         
     public Pose2d getTurretPose() {

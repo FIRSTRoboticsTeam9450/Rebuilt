@@ -85,9 +85,9 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 200);
-    public Vector<N3> enabledStdDev = VecBuilder.fill(2, 2, 200);
-    private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 200);
+    public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 450);
+    public Vector<N3> enabledStdDev = VecBuilder.fill(2, 2, 450);
+    private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 450);
 
     public double defaultVisionStdDevX = enabledStdDev.get(0);
     public double defaultVisionStdDevY = enabledStdDev.get(1);
@@ -110,7 +110,7 @@ public class VisionSubsystem extends SubsystemBase {
     private static final double MAX_Z_THRESHOLD = 0.25; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 99999999; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
+    private static final double MAX_YAW_DIFF_DEGREES = 4; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -234,9 +234,12 @@ public class VisionSubsystem extends SubsystemBase {
             odomPoseOutsideField = true;
         }
 
-        if (robotRoll > Units.degreesToRadians(3) || robotPitch > Units.degreesToRadians(3)) {
+        if (robotRoll > 6 || robotPitch > 6) {
             bumpDetected = true;
         }
+
+        Logger.recordOutput("Rebuilt/Vision/Odom Pose outside Field", odomPoseOutsideField);
+        Logger.recordOutput("Rebuilt/Vision/Bump Detected", bumpDetected);
 
         List<limelightNetworkTableData> llDataList = new ArrayList<>(LIMELIGHT_LIST.size());
         for (LimelightObject limelight : LIMELIGHT_LIST) {

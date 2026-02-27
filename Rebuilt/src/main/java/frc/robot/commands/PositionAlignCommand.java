@@ -147,11 +147,11 @@ public class PositionAlignCommand extends Command {
         double tagLeftOffset;
         switch (alignSide) {
             case LEFT:
-                tagLeftOffset = -0.5;
+                tagLeftOffset = -0.5381;
                 break;
 
             case RIGHT:
-                tagLeftOffset = 0.5;
+                tagLeftOffset = 0.4492;
                 break;
 
             default:

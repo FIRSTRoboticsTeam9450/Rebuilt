@@ -46,6 +46,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean driverAllowingShooting = false;
     private boolean shouldBeIntaking = false;
     private boolean rejecting = false;
+    private boolean autoRejecting = false;
     private boolean fastTransfer = false;
 
     private boolean overrideTrench = false;
@@ -73,11 +74,12 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
         
         boolean autoReject = TransferSubsystem.getInstance().checkStall();
-        if(autoReject && !rejecting) {
-            rejecting = true;
+
+        if(autoReject && !autoRejecting) {
+            autoRejecting = true;
             update = true;
-        } else if (!autoReject && rejecting) {
-            rejecting = false;
+        } else if (!autoReject && autoRejecting) {
+            autoRejecting = false;
             update = true;
         }
 
@@ -151,6 +153,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                         break;
 
                     case BACK_SHOOT:
+                        setState(AbsoluteStates.SHOOTING);
                         break;
 
                     default:
@@ -194,11 +197,11 @@ public class CoordinationSubsystem extends SubsystemBase {
                 turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
-                if (!rejecting) {
+                if (!rejecting && !autoRejecting) {
                     transferState = TransferState.HOLD;
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
-                        if (fastTransfer) {
+                        if (DriverStation.isAutonomous() || fastTransfer) {
                             intakeVelocState = IntakeState.INTAKING;
                         } else {
                             intakeVelocState = IntakeState.SLOW_INTAKING;
@@ -219,15 +222,15 @@ public class CoordinationSubsystem extends SubsystemBase {
                 turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
-                if (!rejecting) {
-                    if (fastTransfer) {
+                if (!rejecting && !autoRejecting) {
+                    if (DriverStation.isAutonomous() || fastTransfer) {
                         transferState = TransferState.RUN_IN;
                     } else {
                         transferState = TransferState.SLOW_RUN_IN;
                     }
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
-                        if (fastTransfer) {
+                        if (DriverStation.isAutonomous() || fastTransfer) {
                             intakeVelocState = IntakeState.INTAKING;
                         } else {
                             intakeVelocState = IntakeState.SLOW_INTAKING;
@@ -248,10 +251,10 @@ public class CoordinationSubsystem extends SubsystemBase {
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
                 shooterVelocState = ShooterState.SHOOTING;
-                if (TurretSubsystem.getInstance().isAtProfiledGoal()) {
+                if (TurretSubsystem.getInstance().isAtTotalGoal() && Math.abs(TurretSubsystem.getInstance().getCurrentProfiledSetpoint()) < 1) {
                     transferState = TransferState.RUN_IN;
                 } else {
-                    transferState = TransferState.SLOW_RUN_IN;
+                    transferState = TransferState.HOLD;
                 }
                 if (shouldBeIntaking) {
                     intakeAngleState = IntakePos.INTAKING;
@@ -440,7 +443,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     return new GoToPosCommand(drivetrain.getState().Pose);
     }
     public boolean getInDeadzone() {
-        if(currentZone != ZoneState.SOFT_TRENCH_DEADZONE || currentZone != ZoneState.HARD_TRENCH_DEADZONE || currentZone != ZoneState.BACK_SHOOT) {
+        if(currentZone != ZoneState.SOFT_TRENCH_DEADZONE || currentZone != ZoneState.HARD_TRENCH_DEADZONE) {
             return true;
         }
         return false;
