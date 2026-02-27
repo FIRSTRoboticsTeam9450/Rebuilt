@@ -123,7 +123,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     }
 
     public boolean isZeroingDone() {
-        if(Math.abs(motorArm.getVelocity().getValueAsDouble()) < .05 && Math.abs(motorArm.getMotorVoltage().getValueAsDouble()) > .4) {
+        if(Math.abs(motorArm.getVelocity().getValueAsDouble()) < .05 && Math.abs(motorArm.getMotorVoltage().getValueAsDouble()) > .8) {
             motorArm.setPosition(0);
             motorArm.setVoltage(0);
             currentPos = IntakePos.STORE;
@@ -149,7 +149,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
             case ZEROING:
                 //TODO: Make this voltage powerful enough to have it able to get to bumper when laying fully in robot
-                motorArm.setVoltage(-.6);
+                motorArm.setVoltage(-1.2);
                 break;
 
             case TRENCH_STORE:

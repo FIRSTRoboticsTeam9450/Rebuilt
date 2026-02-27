@@ -134,6 +134,15 @@ public class TransferSubsystem extends SubsystemBase {
         motor.setControl(voltageRequest);
     }
 
+    public boolean checkStall() {
+        if(currentState == TransferState.SLOW_RUN_IN || currentState == TransferState.RUN_IN ) {
+            if(Math.abs(voltageRequest.Output) > 4 && Math.abs(motor.getVelocity().getValueAsDouble()) < 1) {
+                return true;
+            }
+            }
+        return false;
+    }
+
     /**
      * Changes the current state of the transfer
      * @param wantedState The desired state to transition to
@@ -160,6 +169,8 @@ public class TransferSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Transfer/Previous State", previousState);
 
         Logger.recordOutput("Rebuilt/Transfer/Target Speed", voltageRequest.Output);
+
+        Logger.recordOutput("Rebuilt/Transfer/Stalling", checkStall());
 
         Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Transfer/Motor Veloc", motor.getVelocity().getValueAsDouble());

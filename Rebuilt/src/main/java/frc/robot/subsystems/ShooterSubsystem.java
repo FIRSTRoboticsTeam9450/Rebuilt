@@ -385,6 +385,10 @@ public class ShooterSubsystem extends SubsystemBase {
                     targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
                     break;
 
+                case CLIMB_DEADZONE:
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
+                    break;
+
                 case FERRY_ZONE_TOP:
                     targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
                     if(cachedDistanceToTarget > 14.55) {
@@ -407,8 +411,8 @@ public class ShooterSubsystem extends SubsystemBase {
                     targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
                     break;
 
-                case BACK_DEADZONE:
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
+                case BACK_SHOOT:
+                    targetShooterVeloc = 35;
                     break;
 
                 default:
@@ -428,6 +432,9 @@ public class ShooterSubsystem extends SubsystemBase {
                 case SHOOTING_ZONE:
                     targetHoodHeight = hoodAngleFunction(distance);
                     break;
+                case CLIMB_DEADZONE:
+                    targetHoodHeight = hoodAngleFunction(distance);
+                    break;
                     
                 case FERRY_ZONE_TOP:
                     targetHoodHeight = hoodAngleFunction(distance);
@@ -445,8 +452,8 @@ public class ShooterSubsystem extends SubsystemBase {
                     targetHoodHeight = hoodAngleFunction(distance);
                     break;
 
-                case BACK_DEADZONE:
-                    targetHoodHeight = hoodAngleFunction(distance);
+                case BACK_SHOOT:
+                    targetHoodHeight = MathUtil.clamp(getAsRevs(20), hoodAngleMin, hoodAngleMax);
                     break;
 
                 default:

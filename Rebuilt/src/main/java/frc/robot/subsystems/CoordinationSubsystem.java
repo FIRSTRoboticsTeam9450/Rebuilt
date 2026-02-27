@@ -71,6 +71,16 @@ public class CoordinationSubsystem extends SubsystemBase {
             setState(AbsoluteStates.INIT);
             checkZeroing = !isZeroingDone();
         }
+        
+        boolean autoReject = TransferSubsystem.getInstance().checkStall();
+        if(autoReject && !rejecting) {
+            rejecting = true;
+            update = true;
+        } else if (!autoReject && rejecting) {
+            rejecting = false;
+            update = true;
+        }
+
         applyZone();
         publishLogs();
     }
@@ -140,7 +150,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                         TransferSubsystem.getInstance().setState(TransferState.HOLD);
                         break;
 
-                    case BACK_DEADZONE:
+                    case BACK_SHOOT:
                         break;
 
                     default:
@@ -430,7 +440,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     return new GoToPosCommand(drivetrain.getState().Pose);
     }
     public boolean getInDeadzone() {
-        if(currentZone != ZoneState.SOFT_TRENCH_DEADZONE || currentZone != ZoneState.HARD_TRENCH_DEADZONE || currentZone != ZoneState.BACK_DEADZONE) {
+        if(currentZone != ZoneState.SOFT_TRENCH_DEADZONE || currentZone != ZoneState.HARD_TRENCH_DEADZONE || currentZone != ZoneState.BACK_SHOOT) {
             return true;
         }
         return false;
