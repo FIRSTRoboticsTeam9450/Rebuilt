@@ -12,6 +12,8 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -60,7 +62,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logElevatorMMKS = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kS", 0.22);
     private LoggedNetworkNumber logElevatorMMKV = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kV", 0.26);
     private LoggedNetworkNumber logElevatorMMKA = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kA", 0);
-    private LoggedNetworkNumber logElevatorMMKP = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kP", 8);
+    private LoggedNetworkNumber logElevatorMMKP = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kP", 5);
     private LoggedNetworkNumber logElevatorMMKI = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kI", 0.0);
     private LoggedNetworkNumber logElevatorMMKD = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kD", 0.0);
     private LoggedNetworkNumber logElevatorMMKG = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/kG", 0.05);
@@ -115,10 +117,14 @@ public class ClimberSubsystem extends SubsystemBase {
 
     private boolean atTarget;
 
+    private Timer zeroingTimer = new Timer();
+
     /* =================== INIT =================== */
 
     public ClimberSubsystem() {
         configureMotors();
+
+        elevatorClimbMotor.setPosition(0);
     }
 
     public void configureMotors() {
@@ -145,6 +151,9 @@ public class ClimberSubsystem extends SubsystemBase {
 
         elevatorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
         elevatorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        elevatorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+        // elevatorConfig.CurrentLimits.StatorCurrentLimit = 10;
 
         Slot0Configs elevatorSlot0Configs = new Slot0Configs()
                                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
@@ -180,7 +189,12 @@ public class ClimberSubsystem extends SubsystemBase {
         if(!isElevatorZeroingDone || !isTelescopeZeroingDone) {
             currentClimbState = ClimbStates.ZEROING;
             if(!isElevatorZeroingDone) {
-                isElevatorZeroingDone = elevatorAutoZeroing();
+                if (elevatorClimbMotor.getMotorVoltage(false).getValueAsDouble() == 0 && elevatorClimbMotor.getVelocity(false).getValueAsDouble() == 0) {
+                    zeroingTimer.restart();
+                }
+                if (zeroingTimer.get() > 0.15) {
+                    isElevatorZeroingDone = elevatorAutoZeroing();
+                }
             }
             if(!isTelescopeZeroingDone) {
                 isTelescopeZeroingDone = telescopeAutoZeroing();
@@ -194,7 +208,10 @@ public class ClimberSubsystem extends SubsystemBase {
         switch (currentClimbState) {
             case ZEROING:
                 if(!isElevatorZeroingDone) {
-                    elevatorClimbMotor.setVoltage(1.25);
+                    // double voltage = (-zeroingTimer.get() + 1.4) * 25;
+                    // voltage = MathUtil.clamp(voltage, 0.75, 12);
+                    // elevatorClimbMotor.setVoltage(voltage);
+                    elevatorClimbMotor.setVoltage(0.75);
                 }
                 if(!isTelescopeZeroingDone) {
                     telescopeClimbMotor.setVoltage(-1);
@@ -205,7 +222,7 @@ public class ClimberSubsystem extends SubsystemBase {
                 break;
 
             case STANDBY:
-                setElevatorTarget(ClimbPositions.kElevatorStore);
+                elevatorClimbMotor.stopMotor();
                 setTelescopeTarget(ClimbPositions.kTelescopeStore);
                 break;
 
@@ -314,6 +331,8 @@ public class ClimberSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Climb/Elevator/MotorPosition", getElevatorPosition());
         Logger.recordOutput("Rebuilt/Climb/Elevator/Setpoint", currentElevatorSetpoint);
         Logger.recordOutput("Rebuilt/Climb/Elevator/MotorVoltage", elevatorClimbMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Climb/Elevator/Motor Stator Amps", elevatorClimbMotor.getStatorCurrent().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Climb/Elevator/Motor Tourqe Amps", elevatorClimbMotor.getTorqueCurrent().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Climb/Elevator/Velocity", elevatorClimbMotor.getVelocity().getValueAsDouble());
 
         Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
@@ -337,7 +356,7 @@ public class ClimberSubsystem extends SubsystemBase {
      * @return
      */
     public boolean elevatorAutoZeroing() {
-        if(Math.abs(elevatorClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.6 && Math.abs(elevatorClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
+        if(Math.abs(elevatorClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.3 && Math.abs(elevatorClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
             elevatorClimbMotor.setPosition(0);
             elevatorClimbMotor.setVoltage(0);
 
@@ -391,11 +410,11 @@ public class ClimberSubsystem extends SubsystemBase {
             setElevatorRequestConstants(95, 1200);
             setTelescopingRequestConstants(95, 1400);
         } else if (state == ClimbStates.END) {
-            setElevatorRequestConstants(50, 600);
-            setTelescopingRequestConstants(95, 700);
+            setElevatorRequestConstants(50, 200);
+            setTelescopingRequestConstants(95, 200);
         } else {
-            setElevatorRequestConstants(50, 600);
-            setTelescopingRequestConstants(30, 700);
+            setElevatorRequestConstants(50, 200);
+            setTelescopingRequestConstants(30, 200);
         }
         currentClimbState = state;
     }

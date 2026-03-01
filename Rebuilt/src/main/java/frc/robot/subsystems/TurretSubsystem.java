@@ -511,7 +511,7 @@ public class TurretSubsystem extends SubsystemBase {
                         currentState = TurretState.AIMING;
                     }
 
-                    profiledSetpointDeg = 70;
+                    profiledSetpointDeg = 0;
 
                     profiledSetpointDeg = MathUtil.clamp(
                         profiledSetpointDeg, 
@@ -558,11 +558,7 @@ public class TurretSubsystem extends SubsystemBase {
                     
                 case STORING:
                     // Return to zero position with no velocity
-                    if (ShooterSubsystem.getInstance().getCurrentAngleState() == AngleState.STORING && ShooterSubsystem.getInstance().getAsRevs(ShooterSubsystem.getInstance().getHoodAngleDegrees()) < 0.5) {
-                        profiledSetpointDeg = 0;
-                    } else {
-                        profiledSetpointDeg = 70;
-                    }
+                    profiledSetpointDeg = 0;
 
                     profiledSetpointDeg = MathUtil.clamp(
                         profiledSetpointDeg, 

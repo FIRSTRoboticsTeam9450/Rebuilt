@@ -60,8 +60,8 @@ public final class Constants {
       public static final class ClimbPositions {
         public static final double kElevatorStore = -1;
         public static final double kElevatorHandoff = -0.5;
-        public static final double kElevatorL3Store = -25;
-        public static final double kElevatorClimb = -133.5;
+        public static final double kElevatorL3Store = -35;
+        public static final double kElevatorClimb = -135; //-148
 
         public static final double kTelescopeStore = 0.5;
         public static final double kTelescopeHandoff = 0;

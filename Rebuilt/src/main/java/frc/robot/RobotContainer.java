@@ -168,7 +168,8 @@ public class RobotContainer {
       VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(false)
     );
 
-    OPERATOR.povRight().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
+    // OPERATOR.povRight().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
+    OPERATOR.povRight().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.L1)));
     OPERATOR.povLeft().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
 
     OPERATOR.back().onTrue(ClimberSubsystem.getInstance().setForceClimberUpCommand());

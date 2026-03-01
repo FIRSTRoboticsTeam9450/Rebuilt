@@ -463,8 +463,10 @@ public class CoordinationSubsystem extends SubsystemBase {
     // }
 
     public void setState(AbsoluteStates state) {
-        currentState = state;
-        applyState();
+        if (currentState != AbsoluteStates.CLIMB) {
+            currentState = state;
+            applyState();
+        }
     }
 
     public Command setStateCommand(AbsoluteStates state) {

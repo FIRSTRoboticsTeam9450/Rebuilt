@@ -22,6 +22,9 @@ import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightObject;
+import frc.robot.util.LimelightHelpers.IMUData;
+import frc.robot.util.LimelightHelpers.PoseEstimate;
+import frc.robot.util.LimelightHelpers.RawFiducial;
 import frc.robot.util.LimelightObject.Location;
 
 import com.ctre.phoenix6.Utils;
@@ -252,10 +255,11 @@ public class VisionSubsystem extends SubsystemBase {
                     true,
                     LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name),
                     LimelightHelpers.getBotPose_wpiBlue(name),
-                    LimelightHelpers.getRawFiducials(name)
+                    LimelightHelpers.getRawFiducials(name),
+                    LimelightHelpers.getIMUData(name)
                 ));
             } else {
-                llDataList.add(new limelightNetworkTableData(name, false, null, null, null));
+                llDataList.add(new limelightNetworkTableData(name, false, null, null, null, null));
             }
         }
 
@@ -312,11 +316,13 @@ public class VisionSubsystem extends SubsystemBase {
         if (tagCount == 0 || ambiguity > 0.8) return VisionMeasurement.invalid();
         
         boolean poseValid = true;
+        boolean llIMUValid = true;
         
         if (llData.botPose != null) {
             // Extract 3D pose data from botpose array
             // botpose format: [x, y, z, roll, pitch, yaw, ...]
             double[] botpose = llData.botPose;
+            double[] llPose = {llData.imuData.Roll, llData.imuData.Pitch};
             
             if (botpose != null && botpose.length >= 6) {
                 double x = botpose[0];
@@ -325,6 +331,9 @@ public class VisionSubsystem extends SubsystemBase {
                 double roll = botpose[3];
                 double pitch = botpose[4];
                 double visionYaw = botpose[5];
+
+                double llRoll = llPose[0];
+                double llPitch = llPose[1];
                 
                 // Get current Pigeon yaw
                 double pigeonYaw = drivetrain.getState().Pose.getRotation().getDegrees();
@@ -335,6 +344,9 @@ public class VisionSubsystem extends SubsystemBase {
                 boolean zValid = Math.abs(z) <= MAX_Z_THRESHOLD;
                 boolean rollValid = Math.abs(roll) <= MAX_ROLL_THRESHOLD;
                 boolean pitchValid = Math.abs(pitch) <= MAX_PITCH_THRESHOLD;
+
+                boolean llRollValid = Math.abs(llRoll) < 20;
+                boolean llPitchValid = Math.abs(-28.1 - llPitch) < 20;
                 
                 
                 // Yaw difference check (handle angle wrapping)
@@ -349,6 +361,7 @@ public class VisionSubsystem extends SubsystemBase {
                 
                 // Pose is only valid if all checks pass
                 poseValid = xValid && yValid && zValid && rollValid && pitchValid && yawValid;
+                llIMUValid = llRollValid && llPitchValid;
                 
                 // Optional: Log which check failed for debugging
                 if (!poseValid) {
@@ -361,7 +374,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         // Consider measurement valid if at least 1 tag, low ambiguity, AND pose validation passes
-        boolean valid = tagCount > 0 && poseValid && ambiguity < 0.5;
+        boolean valid = tagCount > 0 && poseValid && llIMUValid && ambiguity < 0.5;
 
         // Confidence weighted: 70% ambiguity, 30% tag count
         double tagFactor = Math.min(tagCount / 2.0, 1.0);
@@ -478,6 +491,15 @@ public class VisionSubsystem extends SubsystemBase {
             Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
         } else {
             loopOffset++;
+        }
+
+        for (LimelightObject limelight : LIMELIGHT_LIST) {
+            String llName = limelight.getName();
+            IMUData llIMUData = LimelightHelpers.getIMUData(llName);
+            Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Robot Yaw", llIMUData.robotYaw);
+            Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Raw Yaw", llIMUData.Yaw);
+            Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Roll", llIMUData.Roll);
+            Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Pitch", llIMUData.Pitch);
         }
 
         if (logDebuggingToggle.get()) {
@@ -906,8 +928,9 @@ public class VisionSubsystem extends SubsystemBase {
 
     private record limelightNetworkTableData(String name, 
                                              boolean hasATarget, 
-                                             LimelightHelpers.PoseEstimate megaTagEstimate, 
+                                             PoseEstimate megaTagEstimate, 
                                              double[] botPose, 
-                                             LimelightHelpers.RawFiducial[] fiducials
+                                             RawFiducial[] fiducials,
+                                             IMUData imuData
                                             ) {}
 }
