@@ -95,7 +95,10 @@ public class RobotContainer {
     autoChooser.addOption("P - Top Start", drivetrain.getAutoPath("P - Top Start", false));
     autoChooser.addOption("O - Climb", drivetrain.getAutoPath("Outpost", false));
 
+    autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
 
+    autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
+    autoChooser.addOption("Slip Test", drivetrain.getAutoPath("Slip Testing", false));
     // autoChooser.addOption("Drive Test", drivetrain.getAutoPath("Drive Straight", false));
     // autoChooser.addOption("Drive Test S", drivetrain.getAutoPath("Drive S", false));
     // autoChooser.addOption("Drive And Return", drivetrain.getAutoPath("Drive And Return", false));

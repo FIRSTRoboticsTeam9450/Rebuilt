@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 1.6145444444444443,
-        "y": 3.2846777777777767
+        "x": 1.4,
+        "y": 3.35
       },
       "prevControl": {
-        "x": 3.319822222222222,
-        "y": 3.1906111111111093
+        "x": 3.1052777777777774,
+        "y": 3.2559333333333327
       },
       "nextControl": null,
       "isLocked": false,
@@ -68,10 +68,16 @@
       "name": "SetIntake",
       "waypointRelativePos": 0.05856079404466821,
       "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "ClimberUp",
+      "waypointRelativePos": 0.21339950372207947,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "SetIntake"
+          "name": "ClimberUp"
         }
       }
     }
