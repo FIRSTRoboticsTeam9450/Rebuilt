@@ -61,11 +61,11 @@ public final class Constants {
         public static final double kElevatorStore = -1;
         public static final double kElevatorHandoff = -0.5;
         public static final double kElevatorL3Store = -35;
-        public static final double kElevatorClimb = -135; //-148
+        public static final double kElevatorClimb = -146.5; //-148
 
         public static final double kTelescopeStore = 0.5;
         public static final double kTelescopeHandoff = 0;
-        public static final double kTelescopeReach = 44.4;
+        public static final double kTelescopeReach = 43.3;
         public static final double kTelescopeAutoClimb = 10;
       }
 

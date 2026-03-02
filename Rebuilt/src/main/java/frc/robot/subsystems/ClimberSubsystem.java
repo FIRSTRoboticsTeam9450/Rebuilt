@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -51,10 +52,11 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.24);
     private LoggedNetworkNumber logTelescopeMMKV = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kV", 0.2);
     private LoggedNetworkNumber logTelescopeMMKA = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kA", 0);
-    private LoggedNetworkNumber logTelescopeMMKP = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kP", 5);
+    private LoggedNetworkNumber logTelescopeMMKP = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kP", 10);
     private LoggedNetworkNumber logTelescopeMMKI = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kI", 0.0);
     private LoggedNetworkNumber logTelescopeMMKD = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kD", 0.0);
     private LoggedNetworkNumber logTelescopeMMKG = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kG", 0.07);
+    private double telescopingUnderLoadKG = 0.6;
 
     private LoggedNetworkNumber logElevatorMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Velocity", 95);
     private LoggedNetworkNumber logElevatorMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Acceleration", 1200);
@@ -144,6 +146,17 @@ public class ClimberSubsystem extends SubsystemBase {
                                         .withKG(logTelescopeMMKG.get())
                                         .withGravityType(GravityTypeValue.Elevator_Static);
 
+        Slot1Configs telescpeSlot1Configs = new Slot1Configs()
+                                        .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
+                                        .withKS(logTelescopeMMKS.get())
+                                        .withKV(logTelescopeMMKV.get())
+                                        .withKA(logTelescopeMMKA.get())
+                                        .withKP(logTelescopeMMKP.get())
+                                        .withKI(logTelescopeMMKI.get())
+                                        .withKD(logTelescopeMMKD.get())
+                                        .withKG(telescopingUnderLoadKG)
+                                        .withGravityType(GravityTypeValue.Elevator_Static);
+
         
 
 
@@ -174,6 +187,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
         telescopeConfig.Slot0 = telescopeSlot0Configs;
         elevatorConfig.Slot0 = elevatorSlot0Configs;
+
+        telescopeConfig.Slot1 = telescpeSlot1Configs;
 
         telescopeConfig.MotionMagic = mmTelescopeConfigs;
         elevatorConfig.MotionMagic = mmElevatorConfigs;
@@ -209,12 +224,12 @@ public class ClimberSubsystem extends SubsystemBase {
             case ZEROING:
                 if(!isElevatorZeroingDone) {
                     // double voltage = (-zeroingTimer.get() + 1.4) * 25;
-                    // voltage = MathUtil.clamp(voltage, 0.75, 12);
+                    // voltage = MathUtil.clamp(voltage, 0.5, 12);
                     // elevatorClimbMotor.setVoltage(voltage);
-                    elevatorClimbMotor.setVoltage(0.75);
+                    elevatorClimbMotor.setVoltage(0.5);
                 }
                 if(!isTelescopeZeroingDone) {
-                    telescopeClimbMotor.setVoltage(-1);
+                    telescopeClimbMotor.setVoltage(-0.75);
                 }
                 if(isElevatorZeroingDone && isTelescopeZeroingDone) {
                     setClimbState(ClimbStates.STANDBY);
@@ -425,7 +440,11 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void setTelescopeTarget(double setpoint) {
         currentTelescopeSetpoint = setpoint;
-        telescopeClimbMotor.setControl(telescopeRequest.withPosition(setpoint)); //in rotations per second
+        if (currentClimbState == ClimbStates.HANDOFF) {
+            telescopeClimbMotor.setControl(telescopeRequest.withPosition(setpoint).withSlot(1));
+        } else {
+            telescopeClimbMotor.setControl(telescopeRequest.withPosition(setpoint).withSlot(0)); //in rotations per second
+        }
     }
 
     public void setElevatorTarget(double setpoint) {
@@ -474,7 +493,7 @@ public class ClimberSubsystem extends SubsystemBase {
             Commands.either(
                     new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)),
                     Commands.either(
-                        CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB).alongWith(new WaitCommand(0.15).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
+                        CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB).alongWith(new WaitCommand(0.4).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
                         Commands.either(
                             Commands.either(
                                 new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 

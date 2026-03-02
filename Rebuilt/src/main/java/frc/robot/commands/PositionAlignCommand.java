@@ -32,9 +32,9 @@ public class PositionAlignCommand extends Command {
     CommandSwerveDrivetrain drivetrain;
 
     /* --------------- PIDs --------------- */
-    private PIDController pidX = new PIDController(4, 0, 0.0);
-    private PIDController pidY = new PIDController(5, 0, 0.0);
-    private PIDController pidR = new PIDController(6, 0, 0.0);
+    private PIDController pidX = new PIDController(3, 0, 0.5);
+    private PIDController pidY = new PIDController(4, 0, 0.5);
+    private PIDController pidR = new PIDController(5, 0, 0.5);
 
     /* --------------- Timer --------------- */
     private Timer timer = new Timer();
@@ -54,7 +54,8 @@ public class PositionAlignCommand extends Command {
     /* --------------- Drive Request --------------- */
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
                                                                              .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                                                                             .withDeadband(0.185);
+                                                                             .withRotationalDeadband(0.075)
+                                                                             .withDeadband(0.1);
 
 
     /*  ┌───────────────────────────┐

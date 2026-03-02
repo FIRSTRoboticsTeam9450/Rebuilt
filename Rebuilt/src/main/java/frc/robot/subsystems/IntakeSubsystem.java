@@ -68,7 +68,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double intakeRevolutions = logIntakeTarget.get();
     private double storeRevolutions = 6.25;
     private double trenchStoreRevolutions = 4.5;
-    private double climbStoreRevolutions = 8;
+    private double climbStoreRevolutions = 7.5;
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
@@ -148,8 +148,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case ZEROING:
-                //TODO: Make this voltage powerful enough to have it able to get to bumper when laying fully in robot
-                motorArm.setVoltage(-1.2);
+                motorArm.setVoltage(-1.3);
                 break;
 
             case TRENCH_STORE:
