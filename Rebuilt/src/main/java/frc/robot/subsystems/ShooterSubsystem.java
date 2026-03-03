@@ -116,6 +116,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
+    private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
+
     // Timer
     private Timer switchSlotBackTimer = new Timer();
     int slotNum = 0;
@@ -436,7 +438,7 @@ public class ShooterSubsystem extends SubsystemBase {
         else {
             targetShooterVeloc = logTuningShooterVelocity.get();
         }
-        return targetShooterVeloc;
+        return targetShooterVeloc + manualShift;
     }
 
     public double getShooterAngle() {
@@ -595,6 +597,18 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void setOverrideHoodAngle(double targetHoodAngleOverride) {
         this.targetHoodAngleOverride = MathUtil.clamp(getAsRevs(targetHoodAngleOverride), 0, hoodAngleMax);
+    }
+
+    public void addManualVelocityShift() {
+        manualShift += 2;
+    }
+
+    public void subtractManualVelocityShift() {
+        manualShift -= 2;
+    }
+
+    public void resetManualVelocityShift() {
+        manualShift = 0;
     }
 
     // -------------------------------------------- UPDATE BASED ON LOGS -------------------------------------------- //

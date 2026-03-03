@@ -159,9 +159,11 @@ public class RobotContainer {
       CoordinationSubsystem.getInstance().setForceTrenchCommand()
     );
 
-    OPERATOR.x().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()));
-    OPERATOR.y().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust()));
-    OPERATOR.b().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
+    OPERATOR.x().onTrue(new InstantCommand(() -> CoordinationSubsystem.getInstance().increaseManualAdjust()));
+    OPERATOR.y().onTrue(new InstantCommand(() -> CoordinationSubsystem.getInstance().resetManualAdjust()));
+    OPERATOR.b().onTrue(new InstantCommand(() -> CoordinationSubsystem.getInstance().decreaseManualAdjust()));
+
+    OPERATOR.leftStick().onTrue(CoordinationSubsystem.getInstance().setShiftingCommand(true)).onFalse(CoordinationSubsystem.getInstance().setShiftingCommand(false));
 
     OPERATOR.povUp().onTrue(ClimberSubsystem.getInstance().setClimbStateAndLevelCommand());
 
