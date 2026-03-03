@@ -151,22 +151,29 @@ public class ShooterSubsystem extends SubsystemBase {
         // shootingDistanceToVelocity.put(4.1, 32.65);
         // shootingDistanceToVelocity.put(4.766, 34.5);
 
-        shootingDistanceToVelocity.put(1.00, 25.5);
-        shootingDistanceToVelocity.put(1.9, 27.25);
-        shootingDistanceToVelocity.put(2.32, 27.75);
-        shootingDistanceToVelocity.put(2.97, 28.75);
-        shootingDistanceToVelocity.put(3.85, 31.25);
-        shootingDistanceToVelocity.put(4.1, 32.65);
-        shootingDistanceToVelocity.put(4.766, 34.5 * 1.03);
+        // shootingDistanceToVelocity.put(1.00, 25.5);
+        // shootingDistanceToVelocity.put(1.9, 27.25);
+        // shootingDistanceToVelocity.put(2.32, 27.75);
+        // shootingDistanceToVelocity.put(2.97, 28.75);
+        // shootingDistanceToVelocity.put(3.85, 31.25);
+        // shootingDistanceToVelocity.put(4.1, 32.65);
+        // shootingDistanceToVelocity.put(4.766, 34.5 * 1.03);
+
+        shootingDistanceToVelocity.put(0.951, 25.75);
+        shootingDistanceToVelocity.put(1.754, 27.75);
+        shootingDistanceToVelocity.put(2.282, 29.5);
+        shootingDistanceToVelocity.put(3.2, 31.5);
+        shootingDistanceToVelocity.put(3.648, 33.5);
+        shootingDistanceToVelocity.put(4.448, 35.5);
+        shootingDistanceToVelocity.put(5.157, 37.0);
 
         // Shooting Data Time
-        shootingDistanceToTime.put(1.00, 1.08);
-        shootingDistanceToTime.put(1.9, 1.125);
-        shootingDistanceToTime.put(2.32, 1.103);
-        shootingDistanceToTime.put(2.97, 1.12);
-        shootingDistanceToTime.put(3.84, 1.275);
-        shootingDistanceToTime.put(4.33, 1.37);
-        shootingDistanceToTime.put(5.305, 1.362);
+        shootingDistanceToTime.put(0.951, 1.048);
+        shootingDistanceToTime.put(1.754, 1.085);
+        shootingDistanceToTime.put(2.282, 1.18);
+        shootingDistanceToTime.put(3.648, 1.236);
+        shootingDistanceToTime.put(4.448, 1.38);
+        shootingDistanceToTime.put(5.157, 1.402);
 
 
         // Ferrying Data Velocity
@@ -434,7 +441,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getShooterAngle() {
         if(!isOverrideAngle) {
-            double distance = cachedDistanceToTarget;
+            double distance = visionSub.getDistanceToTarget(visionSub.getAdjustedCurrentTarget());
             switch (coordSub.getCurrentZone()) {
                 case SHOOTING_ZONE:
                     targetHoodHeight = hoodAngleFunction(distance);

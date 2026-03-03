@@ -178,7 +178,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case SLOW_INTAKING:
-                motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts * 0.75));
+                motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts * 0.833333)); //0.58333
                 break;
             
             case INTAKING:

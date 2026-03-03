@@ -1055,7 +1055,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public boolean isAtTotalGoal(double tolerance) {
-        double error = Math.abs(cachedAngleDeg - robotRelativeTargetAngleDeg);
+        double error = Math.abs(cachedAngleDeg - (robotRelativeTargetAngleDeg + manualShift));
         return error < tolerance;
     }
     

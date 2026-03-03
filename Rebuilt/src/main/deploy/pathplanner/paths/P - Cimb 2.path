@@ -80,6 +80,17 @@
           "name": "ClimberUp"
         }
       }
+    },
+    {
+      "name": "ClimberDown",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ClimberDown"
+        }
+      }
     }
   ],
   "globalConstraints": {

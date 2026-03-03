@@ -54,8 +54,8 @@ public class PositionAlignCommand extends Command {
     /* --------------- Drive Request --------------- */
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
                                                                              .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                                                                             .withRotationalDeadband(0.075)
-                                                                             .withDeadband(0.1);
+                                                                             .withRotationalDeadband(0.1)
+                                                                             .withDeadband(0.175);
 
 
     /*  ┌───────────────────────────┐
@@ -93,7 +93,7 @@ public class PositionAlignCommand extends Command {
         }
 
 
-        offsetArr = calculateAlignPosition(targetPose, 1.0);
+        offsetArr = calculateAlignPosition(targetPose, 0.75);
         pidX.setSetpoint(offsetArr[0]);
         pidY.setSetpoint(offsetArr[1]);
         pidR.setSetpoint(offsetArr[2]);
@@ -113,7 +113,7 @@ public class PositionAlignCommand extends Command {
 
         /* ---------- Scoot ---------- */
         if (atSetpoint(0.03, 0.1)) {
-            offsetArr = calculateAlignPosition(targetPose, 0.65);
+            offsetArr = calculateAlignPosition(targetPose, 0.35);
             pidX.setSetpoint(offsetArr[0]);
             pidY.setSetpoint(offsetArr[1]);
             pidR.setSetpoint(offsetArr[2]);
@@ -148,11 +148,11 @@ public class PositionAlignCommand extends Command {
         double tagLeftOffset;
         switch (alignSide) {
             case LEFT:
-                tagLeftOffset = -0.5381;
+                tagLeftOffset = -0.5; //-0.5
                 break;
 
             case RIGHT:
-                tagLeftOffset = 0.4492;
+                tagLeftOffset = 0.4873; //0.5
                 break;
 
             default:
