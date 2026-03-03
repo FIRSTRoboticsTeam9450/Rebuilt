@@ -59,6 +59,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean previousGoodToShoot = goodToFire();
     private boolean checkZeroing = false;
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", false);
+    private boolean shiftingTurret = false;
 
     public CoordinationSubsystem() {
         
@@ -378,6 +379,27 @@ public class CoordinationSubsystem extends SubsystemBase {
     public Command setForceTrenchCommand() {
         return new InstantCommand(() -> forceTrench = !forceTrench)
         .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command increaseManualAdjust() {
+        return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().addManualVelocityShift()), (() -> shiftingTurret));
+    }
+
+    public Command decreaseManualAdjust() {
+        return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualVelocityShift()), (() -> shiftingTurret));
+    }
+
+    public Command resetManualAdjust() {
+        return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().resetManualVelocityShift()), (() -> shiftingTurret));
+    }
+
+    /**
+     * True is shifting turret, false is shifting shooter velocity
+     * @param value
+     * @return
+     */
+    public Command setShiftingCommand(boolean value) {
+        return new InstantCommand(() -> shiftingTurret = value);
     }
 
     // ============================ Getters & Setters ============================
