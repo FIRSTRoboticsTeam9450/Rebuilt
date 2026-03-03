@@ -43,6 +43,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     private ZoneState previousZone = ZoneState.SHOOTING_ZONE;
     private ZoneState currentZone = ZoneState.SHOOTING_ZONE;
 
+    private boolean hardCodedState = false;
+
     private boolean driverAllowingShooting = false;
     private boolean shouldBeIntaking = false;
     private boolean rejecting = false;
@@ -69,7 +71,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         currentZone = getCurrentZone();
         // getVelocityTurret(0.02);
         if(checkZeroing) {
-            setState(AbsoluteStates.INIT);
+            setState(AbsoluteStates.INIT, false);
             checkZeroing = !isZeroingDone();
         }
         
@@ -105,47 +107,47 @@ public class CoordinationSubsystem extends SubsystemBase {
                 switch (currentZone) {
                     case SHOOTING_ZONE:
                         if (forceTrench) {
-                            setState(AbsoluteStates.TRENCH);
+                            setState(AbsoluteStates.TRENCH, false);
                         } else if(goodToFire()) {
-                            setState(AbsoluteStates.SHOOTING);
+                            setState(AbsoluteStates.SHOOTING, false);
                         } else {
-                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
                         }
                         break;
                         
                     case FERRY_ZONE_TOP:
                         if (forceTrench) {
-                            setState(AbsoluteStates.TRENCH);
+                            setState(AbsoluteStates.TRENCH, false);
                         } else if(goodToFire()) {
-                            setState(AbsoluteStates.SHOOTING);
+                            setState(AbsoluteStates.SHOOTING, false);
                         } else {
-                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
                         }
                         break; 
                         
                     case FERRY_ZONE_BOTTOM:
                         if (forceTrench) {
-                            setState(AbsoluteStates.TRENCH);
+                            setState(AbsoluteStates.TRENCH, false);
                         } else if(goodToFire()) {
-                            setState(AbsoluteStates.SHOOTING);
+                            setState(AbsoluteStates.SHOOTING, false);
                         } else {
-                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
                         }
                         break;
 
                     case SOFT_TRENCH_DEADZONE:
                         if(!overrideTrench && !hardOverrideTrench) {
-                            setState(AbsoluteStates.TRENCH);
+                            setState(AbsoluteStates.TRENCH, false);
                         } else {
-                            setState(AbsoluteStates.SHOOTING);
+                            setState(AbsoluteStates.SHOOTING, false);
                         }
                         break;
 
                     case HARD_TRENCH_DEADZONE:
                         if(!hardOverrideTrench) {
-                            setState(AbsoluteStates.TRENCH);
+                            setState(AbsoluteStates.TRENCH, false);
                         } else {
-                            setState(AbsoluteStates.SHOOTING);
+                            setState(AbsoluteStates.SHOOTING, false);
                         }
                         break;
                     case CLIMB_DEADZONE:
@@ -153,7 +155,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                         break;
 
                     case BACK_SHOOT:
-                        setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+                        setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
                         break;
 
                     default:
@@ -307,7 +309,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         boolean zeroingDone = ShooterSubsystem.getInstance().getCurrentAngleState() != AngleState.ZEROING 
         && IntakeSubsystem.getInstance().getCurrentIntakePos() != IntakePos.ZEROING;
         if(zeroingDone) {
-            setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+            setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
             checkZeroing = false;
         }
         return zeroingDone;
@@ -462,15 +464,18 @@ public class CoordinationSubsystem extends SubsystemBase {
     //     // return (TurretSubsystem.getInstance().updateTargetFromPose(futureTarget));// - TurretSubsystem.getInstance().getcu)/time;
     // }
 
-    public void setState(AbsoluteStates state) {
-        if (currentState != AbsoluteStates.CLIMB) {
+    public void setState(AbsoluteStates state, boolean hardCodeClimb) {
+        if (hardCodeClimb) {
+            hardCodedState = true;
+        }
+        if (currentState != AbsoluteStates.CLIMB && hardCodedState) {
             currentState = state;
             applyState();
         }
     }
 
-    public Command setStateCommand(AbsoluteStates state) {
-        return new InstantCommand(() -> setState(state));
+    public Command setStateCommand(AbsoluteStates state, boolean hardCodeClimb) {
+        return new InstantCommand(() -> setState(state, hardCodeClimb));
     }
 
     // ======================= INIT ===================

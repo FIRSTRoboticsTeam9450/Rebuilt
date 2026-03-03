@@ -264,7 +264,7 @@ public class ShooterSubsystem extends SubsystemBase {
             angleMotor.setPosition(0);
             angleMotor.setVoltage(0);
             setState(currentShooterState, AngleState.AIMING);
-            coordSub.setState(AbsoluteStates.PREPARING_FOR_SHOOTING);
+            coordSub.setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
             return true;
         }
         return false;
