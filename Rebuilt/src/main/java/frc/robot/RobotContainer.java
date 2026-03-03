@@ -4,10 +4,13 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -20,6 +23,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.LinearVelocityUnit;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -86,6 +93,10 @@ public class RobotContainer {
 
   Supplier<ChassisSpeeds> fieldCentricSupplier;
   Supplier<Pose2d> poseSupplier;
+  DoubleSupplier speed;
+  DoubleSupplier yaw;
+  DoubleSupplier angle;
+  DoubleSupplier distance;
 
   public RobotContainer() {
 
@@ -98,7 +109,7 @@ public class RobotContainer {
     this.fieldCentricSupplier = () -> drivetrain.getState().Speeds;
     this.poseSupplier = () -> drivetrain.getState().Pose;
 
-     fuelSim = new FuelSim(); // creates a new fuelSim of FuelSim
+    fuelSim = new FuelSim(); // creates a new fuelSim of FuelSim
 
     configureBindings();
     registeredCommands();
@@ -122,11 +133,14 @@ public class RobotContainer {
               0.5429,
               -0.20,
               0.20,
-              () -> true//,
-              //(fuel) -> intakeSubsystem.addFuel(fuel)
-      );
+              () -> intakeSub.isIntaking(),
+              () -> fuelSim.launchFuel(LinearVelocity.ofBaseUnits(/*shooterSub.getShooterVeloc()*/90, MetersPerSecond), 
+                                       Angle.ofBaseUnits(90 - shooterSub.getShooterAngle(), Degrees), 
+                                       Angle.ofBaseUnits(turretSub.getCurrentAngleDeg(), Degrees), 
+                                       Distance.ofBaseUnits(0.48497998, Meter))
+              );
 
-      fuelSim.enableAirResistance();
+    fuelSim.enableAirResistance();
 
     fuelSim.start(); // enables the simulation to run (updateSim must still be called periodically)
     fuelSim.spawnStartingFuel();
@@ -147,9 +161,6 @@ public class RobotContainer {
         );
       }
     });
-
-    //SmartDashboard.putNumber("fuel visible", fuelSim.getFuelCount().stream().filter((f) -> f.isActive()).count());
-    //didn't work
   }
 
   private void configureAutos() {

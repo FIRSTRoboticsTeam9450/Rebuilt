@@ -94,6 +94,10 @@ public final class IntakeSubsystem extends SubsystemBase{
             );
     }
 
+    public boolean isIntaking() {
+        return (currentPos == IntakePos.INTAKING && currentState == IntakeState.INTAKING);
+    }
+
     private void configureMotors() {
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
