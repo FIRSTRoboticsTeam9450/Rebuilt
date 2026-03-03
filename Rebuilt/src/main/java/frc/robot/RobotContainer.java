@@ -113,6 +113,13 @@ public class RobotContainer {
                     .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+        
+    DRIVER.leftStick().whileTrue(
+      new PositionAlignCommand(drivetrain, AlignPos.LEFT)
+    );
+    DRIVER.rightStick().whileTrue(
+      new PositionAlignCommand(drivetrain, AlignPos.RIGHT)
+    );
 
     DRIVER.leftTrigger().onTrue(
         new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed)
@@ -163,6 +170,8 @@ public class RobotContainer {
     OPERATOR.y().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust()));
     OPERATOR.b().onTrue(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
 
+    OPERATOR.a().onTrue(new InstantCommand(() -> CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true)));
+
     OPERATOR.povUp().onTrue(ClimberSubsystem.getInstance().setClimbStateAndLevelCommand());
 
     OPERATOR.povDown().onTrue(
@@ -179,23 +188,6 @@ public class RobotContainer {
     OPERATOR.start().onTrue(ClimberSubsystem.getInstance().setForceClimberDownCommand());
 
     /* ================ TEST ONLY KEYBINDS ============== */
-
-    DRIVER.leftStick().whileTrue(
-        Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.LEFT), (() -> DriverStation.isTest()))
-      );
-    DRIVER.rightStick().whileTrue(
-      Commands.either(new InstantCommand(), new PositionAlignCommand(drivetrain, AlignPos.RIGHT), (() -> DriverStation.isTest()))
-    );
-
-    DRIVER.leftStick().onTrue(
-      Commands.either(CoordinationSubsystem.getInstance().setRejectingCommand(true), new InstantCommand(), (() -> DriverStation.isTest()))
-    ).onFalse(
-      Commands.either(CoordinationSubsystem.getInstance().setRejectingCommand(false), new InstantCommand(), (() -> DriverStation.isTest()))
-    );
-
-    DRIVER.rightStick().onTrue(
-      Commands.either(CoordinationSubsystem.getInstance().setFireCommand(), new InstantCommand(), (() -> DriverStation.isTest()))
-    );
     
     /* ============================== SYSID ==================================== */
     // DRIVER.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));

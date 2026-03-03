@@ -1,0 +1,100 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.014950071326675,
+        "y": 2.3076890156918695
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.60073650895358,
+        "y": 0.8934754533187743
+      },
+      "isLocked": false,
+      "linkedName": "B - Landing Spot"
+    },
+    {
+      "anchor": {
+        "x": 5.65,
+        "y": 6.189286733238232
+      },
+      "prevControl": {
+        "x": 5.662938659058488,
+        "y": 0.9232524964336672
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "B - Neutral Sweep 1 End"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.18550106609808223,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 0.5970149253731312,
+      "rotationDegrees": 90.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.25,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 0.5,
+        "maxAcceleration": 2.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.0810263335584038,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.12964213369344876,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.5,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": "Bump",
+  "idealStartingState": {
+    "velocity": 0.0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}
