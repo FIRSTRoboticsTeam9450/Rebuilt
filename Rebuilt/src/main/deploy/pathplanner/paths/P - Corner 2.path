@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 5.502577777777777,
-        "y": 0.6
+        "y": 0.55
       },
       "prevControl": null,
       "nextControl": {
         "x": 0.24057777777777645,
-        "y": 0.6244444444444437
+        "y": 0.5744444444444438
       },
       "isLocked": false,
       "linkedName": "P - Neutral End 2"
@@ -37,10 +37,10 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.4516129032258012,
+      "minWaypointRelativePos": 0.425,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.55,
+        "maxVelocity": 0.4,
         "maxAcceleration": 1.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
