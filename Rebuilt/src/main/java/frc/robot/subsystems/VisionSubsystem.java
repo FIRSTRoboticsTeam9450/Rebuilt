@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -135,6 +136,9 @@ public class VisionSubsystem extends SubsystemBase {
     Translation2d currentTarget = ZoneTargets.SHOOTING_TARGET;
     Translation2d ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
     Translation2d neutralTarget = ZoneTargets.NEUTRAL_TOP_TARGET;
+
+    private ChassisSpeeds prevRobotVelocity = new ChassisSpeeds(0, 0, 0);
+    private double prevTimeStamp = 0;
 
     // DEBUGGING
     private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
@@ -642,6 +646,10 @@ public class VisionSubsystem extends SubsystemBase {
     public Translation2d getAdjustedTarget(Translation2d givenTargetWRTBot, Translation2d lastTargetPose) {
         Translation2d targetWRTBot = givenTargetWRTBot;
         ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
+        double ax = velocityRobotWRTRobot.vxMetersPerSecond - prevRobotVelocity.vxMetersPerSecond;
+        double ay = velocityRobotWRTRobot.vyMetersPerSecond - prevRobotVelocity.vyMetersPerSecond;
+        double adjustedVx = velocityRobotWRTRobot.vxMetersPerSecond + (ax * (Timer.getFPGATimestamp() - prevTimeStamp));
+        double adjustedVy = velocityRobotWRTRobot.vyMetersPerSecond + (ay * (Timer.getFPGATimestamp() - prevTimeStamp));
 
         double timeToShoot = getTimeToShoot(targetWRTBot);
         if(lastTargetPose != null) {
@@ -649,16 +657,17 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         // Calculate the amount the ball moved due to robot velocity in the time it takes for the ball to land in the target
-        Translation2d amountMoved = new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
+        Translation2d amountMoved = new Translation2d(adjustedVx * timeToShoot, adjustedVy * timeToShoot);
         Translation2d finalTarget = targetWRTBot.plus(amountMoved.times(-1));
 
         // Iterate to zoom in to find the final target, get closer and closer each time
         for(int i = 0; i < 6; i++) {
             timeToShoot = getTimeToShoot(finalTarget);
-            amountMoved =  new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
+            amountMoved =  new Translation2d(adjustedVx * timeToShoot, adjustedVy * timeToShoot);
             finalTarget = targetWRTBot.plus(amountMoved.times(-1));
         }
-        
+        prevTimeStamp = Timer.getFPGATimestamp();
+        prevRobotVelocity = velocityRobotWRTRobot;
         return finalTarget;
     }
 
