@@ -43,8 +43,6 @@ public class CoordinationSubsystem extends SubsystemBase {
     private ZoneState previousZone = ZoneState.SHOOTING_ZONE;
     private ZoneState currentZone = ZoneState.SHOOTING_ZONE;
 
-    private boolean hardCodedState = false;
-
     private boolean driverAllowingShooting = false;
     private boolean shouldBeIntaking = false;
     private boolean rejecting = false;

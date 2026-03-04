@@ -25,6 +25,7 @@ import frc.robot.Constants.RobotConstants.ClimberConstants;
 import frc.robot.Constants.RobotConstants.ClimberConstants.ClimbPositions;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 
+@SuppressWarnings("unused")
 public class ClimberSubsystem extends SubsystemBase {
 
     /* ========== INSTANCE ========= */

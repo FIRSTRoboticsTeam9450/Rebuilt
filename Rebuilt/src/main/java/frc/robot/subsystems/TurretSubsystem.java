@@ -36,7 +36,6 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
 import frc.robot.Constants.RobotConstants.TurretConstants;
-import frc.robot.subsystems.ShooterSubsystem.AngleState;
 
 /**
  * Subsystem controlling the turret mechanism with field-relative tracking.

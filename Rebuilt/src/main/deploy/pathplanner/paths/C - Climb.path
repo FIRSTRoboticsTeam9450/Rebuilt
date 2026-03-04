@@ -20,7 +20,7 @@
         "y": 3.35
       },
       "prevControl": {
-        "x": 2.432911111111111,
+        "x": 2.4329111111111104,
         "y": 3.3402555555555566
       },
       "nextControl": null,
@@ -53,7 +53,7 @@
   "eventMarkers": [
     {
       "name": "SetIntake",
-      "waypointRelativePos": 0.85,
+      "waypointRelativePos": 0.6,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -64,12 +64,34 @@
     },
     {
       "name": "SetFire",
-      "waypointRelativePos": 0.98,
+      "waypointRelativePos": 0.65,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "ClimberUp",
+      "waypointRelativePos": 0.7373396353814916,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ClimberUp"
+        }
+      }
+    },
+    {
+      "name": "ClimberDown",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ClimberDown"
         }
       }
     }
