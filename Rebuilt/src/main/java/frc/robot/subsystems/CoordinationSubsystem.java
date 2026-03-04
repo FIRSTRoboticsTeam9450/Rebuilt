@@ -486,18 +486,15 @@ public class CoordinationSubsystem extends SubsystemBase {
     //     // return (TurretSubsystem.getInstance().updateTargetFromPose(futureTarget));// - TurretSubsystem.getInstance().getcu)/time;
     // }
 
-    public void setState(AbsoluteStates state, boolean hardCodeClimb) {
-        if (hardCodeClimb) {
-            hardCodedState = true;
-        }
-        if (currentState != AbsoluteStates.CLIMB && hardCodedState) {
+    public void setState(AbsoluteStates state, boolean forceStateChange) {
+        if (currentState != AbsoluteStates.CLIMB || forceStateChange) {
             currentState = state;
             applyState();
         }
     }
 
-    public Command setStateCommand(AbsoluteStates state, boolean hardCodeClimb) {
-        return new InstantCommand(() -> setState(state, hardCodeClimb));
+    public Command setStateCommand(AbsoluteStates state, boolean forceStateChange) {
+        return new InstantCommand(() -> setState(state, forceStateChange));
     }
 
     // ======================= INIT ===================

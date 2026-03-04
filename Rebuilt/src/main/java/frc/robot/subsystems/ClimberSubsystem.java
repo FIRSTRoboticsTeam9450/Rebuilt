@@ -491,9 +491,9 @@ public class ClimberSubsystem extends SubsystemBase {
         return Commands.either(
             new InstantCommand(() -> setClimbState(ClimbStates.INIT)),
             Commands.either(
-                    new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)).alongWith(new WaitCommand(0.5).alongWith(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, false))),
+                    new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)).alongWith(new WaitCommand(0.5).alongWith(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true))),
                     Commands.either(
-                        CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, true).alongWith(new WaitCommand(0.4).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
+                        CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new WaitCommand(0.4).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
                         Commands.either(
                             Commands.either(
                                 new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 

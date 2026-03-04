@@ -1,0 +1,120 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.592666666666667,
+        "y": 4.064233333333333
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.6583452211126959,
+        "y": 3.6662482168330954
+      },
+      "isLocked": false,
+      "linkedName": "AgainstHubStart"
+    },
+    {
+      "anchor": {
+        "x": 1.9197645030908226,
+        "y": 3.1531646873514028
+      },
+      "prevControl": {
+        "x": 1.7890548621017592,
+        "y": 3.409706452092249
+      },
+      "nextControl": {
+        "x": 2.050474144079886,
+        "y": 2.8966229226105566
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.014950071326675,
+        "y": 2.3076890156918695
+      },
+      "prevControl": {
+        "x": 6.014950071326675,
+        "y": 2.3076890156918695
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "B - Landing Spot"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.04,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 0.3,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.85,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 1.1,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.0324105334233708,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 1.5,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Bump",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.0883444444444443,
-        "y": 1.1701333333333321
+        "x": 0.9596576319543504,
+        "y": 0.6515406562054205
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5889888888888892,
-        "y": 2.9143888888888885
+        "x": 2.162952924393723,
+        "y": 2.799358059914409
       },
       "isLocked": false,
       "linkedName": "O - Sit"
@@ -20,8 +20,8 @@
         "y": 3.35
       },
       "prevControl": {
-        "x": 2.482730124599869,
-        "y": 3.35
+        "x": 2.654621968616262,
+        "y": 3.420413694721826
       },
       "nextControl": null,
       "isLocked": false,
@@ -67,7 +67,7 @@
   "folder": "Outpost",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -125.00000000000001
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
