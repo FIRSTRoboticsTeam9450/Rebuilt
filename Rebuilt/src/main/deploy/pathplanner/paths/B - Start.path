@@ -44,20 +44,7 @@
       "linkedName": "B - Landing Spot"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.04,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 0.3,
-      "rotationDegrees": 180.0
-    },
-    {
-      "waypointRelativePos": 1.85,
-      "rotationDegrees": 180.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
@@ -114,7 +101,7 @@
   "folder": "Bump",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

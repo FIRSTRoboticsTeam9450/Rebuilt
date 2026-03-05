@@ -134,6 +134,7 @@ public class Robot extends LoggedRobot {
     VisionSubsystem.getInstance().setThrottle(0);
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledStdDev);
     VisionSubsystem.getInstance().setLLIMUModes(0);
+    // VisionSubsystem.getInstance().setLLIMUAssistAlpha(0.01);
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */

@@ -339,7 +339,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Convert RPS to degrees/sec
         double currentVelocityDegPerSec = cachedMotorVelocity 
             * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
-        Logger.recordOutput("Rebuilt/Turret/CurrentVelocityDegPerSec", currentVelocityDegPerSec);
+        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentVelocityDegPerSec", currentVelocityDegPerSec);
 
         // Calculate stopping distance: v² / (2a)
         double maxDeceleration = currentRateLimit;
@@ -418,7 +418,7 @@ public class TurretSubsystem extends SubsystemBase {
                 //     }
                 // }
             }
-            Logger.recordOutput("Rebuilt/Turret/MaxVelocity", maxVelocity);
+            Logger.recordOutput("Rebuilt/Turret/Veloc Net/MaxVelocity", maxVelocity);
         }
         Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);
         Logger.recordOutput("Rebuilt/Turret/Veloc Net/Calculated Veloc", targetVeloc);
@@ -735,12 +735,12 @@ public class TurretSubsystem extends SubsystemBase {
                 } else if (profiledSetpointDeg == MIN_ANGLE_DEG) {
                     if (controllersCurrentRumbling != 0.05) {
                         controllersCurrentRumbling = 0.05;
-                        driverController.setRumble(RumbleType.kLeftRumble, 0.05);
+                        driverController.setRumble(RumbleType.kLeftRumble, 0.15);
                     }
                 } else if (profiledSetpointDeg == MAX_ANGLE_DEG) {
                     if (controllersCurrentRumbling != 0.1) {
                         controllersCurrentRumbling = 0.1;
-                        driverController.setRumble(RumbleType.kRightRumble, 0.1);
+                        driverController.setRumble(RumbleType.kRightRumble, 0.15);
                     }
                 } else {
                     if (controllersCurrentRumbling != 0.0) {
@@ -781,6 +781,8 @@ public class TurretSubsystem extends SubsystemBase {
 
         //Debugging For Creating Velocity Safety Net
         Logger.recordOutput("Rebuilt/Turret/Pos/Distance to Stop", degreesToStopWithCurrentVelocity);
+
+        Logger.recordOutput("Rebuilt/Turret/Pos/Manual Adjustment", manualShift);
 
         if (logDebuggingToggle.get()) {
 
@@ -1044,6 +1046,11 @@ public class TurretSubsystem extends SubsystemBase {
 
         double error = Math.abs(cachedAngleDeg - profiledSetpointDeg);
         return error < toleranceDeg;
+    }
+
+    public boolean isTurretGoodToFire() {
+        if (profiledSetpointDeg == MIN_ANGLE_DEG || profiledSetpointDeg == MAX_ANGLE_DEG) return false;
+        return isAtTotalGoal();
     }
 
     public boolean isAtTotalGoal() {

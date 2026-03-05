@@ -58,10 +58,11 @@ public final class Constants {
       }
 
       public static final class ClimbPositions {
-        public static final double kElevatorStore = -1;
+        public static final double kElevatorReach = -1;
         public static final double kElevatorHandoff = -0.5;
         public static final double kElevatorL3Store = -35;
         public static final double kElevatorClimb = -146.5; //-148
+        public static final double kElevatorStore = -122.5;
 
         public static final double kTelescopeStore = 0.5;
         public static final double kTelescopeHandoff = 0;
@@ -112,20 +113,20 @@ public final class Constants {
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
 
-      public static final double ENCODER_MAGNET_OFFSET = 0.0634765625;
+      public static final double ENCODER_MAGNET_OFFSET = 0.04443359375;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
       public static final double ROTOR_TO_SENSOR_RATIO = 0.022211653247;//01632653; //42.552137677193921189;// 0.02350058198; //1 cycoidal, 1 7.5:1: 0.0625850 //Both Cycoidals: 0.001827990359168
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.93288943638;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
-      public static final double TURRET_OFFSET_TO_ZERO = 180; 
-      public static final double TURRET_OFFSET_TO_TARGET = 0;//3; //V1: 5
+      public static final double TURRET_OFFSET_TO_ZERO = 180;
+      public static final double TURRET_OFFSET_TO_TARGET = -1.75;//3; //V1: 5
 
-      public static final double TOTAL_ROTATION_DEGREES = 270;
+      public static final double TOTAL_ROTATION_DEGREES = 330;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
-      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 8.5714285714; //2.24; // TODO: prob wrong, fix itttttt Lantern: 2.24
+      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 8.5714285714; //2.24;
       public static final double ABS_ENCDR_POS_TO_ANGLE = 360;
     }
     

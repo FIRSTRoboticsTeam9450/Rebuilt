@@ -32,9 +32,9 @@ public class PositionAlignCommand extends Command {
     CommandSwerveDrivetrain drivetrain;
 
     /* --------------- PIDs --------------- */
-    private PIDController pidX = new PIDController(3, 0, 0.5);
-    private PIDController pidY = new PIDController(4, 0, 0.5);
-    private PIDController pidR = new PIDController(5, 0, 0.5);
+    private PIDController pidX = new PIDController(2.5, 0, 0.0);
+    private PIDController pidY = new PIDController(2.5, 0, 0.0);
+    private PIDController pidR = new PIDController(2.5, 0, 0.0);
 
     /* --------------- Timer --------------- */
     private Timer timer = new Timer();
@@ -45,6 +45,7 @@ public class PositionAlignCommand extends Command {
     private Pose2d currentFieldPose;
     private boolean redAlliance;
     private double[] offsetArr = new double[3];
+    private double tagLeftOffset = 0.0;
 
     /* --------------- Debugging Variables --------------- */
     private double debuggingXPower;
@@ -54,8 +55,8 @@ public class PositionAlignCommand extends Command {
     /* --------------- Drive Request --------------- */
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
                                                                              .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                                                                             .withRotationalDeadband(0.1)
-                                                                             .withDeadband(0.175);
+                                                                             .withRotationalDeadband(0.05)
+                                                                             .withDeadband(0.05);
 
 
     /*  ┌───────────────────────────┐
@@ -112,7 +113,7 @@ public class PositionAlignCommand extends Command {
         currentFieldPose = drivetrain.getState().Pose;
 
         /* ---------- Scoot ---------- */
-        if (atSetpoint(0.03, 0.1)) {
+        if (atSetpoint(0.0185, 0.04)) {
             offsetArr = calculateAlignPosition(targetPose, 0.35);
             pidX.setSetpoint(offsetArr[0]);
             pidY.setSetpoint(offsetArr[1]);
@@ -145,14 +146,13 @@ public class PositionAlignCommand extends Command {
 
         /* --------------- Offset Calculations --------------- */
         //Calculate how far in and to the side we wish to be relative to the Tower
-        double tagLeftOffset;
         switch (alignSide) {
             case LEFT:
-                tagLeftOffset = -0.5; //-0.5
+                tagLeftOffset = -0.39; //-0.5
                 break;
 
             case RIGHT:
-                tagLeftOffset = 0.4873; //0.5
+                tagLeftOffset = 0.475; //0.5
                 break;
 
             default:
@@ -285,6 +285,9 @@ public class PositionAlignCommand extends Command {
 
         //Field Pose we use for calculations
         Logger.recordOutput("Rebuilt/Pose-Align/Assumed Field Pose", currentFieldPose);
+
+        Logger.recordOutput("Rebuilt/Pose-Align/Align Side", alignSide);
+        Logger.recordOutput("Rebuilt/Pose-Align/Align Offset", tagLeftOffset);
 
         //Different powers calculated off of offsets and other conditions
         Logger.recordOutput("Rebuilt/Pose-Align/Drive Power/X Power", debuggingXPower);

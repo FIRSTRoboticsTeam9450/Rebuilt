@@ -57,7 +57,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean previousGoodToShoot = goodToFire();
     private boolean checkZeroing = false;
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Coord", false);
-    private boolean shiftingTurret = false;
+    private boolean shiftingTurret = true;
 
     public CoordinationSubsystem() {
         
@@ -318,11 +318,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean isTurretReady() {
-        return TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING && TurretSubsystem.getInstance().isAtTotalGoal();
-        // if (DriverStation.isAutonomous() && (currentZone == ZoneState.FERRY_ZONE_TOP || currentZone == ZoneState.FERRY_ZONE_BOTTOM)) {
-        //     return TurretSubsystem.getInstance().isAtTotalGoal() && TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING;
-        // }
-        // return TurretSubsystem.getInstance().isAtProfiledGoal() && TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING;
+        return TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING && TurretSubsystem.getInstance().isTurretGoodToFire();
     }
 
     public boolean areShooterAndTurretReady() {
@@ -380,14 +376,17 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public Command increaseManualAdjust() {
+        // return new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust());
         return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().addManualVelocityShift()), (() -> shiftingTurret));
     }
 
     public Command decreaseManualAdjust() {
+        // return new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust());
         return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualVelocityShift()), (() -> shiftingTurret));
     }
 
     public Command resetManualAdjust() {
+        // return new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust());
         return Commands.either(new InstantCommand(() -> TurretSubsystem.getInstance().resetManualAdjust()), new InstantCommand(() -> ShooterSubsystem.getInstance().resetManualVelocityShift()), (() -> shiftingTurret));
     }
 

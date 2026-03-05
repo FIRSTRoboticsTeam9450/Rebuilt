@@ -161,13 +161,13 @@ public class ShooterSubsystem extends SubsystemBase {
         // shootingDistanceToVelocity.put(4.1, 32.65);
         // shootingDistanceToVelocity.put(4.766, 34.5 * 1.03);
 
-        shootingDistanceToVelocity.put(0.951, 25.75);
-        shootingDistanceToVelocity.put(1.754, 27.75);
-        shootingDistanceToVelocity.put(2.282, 29.5);
-        shootingDistanceToVelocity.put(3.2, 31.5);
-        shootingDistanceToVelocity.put(3.648, 33.5);
-        shootingDistanceToVelocity.put(4.448, 35.5);
-        shootingDistanceToVelocity.put(5.157, 37.0);
+        shootingDistanceToVelocity.put(0.951, 26.75);
+        shootingDistanceToVelocity.put(1.754, 28.75);
+        shootingDistanceToVelocity.put(2.282, 30.5);
+        shootingDistanceToVelocity.put(3.2, 32.5);
+        shootingDistanceToVelocity.put(3.648, 34.5);
+        shootingDistanceToVelocity.put(4.448, 36.5);
+        shootingDistanceToVelocity.put(5.157, 37.5);
 
         // Shooting Data Time
         shootingDistanceToTime.put(0.951, 1.048);
@@ -183,6 +183,7 @@ public class ShooterSubsystem extends SubsystemBase {
         ferryingDistanceToVelocity.put(4.962, 32.72);
         ferryingDistanceToVelocity.put(7.622, 39.03);
         ferryingDistanceToVelocity.put(11.26, 49.0);
+        ferryingDistanceToVelocity.put(16.26, 62.75);
 
 
         
@@ -318,6 +319,8 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
+
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/Manual Adjustment", manualShift);
 
 
         if (logDebuggingToggle.get()) { // To get rid of loop overruns
@@ -600,11 +603,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void addManualVelocityShift() {
-        manualShift += 2;
+        manualShift += 0.5;
     }
 
     public void subtractManualVelocityShift() {
-        manualShift -= 2;
+        manualShift -= 0.5;
     }
 
     public void resetManualVelocityShift() {

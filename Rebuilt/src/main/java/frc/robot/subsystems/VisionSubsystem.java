@@ -643,13 +643,9 @@ public class VisionSubsystem extends SubsystemBase {
      * Get the pose of the adjusted target based on how fast it's moving
      * @return
      */
-    public Translation2d getAdjustedTarget(Translation2d givenTargetWRTBot, Translation2d lastTargetPose) {
+        public Translation2d getAdjustedTarget(Translation2d givenTargetWRTBot, Translation2d lastTargetPose) {
         Translation2d targetWRTBot = givenTargetWRTBot;
         ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
-        double ax = velocityRobotWRTRobot.vxMetersPerSecond - prevRobotVelocity.vxMetersPerSecond;
-        double ay = velocityRobotWRTRobot.vyMetersPerSecond - prevRobotVelocity.vyMetersPerSecond;
-        double adjustedVx = velocityRobotWRTRobot.vxMetersPerSecond + (ax * (Timer.getFPGATimestamp() - prevTimeStamp));
-        double adjustedVy = velocityRobotWRTRobot.vyMetersPerSecond + (ay * (Timer.getFPGATimestamp() - prevTimeStamp));
 
         double timeToShoot = getTimeToShoot(targetWRTBot);
         if(lastTargetPose != null) {
@@ -657,19 +653,19 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         // Calculate the amount the ball moved due to robot velocity in the time it takes for the ball to land in the target
-        Translation2d amountMoved = new Translation2d(adjustedVx * timeToShoot, adjustedVy * timeToShoot);
+        Translation2d amountMoved = new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
         Translation2d finalTarget = targetWRTBot.plus(amountMoved.times(-1));
 
         // Iterate to zoom in to find the final target, get closer and closer each time
         for(int i = 0; i < 6; i++) {
             timeToShoot = getTimeToShoot(finalTarget);
-            amountMoved =  new Translation2d(adjustedVx * timeToShoot, adjustedVy * timeToShoot);
+            amountMoved =  new Translation2d(velocityRobotWRTRobot.vxMetersPerSecond * timeToShoot, velocityRobotWRTRobot.vyMetersPerSecond * timeToShoot);
             finalTarget = targetWRTBot.plus(amountMoved.times(-1));
         }
-        prevTimeStamp = Timer.getFPGATimestamp();
-        prevRobotVelocity = velocityRobotWRTRobot;
+        
         return finalTarget;
     }
+
 
     /**
      * Get the future target's pose in a certain amount of time, use this and the 
@@ -901,6 +897,12 @@ public class VisionSubsystem extends SubsystemBase {
     public void setLLIMUModes(int mode) {
         for (LimelightObject limelight : LIMELIGHT_LIST) {
             LimelightHelpers.SetIMUMode(limelight.getName(), mode); // Use internal IMU + external IMU
+        }
+    }
+
+    public void setLLIMUAssistAlpha(double alphaValue) {
+        for (LimelightObject limelight : LIMELIGHT_LIST) {
+            LimelightHelpers.SetIMUAssistAlpha(limelight.getName(), alphaValue);
         }
     }
 

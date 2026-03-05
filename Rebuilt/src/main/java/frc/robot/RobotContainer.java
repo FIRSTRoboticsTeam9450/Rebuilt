@@ -14,7 +14,9 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -55,7 +57,7 @@ public class RobotContainer {
   public BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
 
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-  private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(.75).in(RadiansPerSecond);
+  private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
   private static final double scalarFactorForSpeed = 0.3;
 
@@ -92,11 +94,11 @@ public class RobotContainer {
     autoChooser.addOption("P - Bottom Start", drivetrain.getAutoPath("P - Bottom Start", false));
     autoChooser.addOption("P - Top Start", drivetrain.getAutoPath("P - Top Start", false));
     autoChooser.addOption("O - Climb", drivetrain.getAutoPath("Outpost", false));
+    autoChooser.addOption("Bump Auto", drivetrain.getAutoPath("Bump", false));
 
-    autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
-
-    autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
-    autoChooser.addOption("Slip Test", drivetrain.getAutoPath("Slip Testing", false));
+    // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
+    // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
+    // autoChooser.addOption("Slip Test", drivetrain.getAutoPath("Slip Testing", false));
     // autoChooser.addOption("Drive Test", drivetrain.getAutoPath("Drive Straight", false));
     // autoChooser.addOption("Drive Test S", drivetrain.getAutoPath("Drive S", false));
     // autoChooser.addOption("Drive And Return", drivetrain.getAutoPath("Drive And Return", false));
@@ -164,15 +166,19 @@ public class RobotContainer {
       CoordinationSubsystem.getInstance().setForceTrenchCommand()
     );
 
-    OPERATOR.x().onTrue(new InstantCommand(() -> CoordinationSubsystem.getInstance().increaseManualAdjust()));
-    OPERATOR.y().onTrue(new InstantCommand(() -> CoordinationSubsystem.getInstance().resetManualAdjust()));
-    OPERATOR.b().onTrue(new InstantCommand(() -> CoordinationSubsystem.getInstance().decreaseManualAdjust()));
+    OPERATOR.x().onTrue(CoordinationSubsystem.getInstance().increaseManualAdjust());
+    OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().resetManualAdjust());
+    OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().decreaseManualAdjust());
 
-    OPERATOR.leftStick().onTrue(CoordinationSubsystem.getInstance().setShiftingCommand(true)).onFalse(CoordinationSubsystem.getInstance().setShiftingCommand(false));
+    OPERATOR.a().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setForceClimberDownCommand()).alongWith(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true)));
 
-    OPERATOR.a().onTrue(new InstantCommand(() -> CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true)));
+    OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.INIT, true));
 
-    OPERATOR.povUp().onTrue(ClimberSubsystem.getInstance().setClimbStateAndLevelCommand());
+    OPERATOR.leftStick().onTrue(CoordinationSubsystem.getInstance().setShiftingCommand(false)).onFalse(CoordinationSubsystem.getInstance().setShiftingCommand(true));
+
+    OPERATOR.povUp().onTrue(
+      Commands.either(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.STORING)), ClimberSubsystem.getInstance().setClimbStateAndLevelCommand(), (() -> DriverStation.isTest()))
+      );
 
     OPERATOR.povDown().onTrue(
       VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(true)
