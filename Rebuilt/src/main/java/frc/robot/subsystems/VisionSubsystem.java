@@ -101,6 +101,7 @@ public class VisionSubsystem extends SubsystemBase {
     private double updateTargetAndZoneOffset = 0;
 
     private boolean bumpDetected = false;
+    private double bumpMeasurmentCount = 5;
     private boolean odomPoseOutsideField = false;
     private boolean operatorForcedVisionTrust = false;
 
@@ -242,6 +243,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         if (robotRoll > 6 || robotPitch > 6) {
             bumpDetected = true;
+            bumpMeasurmentCount = 0;
         }
 
         Logger.recordOutput("Rebuilt/Vision/Odom Pose outside Field", odomPoseOutsideField);
@@ -286,10 +288,18 @@ public class VisionSubsystem extends SubsystemBase {
             lastVisionTimestamp = measurements.stream()
                 .mapToDouble(VisionMeasurement::timestamp)
                 .max().orElse(0.0);
-            if (bumpDetected || odomPoseOutsideField || operatorForcedVisionTrust) {
-                bumpDetected = false;
+            if (odomPoseOutsideField || operatorForcedVisionTrust) {
                 odomPoseOutsideField = false;
                 setVisionMeasurementStdDevs(badOdomStdDev);
+            } else if (bumpDetected || bumpMeasurmentCount <= 5) {
+                if (bumpDetected) {
+                    bumpDetected = false;
+                    setVisionMeasurementStdDevs(badOdomStdDev);
+                } else {
+                    double stdDev = 0.4 * bumpMeasurmentCount;
+                    setVisionMeasurementStdDevs(stdDev, stdDev, badOdomStdDev.get(2));
+                    bumpMeasurmentCount++;
+                }
             } else {
                 setVisionMeasurementStdDevs(defaultVisionStdDevX, defaultVisionStdDevY, defaultVisionStdDevTheta);
             }
@@ -322,19 +332,16 @@ public class VisionSubsystem extends SubsystemBase {
         boolean poseValid = true;
         boolean llIMUValid = true;
         
-        if (llData.botPose != null) {
+        if (llData.megaTagEstimate != null) {
             // Extract 3D pose data from botpose array
             // botpose format: [x, y, z, roll, pitch, yaw, ...]
-            double[] botpose = llData.botPose;
+            Pose2d botpose = llData.megaTagEstimate.pose;
             double[] llPose = {llData.imuData.Roll, llData.imuData.Pitch};
             
-            if (botpose != null && botpose.length >= 6) {
-                double x = botpose[0];
-                double y = botpose[1];
-                double z = botpose[2];
-                double roll = botpose[3];
-                double pitch = botpose[4];
-                double visionYaw = botpose[5];
+            if (botpose != null) {
+                double x = botpose.getX();
+                double y = botpose.getY();
+                double visionYaw = botpose.getRotation().getDegrees();
 
                 double llRoll = llPose[0];
                 double llPitch = llPose[1];
@@ -345,9 +352,6 @@ public class VisionSubsystem extends SubsystemBase {
                 // Validation checks
                 boolean xValid = (x > 0) && (x < 16.565);
                 boolean yValid = (y > 0) && (y < 8.095);
-                boolean zValid = Math.abs(z) <= MAX_Z_THRESHOLD;
-                boolean rollValid = Math.abs(roll) <= MAX_ROLL_THRESHOLD;
-                boolean pitchValid = Math.abs(pitch) <= MAX_PITCH_THRESHOLD;
 
                 boolean llRollValid = Math.abs(llRoll) < 20;
                 boolean llPitchValid = Math.abs(-28.1 - llPitch) < 20;
@@ -364,14 +368,11 @@ public class VisionSubsystem extends SubsystemBase {
                 }
                 
                 // Pose is only valid if all checks pass
-                poseValid = xValid && yValid && zValid && rollValid && pitchValid && yawValid;
+                poseValid = xValid && yValid && yawValid;
                 llIMUValid = llRollValid && llPitchValid;
                 
                 // Optional: Log which check failed for debugging
                 if (!poseValid) {
-                    if (!zValid) Logger.recordOutput("Rebuilt/Vision/" + llData.name + "/InvalidZ", z);
-                    if (!rollValid) Logger.recordOutput("Rebuilt/Vision/" + llData.name + "/InvalidRoll", roll);
-                    if (!pitchValid) Logger.recordOutput("Rebuilt/Vision/" + llData.name + "/InvalidPitch", pitch);
                     if (!yawValid) Logger.recordOutput("Rebuilt/Vision/" + llData.name + "/InvalidYawDiff", yawDiff);
                 }
             }
@@ -490,6 +491,8 @@ public class VisionSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
 
+        Logger.recordOutput("Rebuilt/Vision/Bump Measurement Count", bumpMeasurmentCount);
+
         if (loopOffset > 5) {
             loopOffset = 0;
             Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
@@ -536,7 +539,7 @@ public class VisionSubsystem extends SubsystemBase {
             
             // Robot state
             Logger.recordOutput("Rebuilt/Vision/Robot/Pigeon Yaw", 
-                drivetrain.getPigeon2().getYaw().getValueAsDouble() - RobotContainer.pigeonOffset);
+                drivetrain.getPigeon2().getYaw().getValueAsDouble());
 
             // Current bot pose
             // Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);

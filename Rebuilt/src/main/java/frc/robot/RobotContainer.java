@@ -76,8 +76,6 @@ public class RobotContainer {
 
   public LoggedDashboardChooser<Command> autoChooser;
 
-  public static double pigeonOffset = 0;
-
   public RobotContainer() {
 
     TurretSubsystem.getInstance().setDriverController(DRIVER);
