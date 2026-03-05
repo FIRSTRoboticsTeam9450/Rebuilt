@@ -63,6 +63,17 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "ZeroIntake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ZeroIntake"
+        }
+      }
+    },
+    {
       "name": "SetFire",
       "waypointRelativePos": 0.0324105334233708,
       "endWaypointRelativePos": null,

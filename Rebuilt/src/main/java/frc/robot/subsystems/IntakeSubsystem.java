@@ -24,7 +24,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     //List the states the intake will use
     public enum IntakePos {
-        SYS_ID,
+        HOLD_ON_FOR_TRENCH,
         ZEROING,
         STORE,
         CLIMB_STORE,
@@ -39,7 +39,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     }
 
     //Set the current state of the robot to be idle
-    private IntakePos currentPos = IntakePos.ZEROING;
+    private IntakePos currentPos = IntakePos.HOLD_ON_FOR_TRENCH;
     private IntakeState currentState = IntakeState.IDLING;
     
     //Set up motors
@@ -134,7 +134,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if(!isZeroing) {
+        if(currentPos != IntakePos.HOLD_ON_FOR_TRENCH && !isZeroing) {
             currentPos = IntakePos.ZEROING;
             isZeroing = isZeroingDone();
         }
@@ -144,7 +144,8 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private void applyState() {
         switch (currentPos) {
-            case SYS_ID:
+            case HOLD_ON_FOR_TRENCH:
+                motorArm.stopMotor();
                 break;
 
             case ZEROING:
@@ -182,28 +183,10 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
             
             case INTAKING:
-            
-                    // if (hasReachedIntakeLocation && motorWheels.getMotorVoltage().getValueAsDouble() > 5 && motorWheels.getVelocity().getValueAsDouble() < 75) {
-                //     motorWheels.setControl(voltageRequest.withOutput(-logIntakingTarget.get()));
-                // } else {
-                // else if(checkJam()) {
-                //     motorWheels.setControl(voltageRequest.withOutput(-1));
-                //     if(!unjamTimerStarted) {
-                //         unjamTimerStarted = true;
-                //         unjamTimer.restart();
-                //     }
-                //     if(unjamTimer.get() > 1) {
-                //         unjammed = true;
-                //         unjamTimerStarted = false;
-                //         jamTimerStarted = false;
-                //     }
-                // }
-                // else {
                 if(reversing) {
                     intakingTargetVolts = -intakingTargetVolts;
                 }
-                    motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts));
-                // }
+                motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts));
                 break;
         }
     }

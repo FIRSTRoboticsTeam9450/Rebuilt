@@ -28,6 +28,8 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
+import frc.robot.subsystems.IntakeSubsystem.IntakePos;
+import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
@@ -240,6 +242,8 @@ public class RobotContainer {
 
   public void registeredCommands() {
     // Intake Commands
+    NamedCommands.registerCommand("ZeroIntake", IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.ZEROING, IntakeState.IDLING));
+
     NamedCommands.registerCommand("SetIntake", CoordinationSubsystem.getInstance().setIntakeCommand());
     NamedCommands.registerCommand("SetFire", CoordinationSubsystem.getInstance().setFireCommand());
     NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());

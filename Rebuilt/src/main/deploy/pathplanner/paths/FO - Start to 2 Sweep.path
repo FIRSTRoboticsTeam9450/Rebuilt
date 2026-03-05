@@ -49,6 +49,17 @@
       }
     },
     {
+      "name": "ZeroIntake",
+      "waypointRelativePos": 0.12964213369344538,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ZeroIntake"
+        }
+      }
+    },
+    {
       "name": "ForceTrench",
       "waypointRelativePos": 0.3,
       "endWaypointRelativePos": null,
@@ -60,17 +71,6 @@
       }
     },
     {
-      "name": "SetIntake",
-      "waypointRelativePos": 0.34838709677419405,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetIntake"
-        }
-      }
-    },
-    {
       "name": "SetFire",
       "waypointRelativePos": 0.35,
       "endWaypointRelativePos": null,
@@ -78,6 +78,17 @@
         "type": "named",
         "data": {
           "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.43484132343011034,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
         }
       }
     }

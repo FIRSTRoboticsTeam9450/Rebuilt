@@ -41,7 +41,7 @@
       },
       "nextControl": {
         "x": 7.855407282391427,
-        "y": 0.4941360369091927
+        "y": 0.49413603690919283
       },
       "isLocked": false,
       "linkedName": null
@@ -103,6 +103,17 @@
         "type": "named",
         "data": {
           "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "ZeroIntake",
+      "waypointRelativePos": 0.17825793382848865,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ZeroIntake"
         }
       }
     }
