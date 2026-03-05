@@ -105,7 +105,7 @@ public class ClimberSubsystem extends SubsystemBase {
         L3,
     }
 
-    private ClimbStates currentClimbState = ClimbStates.ZEROING;
+    private ClimbStates currentClimbState = ClimbStates.STANDBY;
     private ClimbLevel currentClimbLevel = ClimbLevel.L1;
 
     /* ========== VARIALBES ========= */
@@ -116,8 +116,8 @@ public class ClimberSubsystem extends SubsystemBase {
     private double currentTelescopeSetpoint = 0;
     private double overrideTelescopeSetpoint = 0;
 
-    private boolean isTelescopeZeroingDone = false;
-    private boolean isElevatorZeroingDone = false;
+    private boolean isTelescopeZeroingDone = true;
+    private boolean isElevatorZeroingDone = true;
 
     private boolean atTarget;
 
@@ -244,6 +244,7 @@ public class ClimberSubsystem extends SubsystemBase {
             case STORING:
                 setTelescopeTarget(ClimbPositions.kTelescopeStore);
                 setElevatorTarget(ClimbPositions.kElevatorStore);
+                break;
 
             case STANDBY:
                 elevatorClimbMotor.stopMotor();

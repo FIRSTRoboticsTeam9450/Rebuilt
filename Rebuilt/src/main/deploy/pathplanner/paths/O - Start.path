@@ -16,28 +16,19 @@
     },
     {
       "anchor": {
-        "x": 0.9596576319543504,
-        "y": 0.6515406562054205
+        "x": 0.8,
+        "y": 0.652
       },
       "prevControl": {
-        "x": 2.4605420827389435,
-        "y": 0.5868473609129818
+        "x": 2.3008844507845936,
+        "y": 0.5873067047075614
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "O - Sit"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.06058091286306795,
-      "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 0.47717842323651144,
-      "rotationDegrees": -125.00000000000001
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [

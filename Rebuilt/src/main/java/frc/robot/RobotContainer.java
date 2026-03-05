@@ -178,7 +178,7 @@ public class RobotContainer {
 
     OPERATOR.povUp().onTrue(
       Commands.either(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.STORING)), ClimberSubsystem.getInstance().setClimbStateAndLevelCommand(), (() -> DriverStation.isTest()))
-      );
+    );
 
     OPERATOR.povDown().onTrue(
       VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(true)
