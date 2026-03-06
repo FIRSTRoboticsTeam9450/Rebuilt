@@ -3,9 +3,10 @@
   "robotLength": 0.81,
   "holonomicMode": true,
   "pathFolders": [
+    "Bump",
     "Climb",
     "Ferry Only",
-    "Bump",
+    "Preload Only",
     "Outpost",
     "Push",
     "Right Side Shoot & Ferry",
@@ -13,9 +14,10 @@
     "Testing"
   ],
   "autoFolders": [
+    "Autos That Need Testing",
     "Climb",
     "Ferry",
-    "Autos That Need Testing",
+    "Emergancy Autos",
     "Push",
     "Test Autos"
   ],

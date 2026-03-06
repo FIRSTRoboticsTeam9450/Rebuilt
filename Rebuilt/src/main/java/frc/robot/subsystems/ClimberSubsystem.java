@@ -105,7 +105,7 @@ public class ClimberSubsystem extends SubsystemBase {
         L3,
     }
 
-    private ClimbStates currentClimbState = ClimbStates.STANDBY;
+    private ClimbStates currentClimbState = ClimbStates.ZEROING;
     private ClimbLevel currentClimbLevel = ClimbLevel.L1;
 
     /* ========== VARIALBES ========= */
@@ -116,8 +116,8 @@ public class ClimberSubsystem extends SubsystemBase {
     private double currentTelescopeSetpoint = 0;
     private double overrideTelescopeSetpoint = 0;
 
-    private boolean isTelescopeZeroingDone = true;
-    private boolean isElevatorZeroingDone = true;
+    private boolean isTelescopeZeroingDone = false;
+    private boolean isElevatorZeroingDone = false;
 
     private boolean atTarget;
 
@@ -205,18 +205,20 @@ public class ClimberSubsystem extends SubsystemBase {
     public void periodic() {
 
         // if (!forceZeroingIgnore) {
-            if(!isElevatorZeroingDone || !isTelescopeZeroingDone) {
+            if(!isTelescopeZeroingDone) {
                 currentClimbState = ClimbStates.ZEROING;
+                if(!isTelescopeZeroingDone) {
+                    isTelescopeZeroingDone = telescopeAutoZeroing();
+                }
+            }
+            if (!elevatorAutoZeroing()) {
                 if(!isElevatorZeroingDone) {
-                    if (elevatorClimbMotor.getMotorVoltage(false).getValueAsDouble() == 0 && elevatorClimbMotor.getVelocity(false).getValueAsDouble() == 0) {
+                    if (Math.abs(elevatorClimbMotor.getMotorVoltage(false).getValueAsDouble()) == 0 && Math.abs(elevatorClimbMotor.getVelocity(false).getValueAsDouble()) <= 0.01) {
                         zeroingTimer.restart();
                     }
                     if (zeroingTimer.get() > 0.15) {
                         isElevatorZeroingDone = elevatorAutoZeroing();
                     }
-                }
-                if(!isTelescopeZeroingDone) {
-                    isTelescopeZeroingDone = telescopeAutoZeroing();
                 }
             }
         // }
@@ -227,16 +229,10 @@ public class ClimberSubsystem extends SubsystemBase {
     private void applyStates() {
         switch (currentClimbState) {
             case ZEROING:
-                if(!isElevatorZeroingDone) {
-                    // double voltage = (-zeroingTimer.get() + 1.4) * 25;
-                    // voltage = MathUtil.clamp(voltage, 0.5, 12);
-                    // elevatorClimbMotor.setVoltage(voltage);
-                    elevatorClimbMotor.setVoltage(0.5);
-                }
                 if(!isTelescopeZeroingDone) {
                     telescopeClimbMotor.setVoltage(-0.85);
                 }
-                if(isElevatorZeroingDone && isTelescopeZeroingDone) {
+                if(isTelescopeZeroingDone) {
                     setClimbState(ClimbStates.STANDBY);
                 }
                 break;
@@ -247,7 +243,14 @@ public class ClimberSubsystem extends SubsystemBase {
                 break;
 
             case STANDBY:
-                elevatorClimbMotor.stopMotor();
+                if(!isElevatorZeroingDone) {   
+                    // double voltage = (-zeroingTimer.get() + 0.5) * 25;
+                    // voltage = MathUtil.clamp(voltage, 0.5, 12);
+                    // elevatorClimbMotor.setVoltage(voltage); //this one for comp
+                    elevatorClimbMotor.setVoltage(0.5); //this one for prac
+                } else {
+                    setElevatorTarget(ClimbPositions.kElevatorReach);
+                }
                 setTelescopeTarget(ClimbPositions.kTelescopeStore);
                 break;
 
@@ -258,7 +261,7 @@ public class ClimberSubsystem extends SubsystemBase {
                         break;
 
                     case L1:
-                        setElevatorTarget(ClimbPositions.kElevatorReach);
+                        
                         setTelescopeTarget(ClimbPositions.kTelescopeReach);
                         break;
                     

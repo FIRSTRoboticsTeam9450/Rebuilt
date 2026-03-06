@@ -252,11 +252,12 @@ public class CoordinationSubsystem extends SubsystemBase {
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
                 shooterVelocState = ShooterState.SHOOTING;
-                if (TurretSubsystem.getInstance().isAtTotalGoal() && Math.abs(TurretSubsystem.getInstance().getCurrentProfiledSetpoint()) < 1) {
-                    transferState = TransferState.RUN_IN;
-                } else {
-                    transferState = TransferState.HOLD;
-                }
+                transferState = TransferState.HOLD;
+                // if (TurretSubsystem.getInstance().isAtTotalGoal() && Math.abs(TurretSubsystem.getInstance().getCurrentProfiledSetpoint()) < 1) {
+                //     transferState = TransferState.RUN_IN;
+                // } else {
+                //     transferState = TransferState.HOLD;
+                // }
                 if (shouldBeIntaking) {
                     intakeAngleState = IntakePos.INTAKING;
                     intakeVelocState = IntakeState.INTAKING;

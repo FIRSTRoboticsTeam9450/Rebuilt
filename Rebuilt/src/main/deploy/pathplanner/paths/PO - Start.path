@@ -1,0 +1,97 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.592666666666667,
+        "y": 4.064233333333333
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.2498002853067045,
+        "y": 3.2780884450784593
+      },
+      "isLocked": false,
+      "linkedName": "AgainstHubStart"
+    },
+    {
+      "anchor": {
+        "x": 1.4,
+        "y": 3.35
+      },
+      "prevControl": {
+        "x": 2.680499286733238,
+        "y": 3.4074750356633388
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "BottomClimb"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.3603411513859288,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 0.7547974413645996,
+      "rotationDegrees": -90.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.07562457798783981,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "ClimberUp",
+      "waypointRelativePos": 0.4105334233625953,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ClimberUp"
+        }
+      }
+    },
+    {
+      "name": "ClimberDown",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ClimberDown"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 0.5,
+    "maxAcceleration": 2.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Preload Only",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": false
+}

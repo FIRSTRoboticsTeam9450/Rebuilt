@@ -39,7 +39,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     }
 
     //Set the current state of the robot to be idle
-    private IntakePos currentPos = IntakePos.HOLD_ON_FOR_TRENCH;
+    private IntakePos currentPos = IntakePos.ZEROING;
     private IntakeState currentState = IntakeState.IDLING;
     
     //Set up motors
@@ -149,7 +149,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case ZEROING:
-                motorArm.setVoltage(-1.3);
+                motorArm.setVoltage(-1.75);
                 break;
 
             case TRENCH_STORE:

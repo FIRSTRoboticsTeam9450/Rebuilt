@@ -89,12 +89,15 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
+    autoChooser.addDefaultOption("P - Top Start", drivetrain.getAutoPath("P - Top Start", false));
     autoChooser.addOption("FO - Left 2 Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", true));
     autoChooser.addOption("FO - Right 2 Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", false));
     autoChooser.addOption("P - Bottom Start", drivetrain.getAutoPath("P - Bottom Start", false));
     autoChooser.addOption("P - Top Start", drivetrain.getAutoPath("P - Top Start", false));
+    autoChooser.addOption("C - Ferry", drivetrain.getAutoPath("Ferry + Climb", false));
     autoChooser.addOption("O - Climb", drivetrain.getAutoPath("Outpost", false));
     autoChooser.addOption("Bump Auto", drivetrain.getAutoPath("Bump", false));
+    autoChooser.addOption("Preload Only", drivetrain.getAutoPath("Preload Only", false));
 
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
@@ -240,13 +243,17 @@ public class RobotContainer {
 
   public void registeredCommands() {
     // Intake Commands
-    NamedCommands.registerCommand("ZeroIntake", IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.ZEROING, IntakeState.IDLING));
+    // NamedCommands.registerCommand("ZeroIntake", IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.ZEROING, IntakeState.IDLING));
+    NamedCommands.registerCommand("ZeroIntake", new InstantCommand());
 
     NamedCommands.registerCommand("SetIntake", CoordinationSubsystem.getInstance().setIntakeCommand());
     NamedCommands.registerCommand("SetFire", CoordinationSubsystem.getInstance().setFireCommand());
     NamedCommands.registerCommand("SetFastTransfer", CoordinationSubsystem.getInstance().setFastTransferCommand());
     NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
     NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
+
+    NamedCommands.registerCommand("SetFerryTargetBottom", new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
+    NamedCommands.registerCommand("SetFerryTargetTop", new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
 
     NamedCommands.registerCommand("ClimberUp", CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new WaitCommand(0.15)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)))));
     NamedCommands.registerCommand("ClimberDown", new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
