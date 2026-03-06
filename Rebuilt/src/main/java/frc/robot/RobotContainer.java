@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -36,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlueOrigin;
+import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
 import frc.robot.commands.GoToPosCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
@@ -134,9 +136,9 @@ public class RobotContainer {
               -0.20,
               0.20,
               () -> intakeSub.isIntaking(),
-              () -> fuelSim.launchFuel(LinearVelocity.ofBaseUnits(/*shooterSub.getShooterVeloc()*/90, MetersPerSecond), 
-                                       Angle.ofBaseUnits(90 - shooterSub.getShooterAngle(), Degrees), 
-                                       Angle.ofBaseUnits(turretSub.getCurrentAngleDeg(), Degrees), 
+              () -> fuelSim.launchFuel(LinearVelocity.ofBaseUnits(shooterSub.getShooterVeloc() * .0508 * 2 * Math.PI, MetersPerSecond), 
+                                       Angle.ofBaseUnits(90 - shooterSub.getShooterAngle() * HoodConstants.degreesPerMotorRev + 8, Degrees), 
+                                       Angle.ofBaseUnits(turretSub.getFieldRelativeTarget().getRadians(), Radians), 
                                        Distance.ofBaseUnits(0.48497998, Meter))
               );
 
