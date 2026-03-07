@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -78,6 +79,8 @@ public class ClimberSubsystem extends SubsystemBase {
                             logElevatorMMAcceleration.get())
                             .withSlot(0)
                             .withEnableFOC(true);
+
+    private TorqueCurrentFOC elevatorZeroingRequest = new TorqueCurrentFOC(0);
 
     private DynamicMotionMagicVoltage telescopeRequest = 
                         new DynamicMotionMagicVoltage(0, 
@@ -204,24 +207,20 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void periodic() {
 
-        // if (!forceZeroingIgnore) {
             if(!isTelescopeZeroingDone) {
                 currentClimbState = ClimbStates.ZEROING;
                 if(!isTelescopeZeroingDone) {
                     isTelescopeZeroingDone = telescopeAutoZeroing();
                 }
             }
-            if (!elevatorAutoZeroing()) {
-                if(!isElevatorZeroingDone) {
-                    if (Math.abs(elevatorClimbMotor.getMotorVoltage(false).getValueAsDouble()) == 0 && Math.abs(elevatorClimbMotor.getVelocity(false).getValueAsDouble()) <= 0.01) {
-                        zeroingTimer.restart();
-                    }
-                    if (zeroingTimer.get() > 0.15) {
-                        isElevatorZeroingDone = elevatorAutoZeroing();
-                    }
+            if(!isElevatorZeroingDone) {
+                if (Math.abs(elevatorClimbMotor.getMotorVoltage(false).getValueAsDouble()) == 0 && Math.abs(elevatorClimbMotor.getVelocity(false).getValueAsDouble()) <= 0.01) {
+                    zeroingTimer.restart();
+                }
+                if (zeroingTimer.get() > 0.15) {
+                    isElevatorZeroingDone = elevatorAutoZeroing();
                 }
             }
-        // }
         applyStates();
         publishLogs();
     }
@@ -243,14 +242,7 @@ public class ClimberSubsystem extends SubsystemBase {
                 break;
 
             case STANDBY:
-                if(!isElevatorZeroingDone) {   
-                    // double voltage = (-zeroingTimer.get() + 0.5) * 25;
-                    // voltage = MathUtil.clamp(voltage, 0.5, 12);
-                    // elevatorClimbMotor.setVoltage(voltage); //this one for comp
-                    elevatorClimbMotor.setVoltage(0.5); //this one for prac
-                } else {
-                    setElevatorTarget(ClimbPositions.kElevatorReach);
-                }
+                elevatorClimbMotor.stopMotor();
                 setTelescopeTarget(ClimbPositions.kTelescopeStore);
                 break;
 
@@ -261,7 +253,15 @@ public class ClimberSubsystem extends SubsystemBase {
                         break;
 
                     case L1:
-                        
+                        if(!isElevatorZeroingDone) {   
+                            double amps = (-zeroingTimer.get() + 0.4) * 80;
+                            amps = MathUtil.clamp(amps, 3.75, 50);
+                            elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(amps)); //this one for comp
+                            // elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); //this one for prac
+                            // elevatorClimbMotor.stopMotor(); //this one to disable
+                        } else {
+                            setElevatorTarget(ClimbPositions.kElevatorReach);
+                        }
                         setTelescopeTarget(ClimbPositions.kTelescopeReach);
                         break;
                     
@@ -363,11 +363,14 @@ public class ClimberSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Climb/Elevator/Motor Tourqe Amps", elevatorClimbMotor.getTorqueCurrent().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Climb/Elevator/Velocity", elevatorClimbMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Climb/Elevator/Motor Control Request", elevatorClimbMotor.getAppliedControl().getName());
+        Logger.recordOutput("Rebuilt/Climb/Elevator/Finished Zeroing", isElevatorZeroingDone);
+        Logger.recordOutput("Rebuilt/Climb/Elevator/Zeroing Request Output", elevatorZeroingRequest.Output);
 
         Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
         Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
         Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Climb/Telescope/Finished Zeroing", isElevatorZeroingDone);
 
         Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbState);
         Logger.recordOutput("Rebuilt/Climb/Level", currentClimbLevel);
@@ -380,14 +383,10 @@ public class ClimberSubsystem extends SubsystemBase {
         elevatorClimbMotor.setPosition(0);
     }
 
-    /**
-     * TODO: needs to have fast start, and quick deceleration, but only when bumpers and V2 and made. Otherwise, keep how is.
-     * @return
-     */
     public boolean elevatorAutoZeroing() {
-        if(Math.abs(elevatorClimbMotor.getMotorVoltage().getValueAsDouble()) > 0.3 && Math.abs(elevatorClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
+        if(Math.abs(elevatorClimbMotor.getStatorCurrent().getValueAsDouble()) > 2 && Math.abs(elevatorClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
             elevatorClimbMotor.setPosition(0);
-            elevatorClimbMotor.setVoltage(0);
+            elevatorClimbMotor.stopMotor();
 
             return true;
         }
@@ -436,7 +435,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void setClimbState(ClimbStates state) {
         if (state == ClimbStates.STORING) forceZeroingIgnore = true;
-        if (state == ClimbStates.INIT && currentClimbLevel == ClimbLevel.L1 || state == ClimbStates.STANDBY) {
+        if ((state == ClimbStates.INIT && (currentClimbLevel == ClimbLevel.L1 || currentClimbLevel == ClimbLevel.AUTO)) || state == ClimbStates.STANDBY) {
             setElevatorRequestConstants(95, 1200);
             setTelescopingRequestConstants(95, 1400);
         } else if (state == ClimbStates.HANDOFF) {
@@ -509,7 +508,7 @@ public class ClimberSubsystem extends SubsystemBase {
         return Commands.either(
             new InstantCommand(() -> setClimbState(ClimbStates.INIT)),
             Commands.either(
-                    new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)).alongWith(new WaitCommand(0.5).alongWith(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true))),
+                    new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)).alongWith(new WaitCommand(1.0).alongWith(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true))),
                     Commands.either(
                         CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new WaitCommand(0.4).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
                         Commands.either(

@@ -529,6 +529,7 @@ public class TurretSubsystem extends SubsystemBase {
                     // profiledSetpointDeg = Math.toDegrees(
                     //     velocityLimiter.calculate(Math.toRadians(robotRelativeTargetAngleDeg)) //used to be robotRelativeTargetAngle
                     // );
+
                     profiledSetpointDeg = robotRelativeTargetAngleDeg;
                     
                     if(useManualAdjust) {

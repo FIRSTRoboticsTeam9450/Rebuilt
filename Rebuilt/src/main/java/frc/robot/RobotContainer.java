@@ -189,9 +189,11 @@ public class RobotContainer {
       VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(false)
     );
 
-    OPERATOR.povRight().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
+    // OPERATOR.povRight().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
     // OPERATOR.povRight().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.INIT))));
-    OPERATOR.povLeft().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
+    OPERATOR.povLeft().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new WaitCommand(0.15)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)))));
+    OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
+    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
 
     OPERATOR.back().onTrue(ClimberSubsystem.getInstance().setForceClimberUpCommand());
     OPERATOR.start().onTrue(ClimberSubsystem.getInstance().setForceClimberDownCommand());

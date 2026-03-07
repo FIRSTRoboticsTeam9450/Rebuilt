@@ -67,7 +67,7 @@ public final class Constants {
         public static final double kTelescopeStore = 0.5;
         public static final double kTelescopeHandoff = 0;
         public static final double kTelescopeReach = 43.3;
-        public static final double kTelescopeAutoClimb = 17.5;
+        public static final double kTelescopeAutoClimb = 20;
       }
 
     }
