@@ -567,9 +567,7 @@ public class ShooterSubsystem extends SubsystemBase {
             switchSlotBackTimer.restart();
             hasSwitchedBack = false;
         }
-        System.out.println("WantedAngleState " + wantedAngleState);
         if(wantedAngleState == AngleState.ZEROING) {
-            System.out.println("PLEASE WORK");
             isZeroingDone = false;
         }
         currentShooterState = wantedShooterState;
@@ -577,7 +575,6 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command setStateCommand(ShooterState wantedShooterState, AngleState wantedAngleState) {
-        System.out.println("SetStateCommandAngleState" + wantedAngleState);
         return new InstantCommand(() -> setState(wantedShooterState, wantedAngleState));
     }
 
@@ -586,7 +583,6 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public Command setAngleState(AngleState wantedAngleState) {
-        System.out.println("Wanted angle state" + wantedAngleState);
         return setStateCommand(currentShooterState, wantedAngleState);
     }
 
