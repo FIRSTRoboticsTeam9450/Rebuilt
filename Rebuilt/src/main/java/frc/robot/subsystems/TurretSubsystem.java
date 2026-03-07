@@ -315,7 +315,7 @@ public class TurretSubsystem extends SubsystemBase {
         cachedAngleDeg = turretEncoder.getAbsolutePosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
         cachedMotorVelocity = turretMotor.getVelocity().getValueAsDouble();
 
-        if (Math.abs(turretMotor.getPosition().getValueAsDouble()) > (MAX_ANGLE_DEG + 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE) {
+        if (Math.abs(turretMotor.getPosition().getValueAsDouble()) > (MAX_ANGLE_DEG + 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE && currentState != TurretState.STORING) {
             goodToMove = false;
         } else {
             goodToMove = true;
