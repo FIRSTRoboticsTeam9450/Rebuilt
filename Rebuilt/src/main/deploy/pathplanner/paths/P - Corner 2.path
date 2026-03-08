@@ -76,6 +76,17 @@
       }
     },
     {
+      "name": "SetFastTransfer",
+      "waypointRelativePos": 0.16745442268737118,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFastTransfer"
+        }
+      }
+    },
+    {
       "name": "SetFire",
       "waypointRelativePos": 0.22147197839298038,
       "endWaypointRelativePos": null,

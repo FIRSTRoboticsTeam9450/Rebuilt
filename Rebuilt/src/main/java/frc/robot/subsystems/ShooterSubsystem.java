@@ -59,7 +59,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
-    private double hoodAngleMax = 13;
+    private double hoodAngleMax = 12.5;
     private double hoodAngleMin = 3.5; //3.5 for 270/300 turret, 4.4 for 360
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
@@ -139,7 +139,7 @@ public class ShooterSubsystem extends SubsystemBase {
         configureShooterMotors();
         addData();
         hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withEnableFOC(RobotConstants.ENABLE_FOC).withSlot(slotNum);
-        outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
+        outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(false);
 
     }
 
@@ -167,7 +167,8 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToVelocity.put(3.2, 32.5);
         shootingDistanceToVelocity.put(3.648, 34.5);
         shootingDistanceToVelocity.put(4.448, 36.5);
-        shootingDistanceToVelocity.put(5.157, 37.5);
+        shootingDistanceToVelocity.put(5.157, 37.75);
+        shootingDistanceToVelocity.put(5.8, 38.75);
 
         // Shooting Data Time
         shootingDistanceToTime.put(0.951, 1.048);
@@ -227,7 +228,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 12.856934; // Hood angle limit
+        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 12.5; // Hood angle limit
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
 
         angleMotor.getConfigurator().apply(angleMotorConfig);

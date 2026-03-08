@@ -15,6 +15,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -254,9 +255,13 @@ public class ClimberSubsystem extends SubsystemBase {
 
                     case L1:
                         if(!isElevatorZeroingDone) {   
-                            double amps = (-zeroingTimer.get() + 0.4) * 80;
-                            amps = MathUtil.clamp(amps, 3.75, 50);
-                            elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(amps)); //this one for comp
+                            if (DriverStation.isTest()) {
+                                elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); 
+                            } else {
+                                double amps = (-zeroingTimer.get() + 0.4) * 80;
+                                amps = MathUtil.clamp(amps, 3.75, 50);
+                                elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(amps)); //this one for comp
+                            }
                             // elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); //this one for prac
                             // elevatorClimbMotor.stopMotor(); //this one to disable
                         } else {

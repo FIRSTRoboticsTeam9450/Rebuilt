@@ -113,7 +113,7 @@ public class PositionAlignCommand extends Command {
         currentFieldPose = drivetrain.getState().Pose;
 
         /* ---------- Scoot ---------- */
-        if (atSetpoint(0.0185, 0.04)) {
+        if (atSetpoint(0.025, 0.1)) {
             offsetArr = calculateAlignPosition(targetPose, 0.35);
             pidX.setSetpoint(offsetArr[0]);
             pidY.setSetpoint(offsetArr[1]);

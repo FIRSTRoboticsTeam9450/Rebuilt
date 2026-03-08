@@ -61,7 +61,7 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
-  private static final double scalarFactorForSpeed = 0.3;
+  private static final double scalarFactorForSpeed = 0.4;
 
   public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
@@ -94,7 +94,8 @@ public class RobotContainer {
     autoChooser.addOption("FO - Right 2 Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", false));
     autoChooser.addOption("P - Bottom Start", drivetrain.getAutoPath("P - Bottom Start", false));
     autoChooser.addOption("P - Top Start", drivetrain.getAutoPath("P - Top Start", false));
-    autoChooser.addOption("C - Ferry", drivetrain.getAutoPath("Ferry + Climb", false));
+    autoChooser.addOption("C - Bottom Start", drivetrain.getAutoPath("Bottom F+C", false));
+    autoChooser.addOption("C - Top Start", drivetrain.getAutoPath("Top F+C", false));
     autoChooser.addOption("O - Climb", drivetrain.getAutoPath("Outpost", false));
     autoChooser.addOption("Bump Auto", drivetrain.getAutoPath("Bump", false));
     autoChooser.addOption("Preload Only", drivetrain.getAutoPath("Preload Only", false));
@@ -117,10 +118,10 @@ public class RobotContainer {
             )
         );
         
-    DRIVER.leftStick().whileTrue(
+    DRIVER.leftBumper().whileTrue(
       new PositionAlignCommand(drivetrain, AlignPos.LEFT)
     );
-    DRIVER.rightStick().whileTrue(
+    DRIVER.rightBumper().whileTrue(
       new PositionAlignCommand(drivetrain, AlignPos.RIGHT)
     );
 

@@ -67,7 +67,7 @@ public final class Constants {
         public static final double kTelescopeStore = 0.5;
         public static final double kTelescopeHandoff = 0;
         public static final double kTelescopeReach = 43.3;
-        public static final double kTelescopeAutoClimb = 20;
+        public static final double kTelescopeAutoClimb = 12.5;
       }
 
     }
@@ -112,8 +112,7 @@ public final class Constants {
 
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
-
-      public static final double ENCODER_MAGNET_OFFSET = 0.04443359375;
+      public static final double ENCODER_MAGNET_OFFSET = 0.31201171875;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5

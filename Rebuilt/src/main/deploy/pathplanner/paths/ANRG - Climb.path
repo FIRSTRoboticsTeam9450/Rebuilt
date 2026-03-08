@@ -1,0 +1,131 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.850988888888889,
+        "y": 4.668388888888888
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.584211111111111,
+        "y": 4.89251111111111
+      },
+      "isLocked": false,
+      "linkedName": "ANRG - Ferry End"
+    },
+    {
+      "anchor": {
+        "x": 4.664555555555555,
+        "y": 7.5527444444444445
+      },
+      "prevControl": {
+        "x": 7.393420024984673,
+        "y": 7.56178041950878
+      },
+      "nextControl": {
+        "x": 1.7217333333333333,
+        "y": 7.542999999999999
+      },
+      "isLocked": false,
+      "linkedName": "TopClimb"
+    },
+    {
+      "anchor": {
+        "x": 1.3417,
+        "y": 4.093466666666666
+      },
+      "prevControl": {
+        "x": 2.8033666666666663,
+        "y": 4.083722222222222
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7684647302904524,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.233195020746893,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.5219917012448159,
+      "rotationDegrees": -90.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.7449131513647609,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 0.35,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.053598014888334405,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.12903225806451157,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Anit-NRG",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -115.0
+  },
+  "useDefaultConstraints": true
+}

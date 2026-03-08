@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C - Start"
+            "pathName": "C - B Start"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "C - Ferry"
+            "pathName": "C - B Ferry"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "C - Return"
+            "pathName": "C - B Return"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "C - Climb"
+            "pathName": "C - B Climb"
           }
         }
       ]
