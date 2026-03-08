@@ -107,6 +107,39 @@
           "name": "ForceTrench"
         }
       }
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 1.209993247805539,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "ClimberUp",
+      "waypointRelativePos": 1.6907494935854073,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ClimberUp"
+        }
+      }
+    },
+    {
+      "name": "ClimberDown",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ClimberDown"
+        }
+      }
     }
   ],
   "globalConstraints": {

@@ -61,7 +61,7 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
-  private static final double scalarFactorForSpeed = 0.4;
+  private static final double scalarFactorForSpeed = 0.5;
 
   public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
@@ -99,6 +99,7 @@ public class RobotContainer {
     autoChooser.addOption("O - Climb", drivetrain.getAutoPath("Outpost", false));
     autoChooser.addOption("Bump Auto", drivetrain.getAutoPath("Bump", false));
     autoChooser.addOption("Preload Only", drivetrain.getAutoPath("Preload Only", false));
+    autoChooser.addOption("Anti-NRG", drivetrain.getAutoPath("Anti-NRG", false));
 
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
@@ -257,6 +258,12 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("SetFerryTargetBottom", new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
     NamedCommands.registerCommand("SetFerryTargetTop", new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
+
+    NamedCommands.registerCommand("LowerShooterPower", new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualVelocityShift()));
+    NamedCommands.registerCommand("IncreaseShooterPower", new InstantCommand(() -> ShooterSubsystem.getInstance().addManualVelocityShift(.25)));
+    
+    NamedCommands.registerCommand("LeftTurretAngle", new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()));
+    NamedCommands.registerCommand("RightTurretAngle", new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
 
     NamedCommands.registerCommand("ClimberUp", CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new WaitCommand(0.15)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)))));
     NamedCommands.registerCommand("ClimberDown", new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));

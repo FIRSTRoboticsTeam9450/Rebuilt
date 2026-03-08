@@ -161,14 +161,14 @@ public class ShooterSubsystem extends SubsystemBase {
         // shootingDistanceToVelocity.put(4.1, 32.65);
         // shootingDistanceToVelocity.put(4.766, 34.5 * 1.03);
 
-        shootingDistanceToVelocity.put(0.951, 26.75);
-        shootingDistanceToVelocity.put(1.754, 28.75);
-        shootingDistanceToVelocity.put(2.282, 30.5);
-        shootingDistanceToVelocity.put(3.2, 32.5);
-        shootingDistanceToVelocity.put(3.648, 34.5);
-        shootingDistanceToVelocity.put(4.448, 36.5);
-        shootingDistanceToVelocity.put(5.157, 37.75);
-        shootingDistanceToVelocity.put(5.8, 38.75);
+        shootingDistanceToVelocity.put(0.951, 26.5);
+        shootingDistanceToVelocity.put(1.754, 28.5);
+        shootingDistanceToVelocity.put(2.282, 30.25);
+        shootingDistanceToVelocity.put(3.2, 32.25);
+        shootingDistanceToVelocity.put(3.648, 34.25);
+        shootingDistanceToVelocity.put(4.448, 36.25);
+        shootingDistanceToVelocity.put(5.157, 37.5);
+        shootingDistanceToVelocity.put(5.8, 38.5);
 
         // Shooting Data Time
         shootingDistanceToTime.put(0.951, 1.048);
@@ -601,6 +601,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addManualVelocityShift() {
         manualShift += 0.5;
+    }
+
+    public void addManualVelocityShift(double value) {
+        manualShift += value;
     }
 
     public void subtractManualVelocityShift() {

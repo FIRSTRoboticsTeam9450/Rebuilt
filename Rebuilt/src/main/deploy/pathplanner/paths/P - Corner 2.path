@@ -65,19 +65,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "ForceTrench",
-      "waypointRelativePos": 0.10803511141121058,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "ForceTrench"
-        }
-      }
-    },
-    {
       "name": "SetFastTransfer",
-      "waypointRelativePos": 0.16745442268737118,
+      "waypointRelativePos": 0.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -87,19 +76,30 @@
       }
     },
     {
-      "name": "SetFire",
-      "waypointRelativePos": 0.22147197839298038,
+      "name": "IncreaseShooterPower",
+      "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "SetFire"
+          "name": "IncreaseShooterPower"
+        }
+      }
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.09453072248480716,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
         }
       }
     },
     {
       "name": "SetIntake",
-      "waypointRelativePos": 0.28089128966914473,
+      "waypointRelativePos": 0.09993247805536845,
       "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
@@ -136,6 +136,17 @@
               }
             }
           ]
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.10263335584064935,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
         }
       }
     }

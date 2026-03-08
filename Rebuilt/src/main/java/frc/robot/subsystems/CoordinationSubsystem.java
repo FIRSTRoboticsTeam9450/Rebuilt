@@ -202,11 +202,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                     transferState = TransferState.HOLD;
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
-                        if (DriverStation.isAutonomous() || fastTransfer) {
-                            intakeVelocState = IntakeState.INTAKING;
-                        } else {
-                            intakeVelocState = IntakeState.SLOW_INTAKING;
-                        }
+                        intakeVelocState = IntakeState.INTAKING;
                     } else {
                         intakeAngleState = IntakePos.STORE;
                         intakeVelocState = IntakeState.IDLING;
@@ -231,11 +227,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                     }
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
-                        if (DriverStation.isAutonomous() || fastTransfer) {
-                            intakeVelocState = IntakeState.INTAKING;
-                        } else {
-                            intakeVelocState = IntakeState.SLOW_INTAKING;
-                        }
+                        intakeVelocState = IntakeState.INTAKING;
                     } else {
                         intakeAngleState = IntakePos.STORE;
                         intakeVelocState = IntakeState.IDLING;
