@@ -59,7 +59,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
-    private double hoodAngleMax = 12.5;
+    private double hoodAngleMax = 12.1;
     private double hoodAngleMin = 3.5; //3.5 for 270/300 turret, 4.4 for 360
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
@@ -228,7 +228,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 12.5; // Hood angle limit
+        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 12.1; // Hood angle limit
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
 
         angleMotor.getConfigurator().apply(angleMotorConfig);

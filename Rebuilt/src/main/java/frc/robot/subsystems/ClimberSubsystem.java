@@ -254,19 +254,20 @@ public class ClimberSubsystem extends SubsystemBase {
                         break;
 
                     case L1:
-                        if(!isElevatorZeroingDone) {   
-                            if (DriverStation.isTest()) {
-                                elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); 
-                            } else {
-                                double amps = (-zeroingTimer.get() + 0.4) * 80;
-                                amps = MathUtil.clamp(amps, 3.75, 50);
-                                elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(amps)); //this one for comp
-                            }
-                            // elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); //this one for prac
-                            // elevatorClimbMotor.stopMotor(); //this one to disable
-                        } else {
-                            setElevatorTarget(ClimbPositions.kElevatorReach);
-                        }
+                        // if(!isElevatorZeroingDone) {   
+                        //     if (DriverStation.isTest()) {
+                        //         elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); 
+                        //     } else {
+                        //         double amps = (-zeroingTimer.get() + 0.4) * 80;
+                        //         amps = MathUtil.clamp(amps, 3.75, 50);
+                        //         elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(amps)); //this one for comp
+                        //     }
+                        //     // elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); //this one for prac
+                        //     // elevatorClimbMotor.stopMotor(); //this one to disable
+                        // } else {
+                        //     setElevatorTarget(ClimbPositions.kElevatorReach);
+                        // }
+                        elevatorClimbMotor.stopMotor();
                         setTelescopeTarget(ClimbPositions.kTelescopeReach);
                         break;
                     
@@ -470,8 +471,9 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void setElevatorTarget(double setpoint) {
-        currentElevatorSetpoint = setpoint;
-        elevatorClimbMotor.setControl(elevatorRequest.withPosition(setpoint));
+        // currentElevatorSetpoint = setpoint;
+        // elevatorClimbMotor.setControl(elevatorRequest.withPosition(setpoint));
+        elevatorClimbMotor.stopMotor();
     }
 
     public void setOverrideSetpoints(double elevatorSetpoint, double telescopeSetpoint) {
