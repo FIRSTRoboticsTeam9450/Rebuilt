@@ -75,12 +75,12 @@ public class TransferSubsystem extends SubsystemBase {
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
         motorConfig.CurrentLimits.StatorCurrentLimit = 80;
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 70;
         motorConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
-        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         
         motor.getConfigurator().apply(motorConfig);
     }

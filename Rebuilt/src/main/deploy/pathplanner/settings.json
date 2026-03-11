@@ -15,13 +15,14 @@
     "Testing"
   ],
   "autoFolders": [
+    "Anti-NRG",
     "Autos That Need Testing",
     "Climb",
     "Emergancy Autos",
     "Ferry",
-    "Anti-NRG",
+    "New Folder",
     "Push",
-    "Test Autos"
+    "Bump Autos"
   ],
   "defaultMaxVel": 5.0,
   "defaultMaxAccel": 4.0,
