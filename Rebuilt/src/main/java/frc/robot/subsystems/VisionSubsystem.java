@@ -46,12 +46,6 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
  *
  * This subsystem reads Limelight data, fuses multiple camera poses,
  * and provides utility functions like distance to target and shooter recommendations.
- * 
- * To-Do:
- *  - Make work with any amount of limelight
- *  - Use tolerances to determine if a vision pose is valid (look at if value is off by a tolerance. (except x and y (Pose3d)))
- *  - Lessen the Standard deviation for rotation, is to high. Good ballpark: 999
- *  - Other std deviations could also be lessened
  */
 public class VisionSubsystem extends SubsystemBase {
 
@@ -133,6 +127,7 @@ public class VisionSubsystem extends SubsystemBase {
         CLIMB_DEADZONE,
         BACK_SHOOT
     }
+    
     ZoneState currentZone = ZoneState.SHOOTING_ZONE;
     Translation2d currentTarget = ZoneTargets.SHOOTING_TARGET;
     Translation2d ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
