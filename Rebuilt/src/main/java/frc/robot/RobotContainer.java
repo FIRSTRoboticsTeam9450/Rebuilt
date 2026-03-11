@@ -117,9 +117,14 @@ public class RobotContainer {
   private void configureBindings() {
     drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
+            // drivetrain.applyRequest(() ->
+            //     drive.withVelocityX(driveAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed)) // Drive forward with negative Y (forward)
+            //         .withVelocityY(driveAccelLimiter.calculate((-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed))) // Drive left with negative X (left)
+            //         .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
+            // )
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed)) // Drive forward with negative Y (forward)
-                    .withVelocityY(driveYAccelLimiter.calculate((-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed))) // Drive left with negative X (left)
+                drive.withVelocityX(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY((-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
                     .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
