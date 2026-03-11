@@ -47,7 +47,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean shouldBeIntaking = false;
     private boolean rejecting = false;
     private boolean autoRejecting = false;
-    private boolean fastTransfer = false;
+    private boolean fastTransfer = true;
 
     private boolean overrideTrench = false;
     private boolean hardOverrideTrench = false;
@@ -347,12 +347,12 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public Command setFastTransferCommand(boolean value) {
-        return new InstantCommand(() -> fastTransfer = value)
+        return new InstantCommand(() -> fastTransfer = true)
             .alongWith(new InstantCommand(() -> update = true));
     }
 
     public Command setFastTransferCommand() {
-        return new InstantCommand(() -> fastTransfer = !fastTransfer)
+        return new InstantCommand(() -> fastTransfer = true)
             .alongWith(new InstantCommand(() -> update = true));
     }
 
