@@ -161,14 +161,14 @@ public class ShooterSubsystem extends SubsystemBase {
         // shootingDistanceToVelocity.put(4.1, 32.65);
         // shootingDistanceToVelocity.put(4.766, 34.5 * 1.03);
 
-        shootingDistanceToVelocity.put(0.951, 26.5);
-        shootingDistanceToVelocity.put(1.754, 28.5);
-        shootingDistanceToVelocity.put(2.282, 30.25);
-        shootingDistanceToVelocity.put(3.2, 32.25);
-        shootingDistanceToVelocity.put(3.648, 34.25);
-        shootingDistanceToVelocity.put(4.448, 36.25);
-        shootingDistanceToVelocity.put(5.157, 37.5);
-        shootingDistanceToVelocity.put(5.8, 38.5);
+        shootingDistanceToVelocity.put(0.951, 26.0);
+        shootingDistanceToVelocity.put(1.754, 28.0);
+        shootingDistanceToVelocity.put(2.282, 29.75);
+        shootingDistanceToVelocity.put(3.2, 31.75);
+        shootingDistanceToVelocity.put(3.648, 33.75);
+        shootingDistanceToVelocity.put(4.448, 35.75);
+        shootingDistanceToVelocity.put(5.157, 37.0);
+        shootingDistanceToVelocity.put(5.8, 38.0);
 
         // Shooting Data Time
         shootingDistanceToTime.put(0.951, 1.048);
