@@ -100,6 +100,8 @@ public class Robot extends LoggedRobot {
     //  Puts the robots pose2d into the feild and add it to the builder
     field2d.setRobotPose(RobotContainer.drivetrain.getState().Pose);
     sendableBuilder.update();
+
+    Logger.recordOutput("Rebuilt/Slow Mode", RobotContainer.slowMode);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

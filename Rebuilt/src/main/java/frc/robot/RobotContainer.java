@@ -26,12 +26,14 @@ import frc.robot.Constants.AlignPos;
 import frc.robot.commands.PositionAlignCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.BatterySubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.PowerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
@@ -43,6 +45,8 @@ import frc.robot.util.BezierCurve;
 
 
 public class RobotContainer {
+  public final static BatterySubsystem battery = BatterySubsystem.getInstance();
+  public final static PowerSubsystem power = PowerSubsystem.getInstance();
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   public final static VisionSubsystem vision = VisionSubsystem.getInstance();
   public final static CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
@@ -61,12 +65,13 @@ public class RobotContainer {
   public static BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
 
   
-  private SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(.5);
-  private SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(.5);
+  private SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(1.5);
+  private SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(1.5);
 
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
+  public static boolean slowMode = false;
   private static final double scalarFactorForSpeed = 0.5;
 
   public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
@@ -118,14 +123,9 @@ public class RobotContainer {
   private void configureBindings() {
     drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
-            // drivetrain.applyRequest(() ->
-            //     drive.withVelocityX(driveAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed)) // Drive forward with negative Y (forward)
-            //         .withVelocityY(driveAccelLimiter.calculate((-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed))) // Drive left with negative X (left)
-            //         .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
-            // )
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY((-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
+                drive.withVelocityX(slowMode ? driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(slowMode ? driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())) : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
                     .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
@@ -138,9 +138,9 @@ public class RobotContainer {
     );
 
     DRIVER.leftTrigger().onTrue(
-        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed)
+        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slowMode = true))
     ).onFalse(
-      new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1)
+      new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slowMode = false))
     );
 
 
