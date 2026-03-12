@@ -7,31 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "ShootPreload"
+            "pathName": "P - Start 1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "ShootToNeutral"
+            "pathName": "P - Corner 1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Start Neutral to End Neutral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NeutralToShoot"
+            "pathName": "P - Climb 1"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Test Autos",
+  "folder": "Push",
   "choreoAuto": false
 }

@@ -1,0 +1,133 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.502577777777777,
+        "y": 7.5
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.118557898299841,
+        "y": 7.5
+      },
+      "isLocked": false,
+      "linkedName": "P - Neutral End"
+    },
+    {
+      "anchor": {
+        "x": 0.834988888888889,
+        "y": 7.67
+      },
+      "prevControl": {
+        "x": 2.413588888888889,
+        "y": 7.67
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "P - Corner End"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.7890818858560756,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 0.35,
+        "maxAcceleration": 1.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.3543424317617839,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.6937965260545792,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.8903225806451635,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "SetIntake"
+              }
+            },
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 0.1
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "SetIntake"
+              }
+            },
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 0.1
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "SetIntake"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Push",
+  "idealStartingState": {
+    "velocity": 4.0,
+    "rotation": 165.0
+  },
+  "useDefaultConstraints": true
+}

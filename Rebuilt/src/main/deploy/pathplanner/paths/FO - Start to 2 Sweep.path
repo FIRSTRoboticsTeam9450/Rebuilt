@@ -1,0 +1,115 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.4,
+        "y": 0.425
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 6.468233333333334,
+        "y": 0.7803555555555546
+      },
+      "isLocked": false,
+      "linkedName": "BottomTrenchStart"
+    },
+    {
+      "anchor": {
+        "x": 8.0,
+        "y": 1.2480888888888888
+      },
+      "prevControl": {
+        "x": 7.834344444444444,
+        "y": 0.49776666666666636
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "FO - 2 Sweep Start"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.2630705394190895,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "ZeroIntake",
+      "waypointRelativePos": 0.12964213369344538,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ZeroIntake"
+        }
+      }
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.3,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.35,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.43484132343011034,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.35,
+    "rotation": 115.0
+  },
+  "reversed": false,
+  "folder": "Ferry Only",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

@@ -3,57 +3,52 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.102,
-        "y": 0.652
+        "x": 7.691,
+        "y": 6.8
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.1020000000000003,
-        "y": 0.6520000000000001
+        "x": 7.691,
+        "y": 6.55
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "C - Ferry 2 Start"
     },
     {
       "anchor": {
-        "x": 6.497,
-        "y": 0.652
+        "x": 7.691,
+        "y": 4.5
       },
       "prevControl": {
-        "x": 5.358398002853067,
-        "y": 0.6386019971469343
+        "x": 7.691,
+        "y": 4.75
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "C - Ferry 2 End"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.37526652452025744,
-      "rotationDegrees": 90.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 0.35,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 5.0,
-    "rotation": 90.0
+    "velocity": 0.0,
+    "rotation": -115.0
   },
   "reversed": false,
-  "folder": "Outpost",
+  "folder": "Climb",
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 180.0
+    "velocity": 0.35,
+    "rotation": -115.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

@@ -9,22 +9,18 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 
 import com.ctre.phoenix6.SignalLogger;
-import com.ctre.phoenix6.swerve.jni.SwerveJNI.DriveState;
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.pathfinding.Pathfinder;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -47,6 +43,8 @@ public class Robot extends LoggedRobot {
   private NetworkTable networkTable;
   private final SendableBuilderImpl sendableBuilder = new SendableBuilderImpl();
 
+  private double updateValuesOffset = 0;
+
   /*** 
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -59,7 +57,7 @@ public class Robot extends LoggedRobot {
     m_robotContainer = new RobotContainer();
 
     Logger.start();
-    SignalLogger.setPath("/home/lvuser/logs/");
+    // SignalLogger.setPath("/home/lvuser/logs/");
   }
 
   @Override
@@ -67,6 +65,9 @@ public class Robot extends LoggedRobot {
     Pathfinding.setPathfinder(new LocalADStarAK());
 
     CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
+
+    SignalLogger.enableAutoLogging(false);
+    SignalLogger.stop();
 
     // Creates a network table which is read by Elastic (Seems like advantage scope doesn't see it)
     networkTable = NetworkTableInstance.getDefault()
@@ -99,28 +100,49 @@ public class Robot extends LoggedRobot {
     //  Puts the robots pose2d into the feild and add it to the builder
     field2d.setRobotPose(RobotContainer.drivetrain.getState().Pose);
     sendableBuilder.update();
+
+    Logger.recordOutput("Rebuilt/Slow Mode", RobotContainer.slowMode);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
+    VisionSubsystem.getInstance().setThrottle(100);
+    VisionSubsystem.getInstance().setLLIMUModes(1);
+    updateValuesOffset = 0;
     // SignalLogger.stop();
   }
 
   @Override
   public void disabledPeriodic() {
+    if (updateValuesOffset >= 60) {
+      updateValuesOffset = 0;
+      TurretSubsystem.getInstance().updateTunableParameters();
+    } else if (updateValuesOffset == 45) {
+      ShooterSubsystem.getInstance().updateShooterConstants();
+    } else if (updateValuesOffset == 30) {
+      IntakeSubsystem.getInstance().updateConstants();
+    } else if (updateValuesOffset == 15) {
+      // ClimberSubsystem.getInstance().updateClimberConstants();
+    }
+    updateValuesOffset++;
+  }
 
+  @Override
+  public void disabledExit() {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
-
-    TurretSubsystem.getInstance().updateTunableParameters();
-    ShooterSubsystem.getInstance().updateShooterConstants();
-    IntakeSubsystem.getInstance().updateConstants();
+    VisionSubsystem.getInstance().setThrottle(0);
+    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledStdDev);
+    VisionSubsystem.getInstance().setLLIMUModes(0);
+    // VisionSubsystem.getInstance().setLLIMUAssistAlpha(0.01);
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledStdDev);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -139,8 +161,7 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledStdDev);
-
+    CoordinationSubsystem.getInstance().setHardTrenchOverride(false);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

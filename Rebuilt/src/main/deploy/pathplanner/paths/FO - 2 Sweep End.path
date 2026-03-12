@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.25,
+        "y": 1.248
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 8.25,
+        "y": 1.2480000000000002
+      },
+      "isLocked": false,
+      "linkedName": "FO - 2 Sweep End"
+    },
+    {
+      "anchor": {
+        "x": 2.0725333333333333,
+        "y": 1.6476111111111105
+      },
+      "prevControl": {
+        "x": 1.0725333333333333,
+        "y": 1.6476111111111107
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Ferry Only",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -115.0
+  },
+  "useDefaultConstraints": true
+}

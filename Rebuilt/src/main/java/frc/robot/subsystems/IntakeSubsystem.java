@@ -1,18 +1,15 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.IntakeConstants;
-
-import static edu.wpi.first.units.Units.Volt;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -27,14 +24,17 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     //List the states the intake will use
     public enum IntakePos {
-        SYS_ID,
+        HOLD_ON_FOR_TRENCH,
         ZEROING,
         STORE,
+        CLIMB_STORE,
+        TRENCH_STORE,
         INTAKING
     }
 
     public enum IntakeState {
         IDLING,
+        SLOW_INTAKING,
         INTAKING,
     }
 
@@ -48,50 +48,38 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-    private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 45); //45
-    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 30); //30
+    private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 90); //45
+    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 115); //30
 
 
-    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.1); // .1
-    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.45); // .33
+    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.145); // .1
+    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.2); // .33
     private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Intake/Angle/kA", 0); // 0
-    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 25); // 25
+    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 51); // 25
     private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Intake/Angle/kI", 0); // 0
-    private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0); // 0
+    private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0.1); // 0
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 7.33);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.25);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
-    private double storeRevolutions = .925;
+    private double intakingTargetVolts = logIntakingTarget.get();
+    
+    private double intakeRevolutions = logIntakeTarget.get();
+    private double storeRevolutions = 6.25;
+    private double trenchStoreRevolutions = 4.5;
+    private double climbStoreRevolutions = 7.5;
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
-
-    private final VoltageOut sysIDRequest = new VoltageOut(0);
-    private final SysIdRoutine m_sysIdRoutine;
+    private VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
 
     private boolean isZeroing = false;
 
+    private boolean reversing = false;
+
     public IntakeSubsystem() {
         configureMotors();
-
-        //sys id
-        m_sysIdRoutine =
-            new SysIdRoutine(
-                new SysIdRoutine.Config(
-                    null,        // Use default ramp rate (1 V/s)
-                    Volt.of(1), // Reduce dynamic step voltage to 1 to prevent brownout
-                    null,        // Use default timeout (10 s)
-                                // Log state with Phoenix SignalLogger class
-                    (state) -> SignalLogger.writeString("state", state.toString())
-                ),
-                new SysIdRoutine.Mechanism(
-                    (volts) -> motorArm.setControl(sysIDRequest.withOutput(volts.in(Volt))),
-                    null,
-                    this
-                )
-            );
     }
 
     public boolean isIntaking() {
@@ -99,10 +87,17 @@ public final class IntakeSubsystem extends SubsystemBase{
     }
 
     private void configureMotors() {
-        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        motorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
+
+        motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
+        motorConfig.CurrentLimits.SupplyCurrentLowerTime = 5;
+        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
 
         //Magic Motion
         var slot0Configs = motorConfig.Slot0;
@@ -122,11 +117,17 @@ public final class IntakeSubsystem extends SubsystemBase{
         IntakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         IntakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+        IntakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        IntakeConfig.CurrentLimits.StatorCurrentLimit = 80;
+        IntakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        IntakeConfig.CurrentLimits.SupplyCurrentLimit = 80;
+        IntakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
+
         motorWheels.getConfigurator().apply(IntakeConfig);
     }
 
     public boolean isZeroingDone() {
-        if(Math.abs(motorArm.getVelocity().getValueAsDouble()) < .05 && Math.abs(motorArm.getMotorVoltage().getValueAsDouble()) > .4) {
+        if(Math.abs(motorArm.getVelocity().getValueAsDouble()) < .05 && Math.abs(motorArm.getMotorVoltage().getValueAsDouble()) > .8) {
             motorArm.setPosition(0);
             motorArm.setVoltage(0);
             currentPos = IntakePos.STORE;
@@ -137,7 +138,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if(!isZeroing) {
+        if(currentPos != IntakePos.HOLD_ON_FOR_TRENCH && !isZeroing) {
             currentPos = IntakePos.ZEROING;
             isZeroing = isZeroingDone();
         }
@@ -147,28 +148,49 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private void applyState() {
         switch (currentPos) {
-            case SYS_ID:
+            case HOLD_ON_FOR_TRENCH:
+                motorArm.stopMotor();
                 break;
+
             case ZEROING:
-                motorArm.setVoltage(-.6);
+                motorArm.setVoltage(-1.75);
+                break;
+
+            case TRENCH_STORE:
+                motorArm.setControl(request.withPosition(trenchStoreRevolutions));
                 break;
 
             case STORE:
                 motorArm.setControl(request.withPosition(storeRevolutions));
                 break;
+
+            case CLIMB_STORE:
+                motorArm.setControl(request.withPosition(climbStoreRevolutions));
+                break;
             
             case INTAKING:
-                motorArm.setControl(request.withPosition(logIntakeTarget.get()));
+                    motorArm.setControl(request.withPosition(intakeRevolutions));
+                break;
+
+            default:
+                motorArm.setControl(request.withPosition(storeRevolutions));
                 break;
         }
 
         switch (currentState) {
             case IDLING:
-                motorWheels.setVoltage(0);
+                motorWheels.setControl(voltageRequest.withOutput(0));
+                break;
+
+            case SLOW_INTAKING:
+                motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts * 0.833333)); //0.58333
                 break;
             
             case INTAKING:
-                motorWheels.setVoltage(logIntakingTarget.get());
+                if(reversing) {
+                    intakingTargetVolts = -intakingTargetVolts;
+                }
+                motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts));
                 break;
         }
     }
@@ -180,6 +202,10 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Angle/Target", currentPos == IntakePos.INTAKING ? logIntakeTarget.get() : storeRevolutions);
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Voltage", motorArm.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Velocity", motorArm.getVelocity().getValueAsDouble());
+
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Veloc", motorWheels.getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Voltage", motorWheels.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Angle/Temp", motorArm.getDeviceTemp().getValueAsDouble());
     }
 
     public IntakePos getCurrentIntakePos() {
@@ -222,18 +248,14 @@ public final class IntakeSubsystem extends SubsystemBase{
         if (gainsChanged) {
             configureMotors();
         }
+
+        intakeRevolutions = logIntakeTarget.get();
+        intakingTargetVolts = logIntakingTarget.get();
     }
 
     public void zeroEncoders() {
-        motorArm.setPosition(0);
-    }
-
-    // ================== SYS ID COMMANDS ================
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutine.quasistatic(direction);
-    }
-
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutine.dynamic(direction);
+        if (DriverStation.isDisabled()) {
+            motorArm.setPosition(0);
+        }
     }
 }

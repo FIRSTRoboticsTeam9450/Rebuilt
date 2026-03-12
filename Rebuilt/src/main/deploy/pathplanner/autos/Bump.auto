@@ -1,0 +1,31 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B - Start"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B - Neutral Sweep 1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "B - Neutral Sweep 2"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Emergancy Autos",
+  "choreoAuto": false
+}

@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 7.9022566213928975,
+        "y": 3.6260732742518744
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.938688888884974,
+        "y": 2.865666666664073
+      },
+      "isLocked": false,
+      "linkedName": "RightSideFerryTurnEnd"
+    },
+    {
+      "anchor": {
+        "x": 7.9022566213928975,
+        "y": 2.0276444444444452
+      },
+      "prevControl": {
+        "x": 7.87612959368186,
+        "y": 2.4736945398732733
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "RightSideRightEnd"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 0.5,
+    "maxAcceleration": 1.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.5,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Right Side Shoot & Ferry",
+  "idealStartingState": {
+    "velocity": 0.5,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": false
+}

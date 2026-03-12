@@ -11,8 +11,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /**
@@ -40,21 +42,32 @@ public final class Constants {
 
     public static final boolean ENABLE_FOC = true;
 
-    public static final NeutralModeValue DEFAULT_NEUTRAL_MODE_VALUE = NeutralModeValue.Coast;
+    public static final NeutralModeValue DEFAULT_NEUTRAL_MODE_VALUE = NeutralModeValue.Brake;
 
     public static final class LEDConstants {
       public static final class DeviceIDs {
-        public static final int kCANDleID = 40;
+        public static final int kCANDleID = 45;
       }
     }
 
     public static final class ClimberConstants {
 
       public static final class DeviceIDs {
-        public static final int kClimbMotorFrontID = -1;
-        public static final int kClimbMotorBackID = -1;
-        public static final int kClimbServoTopID = -1;
-        public static final int kClimbServoBottomID = -1;
+        public static final int kElevator = 40;
+        public static final int kTelescope = 41;
+      }
+
+      public static final class ClimbPositions {
+        public static final double kElevatorReach = -1;
+        public static final double kElevatorHandoff = -0.5;
+        public static final double kElevatorL3Store = -35;
+        public static final double kElevatorClimb = -146.5; //-148
+        public static final double kElevatorStore = -55.4;
+
+        public static final double kTelescopeStore = 0.5;
+        public static final double kTelescopeHandoff = 0;
+        public static final double kTelescopeReach = 43.3;
+        public static final double kTelescopeAutoClimb = 12.5;
       }
 
     }
@@ -98,21 +111,21 @@ public final class Constants {
       }
 
       //7in off from center
-      public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
+      public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0)); // .1778
+      public static final double ENCODER_MAGNET_OFFSET = 0.31201171875;
 
-      public static final double ENCODER_MAGNET_OFFSET = -0.35986328125;
+      //To find the ratios, divide if reduction, multiply if increase.
+      //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
+      public static final double ROTOR_TO_SENSOR_RATIO = 0.022211653247;//01632653; //42.552137677193921189;// 0.02350058198; //1 cycoidal, 1 7.5:1: 0.0625850 //Both Cycoidals: 0.001827990359168
+      public static final double SENSOR_TO_MECHANISM_RATIO = 0.93288943638;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
-      //Lantern motot to turret gear reduction 161:1 (1/161)
-      public static final double ROTOR_TO_SENSOR_RATIO = 0.001827990359168;
-      public static final double SENSOR_TO_MECHANISM_RATIO = 0.311279 * 0.9849444;//0.77777778; // Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
+      public static final double TURRET_OFFSET_TO_ZERO = 180;
+      public static final double TURRET_OFFSET_TO_TARGET = 0.5; // -1.75 //3; //V1: 5
 
-      public static final double TURRET_OFFSET_TO_ZERO = 179.5; 
-      public static final double TURRET_OFFSET_TO_TARGET = 0; //V1: 5
-
-      public static final double TOTAL_ROTATION_DEGREES = 270;
+      public static final double TOTAL_ROTATION_DEGREES = 330;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
-      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 2.24; //Lantern: 2.24
+      public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 8.5714285714; //2.24;
       public static final double ABS_ENCDR_POS_TO_ANGLE = 360;
     }
     
@@ -120,46 +133,55 @@ public final class Constants {
 
       public static final class FrontLeft {
         public static final String NAME = "limelight-fl";
-        public static final double LOCATION_X = -0.2862961;
-        public static final double LOCATION_Y = 0.28271978;
-        public static final double LOCATION_Z = 0.21090128;
+        public static final double LOCATION_X = 0.271457252;
+        public static final double LOCATION_Y = -0.26510724;
+        public static final double LOCATION_Z = 0.22526;
         public static final double PITCH = 28.1;
         public static final double ROLL = 0;
         public static final double YAW = 45;
+        public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
       }
 
       public static final class FrontRight {
         public static final String NAME = "limelight-fr";
-        public static final double LOCATION_X = 0.2862961;
-        public static final double LOCATION_Y = 0.28271978;
-        public static final double LOCATION_Z = 0.21090128;
+        public static final double LOCATION_X = 0.271457252;
+        public static final double LOCATION_Y = 0.26510724;
+        public static final double LOCATION_Z = 0.22526;
         public static final double PITCH = 28.1;
         public static final double ROLL = 0;
         public static final double YAW = -45;
+        public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
       }
 
       public static final class BackLeft {
         public static final String NAME = "limelight-bl";
-        public static final double LOCATION_X = -0.2862961;
-        public static final double LOCATION_Y = -0.28271978;
-        public static final double LOCATION_Z = 0.21090128;
-        public static final double PITCH = 0;
+        public static final double LOCATION_X = -0.271457252;
+        public static final double LOCATION_Y = -0.26510724;
+        public static final double LOCATION_Z = 0.22526;
+        public static final double PITCH = 28.1;
         public static final double ROLL = 0;
         public static final double YAW = 135;
+        public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
       }
 
       public static final class BackRight {
         public static final String NAME = "limelight-br";
-        public static final double LOCATION_X = 0.2862961;
-        public static final double LOCATION_Y = -0.28271978;
-        public static final double LOCATION_Z = 0.21090128;
-        public static final double PITCH = 0;
+        public static final double LOCATION_X = -0.271457252;
+        public static final double LOCATION_Y = 0.26510724;
+        public static final double LOCATION_Z = 0.22526;
+        public static final double PITCH = 28.1;
         public static final double ROLL = 0;
         public static final double YAW = -135;
+        public static final Pose3d POSE = new Pose3d(new Translation3d(LOCATION_X, LOCATION_Y, LOCATION_Z), new Rotation3d(ROLL, PITCH, YAW));
       }
 
     }
 
+  }
+
+  public static enum AlignPos {
+    LEFT,
+    RIGHT
   }
 
   public static final class FieldConstants {
@@ -180,11 +202,58 @@ public final class Constants {
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,6.1976); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
+      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,1.8); //(2.54, 1.8), (2.54, 6.1976)
+      public static final Translation2d NEUTRAL_TARGET_BOTTOM = new Translation2d(8.749,  1.544);
+      public static final Translation2d NEUTRAL_TARGET_TOP = new Translation2d(8.749,  6);
+
+
+      /* ========= HARD CODED POSES ======== */
       public static final Translation2d BLUE_LEFT_FERRY_TARGET = new Translation2d();
       public static final Translation2d BLUE_RIGHT_FERRY_TARGET = new Translation2d();
 
       public static final Translation2d RED_LEFT_FERRY_TARGET = new Translation2d();
       public static final Translation2d RED_RIGHT_FERRY_TARGET = new Translation2d();
+
+      public static final Translation2d BLUE_TOWER = new Translation2d(1.063, 3.75);
+      public static final Translation2d RED_TOWER = new Translation2d(15.475, 4.325);
+
+    }
+
+    public static final class AprilTagIDs {
+      public static final int RED_BOTTOM_TRENCH_NEUTRAL_SIDE = 1;
+      public static final int RED_BOTTOM_HUB_NEUTRAL_SIDE = 2;
+      public static final int RED_NEUTRAL_HUB_SIDE_LOWER = 3;
+      public static final int RED_NEUTRAL_HUB_SIDE_HIGHER = 4;
+      public static final int RED_TOP_HUB_NEUTRAL_SIDE = 5;
+      public static final int RED_TOP_TRENCH_NEUTRAL_SIDE = 6;
+      public static final int RED_TOP_TRENCH_ALLIANCE_SIDE = 7;
+      public static final int RED_TOP_HUB_ALLIANCE_SIDE = 8;
+      public static final int RED_ALLIANCE_HUB_SIDE_HIGHER = 9;
+      public static final int RED_ALLIANCE_HUB_SIDE_LOWER = 10;
+      public static final int RED_BOTTOM_HUB_ALLIANCE_SIDE = 11;
+      public static final int RED_BOTTOM_TRENCH_ALLIANCE_SIDE = 12;
+      public static final int RED_OUTPOST_LOWER = 13;
+      public static final int RED_OUTPOST_HIGHER = 14;
+      public static final int RED_TOWER_LOWER = 15;
+      public static final int RED_TOWER_HIGHER = 16;
+
+      public static final int BLUE_TOP_TRENCH_NEUTRAL_SIDE = 17;
+      public static final int BLUE_TOP_HUB_NEUTRAL_SIDE = 18;
+      public static final int BLUE_NEUTRAL_HUB_SIDE_HIGHER = 19;
+      public static final int BLUE_NEUTRAL_HUB_SIDE_LOWER = 20;
+      public static final int BLUE_BOTTOM_HUB_NEUTRAL_SIDE = 21;
+      public static final int BLUE_BOTTOM_TRENCH_NEUTRAL_SIDE = 22;
+      public static final int BLUE_BOTTOM_TRENCH_ALLIANCE_SIDE = 23;
+      public static final int BLUE_BOTTOM_HUB_ALLIANCE_SIDE = 24;
+      public static final int BLUE_ALLIANCE_HUB_SIDE_LOWER = 25;
+      public static final int BLUE_ALLIANCE_HUB_SIDE_HIGHER = 26;
+      public static final int BLUE_TOP_HUB_ALLIANCE_SIDE = 27;
+      public static final int BLUE_TOP_TRENCH_ALLIANCE_SIDE = 28;
+      public static final int BLUE_OUTPOST_HIGHER = 29;
+      public static final int BLUE_OUTPOST_LOWER = 30;
+      public static final int BLUE_TOWER_HIGHER = 31;
+      public static final int BLUE_TOWER_LOWER = 32;
     }
 
     public static Pose3d getTag3dPose(int tagID) {
@@ -193,7 +262,6 @@ public final class Constants {
         return new RuntimeException(errorMsg);
       });
     }
-
 
     /**BLUE                      RED
      * -----------------------------
@@ -224,6 +292,7 @@ public final class Constants {
     }
 
     public static final class ZoneConstants {
+
       public static final class ZoneConstantsWelded {
         public static final Translation2d RED_CORNER = new Translation2d(16.54, 8.069326);
         public static final double MAJOR_ZONE_X_LOW = 0;
@@ -233,7 +302,7 @@ public final class Constants {
 
         public static final double MID_ZONE_X_LOW = MAJOR_ZONE_X_HIGH;//182.11;
         public static final double MID_ZONE_X_HIGH = 16.540988; // inches 651.22;
-        public static final double MID_ZONE_1_Y_LOW = 4.034536; // inches 158.84;
+        public static final double MID_ZONE_1_Y_LOW = 4.034536; // inches 158.84; 4.3 meters if wanting preference to outpost side
         public static final double MID_ZONE_1_Y_HIGH = 8.069326; // inches 317.69;
 
         public static final double MID_ZONE_2_Y_LOW = 0;
@@ -244,21 +313,34 @@ public final class Constants {
         public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.437636;
         public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.631436;
 
-        public static final double TRENCH_12_DEADZONE_X_LOW = 4.549394; // Currently just covering the trench, no extra deadzone area
-        public static final double TRENCH_12_DEADZONE_X_HIGH = 4.701794;
+        public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.549394 - .762; // used to be -.762 4.535424
+        public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + .762; // 4.687824
+        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.549394 - 1.1; // 4.535424
+        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + 1.1; // 4.687824
         public static final double TRENCH_1_DEADZONE_Y_LOW = 6.37203;
         public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.069326;
 
         public static final double TRENCH_2_DEADZONE_Y_LOW = 0;
         public static final double TRENCH_2_DEADZONE_Y_HIGH = 1.6970375;
 
-        public static final double TRENCH_34_DEADZONE_X_LOW = 11.839194;
-        public static final double TRENCH_34_DEADZONE_X_HIGH = 11.99;
+        public static final double HARD_TRENCH_34_DEADZONE_X_LOW = 11.839194 - .762;
+        public static final double HARD_TRENCH_34_DEADZONE_X_HIGH = 11.99 + .762;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.839194 - 1.1; //1.524
+        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.99 + 1.1;
         public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
         public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
 
         public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
         public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
+
+        public static final double OUR_CLIMB_DEADZONE_X_LOW = 0;
+        public static final double OUR_CLIMB_DEADZONE_X_HIGH = .662;
+        public static final double CLIMB_DEADZONE_Y_LOW = 2.838;
+        public static final double CLIMB_DEADZONE_Y_HIGH = 4.533;
+
+        public static final double THEIR_CLIMB_DEADZONE_X_LOW = 15.684;
+        public static final double THEIR_CLIMB_DEADZONE_X_HIGH = 16.400528;
+
       }
       public static final class ZoneConstantsAndyMark {
         public static final Translation2d RED_CORNER = new Translation2d(16.513048, 8.042656);
@@ -283,8 +365,8 @@ public final class Constants {
 
         public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.535424 - .762; // 4.535424
         public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.687824 + .762; // 4.687824
-        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.535424 - 1.524; // 4.535424
-        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.687824 + 1.524; // 4.687824
+        public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.535424 - 1.1; // 4.535424
+        public static final double SOFT_TRENCH_12_DEADZONE_X_HIGH = 4.687824 + 1.1; // 4.687824
         public static final double TRENCH_1_DEADZONE_Y_LOW = 6.3456185;
         public static final double TRENCH_1_DEADZONE_Y_HIGH = 8.042656;
 
@@ -293,18 +375,29 @@ public final class Constants {
 
         public static final double HARD_TRENCH_34_DEADZONE_X_LOW = 11.825224 - .762;
         public static final double HARD_TRENCH_34_DEADZONE_X_HIGH = 11.977624 + .762;
-        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.825224 - 1.524;
-        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.977624 + 1.524;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_LOW = 11.825224 - 1.1;
+        public static final double SOFT_TRENCH_34_DEADZONE_X_HIGH = 11.977624 + 1.1;
         public static final double TRENCH_3_DEADZONE_Y_LOW = TRENCH_1_DEADZONE_Y_LOW;
         public static final double TRENCH_3_DEADZONE_Y_HIGH = TRENCH_1_DEADZONE_Y_HIGH;
 
         public static final double TRENCH_4_DEADZONE_Y_LOW = 0;
         public static final double TRENCH_4_DEADZONE_Y_HIGH = TRENCH_2_DEADZONE_Y_HIGH;
+
+        public static final double OUR_CLIMB_DEADZONE_X_LOW = 0;
+        public static final double OUR_CLIMB_DEADZONE_X_HIGH = .662;
+        public static final double CLIMB_DEADZONE_Y_LOW = 2.838;
+        public static final double CLIMB_DEADZONE_Y_HIGH = 4.533;
+
+        public static final double THEIR_CLIMB_DEADZONE_X_LOW = 15.684;
+        public static final double THEIR_CLIMB_DEADZONE_X_HIGH = 16.400528;
+
       }
       public static final class ZoneTargets {
         public static final Translation2d SHOOTING_TARGET = ImportantFieldPoses.BLUE_HUB_CENTER;
-        public static final Translation2d FERRY_TOP_TARGET = new Translation2d(0.455, 7.613);
-        public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(0.455,0.561);
+        public static final Translation2d FERRY_TOP_TARGET = ImportantFieldPoses.FERRY_TOP_TARGET;
+        public static final Translation2d FERRY_BOTTOM_TARGET = ImportantFieldPoses.FERRY_BOTTOM_TARGET;
+        public static final Translation2d NEUTRAL_TOP_TARGET = ImportantFieldPoses.NEUTRAL_TARGET_TOP;
+        public static final Translation2d NEUTRAL_BOTTOM_TARGET = ImportantFieldPoses.NEUTRAL_TARGET_BOTTOM;
       }
     }
 

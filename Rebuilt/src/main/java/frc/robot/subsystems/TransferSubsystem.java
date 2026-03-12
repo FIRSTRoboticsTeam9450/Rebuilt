@@ -8,6 +8,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,6 +29,7 @@ public class TransferSubsystem extends SubsystemBase {
     public enum TransferState {
         HOLD,
         RUN_IN,
+        SLOW_RUN_IN,
         RUN_OUT,
         NO_RUN
     }
@@ -36,7 +39,9 @@ public class TransferSubsystem extends SubsystemBase {
     private final TalonFX motor = new TalonFX(TransferConstants.DeviceIDs.kDrivingMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     /** Voltage request */
-    private VoltageOut voltageRequest = new VoltageOut(0.0).withEnableFOC(RobotConstants.ENABLE_FOC);;
+    private VoltageOut voltageRequest = new VoltageOut(0.0).withEnableFOC(RobotConstants.ENABLE_FOC);
+
+    private Timer stateTimer = new Timer();
 
     /**
      * Constructor - initializes the transfer subsystem and configures the motor
@@ -67,8 +72,15 @@ public class TransferSubsystem extends SubsystemBase {
     private void configureMotor() {
         TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+        motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 70;
+        motorConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
+        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         
         motor.getConfigurator().apply(motorConfig);
     }
@@ -88,16 +100,31 @@ public class TransferSubsystem extends SubsystemBase {
     private void applyState() {
         // Set request voltage
         switch (currentState) {
-            case HOLD:
-                voltageRequest.Output = 0.65;
+            case HOLD: // Very slowly move fuel in
+                voltageRequest.Output = 0.55;
                 break;
 
             case RUN_IN: // Move fuel in
-                voltageRequest.Output = 12;
+                // if (stateTimer.get() > 0.25) {
+                //     if (Math.abs(motor.getVelocity().getValueAsDouble()) > 10) {
+                //         voltageRequest.Output = 12;
+                //     } else {
+                //         voltageRequest.Output = -12;
+                //     }
+                // } else {
+                    voltageRequest.Output = 12;
+                // }
                 break;
             
+            case SLOW_RUN_IN:
+                voltageRequest.Output = 4.5;
+                break;
+
             case RUN_OUT: // Move fuel out
-                voltageRequest.Output = -12;
+                double voltage = -12 / (stateTimer.get() * 1.23);
+                voltage = MathUtil.clamp(voltage, -12, -4);
+                voltageRequest.Output = voltage;
+
                 break;
             
             case NO_RUN: // Don't move
@@ -107,11 +134,21 @@ public class TransferSubsystem extends SubsystemBase {
         motor.setControl(voltageRequest);
     }
 
+    public boolean checkStall() {
+        if(currentState == TransferState.SLOW_RUN_IN || currentState == TransferState.RUN_IN ) {
+            if(Math.abs(voltageRequest.Output) > 4 && Math.abs(motor.getVelocity().getValueAsDouble()) < 1) {
+                return true;
+            }
+            }
+        return false;
+    }
+
     /**
      * Changes the current state of the transfer
      * @param wantedState The desired state to transition to
      */
     public void setState(TransferState wantedState) {
+        stateTimer.restart();
         previousState = currentState;
         currentState = wantedState;
     }
@@ -132,5 +169,10 @@ public class TransferSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Transfer/Previous State", previousState);
 
         Logger.recordOutput("Rebuilt/Transfer/Target Speed", voltageRequest.Output);
+
+        Logger.recordOutput("Rebuilt/Transfer/Stalling", checkStall());
+
+        Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Transfer/Motor Veloc", motor.getVelocity().getValueAsDouble());
     }
 }

@@ -7,25 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "StartToOutpost"
+            "pathName": "C - B Start"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "OutpostToNeutral"
+            "pathName": "C - B Ferry"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Neutral Ferry"
+            "pathName": "C - B Return"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C - B Climb"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Test Autos",
+  "folder": "Climb",
   "choreoAuto": false
 }

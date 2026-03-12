@@ -1,9 +1,15 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 
+/**
+ * Stores offset data for Limelights
+ * <br><br/>
+ * Offsets stored are unsued, simply placeholders
+ */
 public class LimelightObject {
     
     public enum Location {
@@ -34,6 +40,21 @@ public class LimelightObject {
 
     public String getName() {
         return name;
+    }
+
+    public LimelightObject withPose3d(Pose3d offsets) {
+        this.offsetX = offsets.getX();
+        this.offsetY = offsets.getY();
+        this.offsetZ = offsets.getZ();
+        this.offsetYaw = offsets.getRotation().getX();
+        this.offsetPitch = offsets.getRotation().getY();
+        this.offsetRoll = offsets.getRotation().getZ();
+        return this;
+    }
+
+    public LimelightObject withLocation(Location location) {
+        this.location = location;
+        return this;
     }
 
     public LimelightObject withOffsetX(double offset) {

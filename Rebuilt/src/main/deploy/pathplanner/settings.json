@@ -1,29 +1,43 @@
 {
-  "robotWidth": 0.7688595,
-  "robotLength": 0.7688595,
+  "robotWidth": 0.81,
+  "robotLength": 0.81,
   "holonomicMode": true,
   "pathFolders": [
-    "Experimental",
+    "Bump",
+    "Climb",
+    "Ferry Only",
+    "Anit-NRG",
     "Outpost",
-    "Shoot & Ferry"
+    "Preload Only",
+    "Push",
+    "Right Side Shoot & Ferry",
+    "Shoot & Ferry",
+    "Testing"
   ],
   "autoFolders": [
-    "Test Autos"
+    "Anti-NRG",
+    "Autos That Need Testing",
+    "Climb",
+    "Emergancy Autos",
+    "Ferry",
+    "New Folder",
+    "Push",
+    "Bump Autos"
   ],
   "defaultMaxVel": 5.0,
   "defaultMaxAccel": 4.0,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,
-  "robotMass": 57.61,
+  "robotMass": 64.41,
   "robotMOI": 5.3702,
   "robotTrackwidth": 0.546,
-  "driveWheelRadius": 0.048,
-  "driveGearing": 5.27,
-  "maxDriveSpeed": 6.07,
+  "driveWheelRadius": 0.05,
+  "driveGearing": 6.03,
+  "maxDriveSpeed": 5.12,
   "driveMotorType": "krakenX60",
-  "driveCurrentLimit": 100.0,
-  "wheelCOF": 2.1,
+  "driveCurrentLimit": 60.0,
+  "wheelCOF": 0.85,
   "flModuleX": 0.273,
   "flModuleY": 0.273,
   "frModuleX": 0.273,
@@ -34,5 +48,9 @@
   "brModuleY": -0.273,
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
-  "robotFeatures": []
+  "robotFeatures": [
+    "{\"name\":\"Intake\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.475,\"y\":0.0},\"size\":{\"width\":0.685,\"length\":0.06},\"borderRadius\":0.01,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Turret\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":-0.2,\"y\":0.0},\"radius\":0.14,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Climb\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.0,\"y\":-0.25},\"size\":{\"width\":0.15,\"length\":0.25},\"borderRadius\":0.01,\"strokeWidth\":0.02,\"filled\":false}}"
+  ]
 }

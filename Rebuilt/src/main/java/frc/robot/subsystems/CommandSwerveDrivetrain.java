@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -21,6 +20,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -56,8 +56,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
-    private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
-    private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+    // private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
+    // private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -66,7 +66,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent brownout
             null,        // Use default timeout (10 s)
             // Log state with SignalLogger class
-            state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())
+            state -> Logger.recordOutput("Rebuilt/SYSID/SysIdTranslation_State", state.toString())
         ),
         new SysIdRoutine.Mechanism(
             output -> setControl(m_translationCharacterization.withVolts(output)),
@@ -84,7 +84,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //         Volts.of(7), // Use dynamic voltage of 7 V
     //         null,        // Use default timeout (10 s)
     //         // Log state with SignalLogger class
-    //         state -> SignalLogger.writeString("SysIdSteer_State", state.toString())
+    //         state -> Logger.recordOutput("Rebuilt/SYSID/SysIdSteer_State", state.toString())
     //     ),
     //     new SysIdRoutine.Mechanism(
     //         volts -> setControl(m_steerCharacterization.withVolts(volts)),
@@ -106,14 +106,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //         Volts.of(Math.PI),
     //         null, // Use default timeout (10 s)
     //         // Log state with SignalLogger class
-    //         state -> SignalLogger.writeString("SysIdRotation_State", state.toString())
+    //         state -> Logger.recordOutput("Rebuilt/SYSID/SysIdRotation_State", state.toString())
     //     ),
     //     new SysIdRoutine.Mechanism(
     //         output -> {
     //             /* output is actually radians per second, but SysId only supports "volts" */
     //             setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
     //             /* also log the requested output for SysId */
-    //             SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
+    //             Logger.recordOutput("Rebuilt/SYSID/Rotational_Rate", output.in(Volts));
     //         },
     //         null,
     //         this
@@ -218,9 +218,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 ),
                 new PPHolonomicDriveController(
                     // PID constants for translation
-                    new PIDConstants(10, 0, 0),
+                    new PIDConstants(3.5, 0, 0),
                     // PID constants for rotation
-                    new PIDConstants(7, 0, 0)
+                    new PIDConstants(3.5, 0, 0)
                 ),
                 config,
                 // Assume the path needs to be flipped for Red vs Blue, this is normally the case
@@ -288,9 +288,26 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
+        SwerveDriveState driveState = getState();
+
+        Rotation3d pigeonData = getPigeon2().getRotation3d();
+        double[] pigeonDataArr = {pigeonData.getX(), pigeonData.getY(), pigeonData.getZ()};
+
         m_field.setRobotPose(getState().Pose);
-        Logger.recordOutput("Rebuilt/Drive/Pose 2D", getState().Pose);
-        Logger.recordOutput("Rebuilt/Drive/Pigeon Offset", RobotContainer.pigeonOffset);
+        Logger.recordOutput("Rebuilt/Drive/Pose 2D", driveState.Pose);
+        Logger.recordOutput("Rebuilt/Drive/Pigeon Data", pigeonDataArr);
+        
+        Logger.recordOutput("Rebuilt/Drive/maxSpeed", RobotContainer.maxSpeed);
+        Logger.recordOutput("Rebuilt/Drive/maxRotationSpeed", RobotContainer.maxAngularRate);
+        Logger.recordOutput("Rebuilt/Drive/CurrentRotationSpeed", driveState.Speeds.omegaRadiansPerSecond);
+        Logger.recordOutput("Rebuilt/Drive/currentXSpeed", driveState.Speeds.vxMetersPerSecond);
+        Logger.recordOutput("Rebuilt/Drive/currentYSpeed", driveState.Speeds.vyMetersPerSecond);
+        Logger.recordOutput("Rebuilt/Drive/slow mode", RobotContainer.slowMode);
+
+        Logger.recordOutput("Rebuilt/SYSID/Motor Position", getModule(0).getDriveMotor().getPosition(true).getValueAsDouble());
+        Logger.recordOutput("Rebuilt/SYSID/Motor Velocity", getModule(0).getDriveMotor().getVelocity(true).getValueAsDouble());
+        Logger.recordOutput("Rebuilt/SYSID/Motor Voltage", getModule(0).getDriveMotor().getMotorVoltage(true).getValueAsDouble());
+        
     }
 
     private void startSimThread() {
