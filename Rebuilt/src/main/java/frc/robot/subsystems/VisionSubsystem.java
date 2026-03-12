@@ -673,11 +673,11 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds getVelocityOfTurret() { // jump point
-        // ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
-        ChassisSpeeds velocityRobotWRTField = new ChassisSpeeds(
-            -RobotContainer.driveBezier.getOutput(DRIVER.getLeftY())  * RobotContainer.maxSpeed, 
-            -RobotContainer.driveBezier.getOutput(DRIVER.getLeftX()) * RobotContainer.maxSpeed, 
-            -RobotContainer.rotateBezier.getOutput(DRIVER.getRightX()) * RobotContainer.maxAngularRate);// ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, getCurrentBotPoseAllianceUnspecific().getRotation());
+        ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
+        ChassisSpeeds velocityRobotWRTField = ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, getCurrentBotPoseAllianceUnspecific().getRotation()); //new ChassisSpeeds(
+        //     -RobotContainer.driveBezier.getOutput(DRIVER.getLeftY())  * RobotContainer.maxSpeed, 
+        //     -RobotContainer.driveBezier.getOutput(DRIVER.getLeftX()) * RobotContainer.maxSpeed, 
+        //     -RobotContainer.rotateBezier.getOutput(DRIVER.getRightX()) * RobotContainer.maxAngularRate);// ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, getCurrentBotPoseAllianceUnspecific().getRotation());
         double rotationSpeed = velocityRobotWRTField.omegaRadiansPerSecond;
         Pose2d currentTurretPose = getCurrentBotPoseAllianceUnspecific();
         double turretOffset = Math.hypot(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getX(), TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getY());
@@ -686,8 +686,8 @@ public class VisionSubsystem extends SubsystemBase {
         double xOffsetWRTField = turretOffset * Math.cos(currentTurretPose.getRotation().getRadians());
         double yOffsetWRTField = turretOffset * Math.sin(currentTurretPose.getRotation().getRadians());
 
-        double finalXVelocity = velocityRobotWRTField.vxMetersPerSecond + (-rotationSpeed * yOffsetWRTField);// * currentTurretPose.getX();
-        double finalYVelocity = velocityRobotWRTField.vyMetersPerSecond + (rotationSpeed * xOffsetWRTField);// * currentTurretPose.getX();
+        double finalXVelocity = velocityRobotWRTField.vxMetersPerSecond + (-rotationSpeed * yOffsetWRTField);
+        double finalYVelocity = velocityRobotWRTField.vyMetersPerSecond + (rotationSpeed * xOffsetWRTField);
         
         return new ChassisSpeeds(finalXVelocity, finalYVelocity, rotationSpeed);
     }

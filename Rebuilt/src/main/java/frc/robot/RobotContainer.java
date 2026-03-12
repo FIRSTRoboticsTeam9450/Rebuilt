@@ -67,6 +67,7 @@ public class RobotContainer {
   
   private SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(1.5);
   private SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(1.5);
+  private SlewRateLimiter rotationAccelLimiter = new SlewRateLimiter(1.5);
 
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
