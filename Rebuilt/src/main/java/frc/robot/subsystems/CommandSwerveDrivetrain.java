@@ -302,10 +302,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Logger.recordOutput("Rebuilt/Drive/CurrentRotationSpeed", driveState.Speeds.omegaRadiansPerSecond);
         Logger.recordOutput("Rebuilt/Drive/currentXSpeed", driveState.Speeds.vxMetersPerSecond);
         Logger.recordOutput("Rebuilt/Drive/currentYSpeed", driveState.Speeds.vyMetersPerSecond);
+        Logger.recordOutput("Rebuilt/Drive/slow mode", RobotContainer.slowMode);
 
         Logger.recordOutput("Rebuilt/SYSID/Motor Position", getModule(0).getDriveMotor().getPosition(true).getValueAsDouble());
         Logger.recordOutput("Rebuilt/SYSID/Motor Velocity", getModule(0).getDriveMotor().getVelocity(true).getValueAsDouble());
         Logger.recordOutput("Rebuilt/SYSID/Motor Voltage", getModule(0).getDriveMotor().getMotorVoltage(true).getValueAsDouble());
+        
     }
 
     private void startSimThread() {

@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -65,9 +66,9 @@ public class RobotContainer {
   public static BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
 
   
-  private SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(1.5);
-  private SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(1.5);
-  private SlewRateLimiter rotationAccelLimiter = new SlewRateLimiter(1.5);
+  public static SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(1.5);
+  public static SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(1.5);
+  public static SlewRateLimiter rotationAccelLimiter = new SlewRateLimiter(1.5);
 
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
@@ -127,7 +128,7 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(slowMode ? driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(slowMode ? driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())) : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
-                    .withRotationalRate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(slowMode ? rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
         
@@ -257,9 +258,11 @@ public class RobotContainer {
 
   }
 
+
   public ChassisSpeeds getRobotFieldCentricVeloc() {
     return new ChassisSpeeds(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed, -driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed, -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
   }
+
 
   public void registeredCommands() {
     // Intake Commands

@@ -59,7 +59,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
-    private double hoodAngleMax = 12.1;
+    private double hoodAngleMax = 12.8;
     private double hoodAngleMin = 3.5; //3.5 for 270/300 turret, 4.4 for 360
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
@@ -170,14 +170,23 @@ public class ShooterSubsystem extends SubsystemBase {
         // shootingDistanceToVelocity.put(5.157, 37.0);
         // shootingDistanceToVelocity.put(5.8, 38.0);
 
-        shootingDistanceToVelocity.put(0.951, 25.5);
-        shootingDistanceToVelocity.put(1.754, 27.5);
-        shootingDistanceToVelocity.put(2.282, 29.25);
-        shootingDistanceToVelocity.put(3.2, 31.25);
-        shootingDistanceToVelocity.put(3.648, 33.25);
-        shootingDistanceToVelocity.put(4.448, 35.25);
-        shootingDistanceToVelocity.put(5.157, 36.5);
-        shootingDistanceToVelocity.put(5.8, 37.5);
+        // shootingDistanceToVelocity.put(0.951, 25.5);
+        // shootingDistanceToVelocity.put(1.754, 27.5);
+        // shootingDistanceToVelocity.put(2.282, 29.25);
+        // shootingDistanceToVelocity.put(3.2, 31.25);
+        // shootingDistanceToVelocity.put(3.648, 33.25);
+        // shootingDistanceToVelocity.put(4.448, 35.25);
+        // shootingDistanceToVelocity.put(5.157, 36.5);
+        // shootingDistanceToVelocity.put(5.8, 37.5);
+
+        shootingDistanceToVelocity.put(0.951, 26.75);
+        shootingDistanceToVelocity.put(1.754, 28.75);
+        shootingDistanceToVelocity.put(2.282, 30.5);
+        shootingDistanceToVelocity.put(3.2, 32.5);
+        shootingDistanceToVelocity.put(3.648, 34.5);
+        shootingDistanceToVelocity.put(4.448, 36.5);
+        shootingDistanceToVelocity.put(5.157, 37.5);
+        shootingDistanceToVelocity.put(5.8, 39.5);
 
         // Shooting Data Time
         shootingDistanceToTime.put(0.951, 1.048);
@@ -237,7 +246,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 12.1; // Hood angle limit
+        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 12.8; // Hood angle limit
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
 
         angleMotor.getConfigurator().apply(angleMotorConfig);
