@@ -13,14 +13,18 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants.TurretConstants;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.BackRight;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontLeft;
 import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
+import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
+import frc.robot.util.BezierCurve;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightObject;
 import frc.robot.util.LimelightHelpers.IMUData;
@@ -70,6 +74,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public void initizalize() {
+        
     }
 
     // -------------------------
@@ -142,7 +147,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     private boolean useCustomTarget = false;
     private Translation2d customTarget = new Translation2d();
-
+    
+    private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
     // -------------------------
     // Constructor (private for singleton)
     // -------------------------
@@ -641,9 +647,11 @@ public class VisionSubsystem extends SubsystemBase {
      * Get the pose of the adjusted target based on how fast it's moving
      * @return
      */
-        public Translation2d getAdjustedTarget(Translation2d givenTargetWRTBot, Translation2d lastTargetPose) {
+    public Translation2d getAdjustedTarget(Translation2d givenTargetWRTBot, Translation2d lastTargetPose) {
         Translation2d targetWRTBot = givenTargetWRTBot;
-        ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
+        // ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
+        ChassisSpeeds velocityRobotWRTRobot = ChassisSpeeds.fromFieldRelativeSpeeds(getVelocityOfTurret(), getCurrentBotPoseAllianceUnspecific().getRotation());
+    
 
         double timeToShoot = getTimeToShoot(targetWRTBot);
         if(lastTargetPose != null) {
@@ -664,6 +672,25 @@ public class VisionSubsystem extends SubsystemBase {
         return finalTarget;
     }
 
+    public ChassisSpeeds getVelocityOfTurret() { // jump point
+        // ChassisSpeeds velocityRobotWRTRobot = drivetrain.getState().Speeds;
+        ChassisSpeeds velocityRobotWRTField = new ChassisSpeeds(
+            -RobotContainer.driveBezier.getOutput(DRIVER.getLeftY())  * RobotContainer.maxSpeed, 
+            -RobotContainer.driveBezier.getOutput(DRIVER.getLeftX()) * RobotContainer.maxSpeed, 
+            -RobotContainer.rotateBezier.getOutput(DRIVER.getRightX()) * RobotContainer.maxAngularRate);// ChassisSpeeds.fromRobotRelativeSpeeds(velocityRobotWRTRobot, getCurrentBotPoseAllianceUnspecific().getRotation());
+        double rotationSpeed = velocityRobotWRTField.omegaRadiansPerSecond;
+        Pose2d currentTurretPose = getCurrentBotPoseAllianceUnspecific();
+        double turretOffset = Math.hypot(TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getX(), TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getY());
+
+        // double yOffset = TurretConstants.OFFSET_WRT_CENTER_OF_ROBOT.getY();
+        double xOffsetWRTField = turretOffset * Math.cos(currentTurretPose.getRotation().getRadians());
+        double yOffsetWRTField = turretOffset * Math.sin(currentTurretPose.getRotation().getRadians());
+
+        double finalXVelocity = velocityRobotWRTField.vxMetersPerSecond + (-rotationSpeed * yOffsetWRTField);// * currentTurretPose.getX();
+        double finalYVelocity = velocityRobotWRTField.vyMetersPerSecond + (rotationSpeed * xOffsetWRTField);// * currentTurretPose.getX();
+        
+        return new ChassisSpeeds(finalXVelocity, finalYVelocity, rotationSpeed);
+    }
 
     /**
      * Get the future target's pose in a certain amount of time, use this and the 

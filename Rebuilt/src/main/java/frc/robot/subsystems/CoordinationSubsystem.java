@@ -311,8 +311,8 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public boolean isTurretReady() {
-        return true;
-        // return TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING && TurretSubsystem.getInstance().isTurretGoodToFire();
+        // return true;
+        return TurretSubsystem.getInstance().getCurrentState() == TurretState.AIMING && TurretSubsystem.getInstance().isTurretGoodToFire();
     }
 
     public boolean areShooterAndTurretReady() {
