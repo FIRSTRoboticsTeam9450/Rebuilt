@@ -66,9 +66,9 @@ public class RobotContainer {
   public static BezierCurve rotateBezier = new BezierCurve("rotate", 164.8, 0.093, 100, 0.84, 0.035, 0.03);
 
   
-  public static SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(1.5);
-  public static SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(1.5);
-  public static SlewRateLimiter rotationAccelLimiter = new SlewRateLimiter(1.5);
+  public static SlewRateLimiter driveXAccelLimiter = new SlewRateLimiter(5);
+  public static SlewRateLimiter driveYAccelLimiter = new SlewRateLimiter(5);
+  public static SlewRateLimiter rotationAccelLimiter = new SlewRateLimiter(8.0);
 
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
@@ -123,12 +123,18 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+
     drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX(slowMode ? driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(slowMode ? driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())) : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
-                    .withRotationalRate(slowMode ? rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate) // Drive counterclockwise with negative X (left)
+            drivetrain.applyRequest(() -> {
+              
+                double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
+                double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
+                double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
+                return drive.withVelocityX(slowMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(slowMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
+                    .withRotationalRate(slowMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
+            }
             )
         );
         
@@ -141,6 +147,7 @@ public class RobotContainer {
 
     DRIVER.leftTrigger().onTrue(
         new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slowMode = true))
+        // new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED).alongWith(new InstantCommand(() -> slowMode = true))
     ).onFalse(
       new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slowMode = false))
     );

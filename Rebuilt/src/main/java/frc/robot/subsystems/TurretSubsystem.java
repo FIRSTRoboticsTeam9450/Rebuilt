@@ -84,7 +84,7 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 391.5); //Based off how long it takes to wrap
+        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 450); //Based off how long it takes to wrap
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 360);
     

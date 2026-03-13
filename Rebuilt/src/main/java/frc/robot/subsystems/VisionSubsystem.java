@@ -127,6 +127,7 @@ public class VisionSubsystem extends SubsystemBase {
         SHOOTING_ZONE,
         FERRY_ZONE_TOP,
         FERRY_ZONE_BOTTOM,
+        FERRY_ZONE_MID,
         HARD_TRENCH_DEADZONE,
         SOFT_TRENCH_DEADZONE,
         CLIMB_DEADZONE,
@@ -137,9 +138,11 @@ public class VisionSubsystem extends SubsystemBase {
     Translation2d currentTarget = ZoneTargets.SHOOTING_TARGET;
     Translation2d ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
     Translation2d neutralTarget = ZoneTargets.NEUTRAL_TOP_TARGET;
+    Translation2d ferryMidTarget = ZoneTargets.FERRY_MID_LEFT_TARGET;
 
     private ChassisSpeeds prevRobotVelocity = new ChassisSpeeds(0, 0, 0);
     private double prevTimeStamp = 0;
+
 
     // DEBUGGING
     private LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Vision", false);
@@ -305,6 +308,7 @@ public class VisionSubsystem extends SubsystemBase {
                 setVisionMeasurementStdDevs(defaultVisionStdDevX, defaultVisionStdDevY, defaultVisionStdDevTheta);
             }
             drivetrain.addVisionMeasurement(pose, Utils.currentTimeToFPGATime(lastVisionTimestamp));
+
         });
 
         // Store snapshots for logging to reuse — no re-reads needed
@@ -833,10 +837,9 @@ public class VisionSubsystem extends SubsystemBase {
             currentZone = ZoneState.FERRY_ZONE_BOTTOM;
             currentTarget = ferryTarget;
         }
-        else if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
-            System.out.println("BACK_SHOOT!");
-            currentZone = ZoneState.BACK_SHOOT;
-            currentTarget = neutralTarget; 
+        if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
+            currentZone = ZoneState.FERRY_ZONE_MID;
+            currentTarget = ferryMidTarget; 
         }
         if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
@@ -892,10 +895,12 @@ public class VisionSubsystem extends SubsystemBase {
         if(target.equals("top")) {
             ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
             neutralTarget = ZoneTargets.NEUTRAL_TOP_TARGET;
+            ferryMidTarget = ZoneTargets.FERRY_MID_LEFT_TARGET;
         }
         else if(target.equals("bottom")) {
             ferryTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
             neutralTarget = ZoneTargets.NEUTRAL_BOTTOM_TARGET;
+            ferryMidTarget = ZoneTargets.FERRY_MID_RIGHT_TARGET;
         }
     }
 

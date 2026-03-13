@@ -27,6 +27,7 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants;
 import frc.robot.Constants.RobotConstants.ShooterConstants.HoodConstants;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
+import frc.robot.subsystems.VisionSubsystem.ZoneState;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -64,6 +65,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
     private double distanceAwayToUseLowDegree = 1.481;
+    private double distanceAwayToUseHighDegree = 1.78;
 
     // Motors
     private TalonFX angleMotor = new TalonFX(ShooterConstants.DeviceIDs.kAngleMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -93,7 +95,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Shooter Outtake Velocity Motion Magic Parameters
     private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.331699); //0.17238
-    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.12222); //0.13318
+    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.119); //0.13318
     private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0); //0.046148
     private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.6);
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 0);
@@ -187,6 +189,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToVelocity.put(4.448, 36.5);
         shootingDistanceToVelocity.put(5.157, 37.5);
         shootingDistanceToVelocity.put(5.8, 39.5);
+        // shootingDistanceToVelocity.put(5.8, 39.5);
 
         // Shooting Data Time
         shootingDistanceToTime.put(0.951, 1.048);
@@ -198,10 +201,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
         // Ferrying Data Velocity
-        ferryingDistanceToVelocity.put(4.59, 31.5);
-        ferryingDistanceToVelocity.put(4.962, 32.72);
-        ferryingDistanceToVelocity.put(7.622, 39.03);
-        ferryingDistanceToVelocity.put(11.26, 49.0);
+        ferryingDistanceToVelocity.put(4.59, 34.5);
+        ferryingDistanceToVelocity.put(4.962, 35.72);
+        ferryingDistanceToVelocity.put(7.622, 42.03);
+        ferryingDistanceToVelocity.put(11.26, 52.0);
         ferryingDistanceToVelocity.put(16.26, 62.75);
 
 
@@ -440,6 +443,13 @@ public class ShooterSubsystem extends SubsystemBase {
                         targetShooterVeloc = 49;
                     }
                     break;
+
+                case FERRY_ZONE_MID:
+                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
+                    if(cachedDistanceToTarget > 14.55) {
+                        targetShooterVeloc = 49;
+                    }
+                    break;
                     
                 case SOFT_TRENCH_DEADZONE:
                     targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
@@ -482,6 +492,10 @@ public class ShooterSubsystem extends SubsystemBase {
                     targetHoodHeight = hoodAngleFunction(distance);
                     break;
 
+                case FERRY_ZONE_MID:
+                    targetHoodHeight = hoodAngleMax;
+                    break;
+
                 case HARD_TRENCH_DEADZONE:
                     setAngleState(AngleState.STORING);
                     break;
@@ -520,6 +534,9 @@ public class ShooterSubsystem extends SubsystemBase {
         if(distance <= distanceAwayToUseLowDegree) {
             wantedRevs = 0; 
         }
+        // if(distance >= distanceAwayToUseHighDegree && coordSub.getCurrentZone() != ZoneState.SHOOTING_ZONE) {
+        //     wantedRevs = hoodAngleMax;
+        // }
         return MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax);
     }
 
