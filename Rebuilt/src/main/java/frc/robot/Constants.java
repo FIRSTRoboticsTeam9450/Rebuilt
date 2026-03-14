@@ -207,7 +207,7 @@ public final class Constants {
       public static final Translation2d NEUTRAL_TARGET_BOTTOM = new Translation2d(8.749,  1.544);
       public static final Translation2d NEUTRAL_TARGET_TOP = new Translation2d(8.749,  6);
       public static final Translation2d FERRY_MID_RIGHT_TARGET = new Translation2d(3.418,  .5);
-      public static final Translation2d FERRY_MID_LEFT_TARGET = new Translation2d(3.418,  7.8);
+      public static final Translation2d FERRY_MID_LEFT_TARGET = new Translation2d(3.418,  7.6);
 
 
       /* ========= HARD CODED POSES ======== */

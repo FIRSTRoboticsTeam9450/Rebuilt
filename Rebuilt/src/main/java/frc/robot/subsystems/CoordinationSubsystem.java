@@ -89,13 +89,6 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     private void applyZone() {
-        if(currentZone != ZoneState.HARD_TRENCH_DEADZONE) {
-            boolean trenchNow = VisionSubsystem.getInstance().trenchNow();
-            Logger.recordOutput("Rebuilt/Coordination/TrenchNow", trenchNow);
-            if(trenchNow) {
-                currentZone = ZoneState.HARD_TRENCH_DEADZONE;
-            }
-        }
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
             if(currentState != AbsoluteStates.INIT) {
 
@@ -135,11 +128,19 @@ public class CoordinationSubsystem extends SubsystemBase {
                         break;
 
                     case SOFT_TRENCH_DEADZONE:
-                        if(!overrideTrench && !hardOverrideTrench) {
+                        // if(!overrideTrench && !hardOverrideTrench) {
+                        //     setState(AbsoluteStates.TRENCH, false);
+                        // } else {
+                        //     setState(AbsoluteStates.SHOOTING, false);
+                        // }
+                        if (forceTrench) {
                             setState(AbsoluteStates.TRENCH, false);
-                        } else {
+                        } else if(goodToFire()) {
                             setState(AbsoluteStates.SHOOTING, false);
+                        } else {
+                            setState(AbsoluteStates.PREPARING_FOR_SHOOTING, false);
                         }
+
                         break;
 
                     case HARD_TRENCH_DEADZONE:
@@ -458,7 +459,10 @@ public class CoordinationSubsystem extends SubsystemBase {
     return new GoToPosCommand(drivetrain.getState().Pose);
     }
     public boolean getInDeadzone() {
-        if(currentZone != ZoneState.SOFT_TRENCH_DEADZONE || currentZone != ZoneState.HARD_TRENCH_DEADZONE) {
+        // if(currentZone != ZoneState.SOFT_TRENCH_DEADZONE || currentZone != ZoneState.HARD_TRENCH_DEADZONE) {
+        //     return true;
+        // }
+        if(currentZone != ZoneState.HARD_TRENCH_DEADZONE) {
             return true;
         }
         return false;

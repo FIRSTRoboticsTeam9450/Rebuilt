@@ -88,7 +88,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 360);
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 62.5);
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 62.5); // 62.5
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
     private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.21);

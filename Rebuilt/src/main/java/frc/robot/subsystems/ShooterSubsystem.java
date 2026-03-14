@@ -18,6 +18,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -95,7 +96,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Shooter Outtake Velocity Motion Magic Parameters
     private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.331699); //0.17238
-    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.119); //0.13318
+    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.111); //0.13318 // .119
     private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0); //0.046148
     private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.6);
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 0);
@@ -181,23 +182,47 @@ public class ShooterSubsystem extends SubsystemBase {
         // shootingDistanceToVelocity.put(5.157, 36.5);
         // shootingDistanceToVelocity.put(5.8, 37.5);
 
-        shootingDistanceToVelocity.put(0.951, 26.75);
-        shootingDistanceToVelocity.put(1.754, 28.75);
-        shootingDistanceToVelocity.put(2.282, 30.5);
-        shootingDistanceToVelocity.put(3.2, 32.5);
-        shootingDistanceToVelocity.put(3.648, 34.5);
-        shootingDistanceToVelocity.put(4.448, 36.5);
-        shootingDistanceToVelocity.put(5.157, 37.5);
-        shootingDistanceToVelocity.put(5.8, 39.5);
+        // shootingDistanceToVelocity.put(0.951, 26.75);
+        // shootingDistanceToVelocity.put(1.754, 28.75);
+        // shootingDistanceToVelocity.put(2.282, 30.5);
+        // shootingDistanceToVelocity.put(3.2, 32.5);
+        // shootingDistanceToVelocity.put(3.648, 34.5);
+        // shootingDistanceToVelocity.put(4.448, 36.5);
+        // shootingDistanceToVelocity.put(5.157, 37.5);
+        // shootingDistanceToVelocity.put(5.8, 39.5);
+        // shootingDistanceToVelocity.put(5.8, 39.5);
+        
+//         Distance	Velocity	Time
+// 4.064		34.8		Video 8
+// 3.752		34		1.3
+// 3.22		32		1.18
+// 2.844		30.5		1.1255
+// 2.428		29		1.011375
+// 2.090		27.7		1.037
+// 1.378		25.7		1.017
+        shootingDistanceToVelocity.put(1.378, 25.7);
+        shootingDistanceToVelocity.put(2.090, 27.7);
+        shootingDistanceToVelocity.put(2.428, 29.0);
+        shootingDistanceToVelocity.put(2.844, 30.5);
+        shootingDistanceToVelocity.put(3.22, 32.0);
+        shootingDistanceToVelocity.put(3.752, 34.0);
+        shootingDistanceToVelocity.put(4.064, 34.8);
         // shootingDistanceToVelocity.put(5.8, 39.5);
 
         // Shooting Data Time
-        shootingDistanceToTime.put(0.951, 1.048);
-        shootingDistanceToTime.put(1.754, 1.085);
-        shootingDistanceToTime.put(2.282, 1.18);
-        shootingDistanceToTime.put(3.648, 1.236);
-        shootingDistanceToTime.put(4.448, 1.38);
-        shootingDistanceToTime.put(5.157, 1.402);
+        // shootingDistanceToTime.put(0.951, 1.048);
+        // shootingDistanceToTime.put(1.754, 1.085);
+        // shootingDistanceToTime.put(2.282, 1.18);
+        // shootingDistanceToTime.put(3.648, 1.236);
+        // shootingDistanceToTime.put(4.448, 1.38);
+        // shootingDistanceToTime.put(5.157, 1.402);
+        shootingDistanceToTime.put(1.378, 1.017);
+        shootingDistanceToTime.put(2.090, 1.037);
+        shootingDistanceToTime.put(2.428, 1.011375);
+        shootingDistanceToTime.put(2.844, 1.1255);
+        shootingDistanceToTime.put(3.22, 1.18);
+        shootingDistanceToTime.put(3.752, 1.3);
+        // shootingDistanceToTime.put(4.064, 34.8);
 
 
         // Ferrying Data Velocity
@@ -452,7 +477,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     break;
                     
                 case SOFT_TRENCH_DEADZONE:
-                    targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
+                    targetShooterVeloc = shootingDistanceToVelocity.get(cachedDistanceToTarget);
                     break;
 
                 case HARD_TRENCH_DEADZONE:
@@ -530,6 +555,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public double hoodAngleFunction(double distance) {
         // double wantedAngle = (-35.0/(distance - .6)) + 48.0;
         double wantedAngle = (-60/(distance + 0.9)) + 40;
+        // double wantedAngle = (-40 / (distance - 0.3)) + 40;
         double wantedRevs = getAsRevs(wantedAngle);
         if(distance <= distanceAwayToUseLowDegree) {
             wantedRevs = 0; 
