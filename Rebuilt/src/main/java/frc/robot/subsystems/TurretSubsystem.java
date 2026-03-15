@@ -1056,9 +1056,9 @@ public class TurretSubsystem extends SubsystemBase {
 
     public boolean isAtTotalGoal() {
         if (DriverStation.isAutonomous()) {
-            return isAtTotalGoal(12.5);
+            return isAtTotalGoal(25);
         }
-        return isAtTotalGoal(7.5);
+        return isAtTotalGoal(17.5);
     }
 
     public boolean isAtTotalGoal(double tolerance) {
