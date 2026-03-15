@@ -124,6 +124,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private boolean isElevatorZeroingDone = false;
 
     private boolean atTarget;
+    private boolean spedUpElev = false;
 
     private Timer zeroingTimer = new Timer();
     private boolean forceZeroingIgnore = false;
@@ -254,29 +255,36 @@ public class ClimberSubsystem extends SubsystemBase {
                         break;
 
                     case L1:
-                        // if(!isElevatorZeroingDone) {   
-                        //     if (DriverStation.isTest()) {
-                        //         elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); 
-                        //     } else {
-                        //         double amps = (-zeroingTimer.get() + 0.4) * 80;
-                        //         amps = MathUtil.clamp(amps, 3.75, 50);
-                        //         elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(amps)); //this one for comp
-                        //     }
-                        //     // elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); //this one for prac
-                        //     // elevatorClimbMotor.stopMotor(); //this one to disable
-                        // } else {
-                        //     setElevatorTarget(ClimbPositions.kElevatorReach);
-                        // }
-                        elevatorClimbMotor.stopMotor();
+                        if(!isElevatorZeroingDone) {   
+                            if (true) { //change from true or false to say if want gentle zeroing, or if comp zeroing
+                                elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); 
+                            } else {
+                                double amps = (-zeroingTimer.get() + 0.4) * 80;
+                                amps = MathUtil.clamp(amps, 3.75, 50);
+                                elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(amps)); //this one for comp
+                            }
+                            // elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); //this one for prac
+                            // elevatorClimbMotor.stopMotor(); //this one to disable
+                        } else {
+                            setElevatorTarget(ClimbPositions.kElevatorReach);
+                        }
                         setTelescopeTarget(ClimbPositions.kTelescopeReach);
                         break;
                     
                     case L2:
+                        if (!spedUpElev && elevatorClimbMotor.getPosition(false).getValueAsDouble() >= -60) {
+                            spedUpElev = true;
+                            setElevatorRequestConstants(95, 1200);
+                        }
                         setElevatorTarget(ClimbPositions.kElevatorReach);
                         setTelescopeTarget(ClimbPositions.kTelescopeReach);
                         break;
 
                     case L3:
+                        if (!spedUpElev && elevatorClimbMotor.getPosition(false).getValueAsDouble() >= -60) {
+                            spedUpElev = true;
+                            setElevatorRequestConstants(95, 1200);
+                        }
                         setElevatorTarget(ClimbPositions.kElevatorReach);
                         setTelescopeTarget(ClimbPositions.kTelescopeReach);
                         break;
@@ -454,6 +462,7 @@ public class ClimberSubsystem extends SubsystemBase {
             setElevatorRequestConstants(50, 200);
             setTelescopingRequestConstants(30, 200);
         }
+        spedUpElev = false;
         currentClimbState = state;
     }
 
@@ -471,9 +480,9 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void setElevatorTarget(double setpoint) {
-        // currentElevatorSetpoint = setpoint;
-        // elevatorClimbMotor.setControl(elevatorRequest.withPosition(setpoint));
-        elevatorClimbMotor.stopMotor();
+        currentElevatorSetpoint = setpoint;
+        elevatorClimbMotor.setControl(elevatorRequest.withPosition(setpoint));
+        // elevatorClimbMotor.stopMotor();
     }
 
     public void setOverrideSetpoints(double elevatorSetpoint, double telescopeSetpoint) {
@@ -515,7 +524,7 @@ public class ClimberSubsystem extends SubsystemBase {
         return Commands.either(
             new InstantCommand(() -> setClimbState(ClimbStates.INIT)),
             Commands.either(
-                    new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)).alongWith(new WaitCommand(1.0).alongWith(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true))),
+                    new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)).alongWith(new WaitCommand(0.6).andThen(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true))),
                     Commands.either(
                         CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new WaitCommand(0.4).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
                         Commands.either(
@@ -544,7 +553,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public Command setForceClimberDownCommand() {
-        return new InstantCommand(() -> setClimbState(ClimbStates.STANDBY));
+        return new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)));
     }
 
     /* =================== UPDATER/TUNING =================== */    

@@ -61,7 +61,7 @@ public final class Constants {
         public static final double kElevatorReach = -1;
         public static final double kElevatorHandoff = -0.5;
         public static final double kElevatorL3Store = -35;
-        public static final double kElevatorClimb = -146.5; //-148
+        public static final double kElevatorClimb = -141.0; //Old: -146.5Mech Max: -148
         public static final double kElevatorStore = -55.4;
 
         public static final double kTelescopeStore = 0.5;
