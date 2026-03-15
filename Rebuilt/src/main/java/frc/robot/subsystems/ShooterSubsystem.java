@@ -98,7 +98,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.331699); //0.17238
     private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.111); //0.13318 // .119
     private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0); //0.046148
-    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.6);
+    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.6); //2 Motors: 0.6, 1 Motor: 0.8
+    private LoggedNetworkNumber logOuttakeVKD = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kD", 0.0);
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 0);
     private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 200);
     private double outtakeVKFF = logOuttakeVKFF.get();
@@ -147,67 +148,27 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void addData() {
+
         // Shooting Data Velocity
-        // shootingDistanceToVelocity.put(1.00, 25.5);
-        // shootingDistanceToVelocity.put(1.9, 27.25);
-        // shootingDistanceToVelocity.put(2.32, 27.75);
-        // shootingDistanceToVelocity.put(2.97, 28.75);
-        // shootingDistanceToVelocity.put(3.85, 31.25);
-        // shootingDistanceToVelocity.put(4.1, 32.65);
-        // shootingDistanceToVelocity.put(4.766, 34.5);
+        // shootingDistanceToVelocity.put(1.378, 25.7);
+        // shootingDistanceToVelocity.put(2.090, 27.7);
+        // shootingDistanceToVelocity.put(2.428, 29.0);
+        // shootingDistanceToVelocity.put(2.844, 30.5);
+        // shootingDistanceToVelocity.put(3.22, 32.0);
+        // shootingDistanceToVelocity.put(3.752, 34.0);
+        // shootingDistanceToVelocity.put(4.064, 34.8);
+        // shootingDistanceToVelocity.put(4.376, 35.6); //Artifical Point
+        // shootingDistanceToVelocity.put(4.688, 36.4); //Artifical Point
 
-        // shootingDistanceToVelocity.put(1.00, 25.5);
-        // shootingDistanceToVelocity.put(1.9, 27.25);
-        // shootingDistanceToVelocity.put(2.32, 27.75);
-        // shootingDistanceToVelocity.put(2.97, 28.75);
-        // shootingDistanceToVelocity.put(3.85, 31.25);
-        // shootingDistanceToVelocity.put(4.1, 32.65);
-        // shootingDistanceToVelocity.put(4.766, 34.5 * 1.03);
-
-        // shootingDistanceToVelocity.put(0.951, 26.0);
-        // shootingDistanceToVelocity.put(1.754, 28.0);
-        // shootingDistanceToVelocity.put(2.282, 29.75);
-        // shootingDistanceToVelocity.put(3.2, 31.75);
-        // shootingDistanceToVelocity.put(3.648, 33.75);
-        // shootingDistanceToVelocity.put(4.448, 35.75);
-        // shootingDistanceToVelocity.put(5.157, 37.0);
-        // shootingDistanceToVelocity.put(5.8, 38.0);
-
-        // shootingDistanceToVelocity.put(0.951, 25.5);
-        // shootingDistanceToVelocity.put(1.754, 27.5);
-        // shootingDistanceToVelocity.put(2.282, 29.25);
-        // shootingDistanceToVelocity.put(3.2, 31.25);
-        // shootingDistanceToVelocity.put(3.648, 33.25);
-        // shootingDistanceToVelocity.put(4.448, 35.25);
-        // shootingDistanceToVelocity.put(5.157, 36.5);
-        // shootingDistanceToVelocity.put(5.8, 37.5);
-
-        // shootingDistanceToVelocity.put(0.951, 26.75);
-        // shootingDistanceToVelocity.put(1.754, 28.75);
-        // shootingDistanceToVelocity.put(2.282, 30.5);
-        // shootingDistanceToVelocity.put(3.2, 32.5);
-        // shootingDistanceToVelocity.put(3.648, 34.5);
-        // shootingDistanceToVelocity.put(4.448, 36.5);
-        // shootingDistanceToVelocity.put(5.157, 37.5);
-        // shootingDistanceToVelocity.put(5.8, 39.5);
-        // shootingDistanceToVelocity.put(5.8, 39.5);
         
-//         Distance	Velocity	Time
-// 4.064		34.8		Video 8
-// 3.752		34		1.3
-// 3.22		32		1.18
-// 2.844		30.5		1.1255
-// 2.428		29		1.011375
-// 2.090		27.7		1.037
-// 1.378		25.7		1.017
-        shootingDistanceToVelocity.put(1.378, 25.7);
-        shootingDistanceToVelocity.put(2.090, 27.7);
-        shootingDistanceToVelocity.put(2.428, 29.0);
-        shootingDistanceToVelocity.put(2.844, 30.5);
-        shootingDistanceToVelocity.put(3.22, 32.0);
-        shootingDistanceToVelocity.put(3.752, 34.0);
-        shootingDistanceToVelocity.put(4.064, 34.8);
-        // shootingDistanceToVelocity.put(5.8, 39.5);
+        shootingDistanceToVelocity.put(1.378, 28.4 * 1.817);
+        shootingDistanceToVelocity.put(2.090, 29.35 * 1.817);
+        shootingDistanceToVelocity.put(2.428, 30.65 * 1.817);
+        shootingDistanceToVelocity.put(2.844, 32.05 * 1.817);
+        shootingDistanceToVelocity.put(3.22, 33.1 * 1.817);
+        shootingDistanceToVelocity.put(3.752, 34.3 * 1.817);
+        shootingDistanceToVelocity.put(4.064, 35.3 * 1.817);
+        shootingDistanceToVelocity.put(4.376, 36.3 * 1.817); //Artifical Point
 
         // Shooting Data Time
         // shootingDistanceToTime.put(0.951, 1.048);
@@ -226,14 +187,18 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
         // Ferrying Data Velocity
-        ferryingDistanceToVelocity.put(4.59, 34.5);
-        ferryingDistanceToVelocity.put(4.962, 35.72);
-        ferryingDistanceToVelocity.put(7.622, 42.03);
-        ferryingDistanceToVelocity.put(11.26, 52.0);
-        ferryingDistanceToVelocity.put(16.26, 62.75);
+        // ferryingDistanceToVelocity.put(4.59, 34.5);
+        // ferryingDistanceToVelocity.put(4.962, 35.72);
+        // ferryingDistanceToVelocity.put(7.622, 42.03);
+        // ferryingDistanceToVelocity.put(11.26, 52.0);
+        // ferryingDistanceToVelocity.put(16.26, 62.75);
 
+        ferryingDistanceToVelocity.put(4.59, 34.5 * 1.817);
+        ferryingDistanceToVelocity.put(4.962, 35.72 * 1.817);
+        ferryingDistanceToVelocity.put(7.622, 42.03 * 1.817);
+        ferryingDistanceToVelocity.put(11.26, 52.0 * 1.817);
+        ferryingDistanceToVelocity.put(16.26, 62.75 * 1.817);
 
-        
         // Ferrying Data Time
         ferryingDistanceToTime.put(4.59, 1.41);
         ferryingDistanceToTime.put(11.26, 1.96);
@@ -284,18 +249,19 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-        shooterMotorsConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        shooterMotorsConfig.CurrentLimits.StatorCurrentLimitEnable = false;
         shooterMotorsConfig.CurrentLimits.StatorCurrentLimit = 80;
         shooterMotorsConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        shooterMotorsConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
-        shooterMotorsConfig.CurrentLimits.SupplyCurrentLimit = 40;
-        shooterMotorsConfig.CurrentLimits.SupplyCurrentLowerLimit = 25;
+        shooterMotorsConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+        shooterMotorsConfig.CurrentLimits.SupplyCurrentLimit = 50;
+        shooterMotorsConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
 
 
         Slot0Configs slot0Config = new Slot0Configs().withKS(logOuttakeVKS.get())
                                                     .withKV(logOuttakeVKV.get())
                                                     .withKA(logOuttakeVKA.get())
-                                                    .withKP(logOuttakeVKP.get());
+                                                    .withKP(logOuttakeVKP.get())
+                                                    .withKD(logOuttakeVKD.get());
 
         shooterMotorsConfig.Slot0 = slot0Config;
 
@@ -335,11 +301,11 @@ public class ShooterSubsystem extends SubsystemBase {
             isZeroingDone = autoZeroing();
         }
         
-        if(!shooterLeftMotor.isConnected() && !swappedMotors) {
-            swappedMotors = true;
-            shooterLeftMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-            shooterRightMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-        }
+        // if(!shooterLeftMotor.isConnected() && !swappedMotors) {
+        //     swappedMotors = true;
+        //     shooterLeftMotor = new TalonFX(ShooterConstants.DeviceIDs.kRightShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+        //     shooterRightMotor = new TalonFX(ShooterConstants.DeviceIDs.kLeftShooterMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+        // }
 
         updateReachedShooterVelocityLogic();
 
@@ -458,21 +424,21 @@ public class ShooterSubsystem extends SubsystemBase {
                 case FERRY_ZONE_TOP:
                     targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
                     if(cachedDistanceToTarget > 14.55) {
-                        targetShooterVeloc = 49;
+                        targetShooterVeloc = 60; //TODO: PRACTICE: remove? recalc?
                     }
                     break;
                     
                 case FERRY_ZONE_BOTTOM:
                     targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
                     if(cachedDistanceToTarget > 14.55) {
-                        targetShooterVeloc = 49;
+                        targetShooterVeloc = 60; //TODO: PRACTICE: remove? recalc?
                     }
                     break;
 
                 case FERRY_ZONE_MID:
                     targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
                     if(cachedDistanceToTarget > 14.55) {
-                        targetShooterVeloc = 49;
+                        targetShooterVeloc = 60; //TODO: PRACTICE: remove? recalc?
                     }
                     break;
                     
@@ -588,7 +554,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isVelocityWithinTolerance() {
-        return isVelocityWithinTolerance(14);
+        return isVelocityWithinTolerance(16);
     }
 
     public boolean isVelocityWithinTolerance(double tolerance) {
@@ -661,7 +627,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void addManualVelocityShift() {
-        manualShift += 0.5;
+        manualShift += (0.5 * 0.817);
     }
 
     public void addManualVelocityShift(double value) {
@@ -669,7 +635,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void subtractManualVelocityShift() {
-        manualShift -= 0.5;
+        manualShift -= (0.5 * 0.817);
     }
 
     public void resetManualVelocityShift() {
@@ -691,6 +657,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     || (shooterMotorsConfig.Slot0.kV != logOuttakeVKV.get())
                     || (shooterMotorsConfig.Slot0.kA != logOuttakeVKA.get())
                     || (shooterMotorsConfig.Slot0.kP != logOuttakeVKP.get())
+                    || (shooterMotorsConfig.Slot0.kD != logOuttakeVKD.get())
                     || (outtakeVKFF != logOuttakeVKFF.get())
                     || (shooterMotorsConfig.MotionMagic.MotionMagicAcceleration != logOuttakeVAccel.get());
 
