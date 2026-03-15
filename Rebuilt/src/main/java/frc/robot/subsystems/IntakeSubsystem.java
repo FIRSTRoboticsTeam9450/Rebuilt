@@ -52,15 +52,15 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 115); //30
 
 
-    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.145); // .1
-    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.2); // .33
+    private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.125); // .145
+    private LoggedNetworkNumber logMMKV = new LoggedNetworkNumber("/Tuning/Intake/Angle/kV", 0.1); // .2
     private LoggedNetworkNumber logMMKA = new LoggedNetworkNumber("/Tuning/Intake/Angle/kA", 0); // 0
-    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 51); // 25
+    private LoggedNetworkNumber logMMKP = new LoggedNetworkNumber("/Tuning/Intake/Angle/kP", 35); // 48
     private LoggedNetworkNumber logMMKI = new LoggedNetworkNumber("/Tuning/Intake/Angle/kI", 0); // 0
-    private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0.1); // 0
-    private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0); // 0
+    private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0.175); // 0.1
+    private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.45); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.25);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.3);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
     private double intakingTargetVolts = logIntakingTarget.get();
@@ -68,7 +68,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double intakeRevolutions = logIntakeTarget.get();
     private double storeRevolutions = 6.25;
     private double trenchStoreRevolutions = 4.5;
-    private double climbStoreRevolutions = 7.5;
+    private double climbStoreRevolutions = 8.0;
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
@@ -113,11 +113,11 @@ public final class IntakeSubsystem extends SubsystemBase{
         IntakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         IntakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        IntakeConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+        IntakeConfig.CurrentLimits.StatorCurrentLimitEnable = false;
         IntakeConfig.CurrentLimits.StatorCurrentLimit = 80;
         IntakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         IntakeConfig.CurrentLimits.SupplyCurrentLimit = 80;
-        IntakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
+        IntakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
 
         motorWheels.getConfigurator().apply(IntakeConfig);
     }

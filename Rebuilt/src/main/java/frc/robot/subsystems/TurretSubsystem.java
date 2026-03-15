@@ -84,11 +84,11 @@ public class TurretSubsystem extends SubsystemBase {
     
     // Tunable parameters
     private final LoggedNetworkNumber logMaxVelocityDegPerSec = 
-        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 391.5); //Based off how long it takes to wrap
+        new LoggedNetworkNumber("/Tuning/Turret/MaxVelocityDegPerSec", 450); //Based off how long it takes to wrap
     private final LoggedNetworkNumber logMaxAccelerationDegPerSecSq = 
         new LoggedNetworkNumber("/Tuning/Turret/MaxAccelerationDegPerSecSq", 360);
     
-    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 62.5);
+    private final LoggedNetworkNumber logKP = new LoggedNetworkNumber("/Tuning/Turret/kP", 62.5); // 62.5
     private final LoggedNetworkNumber logKI = new LoggedNetworkNumber("/Tuning/Turret/kI", 0.0);
     private final LoggedNetworkNumber logKD = new LoggedNetworkNumber("/Tuning/Turret/kD", 0.0);
     private final LoggedNetworkNumber logKS = new LoggedNetworkNumber("/Tuning/Turret/kS", 0.21);
@@ -1056,9 +1056,9 @@ public class TurretSubsystem extends SubsystemBase {
 
     public boolean isAtTotalGoal() {
         if (DriverStation.isAutonomous()) {
-            return isAtTotalGoal(12.5);
+            return isAtTotalGoal(25);
         }
-        return isAtTotalGoal(7.5);
+        return isAtTotalGoal(17.5);
     }
 
     public boolean isAtTotalGoal(double tolerance) {

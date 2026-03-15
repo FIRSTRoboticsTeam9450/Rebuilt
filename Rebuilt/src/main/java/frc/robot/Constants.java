@@ -61,7 +61,7 @@ public final class Constants {
         public static final double kElevatorReach = -1;
         public static final double kElevatorHandoff = -0.5;
         public static final double kElevatorL3Store = -35;
-        public static final double kElevatorClimb = -146.5; //-148
+        public static final double kElevatorClimb = -141.0; //Old: -146.5Mech Max: -148
         public static final double kElevatorStore = -55.4;
 
         public static final double kTelescopeStore = 0.5;
@@ -111,7 +111,7 @@ public final class Constants {
       }
 
       //7in off from center
-      public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0));
+      public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0)); // .1778
       public static final double ENCODER_MAGNET_OFFSET = 0.31201171875;
 
       //To find the ratios, divide if reduction, multiply if increase.
@@ -206,6 +206,8 @@ public final class Constants {
       public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,1.8); //(2.54, 1.8), (2.54, 6.1976)
       public static final Translation2d NEUTRAL_TARGET_BOTTOM = new Translation2d(8.749,  1.544);
       public static final Translation2d NEUTRAL_TARGET_TOP = new Translation2d(8.749,  6);
+      public static final Translation2d FERRY_MID_RIGHT_TARGET = new Translation2d(3.418,  .5);
+      public static final Translation2d FERRY_MID_LEFT_TARGET = new Translation2d(3.418,  7.6);
 
 
       /* ========= HARD CODED POSES ======== */
@@ -308,8 +310,8 @@ public final class Constants {
         public static final double MID_ZONE_2_Y_LOW = 0;
         public static final double MID_ZONE_2_Y_HIGH = MID_ZONE_1_Y_LOW;//158.84;
 
-        public static final double MID_ZONE_2_DEADZONE_X_LOW = 11.915394;
-        public static final double MID_ZONE_2_DEADZONE_X_HIGH = 16.540988;
+        public static final double MID_ZONE_2_DEADZONE_X_LOW = MID_ZONE_X_LOW;
+        public static final double MID_ZONE_2_DEADZONE_X_HIGH = 6.6;
         public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.437636;
         public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.631436;
 
@@ -398,6 +400,8 @@ public final class Constants {
         public static final Translation2d FERRY_BOTTOM_TARGET = ImportantFieldPoses.FERRY_BOTTOM_TARGET;
         public static final Translation2d NEUTRAL_TOP_TARGET = ImportantFieldPoses.NEUTRAL_TARGET_TOP;
         public static final Translation2d NEUTRAL_BOTTOM_TARGET = ImportantFieldPoses.NEUTRAL_TARGET_BOTTOM;
+        public static final Translation2d FERRY_MID_RIGHT_TARGET = ImportantFieldPoses.FERRY_MID_RIGHT_TARGET;
+        public static final Translation2d FERRY_MID_LEFT_TARGET = ImportantFieldPoses.FERRY_MID_LEFT_TARGET;
       }
     }
 
