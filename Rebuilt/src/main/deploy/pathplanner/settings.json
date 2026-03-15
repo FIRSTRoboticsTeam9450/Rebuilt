@@ -3,10 +3,11 @@
   "robotLength": 0.81,
   "holonomicMode": true,
   "pathFolders": [
+    "Anit-NRG",
     "Bump",
     "Climb",
     "Ferry Only",
-    "Anit-NRG",
+    "Chaos Autos",
     "Outpost",
     "Preload Only",
     "Push",
@@ -17,12 +18,12 @@
   "autoFolders": [
     "Anti-NRG",
     "Autos That Need Testing",
+    "Bump Autos",
     "Climb",
     "Emergancy Autos",
     "Ferry",
-    "New Folder",
-    "Push",
-    "Bump Autos"
+    "Chaos Autos",
+    "Push"
   ],
   "defaultMaxVel": 5.0,
   "defaultMaxAccel": 4.0,
