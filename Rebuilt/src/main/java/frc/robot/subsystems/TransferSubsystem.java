@@ -80,7 +80,7 @@ public class TransferSubsystem extends SubsystemBase {
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         motorConfig.CurrentLimits.SupplyCurrentLimit = 70;
         motorConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
-        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 50;
         
         motor.getConfigurator().apply(motorConfig);
     }

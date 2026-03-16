@@ -98,7 +98,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.331699); //0.17238
     private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.111); //0.13318 // .119
     private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0); //0.046148
-    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.6); //2 Motors: 0.6, 1 Motor: 0.8
+    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.8); //2 Motors: 0.6, 1 Motor: 0.8
     private LoggedNetworkNumber logOuttakeVKD = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kD", 0.0);
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 0);
     private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 200);
@@ -165,10 +165,13 @@ public class ShooterSubsystem extends SubsystemBase {
         shootingDistanceToVelocity.put(2.090, 29.35 * 1.817);
         shootingDistanceToVelocity.put(2.428, 30.65 * 1.817);
         shootingDistanceToVelocity.put(2.844, 32.05 * 1.817);
-        shootingDistanceToVelocity.put(3.22, 33.1 * 1.817);
-        shootingDistanceToVelocity.put(3.752, 34.3 * 1.817);
-        shootingDistanceToVelocity.put(4.064, 35.3 * 1.817);
-        shootingDistanceToVelocity.put(4.376, 36.3 * 1.817); //Artifical Point
+        shootingDistanceToVelocity.put(3.22, 32.8 * 1.817);
+        shootingDistanceToVelocity.put(3.752, 34.25 * 1.817);
+        shootingDistanceToVelocity.put(4.064, 35.5 * 1.817);
+        shootingDistanceToVelocity.put(4.3, 64.25);
+        shootingDistanceToVelocity.put(4.577, 65.0);
+        shootingDistanceToVelocity.put(4.8, 67.0);
+        shootingDistanceToVelocity.put(5.02, 68.0);
 
         // Shooting Data Time
         // shootingDistanceToTime.put(0.951, 1.048);
@@ -461,6 +464,7 @@ public class ShooterSubsystem extends SubsystemBase {
         else {
             targetShooterVeloc = logTuningShooterVelocity.get();
         }
+        targetShooterVeloc = MathUtil.clamp(targetShooterVeloc, 0, 95);
         return targetShooterVeloc + manualShift;
     }
 
@@ -565,7 +569,8 @@ public class ShooterSubsystem extends SubsystemBase {
         if(!hasReachedShooterVelocity) {
             return (isAngleWithinTolerance() && isVelocityWithinTolerance());
         }
-        return (isAngleWithinTolerance() && isVelocityWithinTolerance(10));
+        // return false;
+        return (isAngleWithinTolerance() && isVelocityWithinTolerance(20));
         // return (isAngleWithinTolerance());
         // return true;
     }
