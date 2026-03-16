@@ -208,6 +208,7 @@ public final class Constants {
       public static final Translation2d NEUTRAL_TARGET_TOP = new Translation2d(8.749,  6);
       public static final Translation2d FERRY_MID_RIGHT_TARGET = new Translation2d(3.418,  .5);
       public static final Translation2d FERRY_MID_LEFT_TARGET = new Translation2d(3.418,  7.6);
+      public static final Translation2d FERRY_MID_TARGET = new Translation2d(2.446, 4.046);
 
 
       /* ========= HARD CODED POSES ======== */
@@ -315,6 +316,16 @@ public final class Constants {
         public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.437636;
         public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.631436;
 
+        public static final double MID_ZONE_SECTION_FERRY_NORMAL_X_LOW = 5.087;
+        public static final double MID_ZONE_SECTION_FERRY_NORMAL_X_HIGH = 16.214;
+        public static final double MID_ZONE_SECTION_FERRY_NORMAL_Y_LOW = 0;
+        public static final double MID_ZONE_SECTION_FERRY_NORMAL_Y_HIGH = 3.097;
+
+        public static final double MID_ZONE_SECTION_FERRY_MID_X_LOW = 4.971;
+        public static final double MID_ZONE_SECTION_FERRY_MID_X_HIGH = 8.205; // TODO: Change to threshold distance eventually
+        public static final double MID_ZONE_SECTION_FERRY_MID_Y_LOW = 3.511;
+        public static final double MID_ZONE_SECTION_FERRY_MID_Y_HIGH = 4.145;
+
         public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.549394 - .762; // used to be -.762 4.535424
         public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + .762; // 4.687824
         public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.549394 - 1.1; // 4.535424
@@ -402,6 +413,7 @@ public final class Constants {
         public static final Translation2d NEUTRAL_BOTTOM_TARGET = ImportantFieldPoses.NEUTRAL_TARGET_BOTTOM;
         public static final Translation2d FERRY_MID_RIGHT_TARGET = ImportantFieldPoses.FERRY_MID_RIGHT_TARGET;
         public static final Translation2d FERRY_MID_LEFT_TARGET = ImportantFieldPoses.FERRY_MID_LEFT_TARGET;
+        public static final Translation2d FERRY_MID_TARGET = ImportantFieldPoses.FERRY_MID_TARGET;
       }
     }
 

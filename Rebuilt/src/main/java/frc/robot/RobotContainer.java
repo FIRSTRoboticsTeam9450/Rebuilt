@@ -230,6 +230,9 @@ public class RobotContainer {
       
     /* =============================== DISABLED KEYBINDS ======================== */
 
+    // DRIVER.x().onTrue(new InstantCommand(() ->VisionSubsystem.getInstance().setFerryTarget(2)));
+    // DRIVER.y().onTrue(new InstantCommand(() ->VisionSubsystem.getInstance().setFerryTarget(0)));
+    // DRIVER.b().onTrue(new InstantCommand(() ->VisionSubsystem.getInstance().setFerryTarget(1)));
     
     // DRIVER.povDown().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)

@@ -837,9 +837,10 @@ public class VisionSubsystem extends SubsystemBase {
             currentZone = ZoneState.FERRY_ZONE_BOTTOM;
             currentTarget = ferryTarget;
         }
+        
         if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_MID;
-            currentTarget = ferryMidTarget; 
+            currentTarget = ferryTarget; // TODO: Switch back to ferryMidtarget after testing
         }
         // if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
         //     currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
@@ -901,6 +902,17 @@ public class VisionSubsystem extends SubsystemBase {
             ferryTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
             neutralTarget = ZoneTargets.NEUTRAL_BOTTOM_TARGET;
             ferryMidTarget = ZoneTargets.FERRY_MID_RIGHT_TARGET;
+        }
+    }
+    public void setFerryTarget(double choice) {
+        if(choice == 0) {
+            ferryTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+        }
+        else if(choice == 1) {
+            ferryTarget = ZoneTargets.FERRY_MID_RIGHT_TARGET;
+        }
+        else if(choice == 2) {
+            ferryTarget = ZoneTargets.FERRY_MID_TARGET;
         }
     }
 
