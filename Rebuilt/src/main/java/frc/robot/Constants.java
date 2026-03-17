@@ -204,8 +204,8 @@ public final class Constants {
 
       public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,6.1976); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
       public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,1.8); //(2.54, 1.8), (2.54, 6.1976)
-      public static final Translation2d NEUTRAL_TARGET_BOTTOM = new Translation2d(8.749,  1.544);
-      public static final Translation2d NEUTRAL_TARGET_TOP = new Translation2d(8.749,  6);
+      public static final Translation2d NEUTRAL_TARGET_BOTTOM = new Translation2d(2.396,  4.041);
+      public static final Translation2d NEUTRAL_TARGET_TOP = new Translation2d(2.396,  4.041);
       public static final Translation2d FERRY_MID_RIGHT_TARGET = new Translation2d(3.418,  .5);
       public static final Translation2d FERRY_MID_LEFT_TARGET = new Translation2d(3.418,  7.6);
       public static final Translation2d FERRY_MID_TARGET = new Translation2d(2.446, 4.046);
@@ -303,6 +303,33 @@ public final class Constants {
         public static final double MAJOR_ZONE_Y_LOW = 0;
         public static final double MAJOR_ZONE_Y_HIGH = 8.06936; // inches 317.69;
 
+        // RIGHT SIDE POINTS
+        public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW = 4.764;
+        public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_X_HIGH = 16.499;
+        public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW = 0;
+        public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH = 8.065;
+        
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH = 5.98; 
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW = 3.653;
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH = 4.145;
+        
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_X_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH;
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_X_HIGH = 8.025; // TODO: Change to threshold value
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH = 5.08;
+
+        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
+        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_X_HIGH = FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH;
+        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW = 4.145;
+        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH = 5.08;
+
+        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
+        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_X_HIGH = 6.433;
+        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW = 4.764;
+        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH = 5.8;
+        
+        //
         public static final double MID_ZONE_X_LOW = MAJOR_ZONE_X_HIGH;//182.11;
         public static final double MID_ZONE_X_HIGH = 16.540988; // inches 651.22;
         public static final double MID_ZONE_1_Y_LOW = 4.034536; // inches 158.84; 4.3 meters if wanting preference to outpost side
@@ -325,7 +352,12 @@ public final class Constants {
         public static final double MID_ZONE_SECTION_FERRY_MID_X_HIGH = 8.205; // TODO: Change to threshold distance eventually
         public static final double MID_ZONE_SECTION_FERRY_MID_Y_LOW = 3.511;
         public static final double MID_ZONE_SECTION_FERRY_MID_Y_HIGH = 4.145;
-
+        
+        public static final double MID_ZONE_PUSH_FERRY_MID_X_LOW = 4.971;
+        public static final double MID_ZONE_PUSH_FERRY_MID_X_HIGH = 5.980;
+        public static final double MID_ZONE_PUSH_FERRY_MID_Y_LOW = 4.145;
+        public static final double MID_ZONE_PUSH_FERRY_MID_Y_HIGH = 5.025;
+        
         public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.549394 - .762; // used to be -.762 4.535424
         public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + .762; // 4.687824
         public static final double SOFT_TRENCH_12_DEADZONE_X_LOW = 4.549394 - 1.1; // 4.535424
