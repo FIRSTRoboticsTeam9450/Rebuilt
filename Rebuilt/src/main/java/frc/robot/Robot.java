@@ -134,7 +134,7 @@ public class Robot extends LoggedRobot {
   public void disabledExit() {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     VisionSubsystem.getInstance().setThrottle(0);
-    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledStdDev);
+    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
     VisionSubsystem.getInstance().setLLIMUModes(0);
     // VisionSubsystem.getInstance().setLLIMUAssistAlpha(0.01);
   }
@@ -142,7 +142,7 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledStdDev);
+    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)

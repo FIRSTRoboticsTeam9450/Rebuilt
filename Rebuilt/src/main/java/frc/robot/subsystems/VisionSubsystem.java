@@ -87,12 +87,13 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Standard deviations for vision measurements (for filtering/fusion)
     public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 999999);
-    public Vector<N3> enabledStdDev = VecBuilder.fill(0.75, 0.75, 999999);
+    public Vector<N3> enabledMT2StdDev = VecBuilder.fill(0.75, 0.75, 999999);
+    public Vector<N3> enabledMT1StdDev = VecBuilder.fill(999999, 999999, 1);
     private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 999999);
 
-    public double defaultVisionStdDevX = enabledStdDev.get(0);
-    public double defaultVisionStdDevY = enabledStdDev.get(1);
-    public double defaultVisionStdDevTheta = enabledStdDev.get(2);
+    public double defaultVisionStdDevX = enabledMT2StdDev.get(0);
+    public double defaultVisionStdDevY = enabledMT2StdDev.get(1);
+    public double defaultVisionStdDevTheta = enabledMT2StdDev.get(2);
     public double currentVisionStdDevX = 0;
     public double currentVisionStdDevY = 0;
     private double currentVisionStdDevTheta = 0.0;
@@ -266,12 +267,22 @@ public class VisionSubsystem extends SubsystemBase {
                     name,
                     true,
                     LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name),
+                    LimelightHelpers.getBotPoseEstimate_wpiBlue(name),
                     LimelightHelpers.getBotPose_wpiBlue(name),
                     LimelightHelpers.getRawFiducials(name),
                     LimelightHelpers.getIMUData(name)
                 ));
             } else {
-                llDataList.add(new limelightNetworkTableData(name, false, null, null, null, null));
+                llDataList.add(new limelightNetworkTableData(name, false, null, null, null, null, null));
+            }
+        }
+
+        for (limelightNetworkTableData llData : llDataList) {
+            double sampleRobotYaw = drivetrain.samplePoseAt(llData.megaTag1Estimate.timestampSeconds).get().getRotation().getDegrees();
+            double limelightYaw = llData.megaTag1Estimate.pose.getRotation().getDegrees();
+            if (Math.abs(sampleRobotYaw - limelightYaw) < MAX_YAW_DIFF_DEGREES) {
+                setVisionMeasurementStdDevs(enabledMT1StdDev);
+                drivetrain.addVisionMeasurement(llData.megaTag1Estimate.pose, llData.megaTag1Estimate.timestampSeconds);
             }
         }
 
@@ -328,21 +339,21 @@ public class VisionSubsystem extends SubsystemBase {
      * - Yaw differs from Pigeon IMU by more than 0.01 degrees
      */
     private VisionMeasurement createVisionMeasurement(limelightNetworkTableData llData) {
-        if (llData == null || llData.megaTagEstimate == null) return VisionMeasurement.invalid();
+        if (llData == null || llData.megaTag2Estimate == null) return VisionMeasurement.invalid();
 
         double ambiguity = computeAmbiguity(llData);
-        double timestamp = Utils.fpgaToCurrentTime(llData.megaTagEstimate.timestampSeconds);
-        int tagCount = llData.megaTagEstimate.tagCount;
+        double timestamp = Utils.fpgaToCurrentTime(llData.megaTag2Estimate.timestampSeconds);
+        int tagCount = llData.megaTag2Estimate.tagCount;
 
         if (tagCount == 0 || ambiguity > 0.8) return VisionMeasurement.invalid();
         
         boolean poseValid = true;
         boolean llIMUValid = true;
         
-        if (llData.megaTagEstimate != null) {
+        if (llData.megaTag2Estimate != null) {
             // Extract 3D pose data from botpose array
             // botpose format: [x, y, z, roll, pitch, yaw, ...]
-            Pose2d botpose = llData.megaTagEstimate.pose;
+            Pose2d botpose = llData.megaTag2Estimate.pose;
             double[] llPose = {llData.imuData.Roll, llData.imuData.Pitch};
             
             if (botpose != null) {
@@ -392,7 +403,7 @@ public class VisionSubsystem extends SubsystemBase {
         double tagFactor = Math.min(tagCount / 2.0, 1.0);
         double confidence = (1.0 - ambiguity) * 0.7 + tagFactor * 0.3;
 
-        return new VisionMeasurement(llData.megaTagEstimate.pose, confidence, timestamp, valid);
+        return new VisionMeasurement(llData.megaTag2Estimate.pose, confidence, timestamp, valid);
     }
 
     /**
@@ -1020,7 +1031,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     private record limelightNetworkTableData(String name, 
                                              boolean hasATarget, 
-                                             PoseEstimate megaTagEstimate, 
+                                             PoseEstimate megaTag2Estimate,
+                                             PoseEstimate megaTag1Estimate,
                                              double[] botPose, 
                                              RawFiducial[] fiducials,
                                              IMUData imuData
