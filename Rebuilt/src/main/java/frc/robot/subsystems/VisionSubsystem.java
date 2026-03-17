@@ -122,6 +122,7 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile Translation2d lastTargetPose = null;
     private volatile Translation2d lastAdjustedTargetPose = null;
 
+
     // Targeting Data
     public enum ZoneState {
         SHOOTING_ZONE,
@@ -139,6 +140,7 @@ public class VisionSubsystem extends SubsystemBase {
     Translation2d ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
     Translation2d neutralTarget = ZoneTargets.NEUTRAL_TOP_TARGET;
     Translation2d ferryMidTarget = ZoneTargets.FERRY_MID_LEFT_TARGET;
+    boolean ferryingTop = false;
 
     private ChassisSpeeds prevRobotVelocity = new ChassisSpeeds(0, 0, 0);
     private double prevTimeStamp = 0;
@@ -829,17 +831,47 @@ public class VisionSubsystem extends SubsystemBase {
             currentZone = ZoneState.SHOOTING_ZONE;
             currentTarget = ZoneTargets.SHOOTING_TARGET;
         }
-        else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_1_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_1_Y_HIGH) {
-            currentZone = ZoneState.FERRY_ZONE_TOP;
-            currentTarget = ferryTarget;
+        else if(!ferryingTop) {
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH) {
+                currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+                currentTarget = ferryTarget;
+            }
         }
-        else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_Y_HIGH) {
-            currentZone = ZoneState.FERRY_ZONE_BOTTOM;
-            currentTarget = ferryTarget;
+        if(!ferryingTop) {
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH) {
+                currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+                currentTarget = ferryMidTarget;
+            }
+            else if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH) {
+                currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+                currentTarget = ferryMidTarget;
+            }
+
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH) {
+                currentZone = ZoneState.CLIMB_DEADZONE;
+                currentTarget = ferryMidTarget;
+            }
+
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH) {
+                currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+                currentTarget = neutralTarget;
+            }
         }
+        else {
+
+        }
+        // else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_1_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_1_Y_HIGH) {
+        //     currentZone = ZoneState.FERRY_ZONE_TOP;
+        //     currentTarget = ferryTarget;
+        // }
+        // else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_Y_HIGH) {
+        //     currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+        //     currentTarget = ferryTarget;
+        // }
+        
         if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_MID;
-            currentTarget = ferryTarget; 
+            currentTarget = ferryTarget; // TODO: Switch back to ferryMidtarget after testing
         }
         // if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
         //     currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
@@ -893,14 +925,27 @@ public class VisionSubsystem extends SubsystemBase {
 
     public void setFerryTarget(String target) {
         if(target.equals("top")) {
+            ferryingTop = true;
             ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
             neutralTarget = ZoneTargets.NEUTRAL_TOP_TARGET;
             ferryMidTarget = ZoneTargets.FERRY_MID_LEFT_TARGET;
         }
         else if(target.equals("bottom")) {
+            ferryingTop = false;
             ferryTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
             neutralTarget = ZoneTargets.NEUTRAL_BOTTOM_TARGET;
             ferryMidTarget = ZoneTargets.FERRY_MID_RIGHT_TARGET;
+        }
+    }
+    public void setFerryTarget(double choice) {
+        if(choice == 0) {
+            ferryTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+        }
+        else if(choice == 1) {
+            ferryTarget = ZoneTargets.FERRY_MID_RIGHT_TARGET;
+        }
+        else if(choice == 2) {
+            ferryTarget = ZoneTargets.FERRY_MID_TARGET;
         }
     }
 
