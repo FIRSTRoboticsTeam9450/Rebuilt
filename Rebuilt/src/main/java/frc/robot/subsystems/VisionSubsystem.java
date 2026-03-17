@@ -843,32 +843,50 @@ public class VisionSubsystem extends SubsystemBase {
             currentTarget = ZoneTargets.SHOOTING_TARGET;
         }
         else if(ferryingTop) {
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH) {
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryTarget;
             }
         }
         if(ferryingTop) {
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH) {
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryMidTarget;
             }
-            else if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH) {
+            else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryMidTarget;
             }
 
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH) {
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH) {
                 currentZone = ZoneState.CLIMB_DEADZONE;
                 currentTarget = ferryMidTarget;
             }
 
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH) {
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = neutralTarget;
             }
         }
-        else {
+        else if(!ferryingTop){
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH) {
+                currentZone = ZoneState.FERRY_ZONE_TOP;
+                currentTarget = ferryMidTarget;
+            }
+            else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH) {
+                currentZone = ZoneState.FERRY_ZONE_TOP;
+                currentTarget = ferryMidTarget;
+            }
+
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH) {
+                currentZone = ZoneState.CLIMB_DEADZONE;
+                currentTarget = ferryMidTarget;
+            }
+
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH) {
+                currentZone = ZoneState.FERRY_ZONE_TOP;
+                currentTarget = neutralTarget;
+            }
 
         }
         // else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_1_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_1_Y_HIGH) {

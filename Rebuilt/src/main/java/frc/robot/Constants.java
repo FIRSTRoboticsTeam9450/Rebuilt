@@ -304,86 +304,100 @@ public final class Constants {
         public static final double MAJOR_ZONE_Y_HIGH = 8.06936; // inches 317.69;
 
         // RIGHT SIDE POINTS
-        public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW = 4.764;
-        public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_X_HIGH = 16.499;
+        public static final double FERRY_ZONE_NORMAL_SECTION_X_LOW = 4.764;
+        public static final double FERRY_ZONE_NORMAL_SECTION_X_HIGH = 16.499;
         public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW = 0;
         public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH = 8.065;
         
-        public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
-        public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH = 5.98; 
+        public static final double FERRY_ZONE_MID_SECTION_1_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
+        public static final double FERRY_ZONE_MID_SECTION_1_X_HIGH = 5.98; 
         public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW = 3.653;
         public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH = 4.145;
         
-        public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_X_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH;
-        public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_X_HIGH = 7.355; // TODO: Change to threshold value
+        public static final double FERRY_ZONE_MID_SECTION_2_X_LOW = FERRY_ZONE_MID_SECTION_1_X_HIGH;
+        public static final double FERRY_ZONE_MID_SECTION_2_X_HIGH = 7.355; // TODO: Change to threshold value
         public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
         public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH = 5.08;
 
-        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
-        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_X_HIGH = FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH;
+        public static final double FERRY_ZONE_PUSH_SECTION_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
+        public static final double FERRY_ZONE_PUSH_SECTION_X_HIGH = FERRY_ZONE_MID_SECTION_1_X_HIGH;
         public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW = 4.145;
         public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH = 5.08;
 
-        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
-        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_X_HIGH = 6.433;
+        public static final double FERRY_ZONE_LEFT_SECTION_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
+        public static final double FERRY_ZONE_LEFT_SECTION_X_HIGH = 6.433;
         public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW = 4.764;
         public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH = 5.8;
         
         // LEFT SIDE POINTS
-        public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_X_LOW = 4.764;
-        public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_X_HIGH = 16.499;
         public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_LOW = 0;
         public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_HIGH = 8.065;
         
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_X_HIGH = 5.98; 
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW = 3.860;
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH = 4.417;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW = 8.04 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH = 8.04 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH;
         
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_X_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH;
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_X_HIGH = 7.355; // TODO: Change to threshold value
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW = 2.864;
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH = FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH = 8.04 - FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH;
 
-        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
-        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_X_HIGH = FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH;
-        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW = FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW;
-        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH = FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH;
+        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW = 8.04 - FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH = 8.04 - FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH;
+
+        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW = 8.04 - FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH = 8.04 - FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH;
+        // public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_X_LOW = 4.764;
+        // public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_X_HIGH = 16.499;
+        // public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_LOW = 0;
+        // public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_HIGH = 8.065;
+        
+        // public static final double FERRY_ZONE_LEFT_MID_SECTION_1_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
+        // public static final double FERRY_ZONE_LEFT_MID_SECTION_1_X_HIGH = 5.98; 
+        // public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW = 3.895;
+        // public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH = 4.397;
+        
+        // public static final double FERRY_ZONE_LEFT_MID_SECTION_2_X_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH;
+        // public static final double FERRY_ZONE_LEFT_MID_SECTION_2_X_HIGH = 7.355; // TODO: Change to threshold value
+        // public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW = 2.97;
+        // public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH = FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH;
+
+        // public static final double FERRY_ZONE_LEFT_PUSH_SECTION_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
+        // public static final double FERRY_ZONE_LEFT_PUSH_SECTION_X_HIGH = FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH;
+        // public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW = FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW;
+        // public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH = FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH;
 
         // TODO: STILL HAVE  TO CHANGE THIS AND ADD THE LEFT SIDE
-        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
-        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_X_HIGH = 6.433;
-        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW = 4.764;
-        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH = 5.8;
+        // public static final double FERRY_ZONE_LEFT_LEFT_SECTION_X_LOW = FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW;
+        // public static final double FERRY_ZONE_LEFT_LEFT_SECTION_X_HIGH = 6.433;
+        // public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW = 3.275;
+        // public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH = 2.24;
         
         //
-        public static final double MID_ZONE_X_LOW = MAJOR_ZONE_X_HIGH;//182.11;
-        public static final double MID_ZONE_X_HIGH = 16.540988; // inches 651.22;
-        public static final double MID_ZONE_1_Y_LOW = 4.034536; // inches 158.84; 4.3 meters if wanting preference to outpost side
-        public static final double MID_ZONE_1_Y_HIGH = 8.069326; // inches 317.69;
+        // public static final double MID_ZONE_X_LOW = MAJOR_ZONE_X_HIGH;//182.11;
+        // public static final double MID_ZONE_X_HIGH = 16.540988; // inches 651.22;
+        // public static final double MID_ZONE_1_Y_LOW = 4.034536; // inches 158.84; 4.3 meters if wanting preference to outpost side
+        // public static final double MID_ZONE_1_Y_HIGH = 8.069326; // inches 317.69;
 
-        public static final double MID_ZONE_2_Y_LOW = 0;
-        public static final double MID_ZONE_2_Y_HIGH = MID_ZONE_1_Y_LOW;//158.84;
+        // public static final double MID_ZONE_2_Y_LOW = 0;
+        // public static final double MID_ZONE_2_Y_HIGH = MID_ZONE_1_Y_LOW;//158.84;
 
-        public static final double MID_ZONE_2_DEADZONE_X_LOW = MID_ZONE_X_LOW;
-        public static final double MID_ZONE_2_DEADZONE_X_HIGH = 6.6;
-        public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.437636;
-        public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.631436;
+        // public static final double MID_ZONE_2_DEADZONE_X_LOW = MID_ZONE_X_LOW;
+        // public static final double MID_ZONE_2_DEADZONE_X_HIGH = 6.6;
+        // public static final double MID_ZONE_2_DEADZONE_Y_LOW = 3.437636;
+        // public static final double MID_ZONE_2_DEADZONE_Y_HIGH = 4.631436;
 
-        public static final double MID_ZONE_SECTION_FERRY_NORMAL_X_LOW = 5.087;
-        public static final double MID_ZONE_SECTION_FERRY_NORMAL_X_HIGH = 16.214;
-        public static final double MID_ZONE_SECTION_FERRY_NORMAL_Y_LOW = 0;
-        public static final double MID_ZONE_SECTION_FERRY_NORMAL_Y_HIGH = 3.097;
+        // public static final double MID_ZONE_SECTION_FERRY_NORMAL_X_LOW = 5.087;
+        // public static final double MID_ZONE_SECTION_FERRY_NORMAL_X_HIGH = 16.214;
+        // public static final double MID_ZONE_SECTION_FERRY_NORMAL_Y_LOW = 0;
+        // public static final double MID_ZONE_SECTION_FERRY_NORMAL_Y_HIGH = 3.097;
 
-        public static final double MID_ZONE_SECTION_FERRY_MID_X_LOW = 4.971;
-        public static final double MID_ZONE_SECTION_FERRY_MID_X_HIGH = 8.205; // TODO: Change to threshold distance eventually
-        public static final double MID_ZONE_SECTION_FERRY_MID_Y_LOW = 3.511;
-        public static final double MID_ZONE_SECTION_FERRY_MID_Y_HIGH = 4.145;
+        // public static final double MID_ZONE_SECTION_FERRY_MID_X_LOW = 4.971;
+        // public static final double MID_ZONE_SECTION_FERRY_MID_X_HIGH = 8.205; // TODO: Change to threshold distance eventually
+        // public static final double MID_ZONE_SECTION_FERRY_MID_Y_LOW = 3.511;
+        // public static final double MID_ZONE_SECTION_FERRY_MID_Y_HIGH = 4.145;
         
-        public static final double MID_ZONE_PUSH_FERRY_MID_X_LOW = 4.971;
-        public static final double MID_ZONE_PUSH_FERRY_MID_X_HIGH = 5.980;
-        public static final double MID_ZONE_PUSH_FERRY_MID_Y_LOW = 4.145;
-        public static final double MID_ZONE_PUSH_FERRY_MID_Y_HIGH = 5.025;
+        // public static final double MID_ZONE_PUSH_FERRY_MID_X_LOW = 4.971;
+        // public static final double MID_ZONE_PUSH_FERRY_MID_X_HIGH = 5.980;
+        // public static final double MID_ZONE_PUSH_FERRY_MID_Y_LOW = 4.145;
+        // public static final double MID_ZONE_PUSH_FERRY_MID_Y_HIGH = 5.025;
         
         public static final double HARD_TRENCH_12_DEADZONE_X_LOW = 4.549394 - .762; // used to be -.762 4.535424
         public static final double HARD_TRENCH_12_DEADZONE_X_HIGH = 4.701794 + .762; // 4.687824
