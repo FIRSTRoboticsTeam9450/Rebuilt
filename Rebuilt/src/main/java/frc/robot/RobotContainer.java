@@ -114,6 +114,9 @@ public class RobotContainer {
     autoChooser.addOption("Preload Only", drivetrain.getAutoPath("Preload Only", false));
     autoChooser.addOption("Anti-NRG", drivetrain.getAutoPath("Anti-NRG", false));
 
+    autoChooser.addOption("Chaos - FSC", drivetrain.getAutoPath("CA - FSC", false));
+    autoChooser.addOption("Chaos - FPSC", drivetrain.getAutoPath("CA - FPSC", false));
+
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
     // autoChooser.addOption("Slip Test", drivetrain.getAutoPath("Slip Testing", false));

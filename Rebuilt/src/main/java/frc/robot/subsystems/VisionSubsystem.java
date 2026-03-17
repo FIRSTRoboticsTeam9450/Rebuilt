@@ -86,9 +86,9 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 450);
-    public Vector<N3> enabledStdDev = VecBuilder.fill(0.75, 0.75, 450);
-    private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 450);
+    public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 999999);
+    public Vector<N3> enabledStdDev = VecBuilder.fill(0.75, 0.75, 999999);
+    private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 999999);
 
     public double defaultVisionStdDevX = enabledStdDev.get(0);
     public double defaultVisionStdDevY = enabledStdDev.get(1);
@@ -839,7 +839,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
         if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_MID;
-            currentTarget = ferryMidTarget; 
+            currentTarget = ferryTarget; 
         }
         // if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
         //     currentZone = ZoneState.SOFT_TRENCH_DEADZONE;

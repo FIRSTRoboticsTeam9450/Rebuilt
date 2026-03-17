@@ -1,0 +1,232 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.75,
+        "y": 5.0
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.188366666666667,
+        "y": 3.2846777777777767
+      },
+      "isLocked": false,
+      "linkedName": "CA - FPSC - Ferry End"
+    },
+    {
+      "anchor": {
+        "x": 8.318722222222222,
+        "y": 6.782933333333333
+      },
+      "prevControl": {
+        "x": 7.673294681569674,
+        "y": 6.047446135845546
+      },
+      "nextControl": {
+        "x": 9.275127563314893,
+        "y": 7.872790582485448
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.116477777777778,
+        "y": 7.55
+      },
+      "prevControl": {
+        "x": 7.60688260847116,
+        "y": 7.510361573651772
+      },
+      "nextControl": {
+        "x": 4.284522222222223,
+        "y": 7.5987222222222215
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.58,
+        "y": 7.65
+      },
+      "prevControl": {
+        "x": 4.042311111111111,
+        "y": 7.581788888888889
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "CA - FSC - Score End"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.4,
+      "rotationDegrees": -145.0
+    },
+    {
+      "waypointRelativePos": 0.9286307053941714,
+      "rotationDegrees": -145.0
+    },
+    {
+      "waypointRelativePos": 1.4414937759336013,
+      "rotationDegrees": 165.0
+    },
+    {
+      "waypointRelativePos": 2.0340248962655414,
+      "rotationDegrees": 165.0
+    },
+    {
+      "waypointRelativePos": 2.6082987551867243,
+      "rotationDegrees": 165.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 2.75,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 0.75,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.8188585607940395,
+      "maxWaypointRelativePos": 1.4263027295285404,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 2.5,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 2.55,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "SetIntake"
+              }
+            },
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 0.08
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "SetIntake"
+              }
+            },
+            {
+              "type": "wait",
+              "data": {
+                "waitTime": 0.08
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "SetIntake"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 2.6,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Chaos Autos",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -115.0
+  },
+  "useDefaultConstraints": true
+}

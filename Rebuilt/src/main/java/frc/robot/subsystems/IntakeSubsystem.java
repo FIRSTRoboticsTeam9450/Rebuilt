@@ -60,15 +60,15 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0.175); // 0.1
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.45); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.18);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.5);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
     private double intakingTargetVolts = logIntakingTarget.get();
     
     private double intakeRevolutions = logIntakeTarget.get();
-    private double storeRevolutions = 6.25;
-    private double trenchStoreRevolutions = 4.5;
-    private double climbStoreRevolutions = 8.0;
+    private double storeRevolutions = 9.5;
+    private double trenchStoreRevolutions = 6.0;
+    private double climbStoreRevolutions = 10.05;
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
@@ -149,7 +149,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case ZEROING:
-                motorArm.setVoltage(-1.75);
+                motorArm.setVoltage(-3);
                 break;
 
             case TRENCH_STORE:

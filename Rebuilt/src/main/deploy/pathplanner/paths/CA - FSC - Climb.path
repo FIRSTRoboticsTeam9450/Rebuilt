@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.834988888888889,
+        "x": 0.58,
         "y": 7.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9982555555555557,
+        "x": 2.7432666666666665,
         "y": 6.071588888888889
       },
       "isLocked": false,
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 1.4683777777777778,
-        "y": 4.09
+        "y": 4.18
       },
       "prevControl": {
         "x": 2.9690222222222222,
-        "y": 3.9340888888888887
+        "y": 4.024088888888889
       },
       "nextControl": null,
       "isLocked": false,
@@ -37,7 +37,7 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.8744416873449093,
+      "minWaypointRelativePos": 0.8,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 0.35,
@@ -55,13 +55,23 @@
       "name": "ClimberUp",
       "waypointRelativePos": 0.685856079404451,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ClimberUp"
+        }
+      }
     },
     {
       "name": "ClimberDown",
       "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ClimberDown"
+        }
+      }
     }
   ],
   "globalConstraints": {
