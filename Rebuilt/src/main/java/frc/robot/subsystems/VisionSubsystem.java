@@ -112,7 +112,7 @@ public class VisionSubsystem extends SubsystemBase {
     private static final double MAX_Z_THRESHOLD = 0.25; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 4; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
+    private static final double MAX_YAW_DIFF_DEGREES = 0.5; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -354,7 +354,7 @@ public class VisionSubsystem extends SubsystemBase {
                 double llPitch = llPose[1];
                 
                 // Get current Pigeon yaw
-                double pigeonYaw = drivetrain.getState().Pose.getRotation().getDegrees();
+                double pigeonYaw = drivetrain.samplePoseAt(timestamp).get().getRotation().getDegrees();
                 
                 // Validation checks
                 boolean xValid = (x > 0) && (x < 16.565);
@@ -499,7 +499,7 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
 
         Logger.recordOutput("Rebuilt/Vision/Bump Measurement Count", bumpMeasurmentCount);
-
+        Logger.recordOutput("Rebuilt/Vision/FerryTarget", currentTarget);
         if (loopOffset > 5) {
             loopOffset = 0;
             Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
@@ -831,19 +831,19 @@ public class VisionSubsystem extends SubsystemBase {
             currentZone = ZoneState.SHOOTING_ZONE;
             currentTarget = ZoneTargets.SHOOTING_TARGET;
         }
-        else if(!ferryingTop) {
+        else if(ferryingTop) {
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+                currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryTarget;
             }
         }
-        if(!ferryingTop) {
+        if(ferryingTop) {
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+                currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryMidTarget;
             }
             else if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+                currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryMidTarget;
             }
 
@@ -853,7 +853,7 @@ public class VisionSubsystem extends SubsystemBase {
             }
 
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+                currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = neutralTarget;
             }
         }
@@ -869,10 +869,10 @@ public class VisionSubsystem extends SubsystemBase {
         //     currentTarget = ferryTarget;
         // }
         
-        if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
-            currentZone = ZoneState.FERRY_ZONE_MID;
-            currentTarget = ferryTarget; // TODO: Switch back to ferryMidtarget after testing
-        }
+        // if(currentX > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_2_DEADZONE_Y_HIGH) {
+        //     currentZone = ZoneState.FERRY_ZONE_MID;
+        //     currentTarget = ferryTarget; // TODO: Switch back to ferryMidtarget after testing
+        // }
         // if(currentX > ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_LOW && currentX < ZoneConstantsWelded.SOFT_TRENCH_12_DEADZONE_X_HIGH && currentY > ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_LOW && currentY < ZoneConstantsWelded.TRENCH_1_DEADZONE_Y_HIGH) {
         //     currentZone = ZoneState.SOFT_TRENCH_DEADZONE;
         //     currentTarget = ferryTarget;
