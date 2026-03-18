@@ -115,7 +115,8 @@ public class VisionSubsystem extends SubsystemBase {
     private static final double MAX_Z_THRESHOLD = 0.25; // Robot must be on ground
     private static final double MAX_PITCH_THRESHOLD = 1000; // Robot must not be tilted forward/back
     private static final double MAX_ROLL_THRESHOLD = 1000; // Robot must not be tilted side-to-side
-    private static final double MAX_YAW_DIFF_DEGREES = 0.5; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
+    private static final double MAX_MT2_YAW_DIFF_DEGREES = 0.5; // Vision yaw must match Pigeon within MAX_YAW_DIFF degrees
+    private static final double MAX_MT1_YAW_DIFF_DEGREES = 2.25;
 
     // Limelight camera objects
     private final List<LimelightObject> LIMELIGHT_LIST = new ArrayList<>();
@@ -284,7 +285,7 @@ public class VisionSubsystem extends SubsystemBase {
             if (llData.megaTag1Estimate != null && llData.megaTag1Estimate.tagCount >= 1) {
                 double sampleRobotYaw = drivetrain.samplePoseAt(Utils.fpgaToCurrentTime(llData.megaTag1Estimate.timestampSeconds)).get().getRotation().getDegrees();
                 double limelightYaw = llData.megaTag1Estimate.pose.getRotation().getDegrees();
-                if (Math.abs(sampleRobotYaw - limelightYaw) < MAX_YAW_DIFF_DEGREES) {
+                if (Math.abs(sampleRobotYaw - limelightYaw) < MAX_MT1_YAW_DIFF_DEGREES) {
                     setVisionMeasurementStdDevs(enabledMT1StdDev);
                     drivetrain.addVisionMeasurement(llData.megaTag1Estimate.pose, llData.megaTag1Estimate.timestampSeconds);
                 }
@@ -387,7 +388,7 @@ public class VisionSubsystem extends SubsystemBase {
                 while (yawDiff < -180) yawDiff += 360;
                 boolean yawValid = true;
                 if (DriverStation.isEnabled()) {
-                    yawValid = Math.abs(yawDiff) <= MAX_YAW_DIFF_DEGREES;
+                    yawValid = Math.abs(yawDiff) <= MAX_MT2_YAW_DIFF_DEGREES;
                 }
                 
                 // Pose is only valid if all checks pass

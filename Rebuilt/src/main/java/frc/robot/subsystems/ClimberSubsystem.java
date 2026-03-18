@@ -209,20 +209,20 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void periodic() {
 
+        if(!isTelescopeZeroingDone) {
+            currentClimbState = ClimbStates.ZEROING;
             if(!isTelescopeZeroingDone) {
-                currentClimbState = ClimbStates.ZEROING;
-                if(!isTelescopeZeroingDone) {
-                    isTelescopeZeroingDone = telescopeAutoZeroing();
-                }
+                isTelescopeZeroingDone = telescopeAutoZeroing();
             }
-            if(!isElevatorZeroingDone) {
-                if (Math.abs(elevatorClimbMotor.getMotorVoltage(false).getValueAsDouble()) == 0 && Math.abs(elevatorClimbMotor.getVelocity(false).getValueAsDouble()) <= 0.01) {
-                    zeroingTimer.restart();
-                }
-                if (zeroingTimer.get() > 0.15) {
-                    isElevatorZeroingDone = elevatorAutoZeroing();
-                }
+        }
+        if(!isElevatorZeroingDone) {
+            if (Math.abs(elevatorClimbMotor.getMotorVoltage(false).getValueAsDouble()) == 0 && Math.abs(elevatorClimbMotor.getVelocity(false).getValueAsDouble()) <= 0.01) {
+                zeroingTimer.restart();
             }
+            if (zeroingTimer.get() > 0.15) {
+                isElevatorZeroingDone = elevatorAutoZeroing();
+            }
+        }
         applyStates();
         publishLogs();
     }
