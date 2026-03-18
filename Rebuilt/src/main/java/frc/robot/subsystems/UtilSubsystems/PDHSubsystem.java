@@ -12,49 +12,49 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class PowerSubsystem extends SubsystemBase {
-  private static PowerSubsystem INSTANCE;
+public class PDHSubsystem extends SubsystemBase {
+  private static PDHSubsystem INSTANCE;
 
   // Defaults to CAN ID 0 for CTRE, 1 for REV (should auto-detect type and id)
-  private final PowerDistribution power = new PowerDistribution();
-  private final int CAN_ID = power.getModule();
-  private final ModuleType TYPE = power.getType();
-  private final PowerDistributionVersion VERSION_NUMBERS = power.getVersion();
+  private final PowerDistribution PDH = new PowerDistribution();
+  private final int CAN_ID = PDH.getModule();
+  private final ModuleType TYPE = PDH.getType();
+  private final PowerDistributionVersion VERSION_NUMBERS = PDH.getVersion();
   
-  private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("Tuning/Debugging Toggles/Power", false);
-  private final LoggedNetworkBoolean logDebuggingToggleSecondary = new LoggedNetworkBoolean("Tuning/Debugging Toggles/Power Secondary", false); // For less important values (like firmware versions)
+  private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("Tuning/Debugging Toggles/PDH", false);
+  private final LoggedNetworkBoolean logDebuggingToggleSecondary = new LoggedNetworkBoolean("Tuning/Debugging Toggles/PDH Secondary", false); // For less important values (like firmware versions)
 
   /** Creates a new PowerSubsystem. */
-  public PowerSubsystem() {
+  public PDHSubsystem() {
   }
-  public static PowerSubsystem getInstance() {
-    if (INSTANCE == null) INSTANCE = new PowerSubsystem();
+  public static PDHSubsystem getInstance() {
+    if (INSTANCE == null) INSTANCE = new PDHSubsystem();
     return INSTANCE;
   }
 
   @Override
   public void periodic() {
     if (logDebuggingToggle.get()) {
-      Logger.recordOutput("Rebuilt/Power/BatteryVoltage", getBatteryVoltage());
+      Logger.recordOutput("Rebuilt/PDH/BatteryVoltage", getBatteryVoltage());
 
       // Doesn't use the method to calculate total current draw because this reduces vendordep method calls (already getting all channels)
       double[] currents = getAllCurrentAmpPulls(); double currentsSum = 0.0;
       for (double current : currents) currentsSum += current;
-      Logger.recordOutput("Rebuilt/Power/AmpPulls", currents);
-      Logger.recordOutput("Rebuilt/Power/CalculatedTotalAmpPull", currentsSum);
+      Logger.recordOutput("Rebuilt/PDH/AmpPulls", currents);
+      Logger.recordOutput("Rebuilt/PDH/CalculatedTotalAmpPull", currentsSum);
     }
     if (logDebuggingToggleSecondary.get()) {
-      Logger.recordOutput("Rebuilt/Power/Info/CanId", getCanId());
-      Logger.recordOutput("Rebuilt/Power/Info/IsREV", isREV());
-      Logger.recordOutput("Rebuilt/Power/Info/NumChannels", getNumChannels());
+      Logger.recordOutput("Rebuilt/PDH/Info/CanId", getCanId());
+      Logger.recordOutput("Rebuilt/PDH/Info/IsREV", isREV());
+      Logger.recordOutput("Rebuilt/PDH/Info/NumChannels", getNumChannels());
 
       PowerDistributionVersion version = getVersion();
-      Logger.recordOutput("Rebuilt/Power/Info/Version/FirmwareMajor", version.firmwareMajor);
-      Logger.recordOutput("Rebuilt/Power/Info/Version/FirmwareMinor", version.firmwareMinor);
-      Logger.recordOutput("Rebuilt/Power/Info/Version/FirmwareFix", version.firmwareFix);
-      Logger.recordOutput("Rebuilt/Power/Info/Version/HardwareMajor", version.hardwareMajor);
-      Logger.recordOutput("Rebuilt/Power/Info/Version/HardwareMinor", version.hardwareMinor);
-      Logger.recordOutput("Rebuilt/Power/Info/Version/UniqueId", version.uniqueId);
+      Logger.recordOutput("Rebuilt/PDH/Info/Version/FirmwareMajor", version.firmwareMajor);
+      Logger.recordOutput("Rebuilt/PDH/Info/Version/FirmwareMinor", version.firmwareMinor);
+      Logger.recordOutput("Rebuilt/PDH/Info/Version/FirmwareFix", version.firmwareFix);
+      Logger.recordOutput("Rebuilt/PDH/Info/Version/HardwareMajor", version.hardwareMajor);
+      Logger.recordOutput("Rebuilt/PDH/Info/Version/HardwareMinor", version.hardwareMinor);
+      Logger.recordOutput("Rebuilt/PDH/Info/Version/UniqueId", version.uniqueId);
     }
   }
 
@@ -73,11 +73,11 @@ public class PowerSubsystem extends SubsystemBase {
   }
 
   public double getBatteryVoltage() {
-    return power.getVoltage();
+    return PDH.getVoltage();
   }
   /** Warning: The returned number is rounded to an integer. */
   public double getReportedTotalCurrentAmpPull() {
-    return power.getTotalCurrent();
+    return PDH.getTotalCurrent();
   }
   public double getCalculatedTotalCurrentAmpPull() {
     double[] currents = getAllCurrentAmpPulls(); double currentsSum = 0.0;
@@ -87,27 +87,27 @@ public class PowerSubsystem extends SubsystemBase {
 
   /** REV: Channels 0-23, CTRE: Channels 0-15 */
   public double getCurrentAmpPull(int channel) {
-    return power.getCurrent(channel);
+    return PDH.getCurrent(channel);
   }
   /** REV: Channels 0-23, CTRE: Channels 0-15 */
   public double[] getAllCurrentAmpPulls() {
-    return power.getAllCurrents();
+    return PDH.getAllCurrents();
   }
 
   /** CTRE only, always returns 0 for REV */
   public double getPowerTempCelsiusCTRE() {
-    return power.getTemperature();
+    return PDH.getTemperature();
   }
   /** CTRE only, always returns 0 for REV */
   public double getTotalPowerUsedCTRE() {
-    return power.getTotalPower();
+    return PDH.getTotalPower();
   }
   /** CTRE only, always returns 0 for REV */
   public double getTotalEnergyUsedCTRE() {
-    return power.getTotalEnergy();
+    return PDH.getTotalEnergy();
   }
   /** CTRE only, does nothing for REV */
   public void resetTotalEnergyUsedCTRE() {
-    power.resetTotalEnergy();
+    PDH.resetTotalEnergy();
   }
 }
