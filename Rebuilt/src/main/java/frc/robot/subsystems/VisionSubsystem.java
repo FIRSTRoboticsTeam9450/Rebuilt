@@ -136,7 +136,8 @@ public class VisionSubsystem extends SubsystemBase {
         HARD_TRENCH_DEADZONE,
         SOFT_TRENCH_DEADZONE,
         CLIMB_DEADZONE,
-        BACK_SHOOT
+        BACK_SHOOT,
+        SHOOT_OVER_NET
     }
     
     ZoneState currentZone = ZoneState.SHOOTING_ZONE;
@@ -752,11 +753,11 @@ public class VisionSubsystem extends SubsystemBase {
     public double getTimeToShoot(Translation2d target) {
         double timeToShoot = 1.2;
         // TODO: UNCOMMENT LATER //
-        if(currentTarget.equals(ZoneTargets.FERRY_TOP_TARGET) || currentTarget.equals(ZoneTargets.FERRY_BOTTOM_TARGET)) {
-            timeToShoot = ShooterSubsystem.getInstance().getFerryingDistanceToTime(getDistanceToTarget(target));
-        }
-        else if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
+        if(currentTarget.equals(ZoneTargets.SHOOTING_TARGET)) {
             timeToShoot = ShooterSubsystem.getInstance().getShootingDistanceToTime(getDistanceToTarget(target));
+        }
+        else {
+            timeToShoot = ShooterSubsystem.getInstance().getFerryingDistanceToTime(getDistanceToTarget(target));
         }
         return timeToShoot;
     }
@@ -954,6 +955,20 @@ public class VisionSubsystem extends SubsystemBase {
             }
 
         }
+        
+        // Comment out if dont want shoot over net
+        if(currentX > ZoneConstantsWelded.FERRY_ZONE_PUSH_V2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_PUSH_V2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_V2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_V2_Y_HIGH) {
+            currentZone = ZoneState.CLIMB_DEADZONE;
+            currentTarget = neutralTarget;
+            currentFerryZone = "Push Section V2";
+        }
+
+        if(currentX > ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_V2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_V2_Y_HIGH) {
+            currentZone = ZoneState.SHOOT_OVER_NET;
+            currentTarget = neutralTarget;
+            currentFerryZone = "Shoot Over Net";
+        }
+
         // else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_1_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_1_Y_HIGH) {
         //     currentZone = ZoneState.FERRY_ZONE_TOP;
         //     currentTarget = ferryTarget;

@@ -133,6 +133,8 @@ public class ShooterSubsystem extends SubsystemBase {
     InterpolatingDoubleTreeMap ferryingDistanceToTime = new InterpolatingDoubleTreeMap();
     InterpolatingDoubleTreeMap ferryingDistanceToVelocity = new InterpolatingDoubleTreeMap();
 
+    InterpolatingDoubleTreeMap ferryingOverNetDistanceToVelocity = new InterpolatingDoubleTreeMap();
+
     // Cached Values
     private double cachedDistanceToTarget = 0.0;
 
@@ -456,6 +458,9 @@ public class ShooterSubsystem extends SubsystemBase {
                 case BACK_SHOOT:
                     targetShooterVeloc = 70;
                     break;
+                case SHOOT_OVER_NET:
+                    targetShooterVeloc = 80;
+                    break;
 
                 default:
                     break;
@@ -503,6 +508,10 @@ public class ShooterSubsystem extends SubsystemBase {
                     targetHoodHeight = MathUtil.clamp(getAsRevs(20), hoodAngleMin, hoodAngleMax);
                     break;
 
+                case SHOOT_OVER_NET:
+                    targetHoodHeight = hoodAngleFunctionShootOverNet(distance);
+                    break;
+
                 default:
                     return 0;
             }
@@ -525,6 +534,20 @@ public class ShooterSubsystem extends SubsystemBase {
     public double hoodAngleFunction(double distance) {
         // double wantedAngle = (-35.0/(distance - .6)) + 48.0;
         double wantedAngle = (-55/(distance + 0.9)) + 40;
+        // double wantedAngle = (-40 / (distance - 0.3)) + 40;
+        double wantedRevs = getAsRevs(wantedAngle);
+        if(distance <= distanceAwayToUseLowDegree) {
+            wantedRevs = 0; 
+        }
+        // if(distance >= distanceAwayToUseHighDegree && coordSub.getCurrentZone() != ZoneState.SHOOTING_ZONE) {
+        //     wantedRevs = hoodAngleMax;
+        // }
+        return MathUtil.clamp(wantedRevs, hoodAngleMin, hoodAngleMax);
+    }
+
+    public double hoodAngleFunctionShootOverNet(double distance) {
+        // double wantedAngle = (-35.0/(distance - .6)) + 48.0;
+        double wantedAngle = (-120/(distance + 4.4)) + 30;
         // double wantedAngle = (-40 / (distance - 0.3)) + 40;
         double wantedRevs = getAsRevs(wantedAngle);
         if(distance <= distanceAwayToUseLowDegree) {

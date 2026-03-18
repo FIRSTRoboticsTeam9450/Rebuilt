@@ -345,6 +345,13 @@ public final class Constants {
         public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW;
         public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH;
 
+        public static final double FERRY_ZONE_PUSH_V2_X_LOW = 4.582;
+        public static final double FERRY_ZONE_PUSH_V2_X_HIGH = 6.045;
+        public static final double FERRY_ZONE_V2_Y_LOW = 3.511;
+        public static final double FERRY_ZONE_V2_Y_HIGH = 4.54;
+        
+        public static final double FERRY_ZONE_SHOOT_OVER_V2_X_LOW = FERRY_ZONE_PUSH_V2_X_HIGH;
+        public static final double FERRY_ZONE_SHOOT_OVER_V2_X_HIGH = 8.166;
         // public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_X_LOW = 4.764;
         // public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_X_HIGH = 16.499;
         // public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_LOW = 0;
