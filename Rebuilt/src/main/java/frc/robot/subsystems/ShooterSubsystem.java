@@ -163,11 +163,11 @@ public class ShooterSubsystem extends SubsystemBase {
         // shootingDistanceToVelocity.put(4.688, 36.4); //Artifical Point
 
         
-        shootingDistanceToVelocity.put(1.378, 28.4 * 1.817);
-        shootingDistanceToVelocity.put(2.090, 29.35 * 1.817);
-        shootingDistanceToVelocity.put(2.428, 30.65 * 1.817);
-        shootingDistanceToVelocity.put(2.844, 32.05 * 1.817);
-        shootingDistanceToVelocity.put(3.22, 32.8 * 1.817);
+        shootingDistanceToVelocity.put(1.378, 51.6);
+        shootingDistanceToVelocity.put(2.090, 53.32);
+        shootingDistanceToVelocity.put(2.428, 55.7);
+        shootingDistanceToVelocity.put(2.844, 58.23);
+        shootingDistanceToVelocity.put(3.22, 59.6);
         shootingDistanceToVelocity.put(3.752, 57.5);
         shootingDistanceToVelocity.put(4.064, 59.0);
         shootingDistanceToVelocity.put(4.3, 61.25);
@@ -532,9 +532,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double hoodAngleFunction(double distance) {
-        // double wantedAngle = (-35.0/(distance - .6)) + 48.0;
         double wantedAngle = (-55/(distance + 0.9)) + 40;
-        // double wantedAngle = (-40 / (distance - 0.3)) + 40;
         double wantedRevs = getAsRevs(wantedAngle);
         if(distance <= distanceAwayToUseLowDegree) {
             wantedRevs = 0; 
