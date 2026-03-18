@@ -281,8 +281,8 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         for (limelightNetworkTableData llData : llDataList) {
-            if (llData.megaTag1Estimate != null) {
-                double sampleRobotYaw = drivetrain.samplePoseAt(llData.megaTag1Estimate.timestampSeconds).get().getRotation().getDegrees();
+            if (llData.megaTag1Estimate != null && lldata.megaTagEstimate.tagCount >= 1) {
+                double sampleRobotYaw = drivetrain.samplePoseAt(Utils.fpgaToCurrentTime(llData.megaTag1Estimate.timestampSeconds)).get().getRotation().getDegrees();
                 double limelightYaw = llData.megaTag1Estimate.pose.getRotation().getDegrees();
                 if (Math.abs(sampleRobotYaw - limelightYaw) < MAX_YAW_DIFF_DEGREES) {
                     setVisionMeasurementStdDevs(enabledMT1StdDev);
