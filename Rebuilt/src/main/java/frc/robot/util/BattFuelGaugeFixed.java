@@ -96,10 +96,15 @@ public class BattFuelGaugeFixed implements Sendable, AutoCloseable {
   @Override
   public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("Battery Fuel Gauge");
-    builder.addDoubleProperty("Voltage",  this::getVoltage,    null);
-    builder.addDoubleProperty("Current",  this::getCurrent,    null);
-    builder.addDoubleProperty("DOD",      this::getDodAh,      null);
-    builder.addDoubleProperty("Capacity", this::getCapacityAh, null);
+    builder.addDoubleProperty("Voltage",            this::getVoltage,                  null);
+    builder.addDoubleProperty("Current",            this::getCurrent,                  null);
+    builder.addDoubleProperty("DOD",                this::getDodAh,                    null);
+    builder.addDoubleProperty("Capacity",           this::getCapacityAh,               null);
+    builder.addDoubleProperty("Effective Capacity", this::getEffectiveCapacityAh,      null);
+    builder.addDoubleProperty("Charge Remaining",   this::getRemainingChargePct,       null);
+    builder.addDoubleProperty("Cycle RMS Current",  this::getCycleRmsDischargeCurrent, null);
+    builder.addDoubleProperty("Match Min Voltage",  this::getMatchMinVoltage,          null);
+    builder.addBooleanProperty("Connected",         this::isConnected,                 null);
   }
 
   /**
@@ -129,6 +134,28 @@ public class BattFuelGaugeFixed implements Sendable, AutoCloseable {
     return BattFuelGaugeJNI.getSerialNumber(m_handle);
   }
 
+  /**
+   * Saves the BFG state to a log file.
+   *
+   * @param filename Filename and path to write BFG state JSON file.  Use empty string
+   *                 to use automatic file name in the /u/logs directory of a USB flash
+   *                 drive or the /home/lvuser/logs directory in RoboRIO internal storage.
+   *                 Automatic filenames are of the form: BFGSnapshot_{YYYMMDD}_{HH:MM:SS}_{Event Name}_{Match Type}{Match Number}.json, 
+   *                 where the event name and Match information are derived from the FMS
+   */
+  public void saveLog(String filename) {
+    BattFuelGaugeJNI.saveLog(m_handle, filename);
+  }
+  
+  /**
+   * Determine if BFG is present on the CAN bus and at least one CAN message
+   * was received the past two seconds
+   * 
+   * @return TRUE if at least on CAN message was received from sensor within the past two seconds, otherwise false
+   */
+  public boolean isConnected() {
+    return BattFuelGaugeJNI.isConnected(m_handle);
+  }
 
   // -------------------------------------------------------------------------
   // Core real-time / state values
@@ -271,7 +298,7 @@ public class BattFuelGaugeFixed implements Sendable, AutoCloseable {
   }
 
   /**
-   * Gets the manufacturer identifier of the battery.
+   * Gets the raw manufacturer identifier of the battery.
    *
    * @return Raw battery manufacturer reported by the BFG
    */

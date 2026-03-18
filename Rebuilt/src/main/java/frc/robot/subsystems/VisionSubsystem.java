@@ -892,7 +892,7 @@ public class VisionSubsystem extends SubsystemBase {
                 currentFerryZone = "Right Mid Section 2";
             }
 
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH) {
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = neutralTarget;
                 currentFerryZone = "Right Left Section";
@@ -917,7 +917,7 @@ public class VisionSubsystem extends SubsystemBase {
                 currentFerryZone = "Left Mid Section 2";
             }
 
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH) {
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = neutralTarget;
                 currentFerryZone = "Left Left Section";
@@ -942,7 +942,7 @@ public class VisionSubsystem extends SubsystemBase {
                 currentFerryZone = "Left Mid Section 2";
             }
 
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH) {
+            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = neutralTarget;
                 currentFerryZone = "Left Left Section";
