@@ -162,7 +162,7 @@ public class RobotContainer {
       CoordinationSubsystem.getInstance().setOverrideCommand(false)
     );
 
-    DRIVER.start().onTrue(new ResetIMU(drivetrain));
+    DRIVER.y().onTrue(new ResetIMU(drivetrain));
 
     DRIVER.back().onTrue(
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)

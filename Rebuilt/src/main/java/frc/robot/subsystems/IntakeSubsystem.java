@@ -208,6 +208,9 @@ public final class IntakeSubsystem extends SubsystemBase{
         return currentPos;
     }
     public void setPos(IntakePos pos) {
+        if (pos == IntakePos.ZEROING) {
+            isZeroing = true;
+        }
         currentPos = pos;
     }
 

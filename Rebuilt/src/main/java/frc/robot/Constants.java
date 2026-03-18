@@ -60,7 +60,7 @@ public final class Constants {
       public static final class ClimbPositions {
         public static final double kElevatorReach = -1;
         public static final double kElevatorHandoff = -0.5;
-        public static final double kElevatorL3Store = -35;
+        public static final double kElevatorL3Store = -35; //TODO: make lower, thinking maybe -45 or -50
         public static final double kElevatorClimb = -141.0; //Old: -146.5Mech Max: -148
         public static final double kElevatorStore = -55.4;
 
@@ -111,7 +111,7 @@ public final class Constants {
       }
 
       //7in off from center
-      public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1778, 0), new Rotation2d(0)); // .1778
+      public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1443, 0), new Rotation2d(0)); // .1778
       public static final double ENCODER_MAGNET_OFFSET = 0.31201171875;
 
       //To find the ratios, divide if reduction, multiply if increase.
@@ -120,7 +120,7 @@ public final class Constants {
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.93288943638;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
       public static final double TURRET_OFFSET_TO_ZERO = 180;
-      public static final double TURRET_OFFSET_TO_TARGET = 0.5; // -1.75 //3; //V1: 5
+      public static final double TURRET_OFFSET_TO_TARGET = 1.25; // -1.75 //3; //V1: 5
 
       public static final double TOTAL_ROTATION_DEGREES = 330;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
@@ -321,29 +321,30 @@ public final class Constants {
 
         public static final double FERRY_ZONE_PUSH_SECTION_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
         public static final double FERRY_ZONE_PUSH_SECTION_X_HIGH = FERRY_ZONE_MID_SECTION_1_X_HIGH;
-        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW = 4.145;
+        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH;
         public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH = 5.08;
 
         public static final double FERRY_ZONE_LEFT_SECTION_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
         public static final double FERRY_ZONE_LEFT_SECTION_X_HIGH = 6.433;
-        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW = 4.764;
+        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW = FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH;
         public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH = 5.8;
         
         // LEFT SIDE POINTS
         public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_LOW = 0;
         public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_HIGH = 8.065;
         
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW = 8.04 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH = 8.04 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
         
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH = 8.04 - FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH;
 
-        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW = 8.04 - FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW;
-        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH = 8.04 - FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH;
+        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH;
 
-        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW = 8.04 - FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW;
-        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH = 8.04 - FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH;
+        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH;
+
         // public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_X_LOW = 4.764;
         // public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_X_HIGH = 16.499;
         // public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_LOW = 0;
