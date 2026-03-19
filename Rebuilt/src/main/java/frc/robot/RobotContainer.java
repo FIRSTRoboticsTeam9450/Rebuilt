@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.AlignPos;
 import frc.robot.commands.PositionAlignCommand;
 import frc.robot.commands.ResetIMU;
@@ -226,10 +227,10 @@ public class RobotContainer {
     /* ================ TEST ONLY KEYBINDS ============== */
     
     /* ============================== SYSID ==================================== */
-    // DRIVER.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    // DRIVER.a().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-    // DRIVER.b().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-    // DRIVER.x().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+    // DRIVER.y().whileTrue(shooterSub.sysIdQuasistatic(Direction.kForward));
+    // DRIVER.a().whileTrue(shooterSub.sysIdQuasistatic(Direction.kReverse));
+    // DRIVER.b().whileTrue(shooterSub.sysIdDynamic(Direction.kForward));
+    // DRIVER.x().whileTrue(shooterSub.sysIdDynamic(Direction.kReverse));
       
     /* =============================== DISABLED KEYBINDS ======================== */
 

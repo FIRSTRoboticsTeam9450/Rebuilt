@@ -60,7 +60,7 @@ public final class Constants {
       public static final class ClimbPositions {
         public static final double kElevatorReach = -1;
         public static final double kElevatorHandoff = -0.5;
-        public static final double kElevatorL3Store = -35; //TODO: make lower, thinking maybe -45 or -50
+        public static final double kElevatorL3Store = -120; //TODO: make lower, thinking maybe -45 or -50
         public static final double kElevatorClimb = -141.0; //Old: -146.5Mech Max: -148
         public static final double kElevatorStore = -55.4;
 
