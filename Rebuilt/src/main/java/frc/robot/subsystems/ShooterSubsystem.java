@@ -174,73 +174,22 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() {
 
-        // Shooting Data Velocity
-        // shootingDistanceToVelocity.put(1.378, 25.7);
-        // shootingDistanceToVelocity.put(2.090, 27.7);
-        // shootingDistanceToVelocity.put(2.428, 29.0);
-        // shootingDistanceToVelocity.put(2.844, 30.5);
-        // shootingDistanceToVelocity.put(3.22, 32.0);
-        // shootingDistanceToVelocity.put(3.752, 34.0);
-        // shootingDistanceToVelocity.put(4.064, 34.8);
-        // shootingDistanceToVelocity.put(4.376, 35.6); //Artifical Point
-        // shootingDistanceToVelocity.put(4.688, 36.4); //Artifical Point
-
         
-        // shootingDistanceToVelocity.put(1.378, 51.6);
-        // shootingDistanceToVelocity.put(2.090, 53.32);
-        // shootingDistanceToVelocity.put(2.428, 55.7);
-        // shootingDistanceToVelocity.put(2.844, 58.23);
-        // shootingDistanceToVelocity.put(3.22, 59.6);
-        // shootingDistanceToVelocity.put(3.752, 57.5);
-        // shootingDistanceToVelocity.put(4.064, 59.0);
-        // shootingDistanceToVelocity.put(4.3, 61.25);
-        // shootingDistanceToVelocity.put(4.577, 62.5);
-        // shootingDistanceToVelocity.put(4.8, 63.65);
-        // shootingDistanceToVelocity.put(5.02, 65.0);
-        
-        // shootingDistanceToVelocity.put(5.152, 64.6);
-        // shootingDistanceToVelocity.put(4.530, 62.0);
-        // shootingDistanceToVelocity.put(3.575, 56.0);
-        // shootingDistanceToVelocity.put(2.679, 50.25);
-        // shootingDistanceToVelocity.put(1.806, 47.0);
-        // shootingDistanceToVelocity.put(1.152, 45.4);
-        
-        shootingDistanceToVelocity.put(5.575, 66.2);
-        shootingDistanceToVelocity.put(4.885, 63.45);
-        shootingDistanceToVelocity.put(3.988, 58.5);
-        shootingDistanceToVelocity.put(3.371, 54.85);
-        shootingDistanceToVelocity.put(2.755, 50.3);
-        shootingDistanceToVelocity.put(1.898, 47.5);
-        shootingDistanceToVelocity.put(1.182, 46.0);
+        shootingDistanceToVelocity.put(5.575, 68.651 - 2.45);
+        shootingDistanceToVelocity.put(4.885, 64.675 - 2.0);
+        shootingDistanceToVelocity.put(3.988, 60.134 - 1.75);
+        shootingDistanceToVelocity.put(3.371, 56.075 - 1.65);
+        shootingDistanceToVelocity.put(2.755, 52.841 - 1.25);
+        shootingDistanceToVelocity.put(1.898, 49.542 - 0.75);
+        shootingDistanceToVelocity.put(1.182, 48.042 - 0.53);
 
-        // shootingDistanceToVelocity.put(4.064, 59.0);
-        // shootingDistanceToVelocity.put(4.3, 61.25);
-        // shootingDistanceToVelocity.put(4.577, 62.5);
-        // shootingDistanceToVelocity.put(4.8, 63.65);
-        // shootingDistanceToVelocity.put(5.02, 65.0);
-
-        // Shooting Data Time
-        // shootingDistanceToTime.put(0.951, 1.048);
-        // shootingDistanceToTime.put(1.754, 1.085);
-        // shootingDistanceToTime.put(2.282, 1.18);
-        // shootingDistanceToTime.put(3.648, 1.236);
-        // shootingDistanceToTime.put(4.448, 1.38);
-        // shootingDistanceToTime.put(5.157, 1.402);
-        // shootingDistanceToTime.put(1.378, 1.017);
-        // shootingDistanceToTime.put(2.090, 1.037);
-        // shootingDistanceToTime.put(2.428, 1.011375);
-        // shootingDistanceToTime.put(2.844, 1.1255);
-        // shootingDistanceToTime.put(3.22, 1.18);
-        // shootingDistanceToTime.put(3.752, 1.3);
-
-        shootingDistanceToTime.put(5.152, 1.198);
-        shootingDistanceToTime.put(4.530, 1.197);
-        shootingDistanceToTime.put(3.575, 0.965);
-        shootingDistanceToTime.put(2.679, 0.872);
-        shootingDistanceToTime.put(1.806, 0.797);
-        shootingDistanceToTime.put(1.152, 0.826);
-        shootingDistanceToTime.put(4.064, 34.8);
-
+        shootingDistanceToTime.put(5.575, 1.16);
+        shootingDistanceToTime.put(4.885, 1.176);
+        shootingDistanceToTime.put(3.988, 1.124);
+        shootingDistanceToTime.put(3.371, 1.024);
+        shootingDistanceToTime.put(2.755, .912);
+        shootingDistanceToTime.put(1.898, .886);
+        shootingDistanceToTime.put(1.182, .94);
         
 
 
@@ -602,7 +551,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double hoodAngleFunctionShootOverNet(double distance) {
         // double wantedAngle = (-35.0/(distance - .6)) + 48.0;
-        double wantedAngle = (-120/(distance + 4.4)) + 30;
+        double wantedAngle = (-120/(distance + 4.4)) + 45;
         // double wantedAngle = (-40 / (distance - 0.3)) + 40;
         double wantedRevs = getAsRevs(wantedAngle);
         if(distance <= distanceAwayToUseLowDegree) {
@@ -790,7 +739,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if(instance == null) {
             instance = new ShooterSubsystem();
             instance.initizalize();
-            System.out.println("New shooter instance: " + instance.toString());
+            // System.out.println("New shooter instance: " + instance.toString());
         }
         return instance;
     }

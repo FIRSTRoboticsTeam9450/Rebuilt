@@ -302,7 +302,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Logger.recordOutput("Rebuilt/Drive/CurrentRotationSpeed", driveState.Speeds.omegaRadiansPerSecond);
         Logger.recordOutput("Rebuilt/Drive/currentXSpeed", driveState.Speeds.vxMetersPerSecond);
         Logger.recordOutput("Rebuilt/Drive/currentYSpeed", driveState.Speeds.vyMetersPerSecond);
-        Logger.recordOutput("Rebuilt/Drive/slow mode", RobotContainer.slowMode);
+        Logger.recordOutput("Rebuilt/Drive/slow mode", RobotContainer.slewMode);
+        Logger.recordOutput("Rebuilt/Drive/FL Swerve Module Drive Speed", getModule(0).getDriveMotor().getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/FL Swerve Module Steer Angle", getModule(0).getSteerMotor().getPosition().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/FR Swerve Module Drive Speed", getModule(1).getDriveMotor().getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/FR Swerve Module Steer Angle", getModule(1).getSteerMotor().getPosition().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/BR Swerve Module Drive Speed", getModule(3).getDriveMotor().getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/BR Swerve Module Steer Angle", getModule(3).getSteerMotor().getPosition().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/BL Swerve Module Drive Speed", getModule(2).getDriveMotor().getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/BL Swerve Module Steer Angle", getModule(2).getSteerMotor().getPosition().getValueAsDouble());
 
         Logger.recordOutput("Rebuilt/SYSID/Motor Position", getModule(0).getDriveMotor().getPosition(true).getValueAsDouble());
         Logger.recordOutput("Rebuilt/SYSID/Motor Velocity", getModule(0).getDriveMotor().getVelocity(true).getValueAsDouble());

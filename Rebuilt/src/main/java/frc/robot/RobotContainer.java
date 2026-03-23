@@ -47,8 +47,8 @@ import frc.robot.util.BezierCurve;
 
 
 public class RobotContainer {
-  public final static BatterySubsystem battery = BatterySubsystem.getInstance();
-  public final static PDHSubsystem power = PDHSubsystem.getInstance();
+  // public final static BatterySubsystem battery = BatterySubsystem.getInstance();
+  // public final static PDHSubsystem power = PDHSubsystem.getInstance();
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   public final static VisionSubsystem vision = VisionSubsystem.getInstance();
   public final static CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
@@ -74,7 +74,7 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_SPEED = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
-  public static boolean slowMode = false;
+  public static boolean slewMode = false;
   private static final double scalarFactorForSpeed = 0.5;
 
   public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
@@ -118,6 +118,9 @@ public class RobotContainer {
     autoChooser.addOption("Chaos - FSC", drivetrain.getAutoPath("CA - FSC", false));
     autoChooser.addOption("Chaos - FPSC", drivetrain.getAutoPath("CA - FPSC", false));
 
+    autoChooser.addOption("Anti-Chaos - FPSC", drivetrain.getAutoPath("ACA - FPSC", false));
+    autoChooser.addOption("Anti-Chaos - Full Sweep", drivetrain.getAutoPath("ACAP - Top Start", false));
+
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
     // autoChooser.addOption("Slip Test", drivetrain.getAutoPath("Slip Testing", false));
@@ -135,9 +138,9 @@ public class RobotContainer {
                 double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
                 double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
                 double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
-                return drive.withVelocityX(slowMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(slowMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
-                    .withRotationalRate(slowMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
+                return drive.withVelocityX(slewMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(slewMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
+                    .withRotationalRate(slewMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
             }
             )
         );
@@ -150,10 +153,10 @@ public class RobotContainer {
     );
 
     DRIVER.leftTrigger().onTrue(
-        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slowMode = true))
-        // new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED).alongWith(new InstantCommand(() -> slowMode = true))
+        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slewMode = false))
+        // new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED).alongWith(new InstantCommand(() -> slewMode = true))
     ).onFalse(
-      new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slowMode = false))
+      new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slewMode = false))
     );
 
 
@@ -178,9 +181,9 @@ public class RobotContainer {
     );
 
     OPERATOR.rightTrigger().onTrue(
-      CoordinationSubsystem.getInstance().setFastTransferCommand(true)
+      CoordinationSubsystem.getInstance().setIntakePushing(true)
     ).onFalse(
-      CoordinationSubsystem.getInstance().setFastTransferCommand(false)
+      CoordinationSubsystem.getInstance().setIntakePushing(false)
     );
 
     OPERATOR.leftBumper().onTrue(
@@ -282,6 +285,7 @@ public class RobotContainer {
     // Intake Commands
     // NamedCommands.registerCommand("ZeroIntake", IntakeSubsystem.getInstance().setPosAndStateCommand(IntakePos.ZEROING, IntakeState.IDLING));
     NamedCommands.registerCommand("ZeroIntake", new InstantCommand());
+    NamedCommands.registerCommand("IntakePush", CoordinationSubsystem.getInstance().setIntakePushing());
 
     NamedCommands.registerCommand("SetIntake", CoordinationSubsystem.getInstance().setIntakeCommand());
     NamedCommands.registerCommand("SetFire", CoordinationSubsystem.getInstance().setFireCommand());

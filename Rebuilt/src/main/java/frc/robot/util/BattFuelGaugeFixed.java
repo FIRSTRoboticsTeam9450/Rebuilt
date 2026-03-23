@@ -144,7 +144,7 @@ public class BattFuelGaugeFixed implements Sendable, AutoCloseable {
    *                 where the event name and Match information are derived from the FMS
    */
   public void saveLog(String filename) {
-    BattFuelGaugeJNI.saveLog(m_handle, filename);
+    // BattFuelGaugeJNI.saveLog(m_handle, filename);
   }
   
   /**
@@ -154,7 +154,8 @@ public class BattFuelGaugeFixed implements Sendable, AutoCloseable {
    * @return TRUE if at least on CAN message was received from sensor within the past two seconds, otherwise false
    */
   public boolean isConnected() {
-    return BattFuelGaugeJNI.isConnected(m_handle);
+    // return BattFuelGaugeJNI.isConnected(m_handle);
+    return false;
   }
 
   // -------------------------------------------------------------------------

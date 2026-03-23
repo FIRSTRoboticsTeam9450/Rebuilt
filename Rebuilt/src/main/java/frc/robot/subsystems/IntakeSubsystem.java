@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -12,6 +13,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.*;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -26,6 +28,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     public enum IntakePos {
         HOLD_ON_FOR_TRENCH,
         ZEROING,
+        PUSH_BAR,
         STORE,
         CLIMB_STORE,
         TRENCH_STORE,
@@ -41,6 +44,8 @@ public final class IntakeSubsystem extends SubsystemBase{
     //Set the current state of the robot to be idle
     private IntakePos currentPos = IntakePos.ZEROING;
     private IntakeState currentState = IntakeState.IDLING;
+
+    private Timer zeroingTimer = new Timer();
     
     //Set up motors
     TalonFX motorArm = new TalonFX(IntakeConstants.DeviceIDs.kAngleMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -69,12 +74,14 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double storeRevolutions = 9.5;
     private double trenchStoreRevolutions = 6.0;
     private double climbStoreRevolutions = 10.05;
+    private double pushingRevolutions = 0.5;
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
+    private TorqueCurrentFOC zeroRequest = new TorqueCurrentFOC(0);
 
-    private boolean isZeroing = false;
+    private boolean isZeroingDone = false;
 
     private boolean reversing = false;
 
@@ -123,10 +130,12 @@ public final class IntakeSubsystem extends SubsystemBase{
     }
 
     public boolean isZeroingDone() {
-        if(Math.abs(motorArm.getVelocity().getValueAsDouble()) < .05 && Math.abs(motorArm.getMotorVoltage().getValueAsDouble()) > .8) {
+        
+        if(zeroingTimer.get() > 0.5 && Math.abs(motorArm.getVelocity().getValueAsDouble()) < .05 && Math.abs(motorArm.getMotorVoltage().getValueAsDouble()) > 0.2) {
             motorArm.setPosition(0);
-            motorArm.setVoltage(0);
+            motorArm.stopMotor();
             currentPos = IntakePos.STORE;
+            zeroingTimer.restart();
             return true;
         }
         return false;
@@ -134,9 +143,9 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if(currentPos != IntakePos.HOLD_ON_FOR_TRENCH && !isZeroing) {
+        if(currentPos != IntakePos.HOLD_ON_FOR_TRENCH && !isZeroingDone) {
             currentPos = IntakePos.ZEROING;
-            isZeroing = isZeroingDone();
+            isZeroingDone = isZeroingDone();
         }
         applyState();
         publishLogs();
@@ -149,7 +158,12 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case ZEROING:
-                motorArm.setVoltage(-3);
+                // motorArm.setControl(zeroRequest.withOutput(5));
+                motorArm.setVoltage(-5);
+                break;
+
+            case PUSH_BAR:
+                motorArm.setControl(request.withPosition(pushingRevolutions));
                 break;
 
             case TRENCH_STORE:
@@ -198,6 +212,8 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Angle/Target", currentPos == IntakePos.INTAKING ? logIntakeTarget.get() : storeRevolutions);
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Voltage", motorArm.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Angle/Motor Velocity", motorArm.getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Angle/Is Zeroing", isZeroingDone);
+        Logger.recordOutput("Rebuilt/Intake/Angle/Zeroing Timer", zeroingTimer.get());
 
         Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Veloc", motorWheels.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Voltage", motorWheels.getMotorVoltage().getValueAsDouble());
@@ -208,8 +224,10 @@ public final class IntakeSubsystem extends SubsystemBase{
         return currentPos;
     }
     public void setPos(IntakePos pos) {
+        if (currentPos == IntakePos.ZEROING) return;
         if (pos == IntakePos.ZEROING) {
-            isZeroing = true;
+            isZeroingDone = false;
+            zeroingTimer.restart();
         }
         currentPos = pos;
     }
@@ -252,6 +270,9 @@ public final class IntakeSubsystem extends SubsystemBase{
         intakingTargetVolts = logIntakingTarget.get();
     }
 
+    public void init() {
+        zeroingTimer.restart();
+    }
     public void zeroEncoders() {
         if (DriverStation.isDisabled()) {
             motorArm.setPosition(0);

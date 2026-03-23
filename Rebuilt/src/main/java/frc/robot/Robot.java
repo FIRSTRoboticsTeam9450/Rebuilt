@@ -101,7 +101,7 @@ public class Robot extends LoggedRobot {
     field2d.setRobotPose(RobotContainer.drivetrain.getState().Pose);
     sendableBuilder.update();
 
-    Logger.recordOutput("Rebuilt/Slow Mode", RobotContainer.slowMode);
+    Logger.recordOutput("Rebuilt/Slow Mode", RobotContainer.slewMode);
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -109,9 +109,10 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
-    VisionSubsystem.getInstance().setThrottle(100);
-    VisionSubsystem.getInstance().setLLIMUModes(1);
+    VisionSubsystem.getInstance().setThrottle(0);
+    VisionSubsystem.getInstance().setLLIMUModes(0);
     updateValuesOffset = 0;
+    IntakeSubsystem.getInstance().init();
     // SignalLogger.stop();
   }
 
@@ -144,6 +145,7 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    IntakeSubsystem.getInstance().init();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -162,6 +164,7 @@ public class Robot extends LoggedRobot {
     // continue until interrupted by another command, remove
     // this line or comment it out.
     CoordinationSubsystem.getInstance().setHardTrenchOverride(false);
+    IntakeSubsystem.getInstance().init();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

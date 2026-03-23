@@ -76,17 +76,6 @@
       }
     },
     {
-      "name": "IncreaseShooterPower",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "IncreaseShooterPower"
-        }
-      }
-    },
-    {
       "name": "ForceTrench",
       "waypointRelativePos": 0.09453072248480716,
       "endWaypointRelativePos": null,
@@ -102,40 +91,20 @@
       "waypointRelativePos": 0.09993247805536845,
       "endWaypointRelativePos": null,
       "command": {
-        "type": "sequential",
+        "type": "named",
         "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "SetIntake"
-              }
-            },
-            {
-              "type": "wait",
-              "data": {
-                "waitTime": 0.1
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "SetIntake"
-              }
-            },
-            {
-              "type": "wait",
-              "data": {
-                "waitTime": 0.1
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "SetIntake"
-              }
-            }
-          ]
+          "name": "SetIntake"
+        }
+      }
+    },
+    {
+      "name": "IntakePush",
+      "waypointRelativePos": 0.1,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "IntakePush"
         }
       }
     },

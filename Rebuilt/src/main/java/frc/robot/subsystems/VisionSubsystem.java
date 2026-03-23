@@ -394,7 +394,8 @@ public class VisionSubsystem extends SubsystemBase {
                 
                 // Pose is only valid if all checks pass
                 poseValid = xValid && yValid && yawValid;
-                llIMUValid = llRollValid && llPitchValid;
+                // llIMUValid = llRollValid && llPitchValid;
+                llIMUValid = true;
                 
                 // Optional: Log which check failed for debugging
                 if (!poseValid) {
@@ -525,6 +526,8 @@ public class VisionSubsystem extends SubsystemBase {
             loopOffset++;
         }
 
+        Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
+
         for (LimelightObject limelight : LIMELIGHT_LIST) {
             String llName = limelight.getName();
             IMUData llIMUData = LimelightHelpers.getIMUData(llName);
@@ -571,7 +574,6 @@ public class VisionSubsystem extends SubsystemBase {
             Logger.recordOutput("Rebuilt/Vision/CurrentPoseFromMethod", getCurrentBotPoseAllianceUnspecific());
             Logger.recordOutput("Rebuilt/Vision/CurrentPose", drivetrain.getState().Pose);
             Logger.recordOutput("Rebuilt/Vision/Alliance", DriverStation.getAlliance().toString());
-            Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
             Logger.recordOutput("Rebuilt/Vision/CurrentTargetFromMethod", new Pose2d(getAdjustedCurrentTarget(), new Rotation2d()));
             // Logger.recordOutput("Rebuilt/Vision/FutureTarget", new Pose2d(getAdjustedFutureTarget(.02), new Rotation2d(getCurrentBotPoseAllianceUnspecific().getRotation().getRadians())).minus(getCurrentBotPoseAllianceUnspecific()));
             Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));

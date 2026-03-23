@@ -48,6 +48,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean rejecting = false;
     private boolean autoRejecting = false;
     private boolean fastTransfer = true;
+    private boolean intakePushing = false;
 
     private boolean overrideTrench = false;
     private boolean hardOverrideTrench = false;
@@ -187,6 +188,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 turretState = TurretState.INIT;
                 shooterHoodState = AngleState.ZEROING;
                 intakeAngleState = IntakePos.ZEROING;
+                intakeVelocState = IntakeState.IDLING;
                 // ledState = LEDState.INIT;
                 break;
 
@@ -197,8 +199,11 @@ public class CoordinationSubsystem extends SubsystemBase {
                 if (shouldBeIntaking) {
                     intakeAngleState = IntakePos.INTAKING;
                     intakeVelocState = IntakeState.INTAKING;
+                } else if (intakePushing) {
+                    intakeAngleState = IntakePos.PUSH_BAR;
+                    intakeVelocState = IntakeState.IDLING;
                 } else {
-                    intakeAngleState = IntakePos.STORE;
+                    intakeAngleState = IntakePos.TRENCH_STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
                 break;
@@ -212,8 +217,11 @@ public class CoordinationSubsystem extends SubsystemBase {
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
                         intakeVelocState = IntakeState.INTAKING;
+                    } else if (intakePushing) {
+                        intakeAngleState = IntakePos.PUSH_BAR;
+                        intakeVelocState = IntakeState.IDLING;
                     } else {
-                        intakeAngleState = IntakePos.STORE;
+                        intakeAngleState = IntakePos.TRENCH_STORE;
                         intakeVelocState = IntakeState.IDLING;
                     }
                 } else {
@@ -237,8 +245,11 @@ public class CoordinationSubsystem extends SubsystemBase {
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
                         intakeVelocState = IntakeState.INTAKING;
+                    } else if (intakePushing) {
+                        intakeAngleState = IntakePos.PUSH_BAR;
+                        intakeVelocState = IntakeState.IDLING;
                     } else {
-                        intakeAngleState = IntakePos.STORE;
+                        intakeAngleState = IntakePos.TRENCH_STORE;
                         intakeVelocState = IntakeState.IDLING;
                     }
                 } else {
@@ -262,6 +273,9 @@ public class CoordinationSubsystem extends SubsystemBase {
                 if (shouldBeIntaking) {
                     intakeAngleState = IntakePos.INTAKING;
                     intakeVelocState = IntakeState.INTAKING;
+                } else if (intakePushing) {
+                    intakeAngleState = IntakePos.PUSH_BAR;
+                    intakeVelocState = IntakeState.IDLING;
                 } else {
                     intakeAngleState = IntakePos.TRENCH_STORE;
                     intakeVelocState = IntakeState.IDLING;
@@ -363,6 +377,16 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     public Command setFastTransferCommand() {
         return new InstantCommand(() -> fastTransfer = true)
+            .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command setIntakePushing(boolean value) {
+        return new InstantCommand(() -> intakePushing = value)
+            .alongWith(new InstantCommand(() -> update = true));
+    }
+
+    public Command setIntakePushing() {
+        return new InstantCommand(() -> intakePushing = !intakePushing)
             .alongWith(new InstantCommand(() -> update = true));
     }
 

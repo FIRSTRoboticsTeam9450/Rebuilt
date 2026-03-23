@@ -52,10 +52,10 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logTelescopeMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Velocity", 94);
     private LoggedNetworkNumber logTelescopeMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Acceleration", 1400);
 
-    private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.24);
+    private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.35);
     private LoggedNetworkNumber logTelescopeMMKV = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kV", 0.2);
     private LoggedNetworkNumber logTelescopeMMKA = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kA", 0);
-    private LoggedNetworkNumber logTelescopeMMKP = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kP", 10);
+    private LoggedNetworkNumber logTelescopeMMKP = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kP", 30);
     private LoggedNetworkNumber logTelescopeMMKI = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kI", 0.0);
     private LoggedNetworkNumber logTelescopeMMKD = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kD", 0.0);
     private LoggedNetworkNumber logTelescopeMMKG = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kG", 0.07);
@@ -251,16 +251,16 @@ public class ClimberSubsystem extends SubsystemBase {
             case INIT:
                 switch (currentClimbLevel) {
                     case AUTO:
-                        setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                        setTelescopeTarget(ClimbPositions.kTelescopeL1Reach);
                         break;
 
                     case L1:
                         if(!isElevatorZeroingDone) {   
-                            if (true) { //change from true or false to say if want gentle zeroing, or if comp zeroing
-                                elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); 
+                            if (false) { //change from true or false to say if want gentle zeroing, or if comp zeroing
+                                elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(5)); 
                             } else {
                                 double amps = (-zeroingTimer.get() + 0.4) * 80;
-                                amps = MathUtil.clamp(amps, 3.75, 50);
+                                amps = MathUtil.clamp(amps, 5, 50);
                                 elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(amps)); //this one for comp
                             }
                             // elevatorClimbMotor.setControl(elevatorZeroingRequest.withOutput(2.8)); //this one for prac
@@ -268,7 +268,7 @@ public class ClimberSubsystem extends SubsystemBase {
                         } else {
                             setElevatorTarget(ClimbPositions.kElevatorReach);
                         }
-                        setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                        setTelescopeTarget(ClimbPositions.kTelescopeL1Reach);
                         break;
                     
                     case L2:
@@ -277,16 +277,17 @@ public class ClimberSubsystem extends SubsystemBase {
                             setElevatorRequestConstants(95, 1200);
                         }
                         setElevatorTarget(ClimbPositions.kElevatorReach);
-                        setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                        setTelescopeTarget(ClimbPositions.kTelescopeL2AndL3Reach);
                         break;
 
+                        
                     case L3:
                         if (!spedUpElev && elevatorClimbMotor.getPosition(false).getValueAsDouble() >= -60) {
                             spedUpElev = true;
                             setElevatorRequestConstants(95, 1200);
                         }
                         setElevatorTarget(ClimbPositions.kElevatorReach);
-                        setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                        setTelescopeTarget(ClimbPositions.kTelescopeL2AndL3Reach);
                         break;
                 }
                 if (ElevatorAtTarget() && TelescopeAtTarget()) {
@@ -333,14 +334,14 @@ public class ClimberSubsystem extends SubsystemBase {
                         case L1:
                             setElevatorTarget(ClimbPositions.kElevatorClimb);
                             if (getElevatorPosition() < -45) {
-                                setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                                setTelescopeTarget(ClimbPositions.kTelescopeL2AndL3Reach);
                             }
                             break;
                         
                         case L2:
                             setElevatorTarget(ClimbPositions.kElevatorClimb);
                             if (getElevatorPosition() < -45) {
-                                setTelescopeTarget(ClimbPositions.kTelescopeReach);
+                                setTelescopeTarget(ClimbPositions.kTelescopeL2AndL3Reach);
                             }
                             break;
 
@@ -398,7 +399,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public boolean elevatorAutoZeroing() {
-        if(Math.abs(elevatorClimbMotor.getStatorCurrent().getValueAsDouble()) > 2 && Math.abs(elevatorClimbMotor.getVelocity().getValueAsDouble()) < 0.08) {
+        if(Math.abs(elevatorClimbMotor.getStatorCurrent().getValueAsDouble()) > 4.5 && Math.abs(elevatorClimbMotor.getVelocity().getValueAsDouble()) < 0.04) {
             elevatorClimbMotor.setPosition(0);
             elevatorClimbMotor.stopMotor();
 
@@ -454,7 +455,7 @@ public class ClimberSubsystem extends SubsystemBase {
             setTelescopingRequestConstants(95, 1400);
         } else if (state == ClimbStates.HANDOFF) {
             setElevatorRequestConstants(95, 200);
-            setTelescopingRequestConstants(30, 200);
+            setTelescopingRequestConstants(50, 300);
         }else if (state == ClimbStates.END) {
             setElevatorRequestConstants(50, 200);
             setTelescopingRequestConstants(95, 200);
