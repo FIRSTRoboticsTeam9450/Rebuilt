@@ -107,6 +107,9 @@ public class RobotContainer {
     autoChooser.addDefaultOption("Normal Full Sweep", drivetrain.getAutoPath("ACAP - Top Start", false));
     autoChooser.addDefaultOption("Left Half Sweep", drivetrain.getAutoPath("HST - FPSC", false));
     autoChooser.addDefaultOption("Right Half Sweep", drivetrain.getAutoPath("HSB - FPSC", false));
+    autoChooser.addDefaultOption("Preload + Outpost + Climb", drivetrain.getAutoPath("Outpost", false));
+    autoChooser.addDefaultOption("Preload +  Climb", drivetrain.getAutoPath("Preload Only", false));
+    autoChooser.addDefaultOption("Preload + Return to Hub", drivetrain.getAutoPath("Preload + Return to Hub", false));
 
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
