@@ -445,7 +445,7 @@ public class VisionSubsystem extends SubsystemBase {
      * @return Optional containing fused pose, or empty if no valid measurements
      */
     private Optional<Pose2d> fuseVision(List<VisionMeasurement> measurements) {
-            // Filter valid
+        // Filter valid
         int validCount = 0;
         double sumX = 0, sumY = 0;
         VisionMeasurement best = null;

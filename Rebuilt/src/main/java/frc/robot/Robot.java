@@ -109,8 +109,8 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
-    VisionSubsystem.getInstance().setThrottle(0);
-    VisionSubsystem.getInstance().setLLIMUModes(0);
+    VisionSubsystem.getInstance().setThrottle(100);
+    VisionSubsystem.getInstance().setLLIMUModes(1);
     updateValuesOffset = 0;
     IntakeSubsystem.getInstance().init();
     // SignalLogger.stop();

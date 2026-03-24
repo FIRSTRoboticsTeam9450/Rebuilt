@@ -3,34 +3,34 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5036777777777779,
-        "y": 2.43691111111111
+        "x": 0.58,
+        "y": 7.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0043222222222226,
-        "y": 1.9009666666666658
+        "x": 2.743266666666665,
+        "y": 6.071588888888889
       },
       "isLocked": false,
-      "linkedName": "P - Corner End 2"
+      "linkedName": "CA - FSC - Score End 2"
     },
     {
       "anchor": {
-        "x": 1.4,
-        "y": 3.3
+        "x": 1.4683777777777778,
+        "y": 4.14
       },
       "prevControl": {
-        "x": 3.1052777777777774,
-        "y": 3.2059333333333324
+        "x": 2.9690222222222222,
+        "y": 3.9840888888888886
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "BottomClimb"
+      "linkedName": "TopClimb"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.7460580912863027,
+      "waypointRelativePos": 0.7311203319502014,
       "rotationDegrees": -90.0
     }
   ],
@@ -40,21 +40,8 @@
       "minWaypointRelativePos": 0.65,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 2.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.35,
-      "maxWaypointRelativePos": 0.65,
-      "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 2.0,
+        "maxVelocity": 0.75,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -65,14 +52,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "SetIntake",
-      "waypointRelativePos": 0.05856079404466821,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
       "name": "ClimberUp",
-      "waypointRelativePos": 0.21339950372207947,
+      "waypointRelativePos": 0.685856079404451,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -102,14 +83,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
+    "velocity": 0,
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Push",
+  "folder": "Half Sweep",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

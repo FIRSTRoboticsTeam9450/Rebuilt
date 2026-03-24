@@ -5,9 +5,10 @@
   "pathFolders": [
     "Anit-NRG",
     "Bump",
+    "Chaos Autos",
     "Climb",
     "Ferry Only",
-    "Chaos Autos",
+    "Half Sweep",
     "Outpost",
     "Preload Only",
     "Push",
@@ -19,11 +20,12 @@
     "Anti-NRG",
     "Autos That Need Testing",
     "Bump Autos",
+    "Chaos Autos",
     "Climb",
     "Emergancy Autos",
     "Ferry",
-    "Chaos Autos",
-    "Push"
+    "Half Sweep",
+    "Full Sweep"
   ],
   "defaultMaxVel": 5.0,
   "defaultMaxAccel": 4.0,

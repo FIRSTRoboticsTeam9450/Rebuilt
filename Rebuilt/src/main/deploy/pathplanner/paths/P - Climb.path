@@ -1,0 +1,66 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.4,
+        "y": 3.3
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 0.65,
+        "y": 3.3
+      },
+      "isLocked": false,
+      "linkedName": "P - Climb Align"
+    },
+    {
+      "anchor": {
+        "x": 0.75,
+        "y": 3.3
+      },
+      "prevControl": {
+        "x": 0.5,
+        "y": 3.3
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "P - Climb"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ClimberDown",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ClimberDown"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 0.55,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": "Push",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": false
+}

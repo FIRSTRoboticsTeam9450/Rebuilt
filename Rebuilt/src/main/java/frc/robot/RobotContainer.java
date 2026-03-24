@@ -103,23 +103,10 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
-    autoChooser.addDefaultOption("P - Top Start", drivetrain.getAutoPath("P - Top Start", false));
-    autoChooser.addOption("FO - Left 2 Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", true));
-    autoChooser.addOption("FO - Right 2 Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", false));
-    autoChooser.addOption("P - Bottom Start", drivetrain.getAutoPath("P - Bottom Start", false));
-    autoChooser.addOption("P - Top Start", drivetrain.getAutoPath("P - Top Start", false));
-    autoChooser.addOption("C - Bottom Start", drivetrain.getAutoPath("Bottom F+C", false));
-    autoChooser.addOption("C - Top Start", drivetrain.getAutoPath("Top F+C", false));
-    autoChooser.addOption("O - Climb", drivetrain.getAutoPath("Outpost", false));
-    autoChooser.addOption("Bump Auto", drivetrain.getAutoPath("Bump", false));
-    autoChooser.addOption("Preload Only", drivetrain.getAutoPath("Preload Only", false));
-    autoChooser.addOption("Anti-NRG", drivetrain.getAutoPath("Anti-NRG", false));
-
-    autoChooser.addOption("Chaos - FSC", drivetrain.getAutoPath("CA - FSC", false));
-    autoChooser.addOption("Chaos - FPSC", drivetrain.getAutoPath("CA - FPSC", false));
-
-    autoChooser.addOption("Anti-Chaos - FPSC", drivetrain.getAutoPath("ACA - FPSC", false));
-    autoChooser.addOption("Anti-Chaos - Full Sweep", drivetrain.getAutoPath("ACAP - Top Start", false));
+    autoChooser.addDefaultOption("Untested Full Sweep", drivetrain.getAutoPath("P - Top Start", false));
+    autoChooser.addDefaultOption("Normal Full Sweep", drivetrain.getAutoPath("ACAP - Top Start", false));
+    autoChooser.addDefaultOption("Left Half Sweep", drivetrain.getAutoPath("HST - FPSC", false));
+    autoChooser.addDefaultOption("Right Half Sweep", drivetrain.getAutoPath("HSB - FPSC", false));
 
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));

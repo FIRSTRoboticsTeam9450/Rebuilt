@@ -13,19 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "PB - Start 2"
+            "pathName": "PB - Start"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "PB - Corner 2"
+            "pathName": "PB - Corner"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Push",
+  "folder": "Full Sweep",
   "choreoAuto": false
 }

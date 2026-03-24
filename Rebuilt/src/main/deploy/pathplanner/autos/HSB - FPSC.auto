@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HSB - Start"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HSB - Push"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Corner Transition"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - 2nd Corner"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Cimb Lineup"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Climb"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Half Sweep",
+  "choreoAuto": false
+}

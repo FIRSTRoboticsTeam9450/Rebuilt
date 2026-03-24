@@ -7,25 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "P - Start 1"
+            "pathName": "HST - Start"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "P - Corner 1"
+            "pathName": "HST - Push"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "P - Climb 1"
+            "pathName": "HST - 2nd Corner"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HST - Climb"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Push",
+  "folder": "Half Sweep",
   "choreoAuto": false
 }

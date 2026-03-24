@@ -203,7 +203,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.PUSH_BAR;
                     intakeVelocState = IntakeState.IDLING;
                 } else {
-                    intakeAngleState = IntakePos.TRENCH_STORE;
+                    intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
                 break;
@@ -221,7 +221,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                         intakeAngleState = IntakePos.PUSH_BAR;
                         intakeVelocState = IntakeState.IDLING;
                     } else {
-                        intakeAngleState = IntakePos.TRENCH_STORE;
+                        intakeAngleState = IntakePos.STORE;
                         intakeVelocState = IntakeState.IDLING;
                     }
                 } else {
@@ -249,7 +249,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                         intakeAngleState = IntakePos.PUSH_BAR;
                         intakeVelocState = IntakeState.IDLING;
                     } else {
-                        intakeAngleState = IntakePos.TRENCH_STORE;
+                        intakeAngleState = IntakePos.STORE;
                         intakeVelocState = IntakeState.IDLING;
                     }
                 } else {

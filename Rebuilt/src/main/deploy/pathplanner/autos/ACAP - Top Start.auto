@@ -13,19 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "P - Corner 2"
+            "pathName": "ACAP - Corner"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "P - Cimb 2"
+            "pathName": "ACAP - Climb"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Push",
+  "folder": "Full Sweep",
   "choreoAuto": false
 }

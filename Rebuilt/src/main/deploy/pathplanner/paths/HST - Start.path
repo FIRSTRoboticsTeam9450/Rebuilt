@@ -3,58 +3,49 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.834988888888889,
-        "y": 7.67
+        "x": 4.4,
+        "y": 7.625
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0043222222222226,
-        "y": 7.124311111111111
+        "x": 9.32403876506104,
+        "y": 6.756759111665348
       },
       "isLocked": false,
-      "linkedName": "P - Corner End"
+      "linkedName": "TopTrenchStart"
     },
     {
       "anchor": {
-        "x": 1.4683777777777778,
-        "y": 4.14
+        "x": 8.75,
+        "y": 5.0
       },
       "prevControl": {
-        "x": 3.1736555555555546,
-        "y": 4.045933333333332
+        "x": 8.75,
+        "y": 7.0
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "TopClimb"
+      "linkedName": "CA - FPSC - Ferry End"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.7460580912863027,
-      "rotationDegrees": -90.0
+      "waypointRelativePos": 0.10234541577825362,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 0.7100213219616167,
+      "rotationDegrees": -115.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.7454094292803914,
+      "minWaypointRelativePos": 0.7562457798784636,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 2.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.5,
-      "maxWaypointRelativePos": 0.75,
-      "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 2.0,
+        "maxVelocity": 0.55,
+        "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -65,19 +56,41 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "SetFire",
+      "name": "ForceTrench",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": null
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.07245657568238138,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.2014888337469053,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
         }
       }
     },
     {
       "name": "SetIntake",
-      "waypointRelativePos": 0.6617150573936496,
+      "waypointRelativePos": 0.2054590570719642,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -85,36 +98,25 @@
           "name": "SetIntake"
         }
       }
-    },
-    {
-      "name": "ClimberUp",
-      "waypointRelativePos": 0.8237677245104571,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "ClimberUp"
-        }
-      }
     }
   ],
   "globalConstraints": {
     "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxAcceleration": 9999999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": -90.0
+    "velocity": 0,
+    "rotation": -115.0
   },
   "reversed": false,
-  "folder": "Push",
+  "folder": "Half Sweep",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
