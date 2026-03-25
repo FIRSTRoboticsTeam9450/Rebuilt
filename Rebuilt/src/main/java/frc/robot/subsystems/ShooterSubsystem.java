@@ -175,13 +175,13 @@ public class ShooterSubsystem extends SubsystemBase {
     public void addData() {
 
         
-        shootingDistanceToVelocity.put(5.575, 68.651 - 2.45);
-        shootingDistanceToVelocity.put(4.885, 64.675 - 2.0);
-        shootingDistanceToVelocity.put(3.988, 60.134 - 1.75);
-        shootingDistanceToVelocity.put(3.371, 56.075 - 1.65);
-        shootingDistanceToVelocity.put(2.755, 52.841 - 1.25);
-        shootingDistanceToVelocity.put(1.898, 49.542 - 0.75);
-        shootingDistanceToVelocity.put(1.182, 48.042 - 0.53);
+        shootingDistanceToVelocity.put(5.575, 66.251 - 4.5);
+        shootingDistanceToVelocity.put(4.885, 62.675 - 4.5);
+        shootingDistanceToVelocity.put(3.988, 58.384 - 4.5);
+        shootingDistanceToVelocity.put(3.371, 54.425 - 4.5);
+        shootingDistanceToVelocity.put(2.755, 51.591 - 4.5);
+        shootingDistanceToVelocity.put(1.898, 48.792 - 4.5);
+        shootingDistanceToVelocity.put(1.182, 47.512 - 4.5);
 
         shootingDistanceToTime.put(5.575, 1.16);
         shootingDistanceToTime.put(4.885, 1.176);
@@ -535,7 +535,9 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double hoodAngleFunction(double distance) {
-        double wantedAngle = (-60/(distance + 0.8)) + 47;
+        // double wantedAngle = (-60/(distance + 0.8)) + 47;
+        double wantedAngle = (-200/(distance + 6)) + 39
+        ;
         // double wantedAngle = (-50/(distance/4 + 1)) + 50;
         // double wantedAngle = (-55/(distance + 0.8)) + 36;
 
@@ -550,9 +552,8 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double hoodAngleFunctionShootOverNet(double distance) {
-        // double wantedAngle = (-35.0/(distance - .6)) + 48.0;
-        double wantedAngle = (-120/(distance + 4.4)) + 45;
-        // double wantedAngle = (-40 / (distance - 0.3)) + 40;
+        // double wantedAngle = (-120/(distance + 4.4)) + 45;
+        double wantedAngle = (-600/(distance + 30)) + 24;
         double wantedRevs = getAsRevs(wantedAngle);
         if(distance <= distanceAwayToUseLowDegree) {
             wantedRevs = 0; 
@@ -589,7 +590,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isVelocityWithinTolerance(double tolerance) {
-        return Math.abs(targetShooterVeloc - shooterLeftMotor.getVelocity().getValueAsDouble()) < tolerance;
+        return Math.abs(targetShooterVeloc + manualShift - shooterLeftMotor.getVelocity().getValueAsDouble()) < tolerance;
     }
 
     public boolean isShooterReady() { //TODO: Add back at some point ¯\_(ツ)_/¯
@@ -659,7 +660,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void addManualVelocityShift() {
-        manualShift += (0.5 * 0.817);
+        manualShift += 0.5;
     }
 
     public void addManualVelocityShift(double value) {
@@ -667,7 +668,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void subtractManualVelocityShift() {
-        manualShift -= (0.5 * 0.817);
+        manualShift -= 0.5;
     }
 
     public void resetManualVelocityShift() {

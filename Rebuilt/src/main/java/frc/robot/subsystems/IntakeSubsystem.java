@@ -65,16 +65,16 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0.1); // 0.1
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 1.5);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 2.0);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
 
     private double intakingTargetVolts = logIntakingTarget.get();
     
     private double intakeRevolutions = logIntakeTarget.get();
-    private double storeRevolutions = 9.5;
-    private double trenchStoreRevolutions = 6.0;
-    private double climbStoreRevolutions = 10.05;
-    private double pushingRevolutions = 0.5;
+    private double storeRevolutions = 15.68;
+    private double trenchStoreRevolutions = 8.47;
+    private double climbStoreRevolutions = 15.68;
+    private double pushingRevolutions = 1;
 
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
@@ -91,7 +91,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private void configureMotors() {
         motorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
-        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
 
@@ -158,7 +158,7 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case ZEROING:
-                motorArm.setControl(zeroRequest.withOutput(-20));
+                motorArm.setControl(zeroRequest.withOutput(-5));
                 // motorArm.setVoltage(-5);
                 break;
 

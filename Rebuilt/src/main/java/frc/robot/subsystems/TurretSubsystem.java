@@ -372,6 +372,9 @@ public class TurretSubsystem extends SubsystemBase {
         boolean usedVeloc = false;
         double targetVeloc = 0;
 
+        double robotYawVeloc = drivetrain.getPigeon2().getAngularVelocityXDevice().getValueAsDouble();
+        Logger.recordOutput("Rebuilt/Turret/Robot Yaw Veloc", robotYawVeloc);
+
         if ((robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) || (cachedAngleDeg <= MIN_ANGLE_DEG || cachedAngleDeg >= MAX_ANGLE_DEG)) {
             targetVeloc = 0.0;
         } else {
@@ -403,7 +406,11 @@ public class TurretSubsystem extends SubsystemBase {
                 //Avg veloc
                 // desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
                 
-                targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity); //if clamping it breaks it, then set it to desiredVelocity
+                if (Math.abs(desiredVelocity) > 0.175) {
+                    targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity); //if clamping it breaks it, then set it to desiredVelocity
+                } else {
+                    targetVeloc = 0.0;
+                }
                 
 
                 // if(targetVeloc != desiredVelocity) {
@@ -422,6 +429,7 @@ public class TurretSubsystem extends SubsystemBase {
         }
         Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);
         Logger.recordOutput("Rebuilt/Turret/Veloc Net/Calculated Veloc", targetVeloc);
+        Logger.recordOutput("Rebuilt/Turret/Combined Veloc", targetVeloc + robotYawVeloc);
         return targetVeloc;
     }   
     
