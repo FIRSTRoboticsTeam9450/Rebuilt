@@ -75,7 +75,7 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
   public static boolean slewMode = false;
-  private static final double scalarFactorForSpeed = 0.5;
+  private static final double scalarFactorForSpeed = 0.1;
 
   public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
@@ -128,6 +128,11 @@ public class RobotContainer {
                 double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
                 double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
                 double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
+
+                Logger.recordOutput("Rebuilt/Drive/DriveX", -driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed);
+                Logger.recordOutput("Rebuilt/Drive/DriveY", -driveBezier.getOutput(DRIVER.getLeftY()) * maxSpeed);
+                Logger.recordOutput("Rebuilt/Drive/JoyX", DRIVER.getLeftX());
+                Logger.recordOutput("Rebuilt/Drive/JoyY", DRIVER.getLeftY());
                 return drive.withVelocityX(slewMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(slewMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
                     .withRotationalRate(slewMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
@@ -143,7 +148,7 @@ public class RobotContainer {
     );
 
     DRIVER.leftTrigger().onTrue(
-        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slewMode = false))
+        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slewMode = true))
         // new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED).alongWith(new InstantCommand(() -> slewMode = true))
     ).onFalse(
       new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slewMode = false))

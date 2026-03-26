@@ -103,9 +103,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     // Shooter Outtake Velocity Motion Magic Parameters
     private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.331699); //0.17238
-    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.111); //0.13318 // .119
+    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.11); //0.13318 // .119
     private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0); //0.046148
-    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.8); //2 Motors: 0.6, 1 Motor: 0.8
+    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.5); //2 Motors: 0.6, 1 Motor: 0.8
     private LoggedNetworkNumber logOuttakeVKD = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kD", 0.0);
     private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 0);
     private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 200);
@@ -175,7 +175,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public void addData() {
 
         
-        shootingDistanceToVelocity.put(5.575, 66.251 - 4.5);
+        shootingDistanceToVelocity.put(5.575, 66.251 - 4); //-4.5
         shootingDistanceToVelocity.put(4.885, 62.675 - 4.5);
         shootingDistanceToVelocity.put(3.988, 58.384 - 4.5);
         shootingDistanceToVelocity.put(3.371, 54.425 - 4.5);
@@ -246,7 +246,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
         angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
-        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 12.8; // Hood angle limit
+        angleMotorConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = hoodAngleMax; // Hood angle limit
         angleMotorConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = 0;
 
         angleMotor.getConfigurator().apply(angleMotorConfig);
@@ -336,7 +336,7 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
 
         Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc);
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor Position", shooterLeftMotor.getPosition().getValueAsDouble());

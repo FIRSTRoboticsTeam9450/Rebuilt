@@ -158,8 +158,10 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case ZEROING:
-                motorArm.setControl(zeroRequest.withOutput(-5));
+                // motorArm.setControl(zeroRequest.withOutput(-5));
                 // motorArm.setVoltage(-5);
+                motorArm.setVoltage(-1);
+
                 break;
 
             case PUSH_BAR:
