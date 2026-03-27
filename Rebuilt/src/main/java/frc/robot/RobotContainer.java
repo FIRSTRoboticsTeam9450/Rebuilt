@@ -25,6 +25,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -100,6 +101,8 @@ public class RobotContainer {
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
   private final CommandXboxController OPERATOR = new CommandXboxController(Constants.OPERATOR_CONTROLLER_PORT);
 
+  public FuelSim fuelSim;
+
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(driveBezier.getDeadband())
         .withRotationalDeadband(rotateBezier.getDeadband())    
@@ -156,7 +159,7 @@ public class RobotContainer {
               0.20,
               () -> intakeSub.isIntaking(),
               () -> fuelSim.launchFuel(LinearVelocity.ofBaseUnits(shooterSub.getShooterVeloc() * .0508 * 2 * Math.PI, MetersPerSecond), 
-                                       Angle.ofBaseUnits(90 - shooterSub.getShooterAngle() * HoodConstants.degreesPerMotorRev + 8, Degrees), 
+                                       Angle.ofBaseUnits(shooterSub.getShooterAngle() * HoodConstants.degreesPerMotorRev + 8, Degrees), 
                                        Angle.ofBaseUnits(turretSub.getFieldRelativeTarget().getRadians(), Radians), 
                                        Distance.ofBaseUnits(0.48497998, Meter))
               );
@@ -222,11 +225,13 @@ public class RobotContainer {
       new PositionAlignCommand(drivetrain, AlignPos.RIGHT)
     );
 
-    DRIVER.leftTrigger().onTrue(
-        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slowMode = true))
-    ).onFalse(
-      new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slowMode = false))
-    );
+    // DRIVER.leftTrigger().onTrue(
+    //     new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slowMode = true))
+    // ).onFalse(
+    //   new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slowMode = false))
+    // );
+
+    DRIVER.leftTrigger().onTrue(CoordinationSubsystem.getInstance().setIntakeCommand());
 
 
     DRIVER.rightTrigger().onTrue(
