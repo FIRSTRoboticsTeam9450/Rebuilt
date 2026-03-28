@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 9.32403876506104,
-        "y": 1.2932408883346516
+        "y": 1.2932408883346513
       },
       "isLocked": false,
       "linkedName": "BottomTrenchStart"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 8.75,
-        "y": 3.0
+        "y": 4.0
       },
       "prevControl": {
         "x": 8.75,
-        "y": 1.0
+        "y": -0.5
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,14 +34,14 @@
       "rotationDegrees": 180.0
     },
     {
-      "waypointRelativePos": 0.7100213219616167,
+      "waypointRelativePos": 0.402985074626875,
       "rotationDegrees": 115.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.7562457798784636,
+      "minWaypointRelativePos": 0.6644159351789304,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 0.55,
@@ -63,6 +63,17 @@
         "type": "named",
         "data": {
           "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "SetFerryTargetBottom",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFerryTargetBottom"
         }
       }
     },

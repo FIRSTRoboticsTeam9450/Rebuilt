@@ -65,13 +65,26 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "SetFastTransfer",
-      "waypointRelativePos": 0.0,
+      "name": "IncreaseShooterPower",
+      "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": {
-        "type": "named",
+        "type": "sequential",
         "data": {
-          "name": "SetFastTransfer"
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "IncreaseShooterPower"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "IncreaseShooterPower"
+              }
+            }
+          ]
         }
       }
     },
@@ -88,7 +101,7 @@
     },
     {
       "name": "SetIntake",
-      "waypointRelativePos": 0.29,
+      "waypointRelativePos": 0.28,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -99,23 +112,12 @@
     },
     {
       "name": "IntakePush",
-      "waypointRelativePos": 0.29,
+      "waypointRelativePos": 0.3,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "IntakePush"
-        }
-      }
-    },
-    {
-      "name": "SetFire",
-      "waypointRelativePos": 0.29,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetFire"
         }
       }
     }
@@ -136,7 +138,7 @@
   "folder": "Push",
   "idealStartingState": {
     "velocity": 4.0,
-    "rotation": -165.0
+    "rotation": -155.0
   },
   "useDefaultConstraints": true
 }

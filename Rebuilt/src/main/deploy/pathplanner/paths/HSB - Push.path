@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 8.75,
-        "y": 3.0
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
         "x": 7.188360717608722,
-        "y": 4.715316806167192
+        "y": 5.715316806167192
       },
       "isLocked": false,
       "linkedName": "HSB - Ferry End"
@@ -52,7 +52,7 @@
         "y": 0.36
       },
       "prevControl": {
-        "x": 3.975733333328501,
+        "x": 3.9757333333285008,
         "y": 0.2917888888888891
       },
       "nextControl": null,

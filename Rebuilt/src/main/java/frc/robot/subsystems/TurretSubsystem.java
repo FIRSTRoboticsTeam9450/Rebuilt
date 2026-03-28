@@ -278,8 +278,8 @@ public class TurretSubsystem extends SubsystemBase {
         motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
         motorConfig.CurrentLimits.SupplyCurrentLowerTime = 0.5;
 
-        motorConfig.Voltage.PeakForwardVoltage = 6.5;
-        motorConfig.Voltage.PeakReverseVoltage = -6.5;
+        motorConfig.Voltage.PeakForwardVoltage = 8;
+        motorConfig.Voltage.PeakReverseVoltage = -8;
         
         // PID gains (Slot 0)
         Slot0Configs slot0 = new Slot0Configs()
@@ -407,7 +407,8 @@ public class TurretSubsystem extends SubsystemBase {
                 // desiredVelocity = (desiredVelocity + previousRobotRelativeTargetVelocityDegPerSec) / 2;
                 
                 if (Math.abs(desiredVelocity) > 0.175) {
-                    targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity); //if clamping it breaks it, then set it to desiredVelocity
+                    targetVeloc = desiredVelocity;
+                    // targetVeloc = MathUtil.clamp(desiredVelocity, -maxVelocity, maxVelocity); //if clamping it breaks it, then set it to desiredVelocity
                 } else {
                     targetVeloc = 0.0;
                 }
@@ -551,11 +552,12 @@ public class TurretSubsystem extends SubsystemBase {
                     );
                     
                     // Clamp velocity for safety
-                    double clampedVelocity = MathUtil.clamp(
-                        robotRelativeTargetVelocityDegPerSec,
-                        -maxVelocity,
-                        maxVelocity
-                    );
+                    // double clampedVelocity = MathUtil.clamp(
+                    //     robotRelativeTargetVelocityDegPerSec,
+                    //     -maxVelocity,
+                    //     maxVelocity
+                    // );
+                    double clampedVelocity = robotRelativeTargetVelocityDegPerSec;
                     
                     // Calculate acceleration for feedforward (derivative of velocity setpoint)
                     // For now, assume 0 unless tracking accelerating target

@@ -20,7 +20,7 @@
         "y": 3.3
       },
       "prevControl": {
-        "x": 0.4434120444167326,
+        "x": 0.44341204441673265,
         "y": 3.053798061746948
       },
       "nextControl": null,
@@ -67,6 +67,17 @@
         "type": "named",
         "data": {
           "name": "ClimberUp"
+        }
+      }
+    },
+    {
+      "name": "SetFerryTargetTop",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFerryTargetTop"
         }
       }
     }
