@@ -34,8 +34,8 @@ import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
-import frc.robot.subsystems.UtilSubsystems.BatterySubsystem;
-import frc.robot.subsystems.UtilSubsystems.PDHSubsystem;
+// import frc.robot.subsystems.UtilSubsystems.BatterySubsystem;
+// import frc.robot.subsystems.UtilSubsystems.PDHSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
@@ -128,13 +128,30 @@ public class RobotContainer {
                 double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
                 double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
                 double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
-
-                Logger.recordOutput("Rebuilt/Drive/DriveX", -driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed);
-                Logger.recordOutput("Rebuilt/Drive/DriveY", -driveBezier.getOutput(DRIVER.getLeftY()) * maxSpeed);
+                double joyX = -DRIVER.getLeftX();
+                double joyY = DRIVER.getLeftY();
+                double speed = driveBezier.getOutput(Math.hypot(joyX, joyY)) * maxSpeed;
+                double rotation = Math.atan(joyY/joyX);
+                if(joyY < 0 && joyX < 0) {
+                  rotation = Math.PI - rotation;
+                }
+                else if(joyY > 0 && joyX < 0) {
+                  rotation = Math.PI - rotation;
+                }
+                else if(joyY < 0 && joyX > 0) {
+                  rotation *= -1;
+                }
+                else {
+                  rotation *= -1;
+                }
+                double xUsed = speed * Math.cos(rotation);
+                double yUsed = speed * Math.sin(rotation);
+                Logger.recordOutput("Rebuilt/Drive/DriveX", xUsed);
+                Logger.recordOutput("Rebuilt/Drive/DriveY", yUsed);
                 Logger.recordOutput("Rebuilt/Drive/JoyX", DRIVER.getLeftX());
                 Logger.recordOutput("Rebuilt/Drive/JoyY", DRIVER.getLeftY());
-                return drive.withVelocityX(slewMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(slewMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
+                return drive.withVelocityX(slewMode ? driveX : yUsed) // Drive forward with negative Y (forward)
+                    .withVelocityY(slewMode ? driveY : xUsed) // Drive left with negative X (left)
                     .withRotationalRate(slewMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
             }
             )
