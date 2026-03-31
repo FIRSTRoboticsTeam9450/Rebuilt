@@ -261,7 +261,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 break;
 
             case TRENCH:
-                turretState = TurretState.STORING;
+                turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.STORING;
                 shooterVelocState = ShooterState.SHOOTING;
                 transferState = TransferState.HOLD;

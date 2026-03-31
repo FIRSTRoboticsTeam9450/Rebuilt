@@ -278,8 +278,8 @@ public class TurretSubsystem extends SubsystemBase {
         motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
         motorConfig.CurrentLimits.SupplyCurrentLowerTime = 0.5;
 
-        motorConfig.Voltage.PeakForwardVoltage = 8;
-        motorConfig.Voltage.PeakReverseVoltage = -8;
+        motorConfig.Voltage.PeakForwardVoltage = 6;
+        motorConfig.Voltage.PeakReverseVoltage = -6;
         
         // PID gains (Slot 0)
         Slot0Configs slot0 = new Slot0Configs()
@@ -580,7 +580,7 @@ public class TurretSubsystem extends SubsystemBase {
 
                     break;
                 case CLIMB:
-                    profiledSetpointDeg = 150;
+                    profiledSetpointDeg = 90;
                     profiledSetpointDeg = MathUtil.clamp(
                         profiledSetpointDeg, 
                         MIN_ANGLE_DEG, 

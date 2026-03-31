@@ -12,11 +12,13 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
@@ -66,8 +68,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
-    private double hoodAngleMax = 12.8; //13.2
-    private double hoodAngleMin = 3.5; //3.5 for 270/300 turret, 4.4 for 360
+    private double hoodAngleMax = 13.2;
+    private double hoodAngleMin = 0; //old: 3.5
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
     private double distanceAwayToUseLowDegree = 1.481;
@@ -175,13 +177,13 @@ public class ShooterSubsystem extends SubsystemBase {
     public void addData() {
 
         
-        shootingDistanceToVelocity.put(5.575, 66.251 - 4); //-4.5
-        shootingDistanceToVelocity.put(4.885, 62.675 - 4.5);
-        shootingDistanceToVelocity.put(3.988, 58.384 - 4.5);
-        shootingDistanceToVelocity.put(3.371, 54.425 - 4.5);
-        shootingDistanceToVelocity.put(2.755, 51.591 - 4.5);
-        shootingDistanceToVelocity.put(1.898, 48.792 - 4.5);
-        shootingDistanceToVelocity.put(1.182, 47.512 - 4.5);
+        shootingDistanceToVelocity.put(5.575, (66.251 + 1.6) * 0.75); //-4.5
+        shootingDistanceToVelocity.put(4.885, (62.675 + 1.6) * 0.75);
+        shootingDistanceToVelocity.put(3.988, (58.384 + 1.6) * 0.75);
+        shootingDistanceToVelocity.put(3.371, (54.425 + 1.6) * 0.75);
+        shootingDistanceToVelocity.put(2.755, (51.591 + 1.6) * 0.75);
+        shootingDistanceToVelocity.put(1.898, (48.792 + 1.6) * 0.75);
+        shootingDistanceToVelocity.put(1.182, (47.512 + 1.6) * 0.75);
 
         shootingDistanceToTime.put(5.575, 1.16);
         shootingDistanceToTime.put(4.885, 1.176);
@@ -215,7 +217,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void configureAngleMotors() {
         angleMotorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
-        angleMotorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        angleMotorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         
         angleMotorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         angleMotorConfig.CurrentLimits.StatorCurrentLimit = 40;
@@ -279,7 +281,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shooterRightMotor.getConfigurator().apply(shooterMotorsConfig);
 
-        shooterRightMotor.setControl(new StrictFollower(shooterLeftMotor.getDeviceID()));
+        shooterRightMotor.setControl(new Follower(shooterLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     public boolean autoZeroing() {
@@ -399,9 +401,9 @@ public class ShooterSubsystem extends SubsystemBase {
                 break;
 
             case STORING:
-                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtProfiledGoal(15)) {
+                // if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.STORING && TurretSubsystem.getInstance().isAtProfiledGoal(15)) {
                     angleMotor.setControl(hoodMMRequest.withPosition(0).withSlot(slotNum));
-                }
+                // }
                 break;
 
             case TUNING:
