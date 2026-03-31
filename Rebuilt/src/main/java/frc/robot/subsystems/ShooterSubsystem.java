@@ -254,7 +254,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
    private void configureShooterMotors() {
         shooterMotorsConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         shooterMotorsConfig.CurrentLimits.StatorCurrentLimitEnable = false;
         shooterMotorsConfig.CurrentLimits.StatorCurrentLimit = 80;
@@ -387,11 +387,11 @@ public class ShooterSubsystem extends SubsystemBase {
         }
         switch (currentAngleState) {
             case ZEROING:
-                if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtProfiledGoal(10)) {
-                    angleMotor.setVoltage(-0.6);
-                } else {
+                // if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtProfiledGoal(10)) {
+                    // angleMotor.setVoltage(-0.6);
+                // } else {
                     angleMotor.setControl(new VoltageOut(-.6));
-                }
+                // }
                 break;
 
             case AIMING:

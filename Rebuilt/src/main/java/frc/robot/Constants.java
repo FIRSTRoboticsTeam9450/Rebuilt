@@ -78,6 +78,7 @@ public final class Constants {
       public static final class DeviceIDs {
         public static final int kAngleMotorID = 20;
         public static final int kWheelMotorID = 21;
+        public static final int kWheelMotorIDFollower = 22;
       }
 
     }
@@ -91,7 +92,7 @@ public final class Constants {
       }
 
       public static final class HoodConstants {
-        public static final double degreesPerMotorRev = 2.0571428571429;
+        public static final double degreesPerMotorRev = 2.2040816372; //2.0571428571429;
       }
 
     }
@@ -113,7 +114,7 @@ public final class Constants {
 
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1443, 0), new Rotation2d(0)); // .1778
-      public static final double ENCODER_MAGNET_OFFSET = 0.31201171875;
+      public static final double ENCODER_MAGNET_OFFSET = -0.07666015625;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
@@ -123,7 +124,7 @@ public final class Constants {
       public static final double TURRET_OFFSET_TO_ZERO = 180;
       public static final double TURRET_OFFSET_TO_TARGET = 1.25; // -1.75 //3; //V1: 5
 
-      public static final double TOTAL_ROTATION_DEGREES = 345;
+      public static final double TOTAL_ROTATION_DEGREES = 270;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
       /** Unused, just a spot that saves the data incase we need to quickly check it */
       public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 8.5714285714; //2.24;

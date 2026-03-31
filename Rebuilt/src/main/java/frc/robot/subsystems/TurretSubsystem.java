@@ -138,7 +138,7 @@ public class TurretSubsystem extends SubsystemBase {
         CUSTOM
     }
     
-    private TurretState currentState = TurretState.INIT;
+    private TurretState currentState = TurretState.AIMING;
     private TurretState previousState = currentState;
     
     // Target management
@@ -231,7 +231,7 @@ public class TurretSubsystem extends SubsystemBase {
         CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
         
         encoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.5;
-        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         encoderConfig.MagnetSensor.MagnetOffset = TurretConstants.ENCODER_MAGNET_OFFSET;
         
         turretEncoder.getConfigurator().apply(encoderConfig);

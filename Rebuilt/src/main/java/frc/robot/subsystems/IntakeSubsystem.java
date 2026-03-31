@@ -13,6 +13,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.*;
@@ -50,6 +51,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     //Set up motors
     TalonFX motorArm = new TalonFX(IntakeConstants.DeviceIDs.kAngleMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     TalonFX motorWheels = new TalonFX(IntakeConstants.DeviceIDs.kWheelMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    TalonFX motorWheelsFollower = new TalonFX(IntakeConstants.DeviceIDs.kWheelMotorIDFollower, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
@@ -66,7 +68,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.0); // 0
 
     private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 2.4);
-    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 12);
+    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 4);
 
     private double intakingTargetVolts = logIntakingTarget.get();
     
@@ -91,7 +93,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private void configureMotors() {
         motorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
-        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
 
@@ -127,6 +129,9 @@ public final class IntakeSubsystem extends SubsystemBase{
         IntakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
 
         motorWheels.getConfigurator().apply(IntakeConfig);
+        motorWheelsFollower.getConfigurator().apply(IntakeConfig);
+
+        motorWheelsFollower.setControl(new StrictFollower(motorWheels.getDeviceID()));
     }
 
     public boolean isZeroingDone() {
