@@ -46,7 +46,7 @@ public class LEDSubsystem extends SubsystemBase{
     public enum LEDState {
         TEAM_UNIQUE_DISABLED,
         // DISABLED,
-        // INIT,
+        INIT,
         AUTO_STATE, // If win: Flashing Bright green for 3 secs then go to active state If lose: Flashing bright red for 3 secs then go to inactive state
         COME_BACK, // Solid white
         END_OF_INACTIVE, // Flashing white for 5 secs, (one pulse per sec)
@@ -62,9 +62,9 @@ public class LEDSubsystem extends SubsystemBase{
     private SolidColor solidColorRequest = new SolidColor(START_INDEX, END_INDEX);
     private EmptyAnimation emptyColorRequest = new EmptyAnimation(0);
 
-    private ColorFlowAnimation flowColorRequest = new ColorFlowAnimation(START_INDEX, END_INDEX);
-    private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX);
-    private SingleFadeAnimation singleFadeRequest = new SingleFadeAnimation(START_INDEX, END_INDEX);
+    private ColorFlowAnimation flowColorRequest = new ColorFlowAnimation(START_INDEX, END_INDEX); // Framerate 10
+    private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX); // Framerate 5
+    private SingleFadeAnimation singleFadeRequest = new SingleFadeAnimation(START_INDEX, END_INDEX); // Framerate 25
 
     public LEDSubsystem() {
         configureCANdle();
@@ -92,32 +92,37 @@ public class LEDSubsystem extends SubsystemBase{
                 CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
                 break;
 
-            case DISABLED:
-                candle.setControl(singleFadeRequest.withColor(RGBWColor.fromHSV(45, 1, 1)).withFrameRate(25));
-                break;
+            /*case DISABLED:
+                break;*/
             
             case INIT:
-                candle.setControl(flowColorRequest.withColor(RGBWColor.fromHSV(60, 1, 1)).withFrameRate(10));
+                removeLEDColor();
+                break;
+            
+            case AUTO_STATE: // Green - H=115
                 break;
 
-            case STORING:
+            case COME_BACK: // White - S=0
                 candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)));
                 break;
 
-            case UNABLE_TO_FIRE:
-                candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 1, 1)));
+            case END_OF_INACTIVE: // White - S=0
+                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)).withFrameRate(5));
                 break;
 
-            case PREPARING_TO_FIRE:
-                candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(60, 1, 1)));
+            case JAMMED: // Pink - H=355
+                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(355, 1, 1)).withFrameRate(5));
                 break;
 
-            case GOOD_TO_FIRE:
-                candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(120, 1, 1)));
+            case END_OF_ACTIVE: // White - S=0
+                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)).withFrameRate(5));
+                break;
+            
+            case SPEED_STATE: // Purple - H=310
                 break;
 
-            case GOOD_TO_TRENCH:
-                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(120, 1, 1)).withFrameRate(5));
+            case SHOOTING_DEADZONE: // Yellow - H=30
+                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(30, 1, 1)).withFrameRate(5));
                 break;
         }
     }
