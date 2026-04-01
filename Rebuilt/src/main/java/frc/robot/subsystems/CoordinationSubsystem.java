@@ -185,7 +185,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
         switch (currentState) {
             case INIT:
-                turretState = TurretState.INIT;
+                turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.ZEROING;
                 intakeAngleState = IntakePos.ZEROING;
                 intakeVelocState = IntakeState.IDLING;

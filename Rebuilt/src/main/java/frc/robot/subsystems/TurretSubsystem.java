@@ -278,8 +278,8 @@ public class TurretSubsystem extends SubsystemBase {
         motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
         motorConfig.CurrentLimits.SupplyCurrentLowerTime = 0.5;
 
-        motorConfig.Voltage.PeakForwardVoltage = 6;
-        motorConfig.Voltage.PeakReverseVoltage = -6;
+        motorConfig.Voltage.PeakForwardVoltage = 7;
+        motorConfig.Voltage.PeakReverseVoltage = -7;
         
         // PID gains (Slot 0)
         Slot0Configs slot0 = new Slot0Configs()

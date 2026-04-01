@@ -68,11 +68,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetHoodAngleOverride = 0;
     private double targetShooterVeloc = 0;
 
-    private double hoodAngleMax = 13.2;
+    private double hoodAngleMax = 14.3;
     private double hoodAngleMin = 0; //old: 3.5
+    private double hoodFerryMotorRev = 14.15;
     private double degreesPerRev = HoodConstants.degreesPerMotorRev;
     private double degreesToZero = 8;
-    private double distanceAwayToUseLowDegree = 1.481;
+    private double distanceAwayToUseLowDegree = 1.2;
     private double distanceAwayToUseHighDegree = 1.78;
 
     // Motors
@@ -104,13 +105,13 @@ public class ShooterSubsystem extends SubsystemBase {
     private DynamicMotionMagicVoltage hoodMMRequest;
 
     // Shooter Outtake Velocity Motion Magic Parameters
-    private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.331699); //0.17238
-    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.11); //0.13318 // .119
-    private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0); //0.046148
-    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.5); //2 Motors: 0.6, 1 Motor: 0.8
+    private LoggedNetworkNumber logOuttakeVKS = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kS", 0.023549);
+    private LoggedNetworkNumber logOuttakeVKV = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kV", 0.11935);
+    private LoggedNetworkNumber logOuttakeVKA = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kA", 0.025517);
+    private LoggedNetworkNumber logOuttakeVKP = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kP", 0.2);
     private LoggedNetworkNumber logOuttakeVKD = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kD", 0.0);
-    private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 0);
-    private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 200);
+    private LoggedNetworkNumber logOuttakeVKFF = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/kFF", 0.75);
+    private LoggedNetworkNumber logOuttakeVAccel = new LoggedNetworkNumber("/Tuning/Shooter/Outtake/Acceleration", 600);
     private double outtakeVKFF = logOuttakeVKFF.get();
     private final int outtakeVSlot = 0;
     private final MotionMagicVelocityVoltage outtakeVRequest;
@@ -177,21 +178,21 @@ public class ShooterSubsystem extends SubsystemBase {
     public void addData() {
 
         
-        shootingDistanceToVelocity.put(5.575, (66.251 + 1.6) * 0.75); //-4.5
-        shootingDistanceToVelocity.put(4.885, (62.675 + 1.6) * 0.75);
-        shootingDistanceToVelocity.put(3.988, (58.384 + 1.6) * 0.75);
-        shootingDistanceToVelocity.put(3.371, (54.425 + 1.6) * 0.75);
-        shootingDistanceToVelocity.put(2.755, (51.591 + 1.6) * 0.75);
-        shootingDistanceToVelocity.put(1.898, (48.792 + 1.6) * 0.75);
-        shootingDistanceToVelocity.put(1.182, (47.512 + 1.6) * 0.75);
+        shootingDistanceToVelocity.put(5.095, 44.25);
+        shootingDistanceToVelocity.put(4.101, 42.0);
+        shootingDistanceToVelocity.put(3.465, 40.0);
+        shootingDistanceToVelocity.put(3.0, 37.75);
+        shootingDistanceToVelocity.put(2.4, 35.5);
+        shootingDistanceToVelocity.put(1.73, 31.75);
+        shootingDistanceToVelocity.put(1.1, 29.0);
 
-        shootingDistanceToTime.put(5.575, 1.16);
-        shootingDistanceToTime.put(4.885, 1.176);
-        shootingDistanceToTime.put(3.988, 1.124);
-        shootingDistanceToTime.put(3.371, 1.024);
-        shootingDistanceToTime.put(2.755, .912);
-        shootingDistanceToTime.put(1.898, .886);
-        shootingDistanceToTime.put(1.182, .94);
+        shootingDistanceToTime.put(5.095, 1.4525);
+        shootingDistanceToTime.put(4.101, 1.374);
+        shootingDistanceToTime.put(3.465, 1.3325);
+        shootingDistanceToTime.put(3.0, 1.235);
+        shootingDistanceToTime.put(2.4, 1.1383);
+        shootingDistanceToTime.put(1.73, 1.032);
+        shootingDistanceToTime.put(1.1, 0.956);
         
 
 
@@ -202,11 +203,11 @@ public class ShooterSubsystem extends SubsystemBase {
         // ferryingDistanceToVelocity.put(11.26, 52.0);
         // ferryingDistanceToVelocity.put(16.26, 62.75);
 
-        ferryingDistanceToVelocity.put(4.59, 34.5 * 1.817);
-        ferryingDistanceToVelocity.put(4.962, 35.72 * 1.817);
-        ferryingDistanceToVelocity.put(7.622, 42.03 * 1.817);
-        ferryingDistanceToVelocity.put(11.26, 52.0 * 1.817);
-        ferryingDistanceToVelocity.put(16.26, 62.75 * 1.817);
+        ferryingDistanceToVelocity.put(4.59, 34.5 + 3.5);
+        ferryingDistanceToVelocity.put(4.962, 35.72 + 3.5);
+        ferryingDistanceToVelocity.put(7.622, 42.03 + 10);
+        ferryingDistanceToVelocity.put(11.26, 52.0 + 25);
+        ferryingDistanceToVelocity.put(16.26, 62.75 + 27.5);
 
         // Ferrying Data Time
         ferryingDistanceToTime.put(4.59, 1.41);
@@ -490,15 +491,17 @@ public class ShooterSubsystem extends SubsystemBase {
                     break;
                     
                 case FERRY_ZONE_TOP:
-                    targetHoodHeight = hoodAngleFunction(distance);
+                    // targetHoodHeight = hoodAngleFunction(distance);
+                    targetHoodHeight = hoodFerryMotorRev;
                     break; 
                     
                 case FERRY_ZONE_BOTTOM:
-                    targetHoodHeight = hoodAngleFunction(distance);
+                    // targetHoodHeight = hoodAngleFunction(distance);
+                    targetHoodHeight = hoodFerryMotorRev;
                     break;
 
                 case FERRY_ZONE_MID:
-                    targetHoodHeight = hoodAngleMax;
+                    targetHoodHeight = hoodFerryMotorRev;
                     break;
 
                 case HARD_TRENCH_DEADZONE:
@@ -538,10 +541,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double hoodAngleFunction(double distance) {
         // double wantedAngle = (-60/(distance + 0.8)) + 47;
-        double wantedAngle = (-200/(distance + 6)) + 39
-        ;
-        // double wantedAngle = (-50/(distance/4 + 1)) + 50;
-        // double wantedAngle = (-55/(distance + 0.8)) + 36;
+        // double wantedAngle = (-200/(distance + 6)) + 39;
+        double wantedAngle = -(200/(distance + 5)) + 47;
 
         double wantedRevs = getAsRevs(wantedAngle);
         if(distance <= distanceAwayToUseLowDegree) {

@@ -89,7 +89,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Standard deviations for vision measurements (for filtering/fusion)
     public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 999999);
-    public Vector<N3> enabledMT2StdDev = VecBuilder.fill(0.75, 0.75, 999999);
+    public Vector<N3> enabledMT2StdDev = VecBuilder.fill(0.6, 0.6, 999999);
     public Vector<N3> enabledMT1StdDev = VecBuilder.fill(999999, 999999, 1);
     private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 999999);
 

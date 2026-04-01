@@ -68,7 +68,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.0); // 0
 
     private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 2.0);
-    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 7);
+    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 10);
 
     private double intakingTargetVolts = logIntakingTarget.get();
     
@@ -122,12 +122,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         IntakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         IntakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        IntakeConfig.CurrentLimits.StatorCurrentLimitEnable = false;
-        IntakeConfig.CurrentLimits.StatorCurrentLimit = 80;
-        IntakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        IntakeConfig.CurrentLimits.SupplyCurrentLimit = 80;
-        IntakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
-
+        
         motorWheels.getConfigurator().apply(IntakeConfig);
         motorWheelsFollower.getConfigurator().apply(IntakeConfig);
 
@@ -222,8 +217,10 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Angle/Is Zeroing", isZeroingDone);
         Logger.recordOutput("Rebuilt/Intake/Angle/Zeroing Timer", zeroingTimer.get());
 
-        Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Veloc", motorWheels.getVelocity().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Intake/Wheels/Motor Voltage", motorWheels.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Lead Motor Veloc", motorWheels.getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Lead Motor Voltage", motorWheels.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Follower Motor Veloc", motorWheelsFollower.getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Follower Motor Voltage", motorWheelsFollower.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Angle/Temp", motorArm.getDeviceTemp().getValueAsDouble());
     }
 
