@@ -64,9 +64,9 @@ public class LEDSubsystem extends SubsystemBase{
     private SolidColor solidColorRequest = new SolidColor(START_INDEX, END_INDEX);
     private EmptyAnimation emptyColorRequest = new EmptyAnimation(0);
 
-    private ColorFlowAnimation flowColorRequest = new ColorFlowAnimation(START_INDEX, END_INDEX); // Framerate 10
-    private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX); // Framerate 5
-    private SingleFadeAnimation singleFadeRequest = new SingleFadeAnimation(START_INDEX, END_INDEX); // Framerate 25
+    private ColorFlowAnimation flowColorRequest = new ColorFlowAnimation(START_INDEX, END_INDEX).withFrameRate(10);
+    private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(1);
+    private SingleFadeAnimation singleFadeRequest = new SingleFadeAnimation(START_INDEX, END_INDEX).withFrameRate(25);
 
     public LEDSubsystem() {
         configureCANdle();
@@ -103,9 +103,9 @@ public class LEDSubsystem extends SubsystemBase{
             
             case AUTO_STATE: // Green - H=115, Red - H=0
                 if (HubTracker.getAutoWinner() == DriverStation.getAlliance())
-                    candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(115, 1, 1)).withFrameRate(5));
+                    candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(115, 1, 1)));
                 else
-                    candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 1, 1)).withFrameRate(5));
+                    candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 1, 1)));
                 break;
 
             case COME_BACK: // White - S=0
@@ -113,22 +113,22 @@ public class LEDSubsystem extends SubsystemBase{
                 break;
 
             case END_OF_INACTIVE: // White - S=0
-                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)).withFrameRate(5));
+                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)));
                 break;
 
             case JAMMED: // Pink - H=355
-                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(355, 1, 1)).withFrameRate(5));
+                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(355, 1, 1)));
                 break;
 
             case END_OF_ACTIVE: // White - S=0
-                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)).withFrameRate(5));
+                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)));
                 break;
             
             case SPEED_STATE: // Purple - H=310
                 break;
 
             case SHOOTING_DEADZONE: // Yellow - H=30
-                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(30, 1, 1)).withFrameRate(5));
+                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(30, 1, 1)));
                 break;
         }
     }
