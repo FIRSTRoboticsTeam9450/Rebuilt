@@ -15,6 +15,7 @@ import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
 import com.ctre.phoenix6.signals.StripTypeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.LEDConstants;
 import frc.robot.commands.TeamCANdleAnimationCommand;
+import frc.robot.util.HubTracker;
 
 /**
  * I WANT MY LEDs!!!!!!! <br> <br/>
@@ -99,7 +101,11 @@ public class LEDSubsystem extends SubsystemBase{
                 removeLEDColor();
                 break;
             
-            case AUTO_STATE: // Green - H=115
+            case AUTO_STATE: // Green - H=115, Red - H=0
+                if (HubTracker.getAutoWinner() == DriverStation.getAlliance())
+                    candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(115, 1, 1)).withFrameRate(5));
+                else
+                    candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 1, 1)).withFrameRate(5));
                 break;
 
             case COME_BACK: // White - S=0
