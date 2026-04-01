@@ -17,6 +17,7 @@ import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlu
 import frc.robot.commands.GoToPosCommand;
 import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.LEDSubsystem.LEDState;
 import frc.robot.subsystems.ShooterSubsystem.AngleState;
 import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
@@ -181,7 +182,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TransferState transferState = TransferState.NO_RUN;
         IntakePos intakeAngleState = IntakePos.STORE;
         IntakeState intakeVelocState = IntakeState.IDLING;
-        // LEDState ledState = LEDState.DISABLED;
+        LEDState ledState = LEDState.TEAM_UNIQUE_DISABLED;
 
         switch (currentState) {
             case INIT:
@@ -189,13 +190,13 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.ZEROING;
                 intakeAngleState = IntakePos.ZEROING;
                 intakeVelocState = IntakeState.IDLING;
-                // ledState = LEDState.INIT;
+                ledState = LEDState.INIT;
                 break;
 
             case STORING:
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
-                // ledState = LEDState.STORING;
+                ledState = LEDState.STORING;
                 if (shouldBeIntaking) {
                     intakeAngleState = IntakePos.INTAKING;
                     intakeVelocState = IntakeState.INTAKING;
@@ -229,7 +230,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
-                // ledState = LEDState.PREPARING_TO_FIRE;
+                ledState = LEDState.PREPARING_TO_FIRE;
                 break;
 
             case SHOOTING:
@@ -257,7 +258,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
-                // ledState = LEDState.GOOD_TO_FIRE;
+                ledState = LEDState.GOOD_TO_FIRE;
                 break;
 
             case TRENCH:
@@ -297,7 +298,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TransferSubsystem.getInstance().setState(transferState);
         IntakeSubsystem.getInstance().setPos(intakeAngleState);
         IntakeSubsystem.getInstance().setState(intakeVelocState);
-        // LEDSubsystem.getInstance().setState(ledState);
+        LEDSubsystem.getInstance().setState(ledState);
     }
 
     private void publishLogs() {

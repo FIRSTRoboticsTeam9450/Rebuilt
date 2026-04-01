@@ -22,9 +22,11 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.LEDSubsystem.LEDState;
 import frc.robot.util.LocalADStarAK;
 
 /**
@@ -113,6 +115,7 @@ public class Robot extends LoggedRobot {
     VisionSubsystem.getInstance().setLLIMUModes(1);
     updateValuesOffset = 0;
     IntakeSubsystem.getInstance().init();
+    LEDSubsystem.getInstance().setState(LEDState.TEAM_UNIQUE_DISABLED);
     // SignalLogger.stop();
   }
 

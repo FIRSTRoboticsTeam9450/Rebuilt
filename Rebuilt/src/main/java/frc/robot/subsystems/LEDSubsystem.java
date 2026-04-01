@@ -15,16 +15,18 @@ import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
 import com.ctre.phoenix6.signals.StripTypeValue;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.LEDConstants;
+import frc.robot.commands.TeamCANdleAnimationCommand;
 
 /**
  * I WANT MY LEDs!!!!!!! <br> <br/>
  * Currently Disabled due to not having weight on robot. （；´д｀）ゞ
+ * No longer disabled :D
  */
 public class LEDSubsystem extends SubsystemBase{
     private static volatile LEDSubsystem INSTANCE;
@@ -34,7 +36,7 @@ public class LEDSubsystem extends SubsystemBase{
     public static final int END_INDEX = 14;
     public static final RGBWColor EMPTY_COLOR = new RGBWColor(0, 0, 0);
 
-    // private TeamCANdleAnimationCommand teamUniqueDisabledCommand;
+    private TeamCANdleAnimationCommand teamUniqueDisabledCommand;
 
     public static synchronized LEDSubsystem getInstance() {
         if (INSTANCE == null) INSTANCE = new LEDSubsystem();
@@ -49,10 +51,10 @@ public class LEDSubsystem extends SubsystemBase{
         UNABLE_TO_FIRE,
         PREPARING_TO_FIRE,
         GOOD_TO_FIRE,
-        DEADZONE_OVERRIDEN
+        GOOD_TO_TRENCH
     }
 
-    private LEDState currentState = LEDState.DISABLED;
+    private LEDState currentState = LEDState.TEAM_UNIQUE_DISABLED;
     
     private CANdle candle = new CANdle(LEDConstants.DeviceIDs.kCANDleID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private SolidColor solidColorRequest = new SolidColor(START_INDEX, END_INDEX);
@@ -65,7 +67,7 @@ public class LEDSubsystem extends SubsystemBase{
     public LEDSubsystem() {
         configureCANdle();
 
-        // teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(INSTANCE);
+        teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(INSTANCE);
     }
 
     private void configureCANdle() {
@@ -79,16 +81,13 @@ public class LEDSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if (currentState == LEDState.DISABLED && !DriverStation.isFMSAttached()) {
-            setState(LEDState.TEAM_UNIQUE_DISABLED);
-        }
         publishLogs();
     }
 
     private void applyState() {
         switch (currentState) {
             case TEAM_UNIQUE_DISABLED:
-                // CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
+                CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
                 break;
 
             case DISABLED:
@@ -115,8 +114,8 @@ public class LEDSubsystem extends SubsystemBase{
                 candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(120, 1, 1)));
                 break;
 
-            case DEADZONE_OVERRIDEN:
-                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 1, 1)).withFrameRate(5));
+            case GOOD_TO_TRENCH:
+                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(120, 1, 1)).withFrameRate(5));
                 break;
         }
     }
@@ -127,9 +126,9 @@ public class LEDSubsystem extends SubsystemBase{
     }
 
     public void removeLEDColor() {
-        // if (teamUniqueDisabledCommand.isScheduled()) {
-        //     CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
-        // }
+        if (teamUniqueDisabledCommand.isScheduled()) {
+            CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
+        }
         candle.setControl(emptyColorRequest);
         candle.setControl(solidColorRequest.withColor(EMPTY_COLOR).withLEDStartIndex(0).withLEDEndIndex(HIGHEST_INDEX));
     }
