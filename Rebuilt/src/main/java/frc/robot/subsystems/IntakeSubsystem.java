@@ -78,12 +78,18 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double climbStoreRevolutions = 15.1;
     private double pushingRevolutions = 1;
 
+    private double intakeSetpoint = 0;
+
     //Motion Magic Set Up(Intake arm)
     private MotionMagicVoltage request = new MotionMagicVoltage(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private VoltageOut voltageRequest = new VoltageOut(0).withEnableFOC(RobotConstants.ENABLE_FOC);
     private TorqueCurrentFOC zeroRequest = new TorqueCurrentFOC(0);
 
     private boolean isZeroingDone = false;
+
+    private boolean reachedSetpoint = false;
+    private boolean jammed = false;
+    private double jamCount = 0;
 
     private boolean reversing = false;
 
@@ -166,26 +172,32 @@ public final class IntakeSubsystem extends SubsystemBase{
 
             case PUSH_BAR:
                 motorArm.setControl(request.withPosition(pushingRevolutions));
+                intakeSetpoint = pushingRevolutions;
                 break;
 
             case TRENCH_STORE:
                 motorArm.setControl(request.withPosition(trenchStoreRevolutions));
+                intakeSetpoint = trenchStoreRevolutions;
                 break;
 
             case STORE:
                 motorArm.setControl(request.withPosition(storeRevolutions));
+                intakeSetpoint = storeRevolutions;
                 break;
 
             case CLIMB_STORE:
                 motorArm.setControl(request.withPosition(climbStoreRevolutions));
+                intakeSetpoint = climbStoreRevolutions;
                 break;
             
             case INTAKING:
-                    motorArm.setControl(request.withPosition(intakeRevolutions));
+                motorArm.setControl(request.withPosition(intakeRevolutions));
+                intakeSetpoint = intakeRevolutions;
                 break;
 
             default:
                 motorArm.setControl(request.withPosition(storeRevolutions));
+                intakeSetpoint = storeRevolutions;
                 break;
         }
 
@@ -226,6 +238,31 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Angle/Temp", motorArm.getDeviceTemp().getValueAsDouble());
     }
 
+    public void checkJammed() {
+        if(!reachedSetpoint && Math.abs(intakeSetpoint - motorArm.getPosition().getValueAsDouble()) < .1) {
+            reachedSetpoint = true;
+        }
+        if(currentPos == IntakePos.INTAKING && reachedSetpoint) {
+            if(Math.abs(intakeSetpoint - motorArm.getPosition().getValueAsDouble()) > 2) {
+                jamCount++;
+            }
+            else {
+                jammed = false;
+                jamCount = 0;
+            }
+            if(jamCount > 5) {
+                jammed = true;
+            }
+        }
+        else {
+            jammed = false;
+        }
+    }
+
+    public boolean getJammed() {
+        return jammed;
+    }
+
     public IntakePos getCurrentIntakePos() {
         return currentPos;
     }
@@ -235,6 +272,7 @@ public final class IntakeSubsystem extends SubsystemBase{
             isZeroingDone = false;
             zeroingTimer.restart();
         }
+        reachedSetpoint = false;
         currentPos = pos;
     }
 

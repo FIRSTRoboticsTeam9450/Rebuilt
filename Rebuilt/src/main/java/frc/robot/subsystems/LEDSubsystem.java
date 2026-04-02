@@ -15,11 +15,13 @@ import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
 import com.ctre.phoenix6.signals.StripTypeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.LEDConstants;
 import frc.robot.commands.TeamCANdleAnimationCommand;
@@ -40,6 +42,10 @@ public class LEDSubsystem extends SubsystemBase{
 
     private static TeamCANdleAnimationCommand teamUniqueDisabledCommand;
 
+    private CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
+    private double intakeWallMax = 0;
+    private double intakeWallMin = 0;
+
     public static synchronized LEDSubsystem getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new LEDSubsystem();
@@ -50,6 +56,7 @@ public class LEDSubsystem extends SubsystemBase{
 
     public static void initizalize() {
         teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(INSTANCE);
+        
     }
 
     public enum LEDState {
@@ -73,7 +80,8 @@ public class LEDSubsystem extends SubsystemBase{
     private EmptyAnimation emptyColorRequest = new EmptyAnimation(0);
 
     private ColorFlowAnimation flowColorRequest = new ColorFlowAnimation(START_INDEX, END_INDEX).withFrameRate(10);
-    private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(2);
+    private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(2); // Fast
+    private StrobeAnimation slowStrobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(5); // Slow
     private SingleFadeAnimation singleFadeRequest = new SingleFadeAnimation(START_INDEX, END_INDEX).withFrameRate(25);
 
     public LEDSubsystem() {
@@ -133,7 +141,16 @@ public class LEDSubsystem extends SubsystemBase{
                 break;
             
             case SPEED_STATE: // Purple - H=310
-            
+                ChassisSpeeds speed = drivetrain.getState().Speeds;
+                if(Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond) >= intakeWallMax) { // Fast pulsing
+                    candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(310, 1, 1)));
+                }
+                else if(Math.hypot(speed.vxMetersPerSecond, speed.vyMetersPerSecond) <= intakeWallMin) { // Want this to be slow pulsing
+                    candle.setControl(slowStrobeColorRequest.withColor(RGBWColor.fromHSV(310, 1, 1)));
+                }
+                else {
+                    candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(310, 1, 1)));
+                }
                 break;
 
             case SHOOTING_DEADZONE: // Yellow - H=30
