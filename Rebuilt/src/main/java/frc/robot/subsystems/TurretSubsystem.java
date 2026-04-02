@@ -159,7 +159,10 @@ public class TurretSubsystem extends SubsystemBase {
     private double previousRobotRelativeTargetAngleDeg = 0.0;
     private double degreesToStopWithCurrentVelocity = 0.0;
 
+    private double previousTurretAngleWRTField = 0.0;
+
     private double previousAnglesTimestamp = 0.0;
+    private double previousVelocityTimestamp = 0.0;
     
     // State tracking
     private double turretOffset = 0.0;
@@ -333,7 +336,6 @@ public class TurretSubsystem extends SubsystemBase {
             new Rotation2d(Units.degreesToRadians(angleOffsetToZero + degreeOffsetToTarget)));
         
         // Find best angle considering wrapping and limits
-
         robotRelativeTargetAngleDeg = findBestWrappedAngle(robotRelativeGoalAngle.getDegrees());
 
         // Convert RPS to degrees/sec
@@ -348,6 +350,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         previousRobotRelativeTargetVelocityDegPerSec = robotRelativeTargetVelocityDegPerSec;
         robotRelativeTargetVelocityDegPerSec = calculateVelocity();
+        Logger.recordOutput("Rebuilt/Turret/Velocity/Velocity WRT Robot", calculateVelocityUpdated());
 
         // Driver feedback for out-of-range targets
         updateDriverFeedback();
@@ -433,6 +436,32 @@ public class TurretSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Turret/Combined Veloc", targetVeloc + robotYawVeloc);
         return targetVeloc;
     }   
+
+
+    public double calculateVelocityUpdated() {
+        if ((robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) || (cachedAngleDeg <= MIN_ANGLE_DEG || cachedAngleDeg >= MAX_ANGLE_DEG)) return 0.0;
+
+        double targetVeloc = 0.0;
+        double robotYawVelocWRTField = drivetrain.getPigeon2().getAngularVelocityXDevice().getValueAsDouble();
+
+        double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
+        double turretAngleWRTField = cachedAngleDeg + robotYaw;
+
+        double timestamp = Timer.getFPGATimestamp();
+
+        // Calculate desired velocity (derivative of target position)
+        double turretVelocityWRTField = (turretAngleWRTField - previousTurretAngleWRTField) / (timestamp - previousVelocityTimestamp);
+
+        targetVeloc = turretVelocityWRTField - robotYawVelocWRTField;
+    
+        previousTurretAngleWRTField = turretAngleWRTField;
+        previousVelocityTimestamp = timestamp;
+
+        Logger.recordOutput("Rebuilt/Turret/Velocity/Robot Angular Rate", robotYawVelocWRTField);
+        Logger.recordOutput("Rebuilt/Turret/Velocity/Turret Angle WRT Field", turretAngleWRTField);
+
+        return targetVeloc;
+    }
     
     /**
      * Updates the field-relative goal based on the current target mode.
@@ -442,7 +471,6 @@ public class TurretSubsystem extends SubsystemBase {
         Translation2d targetPosition = getCurrentTargetPosition();
         
         if (targetPosition != null) {
-            
             
             // Calculate vector from robot to target
             Translation2d robotToTarget = targetPosition;
@@ -454,7 +482,7 @@ public class TurretSubsystem extends SubsystemBase {
             );
 
             
-            // Update field-relative goal (target is stationary, so velocity = 0)
+            // Update field-relative goal
             fieldRelativeGoalAngle = angleToTarget;
         }
     }

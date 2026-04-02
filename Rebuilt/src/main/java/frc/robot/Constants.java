@@ -122,11 +122,11 @@ public final class Constants {
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.93288943638;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
       public static final double TURRET_OFFSET_TO_ZERO = 180;
-      public static final double TURRET_OFFSET_TO_TARGET = 1.25; // -1.75 //3; //V1: 5
+      public static final double TURRET_OFFSET_TO_TARGET = 0; // 1.25
 
       public static final double TOTAL_ROTATION_DEGREES = 320;
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
-      /** Unused, just a spot that saves the data incase we need to quickly check it */
+      
       public static final double DEGREE_CHANGE_PER_MOTOR_REVOLUTION = 8.5714285714; //2.24;
       public static final double ABS_ENCDR_POS_TO_ANGLE = 360;
     }

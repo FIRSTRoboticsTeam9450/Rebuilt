@@ -152,13 +152,11 @@ public class RobotContainer {
                 }
                 else if(joyY == 0 && joyX < 0) {
                   rotation = Math.PI;
+                } else if (joyY == 0 && joyX > 0) {
+                  rotation = 0;
                 }
                 double xUsed = speed * Math.cos(rotation);
                 double yUsed = speed * Math.sin(rotation);
-                Logger.recordOutput("Rebuilt/Drive/DriveX", xUsed);
-                Logger.recordOutput("Rebuilt/Drive/DriveY", yUsed);
-                Logger.recordOutput("Rebuilt/Drive/JoyX", DRIVER.getLeftX());
-                Logger.recordOutput("Rebuilt/Drive/JoyY", DRIVER.getLeftY());
                 return drive.withVelocityX(slewMode ? driveX : yUsed) // Drive forward with negative Y (forward)
                     .withVelocityY(slewMode ? driveY : xUsed) // Drive left with negative X (left)
                     .withRotationalRate(slewMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
