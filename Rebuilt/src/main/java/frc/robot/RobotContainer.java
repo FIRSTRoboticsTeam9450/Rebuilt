@@ -153,6 +153,9 @@ public class RobotContainer {
                 else if(joyY == 0 && joyX < 0) {
                   rotation = Math.PI;
                 }
+                else if(joyY == 0 && joyX > 0) {
+                  rotation = 0;
+                }
                 double xUsed = speed * Math.cos(rotation);
                 double yUsed = speed * Math.sin(rotation);
                 Logger.recordOutput("Rebuilt/Drive/DriveX", xUsed);

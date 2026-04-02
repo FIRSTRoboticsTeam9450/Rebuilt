@@ -46,10 +46,11 @@ public class LEDSubsystem extends SubsystemBase{
     public enum LEDState {
         TEAM_UNIQUE_DISABLED,
         // DISABLED,
-        // INIT,
+        INIT,
         AUTO_STATE, // If win: Flashing Bright green for 3 secs then go to active state If lose: Flashing bright red for 3 secs then go to inactive state
         COME_BACK, // Solid white
         END_OF_INACTIVE, // Flashing white for 5 secs, (one pulse per sec)
+        DEFAULT_INACTIVE,
         JAMMED, // Flashing pink
         END_OF_ACTIVE, // Flashing white for 3 secs
         SPEED_STATE, // Default purple if going perfect speed for intaking a wall of balls
