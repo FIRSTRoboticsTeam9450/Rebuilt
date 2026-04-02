@@ -146,6 +146,9 @@ public class TransferSubsystem extends SubsystemBase {
                 jammedCount = 0;
             }
         }
+        else {
+            jammedCount = 0;
+        }
     }
 
     public boolean jammed() {
