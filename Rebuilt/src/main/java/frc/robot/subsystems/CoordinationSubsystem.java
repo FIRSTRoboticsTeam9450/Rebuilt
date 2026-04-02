@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -87,9 +89,56 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
 
         applyZone();
+        applyLEDs();
         publishLogs();
     }
 
+
+    private void applyLEDs() {
+        LEDState ledState = LEDState.TEAM_UNIQUE_DISABLED;
+        double timeRemaining = HubTracker.timeRemainingInCurrentShift().isPresent() ? HubTracker.timeRemainingInCurrentShift().get() : -1;
+        if(HubTracker.getCurrentShift() == Optional.of(HubTracker.Shift.TRANSITION)) {
+            ledState = LEDState.AUTO_STATE;
+            if(timeRemaining <= 7) {
+                if(HubTracker.getAutoWinner().isPresent()) {
+                    if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == HubTracker.getAutoWinner().get()) {
+                        ledState = LEDState.SPEED_STATE;
+                        if(timeRemaining <= 3) {
+                            ledState = LEDState.END_OF_ACTIVE;
+                        }
+                    } else {
+                        ledState = LEDState.COME_BACK;
+                        if(timeRemaining <= 5) {
+                            ledState = LEDState.END_OF_INACTIVE;
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            if(timeRemaining != -1) {
+                if(!HubTracker.isActive()) {
+                    ledState = LEDState.DEFAULT_INACTIVE;
+                    if(timeRemaining <= 10) {
+                        ledState = LEDState.COME_BACK;
+                        if(timeRemaining <= 5) {
+                            ledState = LEDState.END_OF_INACTIVE;
+                        }
+                    }
+                }
+                else {
+                    ledState = LEDState.SPEED_STATE;
+                    if(timeRemaining <= 3) {
+                        ledState = LEDState.END_OF_ACTIVE;
+                    }
+                }
+            }
+        }
+        if(currentState == AbsoluteStates.TRENCH || currentState == AbsoluteStates.CLIMB) {
+            ledState = LEDState.SHOOTING_DEADZONE;
+        }
+        LEDSubsystem.getInstance().setState(ledState);
+    }
     private void applyZone() {
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
             if(currentState != AbsoluteStates.INIT) {
@@ -196,7 +245,6 @@ public class CoordinationSubsystem extends SubsystemBase {
             case STORING:
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
-                ledState = LEDState.STORING;
                 if (shouldBeIntaking) {
                     intakeAngleState = IntakePos.INTAKING;
                     intakeVelocState = IntakeState.INTAKING;
@@ -230,7 +278,6 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
-                ledState = LEDState.PREPARING_TO_FIRE;
                 break;
 
             case SHOOTING:
@@ -258,7 +305,6 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
-                ledState = LEDState.GOOD_TO_FIRE;
                 break;
 
             case TRENCH:
@@ -281,6 +327,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.TRENCH_STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
+                ledState = LEDState.SHOOTING_DEADZONE;
                 break;
             case CLIMB:
                 turretState = TurretState.CLIMB;
@@ -290,6 +337,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 
                 intakeAngleState = IntakePos.CLIMB_STORE;
                 intakeVelocState = IntakeState.IDLING;
+                ledState = LEDState.SHOOTING_DEADZONE;
                 break;
         }
 
