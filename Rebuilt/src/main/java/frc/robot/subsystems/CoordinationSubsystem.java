@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
@@ -17,6 +19,7 @@ import frc.robot.Constants.FieldConstants.TrenchManeuvering.TrenchLocationWRTBlu
 import frc.robot.commands.GoToPosCommand;
 import frc.robot.subsystems.IntakeSubsystem.IntakePos;
 import frc.robot.subsystems.IntakeSubsystem.IntakeState;
+import frc.robot.subsystems.LEDSubsystem.LEDState;
 import frc.robot.subsystems.ShooterSubsystem.AngleState;
 import frc.robot.subsystems.ShooterSubsystem.ShooterState;
 import frc.robot.subsystems.TransferSubsystem.TransferState;
@@ -86,9 +89,56 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
 
         applyZone();
+        applyLEDs();
         publishLogs();
     }
 
+
+    private void applyLEDs() {
+        LEDState ledState = LEDState.TEAM_UNIQUE_DISABLED;
+        double timeRemaining = HubTracker.timeRemainingInCurrentShift().isPresent() ? HubTracker.timeRemainingInCurrentShift().get() : -1;
+        if(HubTracker.getCurrentShift().equals(Optional.of(HubTracker.Shift.TRANSITION))) {
+            ledState = LEDState.AUTO_STATE;
+            if(timeRemaining <= 7) {
+                if(HubTracker.getAutoWinner().isPresent()) {
+                    if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().equals(HubTracker.getAutoWinner())) {
+                        ledState = LEDState.SPEED_STATE;
+                        if(timeRemaining <= 3) {
+                            ledState = LEDState.END_OF_ACTIVE;
+                        }
+                    } else {
+                        ledState = LEDState.COME_BACK;
+                        if(timeRemaining <= 5) {
+                            ledState = LEDState.END_OF_INACTIVE;
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            if(timeRemaining != -1) {
+                if(!HubTracker.isActive()) {
+                    ledState = LEDState.DEFAULT_INACTIVE;
+                    if(timeRemaining <= 10) {
+                        ledState = LEDState.COME_BACK;
+                        if(timeRemaining <= 5) {
+                            ledState = LEDState.END_OF_INACTIVE;
+                        }
+                    }
+                }
+                else {
+                    ledState = LEDState.SPEED_STATE;
+                    if(timeRemaining <= 3) {
+                        ledState = LEDState.END_OF_ACTIVE;
+                    }
+                }
+            }
+        }
+        if(currentState == AbsoluteStates.TRENCH || currentState == AbsoluteStates.CLIMB) {
+            ledState = LEDState.SHOOTING_DEADZONE;
+        }
+        LEDSubsystem.getInstance().setState(ledState);
+    }
     private void applyZone() {
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
             if(currentState != AbsoluteStates.INIT) {
@@ -181,7 +231,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TransferState transferState = TransferState.NO_RUN;
         IntakePos intakeAngleState = IntakePos.STORE;
         IntakeState intakeVelocState = IntakeState.IDLING;
-        // LEDState ledState = LEDState.DISABLED;
+        LEDState ledState = LEDState.TEAM_UNIQUE_DISABLED;
 
         switch (currentState) {
             case INIT:
@@ -189,13 +239,12 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.ZEROING;
                 intakeAngleState = IntakePos.ZEROING;
                 intakeVelocState = IntakeState.IDLING;
-                // ledState = LEDState.INIT;
+                ledState = LEDState.INIT;
                 break;
 
             case STORING:
                 turretState = TurretState.STORING;
                 shooterHoodState = AngleState.STORING;
-                // ledState = LEDState.STORING;
                 if (shouldBeIntaking) {
                     intakeAngleState = IntakePos.INTAKING;
                     intakeVelocState = IntakeState.INTAKING;
@@ -229,7 +278,6 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
-                // ledState = LEDState.PREPARING_TO_FIRE;
                 break;
 
             case SHOOTING:
@@ -257,7 +305,6 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
-                // ledState = LEDState.GOOD_TO_FIRE;
                 break;
 
             case TRENCH:
@@ -280,6 +327,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.TRENCH_STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
+                ledState = LEDState.SHOOTING_DEADZONE;
                 break;
             case CLIMB:
                 turretState = TurretState.CLIMB;
@@ -289,6 +337,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 
                 intakeAngleState = IntakePos.CLIMB_STORE;
                 intakeVelocState = IntakeState.IDLING;
+                ledState = LEDState.SHOOTING_DEADZONE;
                 break;
         }
 
@@ -297,7 +346,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TransferSubsystem.getInstance().setState(transferState);
         IntakeSubsystem.getInstance().setPos(intakeAngleState);
         IntakeSubsystem.getInstance().setState(intakeVelocState);
-        // LEDSubsystem.getInstance().setState(ledState);
+        LEDSubsystem.getInstance().setState(ledState);
     }
 
     private void publishLogs() {
