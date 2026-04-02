@@ -38,11 +38,18 @@ public class LEDSubsystem extends SubsystemBase{
     public static final int END_INDEX = 14;
     public static final RGBWColor EMPTY_COLOR = new RGBWColor(0, 0, 0);
 
-    private TeamCANdleAnimationCommand teamUniqueDisabledCommand;
+    private static TeamCANdleAnimationCommand teamUniqueDisabledCommand;
 
     public static synchronized LEDSubsystem getInstance() {
-        if (INSTANCE == null) INSTANCE = new LEDSubsystem();
+        if (INSTANCE == null) {
+            INSTANCE = new LEDSubsystem();
+            initizalize();
+        }
         return INSTANCE;
+    }
+
+    public static void initizalize() {
+        teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(INSTANCE);
     }
 
     public enum LEDState {
@@ -71,8 +78,6 @@ public class LEDSubsystem extends SubsystemBase{
 
     public LEDSubsystem() {
         configureCANdle();
-
-        teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(INSTANCE);
     }
 
     private void configureCANdle() {
@@ -103,12 +108,14 @@ public class LEDSubsystem extends SubsystemBase{
                 break;
             
             case AUTO_STATE: // Green - H=115, Red - H=0
-                if (HubTracker.getAutoWinner() == DriverStation.getAlliance())
+                if (HubTracker.getAutoWinner().equals(DriverStation.getAlliance()))
                     candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(115, 1, 1)));
                 else
                     candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 1, 1)));
                 break;
-
+            case DEFAULT_INACTIVE: // Nothing
+                removeLEDColor();
+                break;
             case COME_BACK: // White - S=0
                 candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)));
                 break;
@@ -126,6 +133,7 @@ public class LEDSubsystem extends SubsystemBase{
                 break;
             
             case SPEED_STATE: // Purple - H=310
+            
                 break;
 
             case SHOOTING_DEADZONE: // Yellow - H=30

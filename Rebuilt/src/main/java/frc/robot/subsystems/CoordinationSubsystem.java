@@ -97,11 +97,11 @@ public class CoordinationSubsystem extends SubsystemBase {
     private void applyLEDs() {
         LEDState ledState = LEDState.TEAM_UNIQUE_DISABLED;
         double timeRemaining = HubTracker.timeRemainingInCurrentShift().isPresent() ? HubTracker.timeRemainingInCurrentShift().get() : -1;
-        if(HubTracker.getCurrentShift() == Optional.of(HubTracker.Shift.TRANSITION)) {
+        if(HubTracker.getCurrentShift().equals(Optional.of(HubTracker.Shift.TRANSITION))) {
             ledState = LEDState.AUTO_STATE;
             if(timeRemaining <= 7) {
                 if(HubTracker.getAutoWinner().isPresent()) {
-                    if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == HubTracker.getAutoWinner().get()) {
+                    if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().equals(HubTracker.getAutoWinner())) {
                         ledState = LEDState.SPEED_STATE;
                         if(timeRemaining <= 3) {
                             ledState = LEDState.END_OF_ACTIVE;
