@@ -73,7 +73,7 @@ public class LEDSubsystem extends SubsystemBase{
     private EmptyAnimation emptyColorRequest = new EmptyAnimation(0);
 
     private ColorFlowAnimation flowColorRequest = new ColorFlowAnimation(START_INDEX, END_INDEX).withFrameRate(10);
-    private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(1);
+    private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(2);
     private SingleFadeAnimation singleFadeRequest = new SingleFadeAnimation(START_INDEX, END_INDEX).withFrameRate(25);
 
     public LEDSubsystem() {
