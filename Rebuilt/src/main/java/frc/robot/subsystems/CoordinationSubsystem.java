@@ -137,7 +137,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         if(currentState == AbsoluteStates.TRENCH || currentState == AbsoluteStates.CLIMB) {
             ledState = LEDState.SHOOTING_DEADZONE;
         }
-        if(IntakeSubsystem.getInstance().getJammed()) {
+        if(IntakeSubsystem.getInstance().getJammed() || TransferSubsystem.getInstance().jammed()) {
             ledState = LEDState.JAMMED;
         }
         LEDSubsystem.getInstance().setState(ledState);
