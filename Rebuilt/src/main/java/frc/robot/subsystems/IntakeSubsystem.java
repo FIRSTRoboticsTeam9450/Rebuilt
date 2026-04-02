@@ -254,6 +254,9 @@ public final class IntakeSubsystem extends SubsystemBase{
                 jammed = true;
             }
         }
+        else if(!reachedSetpoint && Math.abs(motorArm.getVelocity().getValueAsDouble()) < .05 && Math.abs(motorArm.getMotorVoltage().getValueAsDouble()) > 3) {
+            jammed = true;
+        }
         else {
             jammed = false;
         }
