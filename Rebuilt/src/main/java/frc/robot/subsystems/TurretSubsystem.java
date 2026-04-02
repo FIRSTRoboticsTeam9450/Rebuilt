@@ -159,7 +159,7 @@ public class TurretSubsystem extends SubsystemBase {
     private double previousRobotRelativeTargetAngleDeg = 0.0;
     private double degreesToStopWithCurrentVelocity = 0.0;
 
-    private double previousTurretAngleWRTField = 0.0;
+    private Rotation2d previousTurretAngleWRTField = new Rotation2d();
 
     private double previousAnglesTimestamp = 0.0;
     private double previousVelocityTimestamp = 0.0;
@@ -442,15 +442,15 @@ public class TurretSubsystem extends SubsystemBase {
         if ((robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) || (cachedAngleDeg <= MIN_ANGLE_DEG || cachedAngleDeg >= MAX_ANGLE_DEG)) return 0.0;
 
         double targetVeloc = 0.0;
-        double robotYawVelocWRTField = drivetrain.getPigeon2().getAngularVelocityXDevice().getValueAsDouble();
+        double robotYawVelocWRTField = drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble();
 
-        double robotYaw = drivetrain.getState().Pose.getRotation().getDegrees();
-        double turretAngleWRTField = cachedAngleDeg + robotYaw;
+        Rotation2d robotYaw = drivetrain.getState().Pose.getRotation();
+        Rotation2d turretAngleWRTField = robotYaw.plus(new Rotation2d(Units.degreesToRadians(cachedAngleDeg)));
 
         double timestamp = Timer.getFPGATimestamp();
 
         // Calculate desired velocity (derivative of target position)
-        double turretVelocityWRTField = (turretAngleWRTField - previousTurretAngleWRTField) / (timestamp - previousVelocityTimestamp);
+        double turretVelocityWRTField = (turretAngleWRTField.minus(previousTurretAngleWRTField).getDegrees()) / (timestamp - previousVelocityTimestamp);
 
         targetVeloc = turretVelocityWRTField - robotYawVelocWRTField;
     
