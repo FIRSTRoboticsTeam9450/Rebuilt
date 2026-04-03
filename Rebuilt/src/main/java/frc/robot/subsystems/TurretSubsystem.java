@@ -219,6 +219,8 @@ public class TurretSubsystem extends SubsystemBase {
             Math.toRadians(logMaxAccelerationDegPerSecSq.get())
         );
         currentRateLimit = Math.toRadians(logMaxAccelerationDegPerSecSq.get());
+
+        drivetrain.getPigeon2().getAngularVelocityZDevice().setUpdateFrequency(50);
     }
     
     // ========================= Configuration =========================
@@ -352,8 +354,8 @@ public class TurretSubsystem extends SubsystemBase {
             / (2 * maxDeceleration));
 
         previousRobotRelativeTargetVelocityDegPerSec = robotRelativeTargetVelocityDegPerSec;
-        robotRelativeTargetVelocityDegPerSec = calculateVelocity();
-        // robotRelativeTargetVelocityDegPerSec = calculateVelocityUpdated();
+        // robotRelativeTargetVelocityDegPerSec = calculateVelocity();
+        robotRelativeTargetVelocityDegPerSec = calculateVelocityUpdated();
         // Logger.recordOutput("Rebuilt/Turret/Velocity/Velocity WRT Robot", calculateVelocityUpdated());
 
         // Driver feedback for out-of-range targets
@@ -380,7 +382,7 @@ public class TurretSubsystem extends SubsystemBase {
         double targetVeloc = 0;
 
         double robotYawVeloc = drivetrain.getPigeon2().getAngularVelocityXDevice().getValueAsDouble();
-        Logger.recordOutput("Rebuilt/Turret/Robot Yaw Veloc", robotYawVeloc);
+        // Logger.recordOutput("Rebuilt/Turret/Robot Yaw Veloc", robotYawVeloc);
 
         if ((robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) || (cachedAngleDeg <= MIN_ANGLE_DEG || cachedAngleDeg >= MAX_ANGLE_DEG)) {
             targetVeloc = 0.0;
@@ -433,11 +435,11 @@ public class TurretSubsystem extends SubsystemBase {
                 //     }
                 // }
             }
-            Logger.recordOutput("Rebuilt/Turret/Veloc Net/MaxVelocity", maxVelocity);
+            // Logger.recordOutput("Rebuilt/Turret/Veloc Net/MaxVelocity", maxVelocity);
         }
-        Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);
-        Logger.recordOutput("Rebuilt/Turret/Veloc Net/Calculated Veloc", targetVeloc);
-        Logger.recordOutput("Rebuilt/Turret/Combined Veloc", targetVeloc + robotYawVeloc);
+        // Logger.recordOutput("Rebuilt/Turret/Veloc Net/Used Velocity", usedVeloc);
+        // Logger.recordOutput("Rebuilt/Turret/Veloc Net/Calculated Veloc", targetVeloc);
+        // Logger.recordOutput("Rebuilt/Turret/Combined Veloc", targetVeloc + robotYawVeloc);
         return targetVeloc;
     }   
 
@@ -449,7 +451,7 @@ public class TurretSubsystem extends SubsystemBase {
         double robotYawVelocWRTField = drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble(); //degrees/second
 
         Rotation2d robotYaw = drivetrain.getState().Pose.getRotation(); //rotation
-        Rotation2d turretAngleWRTField = robotYaw.plus(new Rotation2d(Units.degreesToRadians(cachedAngleDeg))); //radians
+        Rotation2d turretAngleWRTField = robotYaw.plus(new Rotation2d(Units.degreesToRadians(robotRelativeTargetAngleDeg))); //radians
 
         double timestamp = Timer.getFPGATimestamp(); //seconds
 
@@ -460,16 +462,16 @@ public class TurretSubsystem extends SubsystemBase {
 
         turretVeloictyWRTRobot = turretVelocityWRTField - robotYawVelocWRTField; //degrees/second
     
-        Logger.recordOutput("Rebuilt/Turret/Velocity/Previous Angle WRT Field", previousTurretAngleWRTField);
-        Logger.recordOutput("Rebuilt/Turret/Velocity/Previous Timestamp", previousVelocityTimestamp);
+        // Logger.recordOutput("Rebuilt/Turret/Velocity/Previous Angle WRT Field", previousTurretAngleWRTField);
+        // Logger.recordOutput("Rebuilt/Turret/Velocity/Previous Timestamp", previousVelocityTimestamp);
 
         previousTurretAngleWRTField = turretAngleWRTField;
         previousVelocityTimestamp = timestamp;
 
-        Logger.recordOutput("Rebuilt/Turret/Velocity/Velocity WRT Field", turretVelocityWRTField);
-        Logger.recordOutput("Rebuilt/Turret/Velocity/Current Timestamp", timestamp);
-        Logger.recordOutput("Rebuilt/Turret/Velocity/Robot Angular Rate", robotYawVelocWRTField);
-        Logger.recordOutput("Rebuilt/Turret/Velocity/Turret Angle WRT Field", turretAngleWRTField);
+        // Logger.recordOutput("Rebuilt/Turret/Velocity/Velocity WRT Field", turretVelocityWRTField);
+        // Logger.recordOutput("Rebuilt/Turret/Velocity/Current Timestamp", timestamp);
+        // Logger.recordOutput("Rebuilt/Turret/Velocity/Robot Angular Rate", robotYawVelocWRTField);
+        // Logger.recordOutput("Rebuilt/Turret/Velocity/Turret Angle WRT Field", turretAngleWRTField);
 
         return turretVeloictyWRTRobot;
     }
@@ -830,7 +832,7 @@ public class TurretSubsystem extends SubsystemBase {
             robotRelativeTargetVelocityDegPerSec);
 
         //Debugging For Creating Velocity Safety Net
-        Logger.recordOutput("Rebuilt/Turret/Pos/Distance to Stop", degreesToStopWithCurrentVelocity);
+        // Logger.recordOutput("Rebuilt/Turret/Pos/Distance to Stop", degreesToStopWithCurrentVelocity);
 
         Logger.recordOutput("Rebuilt/Turret/Pos/Manual Adjustment", manualShift);
 
@@ -1146,6 +1148,6 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public void initialize() {
-        Logger.recordOutput("Rebuilt/Turret/Subsystem Initizalized", true);
+        //Logger.recordOutput("Rebuilt/Turret/Subsystem Initizalized", true);
     }
 }

@@ -65,7 +65,7 @@ public class TransferSubsystem extends SubsystemBase {
     }
 
     private void initialize() {
-        Logger.recordOutput("Rebuilt/Transfer/Subsystem Initizalized", true);
+        //Logger.recordOutput("Rebuilt/Transfer/Subsystem Initizalized", true);
     }
 
     /**
@@ -81,8 +81,8 @@ public class TransferSubsystem extends SubsystemBase {
         motorConfig.CurrentLimits.StatorCurrentLimit = 80;
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         motorConfig.CurrentLimits.SupplyCurrentLimit = 70;
-        motorConfig.CurrentLimits.SupplyCurrentLowerTime = 3;
-        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 50;
+        motorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
         
         motor.getConfigurator().apply(motorConfig);
     }
@@ -184,15 +184,15 @@ public class TransferSubsystem extends SubsystemBase {
      */
     private void publishLogs() {
         Logger.recordOutput("Rebuilt/Transfer/Current State", currentState);
-        Logger.recordOutput("Rebuilt/Transfer/Previous State", previousState);
+        // Logger.recordOutput("Rebuilt/Transfer/Previous State", previousState);
 
-        Logger.recordOutput("Rebuilt/Transfer/Target Speed", voltageRequest.Output);
+        // Logger.recordOutput("Rebuilt/Transfer/Target Speed", voltageRequest.Output);
 
-        Logger.recordOutput("Rebuilt/Transfer/Stalling", jammed());
+        // Logger.recordOutput("Rebuilt/Transfer/Stalling", jammed());
 
         Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Transfer/Motor Veloc", motor.getVelocity().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Transfer/Motor Veloc", motor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Transfer/Motor Supply Amps", motor.getSupplyCurrent().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Transfer/Motor Stator Amps", motor.getTorqueCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Transfer/Motor Stator Amps", motor.getTorqueCurrent().getValueAsDouble());
     }
 }

@@ -112,7 +112,7 @@ public class LEDSubsystem extends SubsystemBase{
 
             double xVeloc = RobotContainer.drivetrain.getState().Speeds.vxMetersPerSecond;
             double yVeloc = RobotContainer.drivetrain.getState().Speeds.vyMetersPerSecond;
-            double totalVeloc = Math.sqrt(Math.pow(xVeloc, 2) + Math.pow(yVeloc, 2));
+            double totalVeloc = Math.hypot(xVeloc, yVeloc);
 
             if (totalVeloc >= 0.55 && totalVeloc <= 0.75) {
                 checkedSpeedState = SpeedState.GOOD;
@@ -189,9 +189,9 @@ public class LEDSubsystem extends SubsystemBase{
     }
 
     private void publishLogs() {
-        Logger.recordOutput("Rebuilt/LED/Current State", currentState);
-        Logger.recordOutput("Rebuilt/LED/Current Control Request", candle.getAppliedControl().toString());
-        Logger.recordOutput("Rebuilt/LED/Amount of Apply State Calls", amountOfApplyStates);
+        // Logger.recordOutput("Rebuilt/LED/Current State", currentState);
+        // Logger.recordOutput("Rebuilt/LED/Current Control Request", candle.getAppliedControl().toString());
+        // Logger.recordOutput("Rebuilt/LED/Amount of Apply State Calls", amountOfApplyStates);
     }
 
     public void removeLEDColor(boolean cancelUniqueAnimation) {

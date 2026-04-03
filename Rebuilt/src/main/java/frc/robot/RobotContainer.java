@@ -79,7 +79,7 @@ public class RobotContainer {
   public static boolean slewMode = false;
   private static final double scalarFactorForSpeed = 0.1;
 
-  public static double maxSpeed = DEFAULT_MAX_SPEED * 1;
+  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.8;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -188,10 +188,16 @@ public class RobotContainer {
     );
 
 
+    // DRIVER.rightTrigger().onTrue(
+    //   CoordinationSubsystem.getInstance().setOverrideCommand(true)
+    // ).onFalse(
+    //   CoordinationSubsystem.getInstance().setOverrideCommand(false)
+    // );
+    
     DRIVER.rightTrigger().onTrue(
-      CoordinationSubsystem.getInstance().setOverrideCommand(true)
+      CoordinationSubsystem.getInstance().setRejectingCommand(true)
     ).onFalse(
-      CoordinationSubsystem.getInstance().setOverrideCommand(false)
+      CoordinationSubsystem.getInstance().setRejectingCommand(false)
     );
 
     DRIVER.y().onTrue(new ResetIMU(drivetrain));

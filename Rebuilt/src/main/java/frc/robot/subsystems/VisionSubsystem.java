@@ -258,8 +258,8 @@ public class VisionSubsystem extends SubsystemBase {
             bumpMeasurmentCount = 0;
         }
 
-        Logger.recordOutput("Rebuilt/Vision/Odom Pose outside Field", odomPoseOutsideField);
-        Logger.recordOutput("Rebuilt/Vision/Bump Detected", bumpDetected);
+        // Logger.recordOutput("Rebuilt/Vision/Odom Pose outside Field", odomPoseOutsideField);
+        // Logger.recordOutput("Rebuilt/Vision/Bump Detected", bumpDetected);
 
         List<limelightNetworkTableData> llDataList = new ArrayList<>(LIMELIGHT_LIST.size());
         for (LimelightObject limelight : LIMELIGHT_LIST) {
@@ -332,7 +332,7 @@ public class VisionSubsystem extends SubsystemBase {
         });
 
         // Store snapshots for logging to reuse — no re-reads needed
-        Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
+        // Logger.recordOutput("Rebuilt/Vision/ValidCameraCount", measurements.size());
     }
 
     /**
@@ -500,7 +500,7 @@ public class VisionSubsystem extends SubsystemBase {
     private void publishLogs() {
         // Overall vision state
         Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Pose", lastVisionPose);
-        Logger.recordOutput("Rebuilt/Vision/Total/Last Fused Pose", lastFusedPose);
+        // Logger.recordOutput("Rebuilt/Vision/Total/Last Fused Pose", lastFusedPose);
         Logger.recordOutput("Rebuilt/Vision/Total/Last Target Pose", lastTargetPose);
         Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
         
@@ -509,16 +509,16 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/Config/StdDev Y", currentVisionStdDevY);
         Logger.recordOutput("Rebuilt/Vision/Config/StdDev Theta", currentVisionStdDevTheta);
 
-        Logger.recordOutput("Rebuilt/Vision/Operator Overriden Vision Trust", operatorForcedVisionTrust);
+        // Logger.recordOutput("Rebuilt/Vision/Operator Overriden Vision Trust", operatorForcedVisionTrust);
         
         // Fusion thresholds
-        Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
-        Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
+        // Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
+        // Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
 
         Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
 
-        Logger.recordOutput("Rebuilt/Vision/Bump Measurement Count", bumpMeasurmentCount);
-        Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);
+        // Logger.recordOutput("Rebuilt/Vision/Bump Measurement Count", bumpMeasurmentCount);
+        // Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);
         if (loopOffset > 5) {
             loopOffset = 0;
             Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
@@ -528,14 +528,14 @@ public class VisionSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
 
-        for (LimelightObject limelight : LIMELIGHT_LIST) {
-            String llName = limelight.getName();
-            IMUData llIMUData = LimelightHelpers.getIMUData(llName);
-            Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Robot Yaw", llIMUData.robotYaw);
-            Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Raw Yaw", llIMUData.Yaw);
-            Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Roll", llIMUData.Roll);
-            Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Pitch", llIMUData.Pitch);
-        }
+        // for (LimelightObject limelight : LIMELIGHT_LIST) {
+        //     String llName = limelight.getName();
+        //     IMUData llIMUData = LimelightHelpers.getIMUData(llName);
+        //     Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Robot Yaw", llIMUData.robotYaw);
+        //     Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Raw Yaw", llIMUData.Yaw);
+        //     Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Roll", llIMUData.Roll);
+        //     Logger.recordOutput("Rebuilt/Vision/" + llName + "/IMU Data/Pitch", llIMUData.Pitch);
+        // }
 
         if (logDebuggingToggle.get()) {
             // Per-camera data

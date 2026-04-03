@@ -250,7 +250,7 @@ public class PositionAlignCommand extends Command {
             debuggingString += elem + ", ";
         }
 
-        Logger.recordOutput("Rebuilt/Pose-Align/Swerve Request Debug", debuggingString);
+        //Logger.recordOutput("Rebuilt/Pose-Align/Swerve Request Debug", debuggingString);
 
         SwerveRequest swerveRequest = driveRequest
                                             .withVelocityX(powerArr[0])
@@ -284,20 +284,20 @@ public class PositionAlignCommand extends Command {
     private void publishLogs() {
 
         //Field Pose we use for calculations
-        Logger.recordOutput("Rebuilt/Pose-Align/Assumed Field Pose", currentFieldPose);
+        //Logger.recordOutput("Rebuilt/Pose-Align/Assumed Field Pose", currentFieldPose);
 
-        Logger.recordOutput("Rebuilt/Pose-Align/Align Side", alignSide);
-        Logger.recordOutput("Rebuilt/Pose-Align/Align Offset", tagLeftOffset);
+        //Logger.recordOutput("Rebuilt/Pose-Align/Align Side", alignSide);
+        //Logger.recordOutput("Rebuilt/Pose-Align/Align Offset", tagLeftOffset);
 
         //Different powers calculated off of offsets and other conditions
-        Logger.recordOutput("Rebuilt/Pose-Align/Drive Power/X Power", debuggingXPower);
-        Logger.recordOutput("Rebuilt/Pose-Align/Drive Power/Y Power", debuggingYPower);
-        Logger.recordOutput("Rebuilt/Pose-Align/Drive Power/Rotation Power", debuggingRPower);
+        //Logger.recordOutput("Rebuilt/Pose-Align/Drive Power/X Power", debuggingXPower);
+        //Logger.recordOutput("Rebuilt/Pose-Align/Drive Power/Y Power", debuggingYPower);
+        //Logger.recordOutput("Rebuilt/Pose-Align/Drive Power/Rotation Power", debuggingRPower);
 
-        Logger.recordOutput("Rebuilt/Pose-Align/Current Drive Command", drivetrain.getCurrentCommand().getName());
+        //Logger.recordOutput("Rebuilt/Pose-Align/Current Drive Command", drivetrain.getCurrentCommand().getName());
 
         //Distance to targeted reef side
-        // Logger.recordOutput("Rebuilt/Pose-Align/Distance to Target", Math.sqrt(Math.pow((debuggingTargetPose.getX() - currentFieldPose.getX()), 2) + Math.pow((debuggingTargetPose.getY() - currentFieldPose.getY()), 2)));
+        // //Logger.recordOutput("Rebuilt/Pose-Align/Distance to Target", Math.sqrt(Math.pow((debuggingTargetPose.getX() - currentFieldPose.getX()), 2) + Math.pow((debuggingTargetPose.getY() - currentFieldPose.getY()), 2)));
 
     }
 

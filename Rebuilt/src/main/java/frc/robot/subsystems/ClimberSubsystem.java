@@ -371,24 +371,24 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     private void publishLogs() {
-        Logger.recordOutput("Rebuilt/Climb/Elevator/MotorPosition", getElevatorPosition());
-        Logger.recordOutput("Rebuilt/Climb/Elevator/Setpoint", currentElevatorSetpoint);
-        Logger.recordOutput("Rebuilt/Climb/Elevator/MotorVoltage", elevatorClimbMotor.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Elevator/Motor Stator Amps", elevatorClimbMotor.getStatorCurrent().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Elevator/Motor Tourqe Amps", elevatorClimbMotor.getTorqueCurrent().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Elevator/Velocity", elevatorClimbMotor.getVelocity().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Elevator/Motor Control Request", elevatorClimbMotor.getAppliedControl().getName());
-        Logger.recordOutput("Rebuilt/Climb/Elevator/Finished Zeroing", isElevatorZeroingDone);
-        Logger.recordOutput("Rebuilt/Climb/Elevator/Zeroing Request Output", elevatorZeroingRequest.Output);
+        // Logger.recordOutput("Rebuilt/Climb/Elevator/MotorPosition", getElevatorPosition());
+        // Logger.recordOutput("Rebuilt/Climb/Elevator/Setpoint", currentElevatorSetpoint);
+        // Logger.recordOutput("Rebuilt/Climb/Elevator/MotorVoltage", elevatorClimbMotor.getMotorVoltage().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Climb/Elevator/Motor Stator Amps", elevatorClimbMotor.getStatorCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Climb/Elevator/Motor Tourqe Amps", elevatorClimbMotor.getTorqueCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Climb/Elevator/Velocity", elevatorClimbMotor.getVelocity().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Climb/Elevator/Motor Control Request", elevatorClimbMotor.getAppliedControl().getName());
+        // Logger.recordOutput("Rebuilt/Climb/Elevator/Finished Zeroing", isElevatorZeroingDone);
+        // Logger.recordOutput("Rebuilt/Climb/Elevator/Zeroing Request Output", elevatorZeroingRequest.Output);
 
-        Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
-        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
-        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Telescope/Finished Zeroing", isElevatorZeroingDone);
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/Finished Zeroing", isElevatorZeroingDone);
 
-        Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbState);
-        Logger.recordOutput("Rebuilt/Climb/Level", currentClimbLevel);
+        // Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbState);
+        // Logger.recordOutput("Rebuilt/Climb/Level", currentClimbLevel);
     }
 
     /* =================== ZEROING =================== */
