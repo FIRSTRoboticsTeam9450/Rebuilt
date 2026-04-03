@@ -43,6 +43,8 @@ public class TransferSubsystem extends SubsystemBase {
 
     private Timer stateTimer = new Timer();
 
+    private double jammedCount = 0;
+
     /**
      * Constructor - initializes the transfer subsystem and configures the motor
      */
@@ -90,6 +92,7 @@ public class TransferSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
+        checkStall();
         applyState();
         publishLogs();
     }
@@ -134,14 +137,29 @@ public class TransferSubsystem extends SubsystemBase {
         motor.setControl(voltageRequest);
     }
 
-    public boolean checkStall() {
+    public void checkStall() {
         if(currentState == TransferState.SLOW_RUN_IN || currentState == TransferState.RUN_IN ) {
             if(Math.abs(voltageRequest.Output) > 4 && Math.abs(motor.getVelocity().getValueAsDouble()) < 1) {
-                return true;
+                jammedCount++;
             }
+            else {
+                jammedCount = 0;
             }
-        return false;
+        }
+        else {
+            jammedCount = 0;
+        }
     }
+
+    public boolean jammed() {
+        if(jammedCount > 50) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
 
     /**
      * Changes the current state of the transfer
@@ -170,7 +188,7 @@ public class TransferSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Rebuilt/Transfer/Target Speed", voltageRequest.Output);
 
-        Logger.recordOutput("Rebuilt/Transfer/Stalling", checkStall());
+        Logger.recordOutput("Rebuilt/Transfer/Stalling", jammed());
 
         Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Transfer/Motor Veloc", motor.getVelocity().getValueAsDouble());

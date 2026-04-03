@@ -17,11 +17,13 @@ import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
 import com.ctre.phoenix6.signals.StripTypeValue;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.LEDConstants;
@@ -43,18 +45,17 @@ public class LEDSubsystem extends SubsystemBase{
 
     private int amountOfApplyStates = 0;
 
-    private static TeamCANdleAnimationCommand teamUniqueDisabledCommand;
+    private TeamCANdleAnimationCommand teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(this);
+
+    private CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
+    private double intakeWallMax = 0;
+    private double intakeWallMin = 0;
 
     public static synchronized LEDSubsystem getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new LEDSubsystem();
-            initizalize();
         }
         return INSTANCE;
-    }
-
-    public static void initizalize() {
-        teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(INSTANCE);
     }
 
     public enum LEDState {
@@ -85,7 +86,8 @@ public class LEDSubsystem extends SubsystemBase{
     private EmptyAnimation emptyColorRequest = new EmptyAnimation(0);
 
     private ColorFlowAnimation flowColorRequest = new ColorFlowAnimation(START_INDEX, END_INDEX).withFrameRate(10);
-    private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(2);
+    private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(2); // Fast
+    private StrobeAnimation slowStrobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(5); // Slow
     private SingleFadeAnimation singleFadeRequest = new SingleFadeAnimation(START_INDEX, END_INDEX).withFrameRate(25);
 
     public LEDSubsystem() {
@@ -132,16 +134,14 @@ public class LEDSubsystem extends SubsystemBase{
         amountOfApplyStates++;
         switch (currentState) {
             case TEAM_UNIQUE_DISABLED:
-                // CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
-                candle.setControl(new RainbowAnimation(START_INDEX, END_INDEX).withFrameRate(85));
-                // candle.setControl(new StrobeAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(0, 1, 1)).withFrameRate(10));
+                if (!teamUniqueDisabledCommand.isScheduled()) CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
                 break;
 
             /*case DISABLED:
                 break;*/
             
-            case INIT:
-                removeLEDColor();
+            case INIT: // Nothing
+                removeLEDColor(true);
                 break;
             
             case AUTO_STATE: // Green - H=115, Red - H=0
@@ -152,7 +152,7 @@ public class LEDSubsystem extends SubsystemBase{
                 break;
 
             case DEFAULT_INACTIVE: // Nothing
-                removeLEDColor();
+                removeLEDColor(true);
                 break;
 
             case COME_BACK: // White - S=0
@@ -194,10 +194,9 @@ public class LEDSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/LED/Amount of Apply State Calls", amountOfApplyStates);
     }
 
-    public void removeLEDColor() {
-        if (teamUniqueDisabledCommand.isScheduled()) {
-            CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
-        }
+    public void removeLEDColor(boolean cancelUniqueAnimation) {
+        if (cancelUniqueAnimation && teamUniqueDisabledCommand.isScheduled()) CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
+
         candle.setControl(emptyColorRequest);
         candle.setControl(solidColorRequest.withColor(EMPTY_COLOR).withLEDStartIndex(0).withLEDEndIndex(HIGHEST_INDEX));
     }
@@ -205,7 +204,7 @@ public class LEDSubsystem extends SubsystemBase{
     public void setState(LEDState state) {
         if (currentState == state) return;
         currentState = state;
-        removeLEDColor();
+        removeLEDColor(true);
         applyState();
     }
 
