@@ -40,7 +40,7 @@ public class LEDSubsystem extends SubsystemBase{
     public static final int END_INDEX = 14;
     public static final RGBWColor EMPTY_COLOR = new RGBWColor(0, 0, 0);
 
-    private static TeamCANdleAnimationCommand teamUniqueDisabledCommand;
+    private TeamCANdleAnimationCommand teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(this);
 
     private CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
     private double intakeWallMax = 0;
@@ -49,14 +49,8 @@ public class LEDSubsystem extends SubsystemBase{
     public static synchronized LEDSubsystem getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new LEDSubsystem();
-            initizalize();
         }
         return INSTANCE;
-    }
-
-    public static void initizalize() {
-        teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(INSTANCE);
-        
     }
 
     public enum LEDState {
@@ -105,7 +99,7 @@ public class LEDSubsystem extends SubsystemBase{
     private void applyState() {
         switch (currentState) {
             case TEAM_UNIQUE_DISABLED:
-                CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
+                if (!teamUniqueDisabledCommand.isScheduled()) CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
                 break;
 
             /*case DISABLED:
