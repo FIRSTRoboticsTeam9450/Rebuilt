@@ -354,7 +354,7 @@ public class TurretSubsystem extends SubsystemBase {
         previousRobotRelativeTargetVelocityDegPerSec = robotRelativeTargetVelocityDegPerSec;
         robotRelativeTargetVelocityDegPerSec = calculateVelocity();
         // robotRelativeTargetVelocityDegPerSec = calculateVelocityUpdated();
-        Logger.recordOutput("Rebuilt/Turret/Velocity/Velocity WRT Robot", calculateVelocityUpdated());
+        // Logger.recordOutput("Rebuilt/Turret/Velocity/Velocity WRT Robot", calculateVelocityUpdated());
 
         // Driver feedback for out-of-range targets
         updateDriverFeedback();
