@@ -67,8 +67,8 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0.1); // 0.1
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 2.2);
-    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 10);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 2.0);
+    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 10); //8.5 is good efficent power
 
     private double intakingTargetVolts = logIntakingTarget.get();
     
@@ -160,7 +160,7 @@ public final class IntakeSubsystem extends SubsystemBase{
             case ZEROING:
                 // motorArm.setControl(zeroRequest.withOutput(-5));
                 // motorArm.setVoltage(-5);
-                motorArm.setVoltage(-1);
+                motorArm.setVoltage(-2.5);
 
                 break;
 

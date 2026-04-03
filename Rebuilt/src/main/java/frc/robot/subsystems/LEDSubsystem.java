@@ -6,10 +6,12 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.ColorFlowAnimation;
 import com.ctre.phoenix6.controls.EmptyAnimation;
+import com.ctre.phoenix6.controls.RainbowAnimation;
 import com.ctre.phoenix6.controls.SingleFadeAnimation;
 import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.controls.StrobeAnimation;
 import com.ctre.phoenix6.hardware.CANdle;
+import com.ctre.phoenix6.signals.LossOfSignalBehaviorValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
 import com.ctre.phoenix6.signals.StripTypeValue;
@@ -20,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.LEDConstants;
 import frc.robot.commands.TeamCANdleAnimationCommand;
@@ -27,7 +30,7 @@ import frc.robot.util.HubTracker;
 
 /**
  * I WANT MY LEDs!!!!!!! <br> <br/>
- * Currently Disabled due to not having weight on robot. （；´д｀）ゞ
+ * Currently Disabled due to not having weight on robot. （；´д｀）ゞ <br><br/>
  * No longer disabled :D
  */
 public class LEDSubsystem extends SubsystemBase{
@@ -35,8 +38,10 @@ public class LEDSubsystem extends SubsystemBase{
     
     public static final int HIGHEST_INDEX = 107;
     public static final int START_INDEX = 0;
-    public static final int END_INDEX = 14;
+    public static final int END_INDEX = 7;
     public static final RGBWColor EMPTY_COLOR = new RGBWColor(0, 0, 0);
+
+    private int amountOfApplyStates = 0;
 
     private static TeamCANdleAnimationCommand teamUniqueDisabledCommand;
 
@@ -66,9 +71,16 @@ public class LEDSubsystem extends SubsystemBase{
         SHOOTING_DEADZONE // Flashing yellow
     }
 
-    private LEDState currentState = LEDState.TEAM_UNIQUE_DISABLED;
+    enum SpeedState {
+        TOO_FAST,
+        GOOD,
+        TOO_SLOW
+    }
+
+    private LEDState currentState = LEDState.INIT;
+    private SpeedState currentSpeedState = SpeedState.GOOD;
     
-    private CANdle candle = new CANdle(LEDConstants.DeviceIDs.kCANDleID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    private CANdle candle = new CANdle(LEDConstants.DeviceIDs.kCANDLEID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     private SolidColor solidColorRequest = new SolidColor(START_INDEX, END_INDEX);
     private EmptyAnimation emptyColorRequest = new EmptyAnimation(0);
 
@@ -83,6 +95,8 @@ public class LEDSubsystem extends SubsystemBase{
     private void configureCANdle() {
         CANdleConfiguration candleConfig = new CANdleConfiguration();
         candleConfig.CANdleFeatures.StatusLedWhenActive = StatusLedWhenActiveValue.Disabled;
+        candleConfig.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
+        candleConfig.LED.BrightnessScalar = 0.2;
         candleConfig.LED.StripType = StripTypeValue.RGB;
 
         candle.getConfigurator().apply(candleConfig);
@@ -91,13 +105,36 @@ public class LEDSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
+        if (currentState == LEDState.SPEED_STATE) { 
+            SpeedState checkedSpeedState = SpeedState.GOOD;
+
+            double xVeloc = RobotContainer.drivetrain.getState().Speeds.vxMetersPerSecond;
+            double yVeloc = RobotContainer.drivetrain.getState().Speeds.vyMetersPerSecond;
+            double totalVeloc = Math.sqrt(Math.pow(xVeloc, 2) + Math.pow(yVeloc, 2));
+
+            if (totalVeloc >= 0.55 && totalVeloc <= 0.75) {
+                checkedSpeedState = SpeedState.GOOD;
+            } else if (totalVeloc > 0.75) {
+                checkedSpeedState = SpeedState.TOO_FAST;
+            } else if (totalVeloc < 0.55) {
+                checkedSpeedState = SpeedState.TOO_SLOW;
+            }
+            if (currentSpeedState != checkedSpeedState) {
+                currentSpeedState = checkedSpeedState;
+                applyState();
+            }
+        }
         publishLogs();
     }
 
+    @SuppressWarnings("static-access")
     private void applyState() {
+        amountOfApplyStates++;
         switch (currentState) {
             case TEAM_UNIQUE_DISABLED:
-                CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
+                // CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
+                candle.setControl(new RainbowAnimation(START_INDEX, END_INDEX).withFrameRate(85));
+                // candle.setControl(new StrobeAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(0, 1, 1)).withFrameRate(10));
                 break;
 
             /*case DISABLED:
@@ -113,9 +150,11 @@ public class LEDSubsystem extends SubsystemBase{
                 else
                     candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 1, 1)));
                 break;
+
             case DEFAULT_INACTIVE: // Nothing
                 removeLEDColor();
                 break;
+
             case COME_BACK: // White - S=0
                 candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)));
                 break;
@@ -133,11 +172,18 @@ public class LEDSubsystem extends SubsystemBase{
                 break;
             
             case SPEED_STATE: // Purple - H=310
-            
+                if (currentSpeedState == SpeedState.GOOD) {
+                    setColor(310, 1, 1);
+                    applyColorControl();
+                } else if (currentSpeedState == SpeedState.TOO_FAST) {
+                    candle.setControl(new StrobeAnimation(START_INDEX, END_INDEX).withColor(new RGBWColor().fromHSV(310, 1, 1)).withFrameRate(6));
+                } else if (currentSpeedState == SpeedState.TOO_SLOW) {
+                    candle.setControl(new StrobeAnimation(START_INDEX, END_INDEX).withColor(new RGBWColor().fromHSV(310, 1, 1)).withFrameRate(1));
+                }
                 break;
 
             case SHOOTING_DEADZONE: // Yellow - H=30
-                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(30, 1, 1)));
+                candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(30, 1, 1)).withFrameRate(3));
                 break;
         }
     }
@@ -145,6 +191,7 @@ public class LEDSubsystem extends SubsystemBase{
     private void publishLogs() {
         Logger.recordOutput("Rebuilt/LED/Current State", currentState);
         Logger.recordOutput("Rebuilt/LED/Current Control Request", candle.getAppliedControl().toString());
+        Logger.recordOutput("Rebuilt/LED/Amount of Apply State Calls", amountOfApplyStates);
     }
 
     public void removeLEDColor() {
@@ -156,6 +203,7 @@ public class LEDSubsystem extends SubsystemBase{
     }
 
     public void setState(LEDState state) {
+        if (currentState == state) return;
         currentState = state;
         removeLEDColor();
         applyState();
@@ -191,11 +239,11 @@ public class LEDSubsystem extends SubsystemBase{
     }
 
     public void setColorStart(int index) {
-        if (index < 0) index = 0; if (index > HIGHEST_INDEX) index = HIGHEST_INDEX;
+        if (index < 0) index = 0; if (index > END_INDEX) index = END_INDEX;
         solidColorRequest.LEDStartIndex = index;
     }
     public void setColorEnd(int index) {
-        if (index < 0) index = 0; if (index > HIGHEST_INDEX) index = HIGHEST_INDEX;
+        if (index < 0) index = 0; if (index > END_INDEX) index = END_INDEX;
         solidColorRequest.LEDEndIndex = index;
     }
     public int getColorStart() {

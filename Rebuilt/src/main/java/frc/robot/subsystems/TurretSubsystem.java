@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -24,6 +25,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -36,6 +38,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
 import frc.robot.Constants.RobotConstants.TurretConstants;
+import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
 
 /**
  * Subsystem controlling the turret mechanism with field-relative tracking.
@@ -318,7 +321,7 @@ public class TurretSubsystem extends SubsystemBase {
         cachedAngleDeg = turretEncoder.getAbsolutePosition().getValueAsDouble() / TurretConstants.SENSOR_TO_MECHANISM_RATIO * encoderToAngleMultiplier + turretOffset;
         cachedMotorVelocity = turretMotor.getVelocity().getValueAsDouble();
 
-        if (Math.abs(turretMotor.getPosition().getValueAsDouble()) > (MAX_ANGLE_DEG + 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE && currentState != TurretState.STORING) {
+        if (Math.abs(turretMotor.getPosition().getValueAsDouble()) > (MAX_ANGLE_DEG + 5) / TurretConstants.ABS_ENCDR_POS_TO_ANGLE && CoordinationSubsystem.getInstance().getCurrentAbsoluteState() == AbsoluteStates.TRENCH) {
             goodToMove = false;
         } else {
             goodToMove = true;
@@ -350,6 +353,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         previousRobotRelativeTargetVelocityDegPerSec = robotRelativeTargetVelocityDegPerSec;
         robotRelativeTargetVelocityDegPerSec = calculateVelocity();
+        // robotRelativeTargetVelocityDegPerSec = calculateVelocityUpdated();
         Logger.recordOutput("Rebuilt/Turret/Velocity/Velocity WRT Robot", calculateVelocityUpdated());
 
         // Driver feedback for out-of-range targets
@@ -441,26 +445,33 @@ public class TurretSubsystem extends SubsystemBase {
     public double calculateVelocityUpdated() {
         if ((robotRelativeTargetAngleDeg <= MIN_ANGLE_DEG || robotRelativeTargetAngleDeg >= MAX_ANGLE_DEG) || (cachedAngleDeg <= MIN_ANGLE_DEG || cachedAngleDeg >= MAX_ANGLE_DEG)) return 0.0;
 
-        double targetVeloc = 0.0;
-        double robotYawVelocWRTField = drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble();
+        double turretVeloictyWRTRobot = 0.0;
+        double robotYawVelocWRTField = drivetrain.getPigeon2().getAngularVelocityZDevice().getValueAsDouble(); //degrees/second
 
-        Rotation2d robotYaw = drivetrain.getState().Pose.getRotation();
-        Rotation2d turretAngleWRTField = robotYaw.plus(new Rotation2d(Units.degreesToRadians(cachedAngleDeg)));
+        Rotation2d robotYaw = drivetrain.getState().Pose.getRotation(); //rotation
+        Rotation2d turretAngleWRTField = robotYaw.plus(new Rotation2d(Units.degreesToRadians(cachedAngleDeg))); //radians
 
-        double timestamp = Timer.getFPGATimestamp();
+        double timestamp = Timer.getFPGATimestamp(); //seconds
+
+        Rotation2d deltaTurretAngleWRTField = turretAngleWRTField.minus(previousTurretAngleWRTField);
 
         // Calculate desired velocity (derivative of target position)
-        double turretVelocityWRTField = (turretAngleWRTField.minus(previousTurretAngleWRTField).getDegrees()) / (timestamp - previousVelocityTimestamp);
+        double turretVelocityWRTField = (deltaTurretAngleWRTField.getDegrees()) / (timestamp - previousVelocityTimestamp); //degrees/second
 
-        targetVeloc = turretVelocityWRTField - robotYawVelocWRTField;
+        turretVeloictyWRTRobot = turretVelocityWRTField - robotYawVelocWRTField; //degrees/second
     
+        Logger.recordOutput("Rebuilt/Turret/Velocity/Previous Angle WRT Field", previousTurretAngleWRTField);
+        Logger.recordOutput("Rebuilt/Turret/Velocity/Previous Timestamp", previousVelocityTimestamp);
+
         previousTurretAngleWRTField = turretAngleWRTField;
         previousVelocityTimestamp = timestamp;
 
+        Logger.recordOutput("Rebuilt/Turret/Velocity/Velocity WRT Field", turretVelocityWRTField);
+        Logger.recordOutput("Rebuilt/Turret/Velocity/Current Timestamp", timestamp);
         Logger.recordOutput("Rebuilt/Turret/Velocity/Robot Angular Rate", robotYawVelocWRTField);
         Logger.recordOutput("Rebuilt/Turret/Velocity/Turret Angle WRT Field", turretAngleWRTField);
 
-        return targetVeloc;
+        return turretVeloictyWRTRobot;
     }
     
     /**

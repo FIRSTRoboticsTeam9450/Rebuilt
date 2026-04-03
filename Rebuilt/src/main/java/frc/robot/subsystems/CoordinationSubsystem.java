@@ -481,6 +481,10 @@ public class CoordinationSubsystem extends SubsystemBase {
         return VisionSubsystem.getInstance().getCurrentZone();
     }
 
+    public AbsoluteStates getCurrentAbsoluteState() {
+        return currentState;
+    }
+
     public Command setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin location) {
         switch (location) {
             case CLOSE_LEFT:

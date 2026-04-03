@@ -184,7 +184,7 @@ public class PositionAlignCommand extends Command {
 
         Pose2d offsetAugmentedPose = new Pose2d(new Translation2d(xSetpoint, ySetpoint), new Rotation2d(rotationalSetpoint));
 
-        Logger.recordOutput("Rebuilt/Pose-Align/Robot go to Spot", offsetAugmentedPose);
+        // Logger.recordOutput("Rebuilt/Pose-Align/Robot go to Spot", offsetAugmentedPose);
 
         return out;
     }

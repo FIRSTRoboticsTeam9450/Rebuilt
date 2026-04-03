@@ -74,13 +74,16 @@ public class TeamCANdleAnimationCommand extends Command {
     reverseArray(COLORS);
     reverseArray(COLORS_CANDLE);
   }
+
   private void addReversedColorsToArray(ArrayList<RGBWColor> arr) { // a,b,c,d,e,f -> a,b,c,d,e,f,e,d,c,b
     int size = arr.size();
     for (int i = size - 2; i >= 1; i--) arr.add(arr.get(i));
   }
+
   private void applyBaseBrightnessToArray(ArrayList<RGBWColor> arr) {
     for (int i = 0; i < arr.size(); i++) arr.set(i, arr.get(i).scaleBrightness(BASE_BRIGHTNESS));
   }
+  
   private void reverseArray(ArrayList<RGBWColor> arr) {
     for (int i = 0; i < arr.size() / 2; i++) {
       int endI = arr.size() - 1 - i;
