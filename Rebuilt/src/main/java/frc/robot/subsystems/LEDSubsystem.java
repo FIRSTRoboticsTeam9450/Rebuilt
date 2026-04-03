@@ -105,8 +105,8 @@ public class LEDSubsystem extends SubsystemBase{
             /*case DISABLED:
                 break;*/
             
-            case INIT:
-                removeLEDColor();
+            case INIT: // Nothing
+                removeLEDColor(true);
                 break;
             
             case AUTO_STATE: // Green - H=115, Red - H=0
@@ -116,7 +116,7 @@ public class LEDSubsystem extends SubsystemBase{
                     candle.setControl(strobeColorRequest.withColor(RGBWColor.fromHSV(0, 1, 1)));
                 break;
             case DEFAULT_INACTIVE: // Nothing
-                removeLEDColor();
+                removeLEDColor(true);
                 break;
             case COME_BACK: // White - S=0
                 candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)));
@@ -158,17 +158,16 @@ public class LEDSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/LED/Current Control Request", candle.getAppliedControl().toString());
     }
 
-    public void removeLEDColor() {
-        if (teamUniqueDisabledCommand.isScheduled()) {
-            CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
-        }
+    public void removeLEDColor(boolean cancelUniqueAnimation) {
+        if (cancelUniqueAnimation && teamUniqueDisabledCommand.isScheduled()) CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
+
         candle.setControl(emptyColorRequest);
         candle.setControl(solidColorRequest.withColor(EMPTY_COLOR).withLEDStartIndex(0).withLEDEndIndex(HIGHEST_INDEX));
     }
 
     public void setState(LEDState state) {
         currentState = state;
-        removeLEDColor();
+        removeLEDColor(true);
         applyState();
     }
 
