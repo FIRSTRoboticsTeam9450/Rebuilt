@@ -26,6 +26,7 @@ import frc.robot.subsystems.TransferSubsystem.TransferState;
 import frc.robot.subsystems.TurretSubsystem.TurretState;
 import frc.robot.subsystems.VisionSubsystem.ZoneState;
 import frc.robot.util.HubTracker;
+import frc.robot.util.HubTracker.Shift;
 
 public class CoordinationSubsystem extends SubsystemBase {
 
@@ -100,22 +101,12 @@ public class CoordinationSubsystem extends SubsystemBase {
         if(HubTracker.getCurrentShift().equals(Optional.of(HubTracker.Shift.TRANSITION))) {
             ledState = LEDState.AUTO_STATE;
             if(timeRemaining <= 7) {
-                if(HubTracker.getAutoWinner().isPresent()) {
-                    if(DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().equals(HubTracker.getAutoWinner())) {
-                        ledState = LEDState.SPEED_STATE;
-                        if(timeRemaining <= 3) {
-                            ledState = LEDState.END_OF_ACTIVE;
-                        }
-                    } else {
-                        ledState = LEDState.COME_BACK;
-                        if(timeRemaining <= 5) {
-                            ledState = LEDState.END_OF_INACTIVE;
-                        }
-                    }
+                ledState = LEDState.SPEED_STATE;
+                if(timeRemaining <= 2) {
+                    ledState = LEDState.END_OF_ACTIVE;
                 }
             }
-        }
-        else {
+        } else {
             if(timeRemaining != -1) {
                 if(!HubTracker.isActive()) {
                     ledState = LEDState.DEFAULT_INACTIVE;
@@ -125,8 +116,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                             ledState = LEDState.END_OF_INACTIVE;
                         }
                     }
-                }
-                else {
+                } else {
                     ledState = LEDState.SPEED_STATE;
                     if(timeRemaining <= 3) {
                         ledState = LEDState.END_OF_ACTIVE;
@@ -142,7 +132,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
         LEDSubsystem.getInstance().setState(ledState);
     }
-    
+
     private void applyZone() {
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
             if(currentState != AbsoluteStates.INIT) {
@@ -357,6 +347,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Match Data/Our Hub Active?", HubTracker.isActive());
         Logger.recordOutput("Rebuilt/Match Data/We Win Auto?", DriverStation.getAlliance().isPresent() && HubTracker.getAutoWinner().isPresent() ? DriverStation.getAlliance().get() == HubTracker.getAutoWinner().get() : false);
         Logger.recordOutput("Rebuilt/Match Data/Time Left Until Shift Change", HubTracker.timeRemainingInCurrentShift().isPresent() ? HubTracker.timeRemainingInCurrentShift().get() : -1);
+        Logger.recordOutput("Rebuilt/Match Data/Shift", HubTracker.getCurrentShift().isPresent() ? HubTracker.getCurrentShift().get() : Shift.AUTO);
 
         Logger.recordOutput("Rebuilt/Coord/Intakeing", shouldBeIntaking);
         Logger.recordOutput("Rebuilt/Coord/Firing", driverAllowingShooting);

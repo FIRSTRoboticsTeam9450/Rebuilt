@@ -62,6 +62,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logTelescopeMMKD = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kD", 0.0);
     private LoggedNetworkNumber logTelescopeMMKG = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kG", 0.07);
     private double telescopingUnderLoadKG = 0.6;
+    private double telescopingUnderLoadKS = 0.35;
 
     private LoggedNetworkNumber logElevatorMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Velocity", 95);
     private LoggedNetworkNumber logElevatorMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Elevator/MM/Acceleration", 1200);
@@ -158,7 +159,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
         Slot1Configs telescpeSlot1Configs = new Slot1Configs()
                                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
-                                        .withKS(logTelescopeMMKS.get())
+                                        .withKS(telescopingUnderLoadKS)
                                         .withKV(logTelescopeMMKV.get())
                                         .withKA(logTelescopeMMKA.get())
                                         .withKP(logTelescopeMMKP.get())
@@ -386,6 +387,7 @@ public class ClimberSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
         Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
         Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Climb/Telescope/Supply Amps", telescopeClimbMotor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Climb/Telescope/Finished Zeroing", isElevatorZeroingDone);
 

@@ -41,7 +41,7 @@ public class LEDSubsystem extends SubsystemBase{
     
     public static final int HIGHEST_INDEX = 107;
     public static final int START_INDEX = 0;
-    public static final int END_INDEX = 25;
+    public static final int END_INDEX = 18;
     public static final RGBWColor EMPTY_COLOR = new RGBWColor(0, 0, 0);
 
     private int amountOfApplyStates = 0;
@@ -144,7 +144,7 @@ public class LEDSubsystem extends SubsystemBase{
                 break;
 
             case TEAM_UNIQUE_DISABLED:
-                // CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
+                CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
                 candle.setControl(new SingleFadeAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(240, 1, 1)).withFrameRate(100));
                 break;
 
