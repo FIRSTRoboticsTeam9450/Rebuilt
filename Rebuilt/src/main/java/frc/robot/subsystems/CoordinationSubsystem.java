@@ -240,7 +240,7 @@ public class CoordinationSubsystem extends SubsystemBase {
             case INIT:
                 turretState = TurretState.AIMING;
                 shooterHoodState = AngleState.ZEROING;
-                intakeAngleState = IntakePos.ZEROING;
+                intakeAngleState = IntakePos.STORE;
                 intakeVelocState = IntakeState.IDLING;
                 ledState = LEDState.INIT;
                 break;

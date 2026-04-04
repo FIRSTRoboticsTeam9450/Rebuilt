@@ -179,11 +179,11 @@ public class ShooterSubsystem extends SubsystemBase {
 
         
         shootingDistanceToVelocity.put(5.095, 44.25);
-        shootingDistanceToVelocity.put(4.101, 42.0);
-        shootingDistanceToVelocity.put(3.465, 40.0);
-        shootingDistanceToVelocity.put(3.0, 37.75);
-        shootingDistanceToVelocity.put(2.4, 35.5);
-        shootingDistanceToVelocity.put(1.73, 31.75);
+        shootingDistanceToVelocity.put(4.101, 41.5);
+        shootingDistanceToVelocity.put(3.465, 38.5);
+        shootingDistanceToVelocity.put(3.0, 35.25);
+        shootingDistanceToVelocity.put(2.4, 33.0);
+        shootingDistanceToVelocity.put(1.73, 30.55);
         shootingDistanceToVelocity.put(1.1, 29.0);
 
         shootingDistanceToTime.put(5.095, 1.4525);
@@ -203,11 +203,11 @@ public class ShooterSubsystem extends SubsystemBase {
         // ferryingDistanceToVelocity.put(11.26, 52.0);
         // ferryingDistanceToVelocity.put(16.26, 62.75);
 
-        ferryingDistanceToVelocity.put(4.59, 34.5 + 3.5);
-        ferryingDistanceToVelocity.put(4.962, 35.72 + 3.5);
-        ferryingDistanceToVelocity.put(7.622, 42.03 + 10);
-        ferryingDistanceToVelocity.put(11.26, 52.0 + 25);
-        ferryingDistanceToVelocity.put(16.26, 62.75 + 27.5);
+        ferryingDistanceToVelocity.put(4.59, 34.5 + 2.5);
+        ferryingDistanceToVelocity.put(4.962, 35.72 + 2.5);
+        ferryingDistanceToVelocity.put(7.622, 42.03 + 8);
+        ferryingDistanceToVelocity.put(11.26, 52.0 + 26);
+        ferryingDistanceToVelocity.put(16.26, 62.75 + 34);
 
         // Ferrying Data Time
         ferryingDistanceToTime.put(4.59, 1.41);

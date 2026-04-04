@@ -189,8 +189,8 @@ public class LEDSubsystem extends SubsystemBase{
     }
 
     private void publishLogs() {
-        // Logger.recordOutput("Rebuilt/LED/Current State", currentState);
-        // Logger.recordOutput("Rebuilt/LED/Current Control Request", candle.getAppliedControl().toString());
+        Logger.recordOutput("Rebuilt/LED/Current State", currentState);
+        Logger.recordOutput("Rebuilt/LED/Current Control Request", candle.getAppliedControl().toString());
         // Logger.recordOutput("Rebuilt/LED/Amount of Apply State Calls", amountOfApplyStates);
     }
 

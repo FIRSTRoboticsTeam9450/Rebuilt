@@ -88,8 +88,8 @@ public class VisionSubsystem extends SubsystemBase {
     private volatile double lastVisionTimestamp = 0.0; // Timestamp of last vision update
 
     // Standard deviations for vision measurements (for filtering/fusion)
-    public Vector<N3> disabledStdDev = VecBuilder.fill(4, 4, 999999);
-    public Vector<N3> enabledMT2StdDev = VecBuilder.fill(0.6, 0.6, 999999);
+    public Vector<N3> disabledStdDev = VecBuilder.fill(3, 3, 999999);
+    public Vector<N3> enabledMT2StdDev = VecBuilder.fill(0.3, 0.3, 999999);
     public Vector<N3> enabledMT1StdDev = VecBuilder.fill(999999, 999999, 1);
     private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 999999);
 

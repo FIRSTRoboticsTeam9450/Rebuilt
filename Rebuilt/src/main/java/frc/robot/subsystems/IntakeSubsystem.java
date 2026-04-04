@@ -11,15 +11,18 @@ import frc.robot.Constants.RobotConstants.IntakeConstants;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.*;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 public final class IntakeSubsystem extends SubsystemBase{
 
@@ -43,13 +46,14 @@ public final class IntakeSubsystem extends SubsystemBase{
     }
 
     //Set the current state of the robot to be idle
-    private IntakePos currentPos = IntakePos.ZEROING;
+    private IntakePos currentPos = IntakePos.STORE;
     private IntakeState currentState = IntakeState.IDLING;
 
     private Timer zeroingTimer = new Timer();
     
     //Set up motors
     TalonFX motorArm = new TalonFX(IntakeConstants.DeviceIDs.kAngleMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
+    CANcoder encoderArm = new CANcoder(IntakeConstants.DeviceIDs.kAngleEncoderID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     TalonFX motorWheels = new TalonFX(IntakeConstants.DeviceIDs.kWheelMotorID, RobotConstants.MAIN_SYSTEMS_CANBUS);
     TalonFX motorWheelsFollower = new TalonFX(IntakeConstants.DeviceIDs.kWheelMotorIDFollower, RobotConstants.MAIN_SYSTEMS_CANBUS);
 
@@ -67,16 +71,16 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 0.1); // 0.1
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 2.0);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 0.055);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 8.5); //8.5 is good efficent power
 
     private double intakingTargetVolts = logIntakingTarget.get();
     
     private double intakeRevolutions = logIntakeTarget.get();
-    private double storeRevolutions = 13.75;
-    private double trenchStoreRevolutions = 8.47;
-    private double climbStoreRevolutions = 15.1;
-    private double pushingRevolutions = 1;
+    private double storeRevolutions = 0.385;
+    private double trenchStoreRevolutions = 0.23527;
+    private double climbStoreRevolutions = 0.4194;
+    private double pushingRevolutions = 0.027;
 
     private double intakeSetpoint = 0;
 
@@ -94,7 +98,17 @@ public final class IntakeSubsystem extends SubsystemBase{
     private boolean reversing = false;
 
     public IntakeSubsystem() {
+        configureEncoder();
         configureMotors();
+    }
+
+    private void configureEncoder() {
+        CANcoderConfiguration config = new CANcoderConfiguration();
+        config.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 0.75;
+        config.MagnetSensor.MagnetOffset = IntakeConstants.kAngleEncoderMagnetOffset;
+
+        encoderArm.getConfigurator().apply(config);
     }
 
     private void configureMotors() {
@@ -120,6 +134,11 @@ public final class IntakeSubsystem extends SubsystemBase{
         slot0Configs.kD = logMMKD.get();
         slot0Configs.kG = logMMKG.get();
         slot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
+
+        motorConfig.Feedback.FeedbackRemoteSensorID = encoderArm.getDeviceID();
+        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+        motorConfig.Feedback.RotorToSensorRatio = IntakeConstants.kAngleRotorToSensorRatio;
+        motorConfig.Feedback.FeedbackRotorOffset = 0;
 
         motorArm.getConfigurator().apply(motorConfig);
 
@@ -150,10 +169,10 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     @Override
     public void periodic() {
-        if(currentPos != IntakePos.HOLD_ON_FOR_TRENCH && !isZeroingDone) {
-            currentPos = IntakePos.ZEROING;
-            isZeroingDone = isZeroingDone();
-        }
+        // if(currentPos != IntakePos.HOLD_ON_FOR_TRENCH && !isZeroingDone) {
+        //     currentPos = IntakePos.ZEROING;
+        //     isZeroingDone = isZeroingDone();
+        // }
         applyState();
         publishLogs();
     }
@@ -230,6 +249,8 @@ public final class IntakeSubsystem extends SubsystemBase{
         // Logger.recordOutput("Rebuilt/Intake/Angle/Is Zeroing", isZeroingDone);
         // Logger.recordOutput("Rebuilt/Intake/Angle/Zeroing Timer", zeroingTimer.get());
 
+        Logger.recordOutput("Rebuilt/Intake/Angle/Encoder Absolute Pos", encoderArm.getAbsolutePosition().getValueAsDouble());
+
         // Logger.recordOutput("Rebuilt/Intake/Wheels/Lead Motor Veloc", motorWheels.getVelocity().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Intake/Wheels/Lead Motor Voltage", motorWheels.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Wheels/Lead Motor Supply Amp Pull", motorWheels.getSupplyCurrent().getValueAsDouble());
@@ -237,6 +258,8 @@ public final class IntakeSubsystem extends SubsystemBase{
         // Logger.recordOutput("Rebuilt/Intake/Wheels/Follower Motor Voltage", motorWheelsFollower.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Wheels/Follower Motor Supply Amp Pull", motorWheels.getSupplyCurrent().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Intake/Angle/Temp", motorArm.getDeviceTemp().getValueAsDouble());
+        
+        Logger.recordOutput("Rebuilt/Intake/Intake Jammed", jammed);
     }
 
     public void checkJammed() {

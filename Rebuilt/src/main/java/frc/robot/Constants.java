@@ -75,10 +75,14 @@ public final class Constants {
 
     public static final class IntakeConstants {
 
+      public static final double kAngleEncoderMagnetOffset = -0.70751953125;
+      public static final double kAngleRotorToSensorRatio = 36;//36:1
+
       public static final class DeviceIDs {
         public static final int kAngleMotorID = 20;
         public static final int kWheelMotorID = 21;
         public static final int kWheelMotorIDFollower = 22;
+        public static final int kAngleEncoderID = 23;
       }
 
     }
@@ -114,7 +118,7 @@ public final class Constants {
 
       //7in off from center
       public static final Transform2d OFFSET_WRT_CENTER_OF_ROBOT = new Transform2d(new Translation2d(-0.1443, 0), new Rotation2d(0)); // .1778
-      public static final double ENCODER_MAGNET_OFFSET = -0.07666015625;
+      public static final double ENCODER_MAGNET_OFFSET = -0.0712890625;
 
       //To find the ratios, divide if reduction, multiply if increase.
       //Example, if all reductions, and 7.5 -> 7 -> 7 -> 7.5: 7.5/7/7/7.5
@@ -122,7 +126,7 @@ public final class Constants {
       public static final double SENSOR_TO_MECHANISM_RATIO = 0.93288943638;// Non-Lantern: 0.4565217391 * 1.06; Cycoildal-Lanter: 0.311279 * 0.9849444
 
       public static final double TURRET_OFFSET_TO_ZERO = 180;
-      public static final double TURRET_OFFSET_TO_TARGET = 0; // 1.25
+      public static final double TURRET_OFFSET_TO_TARGET = 0.25; // 1.25
 
       public static final double TOTAL_ROTATION_DEGREES = 320; //320
       public static final double TOTAL_ROTATION_RADIANS = Math.toRadians(TOTAL_ROTATION_DEGREES);
