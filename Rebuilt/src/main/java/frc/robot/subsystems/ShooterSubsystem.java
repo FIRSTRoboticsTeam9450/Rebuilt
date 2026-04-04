@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Volt;
 
+import java.util.ArrayList;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
@@ -155,7 +157,7 @@ public class ShooterSubsystem extends SubsystemBase {
         configureShooterMotors();
         addData();
         hoodMMRequest = new DynamicMotionMagicVoltage(0, hoodMMVelocity, hoodMMAcceleration).withEnableFOC(RobotConstants.ENABLE_FOC).withSlot(slotNum);
-        outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(false);
+        outtakeVRequest = new MotionMagicVelocityVoltage(0).withSlot(outtakeVSlot).withEnableFOC(RobotConstants.ENABLE_FOC);
 
         m_sysIdRoutine = 
             new SysIdRoutine(
@@ -758,6 +760,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
         return m_sysIdRoutine.dynamic(direction);
+    }
+
+    public ArrayList<TalonFX> getMotors() {
+        ArrayList<TalonFX> arrList = new ArrayList<>();
+        arrList.add(angleMotor);
+        arrList.add(shooterLeftMotor);
+        arrList.add(shooterRightMotor);
+        return arrList;
     }
 
 }

@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.IntakeConstants;
 
+import java.util.ArrayList;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -348,5 +350,13 @@ public final class IntakeSubsystem extends SubsystemBase{
         if (DriverStation.isDisabled()) {
             motorArm.setPosition(0);
         }
+    }
+
+    public ArrayList<TalonFX> getMotors() {
+        ArrayList<TalonFX> arrList = new ArrayList<>();
+        arrList.add(motorArm);
+        arrList.add(motorWheels);
+        arrList.add(motorWheelsFollower);
+        return arrList;
     }
 }

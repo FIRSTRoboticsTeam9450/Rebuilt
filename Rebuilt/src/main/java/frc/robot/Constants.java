@@ -75,7 +75,7 @@ public final class Constants {
 
     public static final class IntakeConstants {
 
-      public static final double kAngleEncoderMagnetOffset = -0.70751953125;
+      public static final double kAngleEncoderMagnetOffset = -0.701171875;
       public static final double kAngleRotorToSensorRatio = 36;//36:1
 
       public static final class DeviceIDs {

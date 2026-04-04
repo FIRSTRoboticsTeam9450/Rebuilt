@@ -1150,4 +1150,8 @@ public class TurretSubsystem extends SubsystemBase {
     public void initialize() {
         //Logger.recordOutput("Rebuilt/Turret/Subsystem Initizalized", true);
     }
+
+    public TalonFX getMotor() {
+        return turretMotor;
+    }
 }

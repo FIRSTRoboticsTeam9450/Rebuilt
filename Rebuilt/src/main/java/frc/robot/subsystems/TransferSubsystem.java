@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -196,5 +198,9 @@ public class TransferSubsystem extends SubsystemBase {
         // Logger.recordOutput("Rebuilt/Transfer/Motor Stator Amps", motor.getTorqueCurrent().getValueAsDouble());
 
         Logger.recordOutput("Rebuilt/Transfer/Transfer Jammed", jammed());
+    }
+
+    public TalonFX getMotor() {
+        return motor;
     }
 }

@@ -142,6 +142,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         }
         LEDSubsystem.getInstance().setState(ledState);
     }
+    
     private void applyZone() {
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
             if(currentState != AbsoluteStates.INIT) {

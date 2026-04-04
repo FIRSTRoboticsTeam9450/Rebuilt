@@ -6,6 +6,7 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.ColorFlowAnimation;
 import com.ctre.phoenix6.controls.EmptyAnimation;
+import com.ctre.phoenix6.controls.LarsonAnimation;
 import com.ctre.phoenix6.controls.RainbowAnimation;
 import com.ctre.phoenix6.controls.SingleFadeAnimation;
 import com.ctre.phoenix6.controls.SolidColor;
@@ -54,13 +55,18 @@ public class LEDSubsystem extends SubsystemBase{
     public static synchronized LEDSubsystem getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new LEDSubsystem();
+            Initialize();
         }
         return INSTANCE;
     }
 
+    private static void Initialize() {
+        INSTANCE.applyState();
+    }
+
     public enum LEDState {
+        SYS_INIT,
         TEAM_UNIQUE_DISABLED,
-        // DISABLED,
         INIT,
         AUTO_STATE, // If win: Flashing Bright green for 3 secs then go to active state If lose: Flashing bright red for 3 secs then go to inactive state
         COME_BACK, // Solid white
@@ -78,7 +84,7 @@ public class LEDSubsystem extends SubsystemBase{
         TOO_SLOW
     }
 
-    private LEDState currentState = LEDState.INIT;
+    private LEDState currentState = LEDState.SYS_INIT;
     private SpeedState currentSpeedState = SpeedState.GOOD;
     
     private CANdle candle = new CANdle(LEDConstants.DeviceIDs.kCANDLEID, RobotConstants.MAIN_SYSTEMS_CANBUS);
@@ -133,15 +139,21 @@ public class LEDSubsystem extends SubsystemBase{
     private void applyState() {
         amountOfApplyStates++;
         switch (currentState) {
+            case SYS_INIT:
+                candle.setControl(new LarsonAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(30, 1, 1)).withFrameRate(20));
+                break;
+
             case TEAM_UNIQUE_DISABLED:
-                if (!teamUniqueDisabledCommand.isScheduled()) CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
+                // CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
+                candle.setControl(new StrobeAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(240, 1, 1)).withFrameRate(2));
                 break;
 
             /*case DISABLED:
                 break;*/
             
             case INIT: // Nothing
-                removeLEDColor(true);
+                // removeLEDColor(true);
+                candle.setControl(new StrobeAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(15, 1, 1)).withFrameRate(3));
                 break;
             
             case AUTO_STATE: // Green - H=115, Red - H=0
@@ -191,7 +203,7 @@ public class LEDSubsystem extends SubsystemBase{
     private void publishLogs() {
         Logger.recordOutput("Rebuilt/LED/Current State", currentState);
         Logger.recordOutput("Rebuilt/LED/Current Control Request", candle.getAppliedControl().toString());
-        // Logger.recordOutput("Rebuilt/LED/Amount of Apply State Calls", amountOfApplyStates);
+        Logger.recordOutput("Rebuilt/LED/Amount of Apply State Calls", amountOfApplyStates);
     }
 
     public void removeLEDColor(boolean cancelUniqueAnimation) {

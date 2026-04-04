@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -610,5 +612,12 @@ public class ClimberSubsystem extends SubsystemBase {
             // elevatorRequest = new DynamicMotionMagicVoltage(0, logElevatorMMVelocity.get(), logElevatorMMAcceleration.get());//.withEnableFOC(RobotConstants.ENABLE_FOC);
         }
             
+    }
+
+    public ArrayList<TalonFX> getMotors() {
+        ArrayList<TalonFX> arrList = new ArrayList<>();
+        arrList.add(elevatorClimbMotor);
+        arrList.add(telescopeClimbMotor);
+        return arrList;
     }
 }
