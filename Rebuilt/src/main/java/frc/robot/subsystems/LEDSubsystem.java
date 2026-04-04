@@ -106,7 +106,7 @@ public class LEDSubsystem extends SubsystemBase{
         candleConfig.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
         candleConfig.LED.BrightnessScalar = 1;
         candleConfig.LED.StripType = StripTypeValue.RGB;
-
+        
         candle.getConfigurator().apply(candleConfig);
     }
 
@@ -151,8 +151,7 @@ public class LEDSubsystem extends SubsystemBase{
             /*case DISABLED:
                 break;*/
             
-            case INIT: // Nothing
-                // removeLEDColor(true);
+            case INIT:
                 candle.setControl(new StrobeAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(15, 1, 1)).withFrameRate(3));
                 break;
             
@@ -207,7 +206,7 @@ public class LEDSubsystem extends SubsystemBase{
     }
 
     public void removeLEDColor(boolean cancelUniqueAnimation) {
-        if (cancelUniqueAnimation && teamUniqueDisabledCommand.isScheduled()) CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
+        if (cancelUniqueAnimation) CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
 
         candle.setControl(emptyColorRequest);
         candle.setControl(solidColorRequest.withColor(EMPTY_COLOR).withLEDStartIndex(0).withLEDEndIndex(HIGHEST_INDEX));
