@@ -41,7 +41,7 @@ public class LEDSubsystem extends SubsystemBase{
     
     public static final int HIGHEST_INDEX = 107;
     public static final int START_INDEX = 0;
-    public static final int END_INDEX = 7;
+    public static final int END_INDEX = 25;
     public static final RGBWColor EMPTY_COLOR = new RGBWColor(0, 0, 0);
 
     private int amountOfApplyStates = 0;
@@ -104,7 +104,7 @@ public class LEDSubsystem extends SubsystemBase{
         CANdleConfiguration candleConfig = new CANdleConfiguration();
         candleConfig.CANdleFeatures.StatusLedWhenActive = StatusLedWhenActiveValue.Disabled;
         candleConfig.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
-        candleConfig.LED.BrightnessScalar = 0.2;
+        candleConfig.LED.BrightnessScalar = 1;
         candleConfig.LED.StripType = StripTypeValue.RGB;
 
         candle.getConfigurator().apply(candleConfig);
@@ -140,12 +140,12 @@ public class LEDSubsystem extends SubsystemBase{
         amountOfApplyStates++;
         switch (currentState) {
             case SYS_INIT:
-                candle.setControl(new LarsonAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(30, 1, 1)).withFrameRate(20));
+                candle.setControl(new LarsonAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(30, 1, 1)).withFrameRate(20).withSize(5));
                 break;
 
             case TEAM_UNIQUE_DISABLED:
                 // CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
-                candle.setControl(new StrobeAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(240, 1, 1)).withFrameRate(2));
+                candle.setControl(new SingleFadeAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(240, 1, 1)).withFrameRate(100));
                 break;
 
             /*case DISABLED:

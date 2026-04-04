@@ -54,7 +54,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private LoggedNetworkNumber logTelescopeMMVelocity = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Velocity", 94);
     private LoggedNetworkNumber logTelescopeMMAcceleration = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/Acceleration", 1400);
 
-    private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.35);
+    private LoggedNetworkNumber logTelescopeMMKS = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kS", 0.24);
     private LoggedNetworkNumber logTelescopeMMKV = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kV", 0.2);
     private LoggedNetworkNumber logTelescopeMMKA = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kA", 0);
     private LoggedNetworkNumber logTelescopeMMKP = new LoggedNetworkNumber("/Tuning/Climb/Telescope/MM/kP", 30);
@@ -383,14 +383,14 @@ public class ClimberSubsystem extends SubsystemBase {
         // Logger.recordOutput("Rebuilt/Climb/Elevator/Finished Zeroing", isElevatorZeroingDone);
         // Logger.recordOutput("Rebuilt/Climb/Elevator/Zeroing Request Output", elevatorZeroingRequest.Output);
 
-        // Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
-        // Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
-        // Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Climb/Telescope/Finished Zeroing", isElevatorZeroingDone);
+        Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
+        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
+        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Climb/Telescope/Finished Zeroing", isElevatorZeroingDone);
 
-        // Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbState);
-        // Logger.recordOutput("Rebuilt/Climb/Level", currentClimbLevel);
+        Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbState);
+        Logger.recordOutput("Rebuilt/Climb/Level", currentClimbLevel);
     }
 
     /* =================== ZEROING =================== */
@@ -524,6 +524,31 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public Command setClimbStateAndLevelCommand() {
+        // return Commands.either(
+        //     new InstantCommand(() -> setClimbState(ClimbStates.INIT)),
+        //     Commands.either(
+        //             new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)).alongWith(new WaitCommand(0.6).andThen(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true))),
+        //             Commands.either(
+        //                 CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new WaitCommand(0.4).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
+        //                 Commands.either(
+        //                     Commands.either(
+        //                         new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
+        //                         new InstantCommand(() -> setClimbLevel(ClimbLevel.L3)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))),
+        //                         (() -> currentClimbLevel == ClimbLevel.L1)
+        //                         ), 
+        //                     Commands.either(
+        //                         new InstantCommand(() -> setClimbState(ClimbStates.HANDOFF)), 
+        //                         new InstantCommand(() -> setClimbState(ClimbStates.END)), 
+        //                         (() -> currentClimbState == ClimbStates.INIT)
+        //                         ), 
+        //                     (() -> currentClimbState == ClimbStates.END)
+        //                 ),
+        //                 (() -> currentClimbState == ClimbStates.STANDBY)
+        //             ),
+        //             (() -> currentClimbState == ClimbStates.INIT && currentClimbLevel == ClimbLevel.AUTO)
+        //     ),
+        //     (() -> currentClimbState == ClimbStates.END && currentClimbLevel == ClimbLevel.AUTO)
+        // );
         return Commands.either(
             new InstantCommand(() -> setClimbState(ClimbStates.INIT)),
             Commands.either(
@@ -531,17 +556,9 @@ public class ClimberSubsystem extends SubsystemBase {
                     Commands.either(
                         CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new WaitCommand(0.4).alongWith(new InstantCommand(() -> setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))))),
                         Commands.either(
-                            Commands.either(
-                                new InstantCommand(() -> setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))), 
-                                new InstantCommand(() -> setClimbLevel(ClimbLevel.L3)).alongWith(new InstantCommand(() -> setClimbState(ClimbStates.INIT))),
-                                (() -> currentClimbLevel == ClimbLevel.L1)
-                                ), 
-                            Commands.either(
-                                new InstantCommand(() -> setClimbState(ClimbStates.HANDOFF)), 
-                                new InstantCommand(() -> setClimbState(ClimbStates.END)), 
-                                (() -> currentClimbState == ClimbStates.INIT)
-                                ), 
-                            (() -> currentClimbState == ClimbStates.END)
+                            new InstantCommand(() -> setClimbState(ClimbStates.HANDOFF)), 
+                            new InstantCommand(() -> setClimbState(ClimbStates.INIT)), 
+                            (() -> currentClimbState == ClimbStates.INIT)
                         ),
                         (() -> currentClimbState == ClimbStates.STANDBY)
                     ),

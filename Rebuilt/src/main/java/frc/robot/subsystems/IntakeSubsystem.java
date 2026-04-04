@@ -79,9 +79,9 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double intakingTargetVolts = logIntakingTarget.get();
     
     private double intakeRevolutions = logIntakeTarget.get();
-    private double storeRevolutions = 0.385;
+    private double storeRevolutions = 0.4;
     private double trenchStoreRevolutions = 0.23527;
-    private double climbStoreRevolutions = 0.4194;
+    private double climbStoreRevolutions = 0.41;
     private double pushingRevolutions = 0.027;
 
     private double intakeSetpoint = 0;
