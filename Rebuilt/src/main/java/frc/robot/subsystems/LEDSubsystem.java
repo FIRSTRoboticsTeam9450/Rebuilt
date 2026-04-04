@@ -39,9 +39,12 @@ import frc.robot.util.HubTracker;
 public class LEDSubsystem extends SubsystemBase{
     private static volatile LEDSubsystem INSTANCE;
     
-    public static final int HIGHEST_INDEX = 107;
     public static final int START_INDEX = 0;
+    public static final int END_INDEX_NOSTRIP = 7;
+    public static final int START_INDEX_STRIPONLY = 8;
     public static final int END_INDEX = 18;
+    public static final int HIGHEST_INDEX = 107;
+
     public static final RGBWColor EMPTY_COLOR = new RGBWColor(0, 0, 0);
 
     private int amountOfApplyStates = 0;
@@ -167,7 +170,7 @@ public class LEDSubsystem extends SubsystemBase{
                 break;
 
             case COME_BACK: // White - S=0
-                candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)));
+                candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)).withLEDStartIndex(START_INDEX).withLEDEndIndex(END_INDEX));
                 break;
 
             case END_OF_INACTIVE: // White - S=0
@@ -203,13 +206,14 @@ public class LEDSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/LED/Current State", currentState);
         Logger.recordOutput("Rebuilt/LED/Current Control Request", candle.getAppliedControl().toString());
         Logger.recordOutput("Rebuilt/LED/Amount of Apply State Calls", amountOfApplyStates);
+        // Logger.recordOutput("Rebuilt/LED/Is Unique Animation Running?", CommandScheduler.getInstance().isScheduled(teamUniqueDisabledCommand));
     }
 
     public void removeLEDColor(boolean cancelUniqueAnimation) {
         if (cancelUniqueAnimation) CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
 
         candle.setControl(emptyColorRequest);
-        candle.setControl(solidColorRequest.withColor(EMPTY_COLOR).withLEDStartIndex(0).withLEDEndIndex(HIGHEST_INDEX));
+        candle.setControl(solidColorRequest.withColor(EMPTY_COLOR).withLEDStartIndex(START_INDEX).withLEDEndIndex(END_INDEX));
     }
 
     public void setState(LEDState state) {
