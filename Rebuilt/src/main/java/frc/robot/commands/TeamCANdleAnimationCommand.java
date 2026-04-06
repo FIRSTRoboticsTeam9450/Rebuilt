@@ -110,8 +110,8 @@ public class TeamCANdleAnimationCommand extends Command {
     if (timer.advanceIfElapsed(1.0 / FRAMERATE) || !hasStarted) {
       hasStarted = true;
 
-      offset = animateSection(COLORS, offset, 8, LEDSubsystem.HIGHEST_INDEX);
-      offsetCandle = animateSection(COLORS_CANDLE, offsetCandle, 0, 7);
+      offset = animateSection(COLORS, offset, LEDSubsystem.START_INDEX_STRIPONLY, LEDSubsystem.END_INDEX);
+      offsetCandle = animateSection(COLORS_CANDLE, offsetCandle, LEDSubsystem.START_INDEX, LEDSubsystem.END_INDEX_NOSTRIP);
     }
   }
 
