@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 1.25,
-        "y": 0.36
+        "y": 0.425
       },
       "prevControl": null,
       "nextControl": {
         "x": 0.3839745962155613,
-        "y": 0.8599999999999999
+        "y": 0.9249999999999998
       },
       "isLocked": false,
       "linkedName": "P - Corner Start 2"
@@ -44,7 +44,7 @@
       "minWaypointRelativePos": 0.6064516129032226,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.55,
+        "maxVelocity": 0.9,
         "maxAcceleration": 2.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -57,7 +57,7 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 1.0,
-    "maxAcceleration": 2.0,
+    "maxAcceleration": 999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

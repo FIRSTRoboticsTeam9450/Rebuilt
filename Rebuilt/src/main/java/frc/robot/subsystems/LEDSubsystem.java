@@ -120,7 +120,7 @@ public class LEDSubsystem extends SubsystemBase{
             double yVeloc = RobotContainer.drivetrain.getState().Speeds.vyMetersPerSecond;
             double totalVeloc = Math.hypot(xVeloc, yVeloc);
 
-            if (totalVeloc >= 0.55 && totalVeloc <= 0.75) {
+            if (totalVeloc >= 0.6 && totalVeloc <= 0.9) {
                 checkedSpeedState = SpeedState.GOOD;
             } else if (totalVeloc > 0.75) {
                 checkedSpeedState = SpeedState.TOO_FAST;
@@ -145,7 +145,7 @@ public class LEDSubsystem extends SubsystemBase{
 
             case TEAM_UNIQUE_DISABLED:
                 CommandScheduler.getInstance().schedule(teamUniqueDisabledCommand);
-                candle.setControl(new SingleFadeAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(240, 1, 1)).withFrameRate(100));
+                // candle.setControl(new SingleFadeAnimation(START_INDEX, END_INDEX).withColor(RGBWColor.fromHSV(240, 1, 1)).withFrameRate(100));
                 break;
 
             /*case DISABLED:
@@ -210,6 +210,10 @@ public class LEDSubsystem extends SubsystemBase{
 
         candle.setControl(emptyColorRequest);
         candle.setControl(solidColorRequest.withColor(EMPTY_COLOR).withLEDStartIndex(0).withLEDEndIndex(HIGHEST_INDEX));
+    }
+
+    public LEDState getCurrentState() {
+        return currentState;
     }
 
     public void setState(LEDState state) {

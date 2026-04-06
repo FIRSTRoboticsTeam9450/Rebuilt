@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.68,
+        "y": 3.9638373751783167
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.68,
+        "y": 2.9638373751783167
+      },
+      "isLocked": false,
+      "linkedName": "HP - Push End"
+    },
+    {
+      "anchor": {
+        "x": 5.68,
+        "y": 2.2
+      },
+      "prevControl": {
+        "x": 5.68,
+        "y": 3.2
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "HP - MPush End"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 9999.0,
+    "maxAcceleration": 999.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Push",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": false
+}

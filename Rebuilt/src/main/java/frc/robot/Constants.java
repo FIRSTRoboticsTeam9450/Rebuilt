@@ -208,8 +208,8 @@ public final class Constants {
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
-      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,6.1976); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
-      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,1.8); //(2.54, 1.8), (2.54, 6.1976)
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,7.25); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
+      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,0.75); //(2.54, 1.8), (2.54, 6.1976)
       public static final Translation2d NEUTRAL_TARGET_BOTTOM = new Translation2d(2.396,  4.041);
       public static final Translation2d NEUTRAL_TARGET_TOP = new Translation2d(2.396,  4.041);
       public static final Translation2d FERRY_MID_RIGHT_TARGET = new Translation2d(3.418,  .5);

@@ -9,6 +9,7 @@
     "Climb",
     "Ferry Only",
     "Half Sweep",
+    "Sit",
     "Outpost",
     "Preload Only",
     "Push",
@@ -25,7 +26,8 @@
     "Emergancy Autos",
     "Ferry",
     "Half Sweep",
-    "Full Sweep"
+    "Sit",
+    "Push"
   ],
   "defaultMaxVel": 5.0,
   "defaultMaxAccel": 4.0,

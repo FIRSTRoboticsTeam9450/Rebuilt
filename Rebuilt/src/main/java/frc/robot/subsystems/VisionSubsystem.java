@@ -284,7 +284,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         for (limelightNetworkTableData llData : llDataList) {
             if (llData.megaTag1Estimate != null && llData.megaTag1Estimate.tagCount >= 1) {
-                double sampleRobotYaw = drivetrain.samplePoseAt(Utils.fpgaToCurrentTime(llData.megaTag1Estimate.timestampSeconds)).get().getRotation().getDegrees();
+                double sampleRobotYaw = drivetrain.samplePoseAt(Utils.fpgaToCurrentTime(llData.megaTag1Estimate.timestampSeconds)).isPresent() ? drivetrain.samplePoseAt(Utils.fpgaToCurrentTime(llData.megaTag1Estimate.timestampSeconds)).get().getRotation().getDegrees() : 100000;
                 double limelightYaw = llData.megaTag1Estimate.pose.getRotation().getDegrees();
                 if (Math.abs(sampleRobotYaw - limelightYaw) < MAX_MT1_YAW_DIFF_DEGREES) {
                     setVisionMeasurementStdDevs(enabledMT1StdDev);
@@ -372,7 +372,14 @@ public class VisionSubsystem extends SubsystemBase {
                 double llPitch = llPose[1];
                 
                 // Get current Pigeon yaw
-                double pigeonYaw = drivetrain.samplePoseAt(timestamp).get().getRotation().getDegrees();
+                double pigeonYaw;
+                if(!drivetrain.samplePoseAt(timestamp).isPresent()) {
+                    pigeonYaw = 100000000;
+                }
+                else {
+                    pigeonYaw = drivetrain.samplePoseAt(timestamp).get().getRotation().getDegrees();
+
+                }
                 
                 // Validation checks
                 boolean xValid = (x > 0) && (x < 16.565);
@@ -518,7 +525,7 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
 
         // Logger.recordOutput("Rebuilt/Vision/Bump Measurement Count", bumpMeasurmentCount);
-        // Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);
+        Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);
         if (loopOffset > 5) {
             loopOffset = 0;
             Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));

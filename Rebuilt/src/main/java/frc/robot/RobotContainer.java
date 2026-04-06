@@ -106,12 +106,17 @@ public class RobotContainer {
 
   private void configureAutos() {
     autoChooser.addDefaultOption("Untested Full Sweep", drivetrain.getAutoPath("P - Top Start", false));
-    autoChooser.addDefaultOption("Normal Full Sweep", drivetrain.getAutoPath("ACAP - Top Start", false));
-    autoChooser.addDefaultOption("Left Half Sweep", drivetrain.getAutoPath("HST - FPSC", false));
-    autoChooser.addDefaultOption("Right Half Sweep", drivetrain.getAutoPath("HSB - FPSC", false));
-    autoChooser.addDefaultOption("Preload + Outpost + Climb", drivetrain.getAutoPath("Outpost", false));
-    autoChooser.addDefaultOption("Preload +  Climb", drivetrain.getAutoPath("Preload Only", false));
-    autoChooser.addDefaultOption("Preload + Return to Hub", drivetrain.getAutoPath("Preload + Return to Hub", false));
+    autoChooser.addOption("Normal Full Sweep", drivetrain.getAutoPath("ACAP - Top Start", false));
+    autoChooser.addOption("Left Half Sweep", drivetrain.getAutoPath("HST - FPSC", false));
+    autoChooser.addOption("Right Half Sweep", drivetrain.getAutoPath("HSB - FPSC", false));
+    autoChooser.addOption("Right Fery Half Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", false));
+    // autoChooser.addOption("Right Half Push", drivetrain.getAutoPath("HP - Bottom Start", false));
+    
+    autoChooser.addOption("Intake From Hub", drivetrain.getAutoPath("Sit", false));
+
+    autoChooser.addOption("Preload + Outpost + Climb", drivetrain.getAutoPath("Outpost", false));
+    autoChooser.addOption("Preload +  Climb", drivetrain.getAutoPath("Preload Only", false));
+    autoChooser.addOption("Preload + Return to Hub", drivetrain.getAutoPath("Preload + Return to Hub", false));
 
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
@@ -337,7 +342,8 @@ public class RobotContainer {
     NamedCommands.registerCommand("RightTurretAngle", new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
 
     NamedCommands.registerCommand("ClimberUp", CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new WaitCommand(0.15)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)))));
-    NamedCommands.registerCommand("ClimberDown", new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
+    // NamedCommands.registerCommand("ClimberDown", new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
+    NamedCommands.registerCommand("ClimberDown", new InstantCommand());
 
     NamedCommands.registerCommand("ForceTrench", CoordinationSubsystem.getInstance().setForceTrenchCommand());
   }

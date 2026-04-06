@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HP - BigPush"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HP - MiniPush"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HP - Ferry"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Corner"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Corner Transition"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - 2nd Corner"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Cimb Lineup"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Climb"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Push",
+  "choreoAuto": false
+}

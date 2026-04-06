@@ -16,11 +16,11 @@
     },
     {
       "anchor": {
-        "x": 8.0,
+        "x": 8.25,
         "y": 1.2480888888888888
       },
       "prevControl": {
-        "x": 7.834344444444444,
+        "x": 8.084344444444444,
         "y": 0.49776666666666636
       },
       "nextControl": null,
@@ -31,7 +31,7 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.2630705394190895,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [],
@@ -45,6 +45,17 @@
         "type": "named",
         "data": {
           "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "SetFerryTargetBottom",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFerryTargetBottom"
         }
       }
     },
@@ -94,16 +105,16 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 999.0,
+    "maxAcceleration": 999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.35,
-    "rotation": 115.0
+    "velocity": 0.6,
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "Ferry Only",
@@ -111,5 +122,5 @@
     "velocity": 0,
     "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

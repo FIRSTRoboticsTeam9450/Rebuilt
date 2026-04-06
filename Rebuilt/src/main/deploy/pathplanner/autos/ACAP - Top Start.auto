@@ -26,6 +26,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Full Sweep",
+  "folder": "Push",
   "choreoAuto": false
 }

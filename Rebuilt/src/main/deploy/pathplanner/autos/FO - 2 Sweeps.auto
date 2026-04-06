@@ -15,6 +15,42 @@
           "data": {
             "pathName": "FO - 2 Sweep"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FO - Sweep to Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Corner"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Corner Transition"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - 2nd Corner"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Cimb Lineup"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "P - Climb"
+          }
         }
       ]
     }

@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 0.5134222222173899,
-        "y": 0.36
+        "y": 0.425
       },
       "prevControl": null,
       "nextControl": {
         "x": 0.7634222222173899,
-        "y": 0.36
+        "y": 0.425
       },
       "isLocked": false,
       "linkedName": "P - Corner End"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 1.25,
-        "y": 0.36
+        "y": 0.425
       },
       "prevControl": {
         "x": 1.0,
-        "y": 0.36000000000000004
+        "y": 0.42500000000000004
       },
       "nextControl": null,
       "isLocked": false,
@@ -60,7 +60,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 999.0,
     "maxAcceleration": 999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,

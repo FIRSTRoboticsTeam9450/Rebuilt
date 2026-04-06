@@ -225,7 +225,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TransferState transferState = TransferState.NO_RUN;
         IntakePos intakeAngleState = IntakePos.STORE;
         IntakeState intakeVelocState = IntakeState.IDLING;
-        LEDState ledState = LEDState.TEAM_UNIQUE_DISABLED;
+        LEDState ledState = LEDSubsystem.getInstance().getCurrentState();
 
         switch (currentState) {
             case INIT:

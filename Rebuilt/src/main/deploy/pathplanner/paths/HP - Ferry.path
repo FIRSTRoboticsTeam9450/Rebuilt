@@ -1,0 +1,175 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.68,
+        "y": 2.2
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.3513552068473595,
+        "y": 3.045192582025678
+      },
+      "isLocked": false,
+      "linkedName": "HP - MPush End"
+    },
+    {
+      "anchor": {
+        "x": 8.75,
+        "y": 0.85
+      },
+      "prevControl": {
+        "x": 8.955748930099857,
+        "y": 1.2079029957203988
+      },
+      "nextControl": {
+        "x": 8.401127930919632,
+        "y": 0.24313240371924127
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.502577777777777,
+        "y": 0.36
+      },
+      "prevControl": {
+        "x": 8.002577777777777,
+        "y": 0.3599999999999997
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "HP - Ferry End"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.2004264392324166,
+      "rotationDegrees": -20.0
+    },
+    {
+      "waypointRelativePos": 0.7334754797441313,
+      "rotationDegrees": -40.0
+    },
+    {
+      "waypointRelativePos": 1.0277185501066115,
+      "rotationDegrees": -155.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.3133018230925033,
+      "maxWaypointRelativePos": 0.680621201890614,
+      "constraints": {
+        "maxVelocity": 0.9,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "SetFerryTargetBottom",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFerryTargetBottom"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.1,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.1,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.8588791357191045,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.95,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 1.669142471303163,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 999.0,
+    "maxAcceleration": 999.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 99.0,
+    "rotation": -155.0
+  },
+  "reversed": false,
+  "folder": "Push",
+  "idealStartingState": {
+    "velocity": 1.0,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": false
+}

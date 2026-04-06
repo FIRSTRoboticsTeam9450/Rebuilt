@@ -8,24 +8,40 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.188360717608722,
-        "y": 5.715316806167192
+        "x": 7.713637660485022,
+        "y": 5.529415121255349
       },
       "isLocked": false,
       "linkedName": "HSB - Ferry End"
     },
     {
       "anchor": {
-        "x": 8.318722222222222,
-        "y": 1.217
+        "x": 8.0,
+        "y": 1.6
       },
       "prevControl": {
-        "x": 7.672978620923798,
-        "y": 1.9528370752973396
+        "x": 7.621572368237031,
+        "y": 1.916026459850707
       },
       "nextControl": {
-        "x": 9.275135114850123,
-        "y": 0.1271493777516417
+        "x": 8.593466476462195,
+        "y": 1.1043937232524967
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 8.6,
+        "y": 0.4
+      },
+      "prevControl": {
+        "x": 9.175140907607874,
+        "y": 0.4503183093456998
+      },
+      "nextControl": {
+        "x": 8.024859092392125,
+        "y": 0.34968169065430027
       },
       "isLocked": false,
       "linkedName": null
@@ -33,15 +49,15 @@
     {
       "anchor": {
         "x": 6.116477777777778,
-        "y": 0.35
+        "y": 0.4
       },
       "prevControl": {
-        "x": 7.60688292997477,
-        "y": 0.3896263359673352
+        "x": 7.607409622027385,
+        "y": 0.39999999999999986
       },
       "nextControl": {
-        "x": 4.284521827040786,
-        "y": 0.3012926388678585
+        "x": 4.283874434861168,
+        "y": 0.40000000000000024
       },
       "isLocked": false,
       "linkedName": null
@@ -49,11 +65,11 @@
     {
       "anchor": {
         "x": 0.5134222222173899,
-        "y": 0.36
+        "y": 0.425
       },
       "prevControl": {
-        "x": 3.9757333333285008,
-        "y": 0.2917888888888891
+        "x": 3.9764051828746423,
+        "y": 0.42499999999999954
       },
       "nextControl": null,
       "isLocked": false,
@@ -70,25 +86,25 @@
       "rotationDegrees": 180.0
     },
     {
-      "waypointRelativePos": 1.4414937759336013,
-      "rotationDegrees": -165.0
+      "waypointRelativePos": 1.9,
+      "rotationDegrees": -150.0
     },
     {
-      "waypointRelativePos": 2.0340248962655414,
-      "rotationDegrees": -165.0
+      "waypointRelativePos": 3.0340248962655414,
+      "rotationDegrees": -150.0
     },
     {
-      "waypointRelativePos": 2.6082987551867243,
-      "rotationDegrees": -165.0
+      "waypointRelativePos": 3.6082987551867243,
+      "rotationDegrees": -150.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 2.75,
-      "maxWaypointRelativePos": 3.0,
+      "minWaypointRelativePos": 3.75,
+      "maxWaypointRelativePos": 4.0,
       "constraints": {
-        "maxVelocity": 0.75,
+        "maxVelocity": 0.9,
         "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -98,8 +114,8 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.8188585607940395,
-      "maxWaypointRelativePos": 1.4263027295285404,
+      "minWaypointRelativePos": 0.8102633355840663,
+      "maxWaypointRelativePos": 1.85,
       "constraints": {
         "maxVelocity": 1.0,
         "maxAcceleration": 4.0,
@@ -147,7 +163,7 @@
     },
     {
       "name": "ForceTrench",
-      "waypointRelativePos": 2.5,
+      "waypointRelativePos": 3.5,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -158,7 +174,7 @@
     },
     {
       "name": "SetIntake",
-      "waypointRelativePos": 2.55,
+      "waypointRelativePos": 3.55,
       "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
@@ -200,7 +216,7 @@
     },
     {
       "name": "SetFire",
-      "waypointRelativePos": 2.6,
+      "waypointRelativePos": 3.6,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -211,7 +227,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 999.0,
     "maxAcceleration": 9999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -225,7 +241,7 @@
   "reversed": false,
   "folder": "Half Sweep",
   "idealStartingState": {
-    "velocity": 0,
+    "velocity": 0.6,
     "rotation": 115.0
   },
   "useDefaultConstraints": false

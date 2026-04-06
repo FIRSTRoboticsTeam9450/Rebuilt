@@ -128,7 +128,7 @@ public class HubTracker {
             case 'R':
                 return Optional.of(Alliance.Red);
             default:
-                if (RobotBase.isSimulation()) {
+                if (RobotBase.isSimulation() || !DriverStation.isFMSAttached()) {
                     if (randomAutoWinner == null) {
                         Random rand = new Random();
                         boolean isBlueAlliance = rand.nextBoolean();

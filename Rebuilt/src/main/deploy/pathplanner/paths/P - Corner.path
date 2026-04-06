@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 5.502577777777777,
-        "y": 0.36
+        "y": 0.41
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.252577777777777,
-        "y": 0.36000000000000004
+        "y": 0.41000000000000003
       },
       "isLocked": false,
       "linkedName": "P - Neutral End 2"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 0.5134222222173899,
-        "y": 0.36
+        "y": 0.425
       },
       "prevControl": {
         "x": 0.7634222222173899,
-        "y": 0.35999999999999993
+        "y": 0.42499999999999993
       },
       "nextControl": null,
       "isLocked": false,
@@ -40,7 +40,7 @@
       "minWaypointRelativePos": 0.5210918114143874,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.55,
+        "maxVelocity": 0.9,
         "maxAcceleration": 1.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -123,8 +123,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 999.0,
+    "maxAcceleration": 999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -137,8 +137,8 @@
   "reversed": false,
   "folder": "Push",
   "idealStartingState": {
-    "velocity": 4.0,
+    "velocity": 99.0,
     "rotation": -155.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

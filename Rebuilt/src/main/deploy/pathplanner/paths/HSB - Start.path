@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 9.32403876506104,
-        "y": 1.2932408883346513
+        "y": 1.2932408883346511
       },
       "isLocked": false,
       "linkedName": "BottomTrenchStart"
@@ -44,7 +44,7 @@
       "minWaypointRelativePos": 0.6644159351789304,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.55,
+        "maxVelocity": 0.6,
         "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -112,7 +112,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
+    "maxVelocity": 999.0,
     "maxAcceleration": 9999999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -120,7 +120,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.6,
     "rotation": 115.0
   },
   "reversed": false,
