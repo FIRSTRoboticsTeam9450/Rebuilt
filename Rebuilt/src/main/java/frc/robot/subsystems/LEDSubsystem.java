@@ -28,6 +28,7 @@ import frc.robot.RobotContainer;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.RobotConstants.LEDConstants;
+import frc.robot.commands.SketchSolidColorCommand;
 import frc.robot.commands.TeamCANdleAnimationCommand;
 import frc.robot.util.HubTracker;
 
@@ -42,7 +43,7 @@ public class LEDSubsystem extends SubsystemBase{
     public static final int START_INDEX = 0;
     public static final int END_INDEX_NOSTRIP = 7;
     public static final int START_INDEX_STRIPONLY = 8;
-    public static final int END_INDEX = 18;
+    public static final int END_INDEX = 19;
     public static final int HIGHEST_INDEX = 107;
 
     public static final RGBWColor EMPTY_COLOR = new RGBWColor(0, 0, 0);
@@ -50,7 +51,8 @@ public class LEDSubsystem extends SubsystemBase{
     private int amountOfApplyStates = 0;
 
     private TeamCANdleAnimationCommand teamUniqueDisabledCommand = new TeamCANdleAnimationCommand(this);
-
+    private SketchSolidColorCommand sketchPurpleSolidColorCommand = new SketchSolidColorCommand(this, new RGBWColor(255, 5, 212));
+    private SketchSolidColorCommand sketchWhiteSolidColorCommand = new SketchSolidColorCommand(this, new RGBWColor(255, 255, 255));
     private CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
     private double intakeWallMax = 0;
     private double intakeWallMin = 0;
@@ -91,13 +93,14 @@ public class LEDSubsystem extends SubsystemBase{
     private SpeedState currentSpeedState = SpeedState.GOOD;
     
     private CANdle candle = new CANdle(LEDConstants.DeviceIDs.kCANDLEID, RobotConstants.MAIN_SYSTEMS_CANBUS);
-    private SolidColor solidColorRequest = new SolidColor(START_INDEX, END_INDEX);
+    private SolidColor solidColorRequest = new SolidColor(START_INDEX, END_INDEX).withUpdateFreqHz(0);
+    
     private EmptyAnimation emptyColorRequest = new EmptyAnimation(0);
 
     private ColorFlowAnimation flowColorRequest = new ColorFlowAnimation(START_INDEX, END_INDEX).withFrameRate(10);
     private StrobeAnimation strobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(2); // Fast
     private StrobeAnimation slowStrobeColorRequest = new StrobeAnimation(START_INDEX, END_INDEX).withFrameRate(5); // Slow
-    private SingleFadeAnimation singleFadeRequest = new SingleFadeAnimation(START_INDEX, END_INDEX).withFrameRate(25);
+    private SingleFadeAnimation singleFadeRequest = new SingleFadeAnimation(START_INDEX, END_INDEX).withFrameRate(0);
 
     public LEDSubsystem() {
         configureCANdle();
@@ -134,6 +137,7 @@ public class LEDSubsystem extends SubsystemBase{
                 currentSpeedState = checkedSpeedState;
                 applyState();
             }
+            
         }
         publishLogs();
     }
@@ -170,7 +174,9 @@ public class LEDSubsystem extends SubsystemBase{
                 break;
 
             case COME_BACK: // White - S=0
-                candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)).withLEDStartIndex(START_INDEX).withLEDEndIndex(END_INDEX));
+                // candle.setControl(singleFadeRequest.withColor(RGBWColor.fromHSV(0, 0, 1)));
+                CommandScheduler.getInstance().schedule(sketchWhiteSolidColorCommand);
+                // candle.setControl(solidColorRequest.withColor(RGBWColor.fromHSV(0, 0, 1)).withLEDStartIndex(START_INDEX).withLEDEndIndex(END_INDEX));
                 break;
 
             case END_OF_INACTIVE: // White - S=0
@@ -187,8 +193,11 @@ public class LEDSubsystem extends SubsystemBase{
             
             case SPEED_STATE: // Purple - H=310
                 if (currentSpeedState == SpeedState.GOOD) {
-                    setColor(310, 1, 1);
-                    applyColorControl();
+                    // setColor(310, 1, 1);
+                    // applyColorControl();
+                    // candle.setControl(singleFadeRequest.withColor(RGBWColor.fromHSV(310, 1, 1)).withFrameRate(0));
+                    CommandScheduler.getInstance().schedule(sketchPurpleSolidColorCommand);
+                    // if(candle.get)
                 } else if (currentSpeedState == SpeedState.TOO_FAST) {
                     candle.setControl(new StrobeAnimation(START_INDEX, END_INDEX).withColor(new RGBWColor().fromHSV(310, 1, 1)).withFrameRate(6));
                 } else if (currentSpeedState == SpeedState.TOO_SLOW) {
@@ -204,13 +213,17 @@ public class LEDSubsystem extends SubsystemBase{
 
     private void publishLogs() {
         Logger.recordOutput("Rebuilt/LED/Current State", currentState);
-        Logger.recordOutput("Rebuilt/LED/Current Control Request", candle.getAppliedControl().toString());
-        Logger.recordOutput("Rebuilt/LED/Amount of Apply State Calls", amountOfApplyStates);
+        // Logger.recordOutput("Rebuilt/LED/Current Control Request", candle.getAppliedControl().toString());
+        // Logger.recordOutput("Rebuilt/LED/Amount of Apply State Calls", amountOfApplyStates);
         // Logger.recordOutput("Rebuilt/LED/Is Unique Animation Running?", CommandScheduler.getInstance().isScheduled(teamUniqueDisabledCommand));
     }
 
     public void removeLEDColor(boolean cancelUniqueAnimation) {
-        if (cancelUniqueAnimation) CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
+        if (cancelUniqueAnimation) {
+            CommandScheduler.getInstance().cancel(teamUniqueDisabledCommand);
+            CommandScheduler.getInstance().cancel(sketchPurpleSolidColorCommand);
+            CommandScheduler.getInstance().cancel(sketchWhiteSolidColorCommand);
+        }
 
         candle.setControl(emptyColorRequest);
         candle.setControl(solidColorRequest.withColor(EMPTY_COLOR).withLEDStartIndex(START_INDEX).withLEDEndIndex(END_INDEX));

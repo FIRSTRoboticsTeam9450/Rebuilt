@@ -339,14 +339,14 @@ public class ShooterSubsystem extends SubsystemBase {
         // Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
-        Logger.recordOutput("Rebuilt/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
+        // Logger.recordOutput("Rebuilt/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
 
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
+        // Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor Position", shooterLeftMotor.getPosition().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
+        // Logger.recordOutput("Rebuilt/Shooter/Outtake/Is at Goal?", isVelocityWithinTolerance());
 
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Manual Adjustment", manualShift);
 
@@ -362,15 +362,15 @@ public class ShooterSubsystem extends SubsystemBase {
             Logger.recordOutput("Rebuilt/Shooter/Hood/Request Accel", hoodMMRequest.Acceleration);
             Logger.recordOutput("Rebuilt/Shooter/Hood/Request Veloc", hoodMMRequest.Velocity);
 
-            Logger.recordOutput("Rebuilt/Shooter/Hood/Override hood setpoint", targetHoodAngleOverride);
-            Logger.recordOutput("Rebuilt/Shooter/Hood/Overriding hood", isOverrideAngle);
+            // Logger.recordOutput("Rebuilt/Shooter/Hood/Override hood setpoint", targetHoodAngleOverride);
+            // Logger.recordOutput("Rebuilt/Shooter/Hood/Overriding hood", isOverrideAngle);
 
             // Outtake logs
-            Logger.recordOutput("Rebuilt/Shooter/Outtake/Right motor voltage", shooterRightMotor.getMotorVoltage().getValueAsDouble());
-            Logger.recordOutput("Rebuilt/Shooter/Outtake/TargetOverrideVelocity", logTuningShooterVelocity.get());
-            Logger.recordOutput("Rebuilt/Shooter/Outtake/Tuning?", isTuningShooterVelocity);
+            // Logger.recordOutput("Rebuilt/Shooter/Outtake/Right motor voltage", shooterRightMotor.getMotorVoltage().getValueAsDouble());
+            // Logger.recordOutput("Rebuilt/Shooter/Outtake/TargetOverrideVelocity", logTuningShooterVelocity.get());
+            // Logger.recordOutput("Rebuilt/Shooter/Outtake/Tuning?", isTuningShooterVelocity);
 
-            Logger.recordOutput("Rebuilt/Shooter/Outtake/Right Motor Position", shooterRightMotor.getPosition().getValueAsDouble());
+            // Logger.recordOutput("Rebuilt/Shooter/Outtake/Right Motor Position", shooterRightMotor.getPosition().getValueAsDouble());
         }
     }
 
@@ -468,11 +468,14 @@ public class ShooterSubsystem extends SubsystemBase {
                     targetShooterVeloc = 70;
                     break;
                 case SHOOT_OVER_NET:
-                    targetShooterVeloc = 80;
+                    targetShooterVeloc = 90;
                     break;
 
                 default:
                     break;
+            }
+            if(VisionSubsystem.getInstance().getUsingCustomTarget()) {
+                targetShooterVeloc = ferryingDistanceToVelocity.get(cachedDistanceToTarget);
             }
         }
         else {
@@ -526,6 +529,9 @@ public class ShooterSubsystem extends SubsystemBase {
                 default:
                     return 0;
             }
+            if(VisionSubsystem.getInstance().getUsingCustomTarget()) {
+                targetHoodHeight = hoodAngleFunction(distance);
+            }
         }
         else {
             targetHoodHeight = targetHoodAngleOverride;
@@ -559,7 +565,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double hoodAngleFunctionShootOverNet(double distance) {
         // double wantedAngle = (-120/(distance + 4.4)) + 45;
-        double wantedAngle = (-600/(distance + 28)) + 33;
+        double wantedAngle = (-600/(distance + 28)) + 39;
         double wantedRevs = getAsRevs(wantedAngle);
         if(distance <= distanceAwayToUseLowDegree) {
             wantedRevs = 0; 

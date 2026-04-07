@@ -52,7 +52,7 @@ public class RobotContainer {
   // public final static PDHSubsystem power = PDHSubsystem.getInstance();
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   public final static VisionSubsystem vision = VisionSubsystem.getInstance();
-  public final static LEDSubsystem led = LEDSubsystem.getInstance();
+  // public final static LEDSubsystem led = LEDSubsystem.getInstance();
   public final static CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
   public final static ClimberSubsystem climbSub = ClimberSubsystem.getInstance();
   public static TurretSubsystem turretSub = TurretSubsystem.getInstance();
@@ -118,6 +118,8 @@ public class RobotContainer {
     autoChooser.addOption("Preload +  Climb", drivetrain.getAutoPath("Preload Only", false));
     autoChooser.addOption("Preload + Return to Hub", drivetrain.getAutoPath("Preload + Return to Hub", false));
 
+    autoChooser.addOption("Depot", drivetrain.getAutoPath("Depot", false));
+
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
     // autoChooser.addOption("Slip Test", drivetrain.getAutoPath("Slip Testing", false));
@@ -163,6 +165,9 @@ public class RobotContainer {
                   rotation = 0;
                 }
                 else if(joyY == 0 && joyX > 0) {
+                  rotation = 0;
+                }
+                else if(joyY == 0 && joyX == 0) {
                   rotation = 0;
                 }
                 double xUsed = speed * Math.cos(rotation);
@@ -262,6 +267,7 @@ public class RobotContainer {
     // OPERATOR.povLeft().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new WaitCommand(0.15)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)))));
     // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
     OPERATOR.povLeft().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
+    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
 
     OPERATOR.back().onTrue(ClimberSubsystem.getInstance().setForceClimberUpCommand());
     OPERATOR.start().onTrue(ClimberSubsystem.getInstance().setForceClimberDownCommand());
@@ -342,10 +348,11 @@ public class RobotContainer {
     NamedCommands.registerCommand("RightTurretAngle", new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
 
     NamedCommands.registerCommand("ClimberUp", CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new WaitCommand(0.15)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)))));
-    // NamedCommands.registerCommand("ClimberDown", new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
-    NamedCommands.registerCommand("ClimberDown", new InstantCommand());
+    NamedCommands.registerCommand("ClimberDown", new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
+    // NamedCommands.registerCommand("ClimberDown", new InstantCommand());
 
     NamedCommands.registerCommand("ForceTrench", CoordinationSubsystem.getInstance().setForceTrenchCommand());
+    NamedCommands.registerCommand("UseCustomTarget", VisionSubsystem.getInstance().setUseCustomTarget());
   }
 
   public Command getAutonomousCommand() {

@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 0.4,
-        "y": 3.3
+        "y": 3.38
       },
       "prevControl": null,
       "nextControl": {
         "x": 0.65,
-        "y": 3.3
+        "y": 3.379999999999999
       },
       "isLocked": false,
       "linkedName": "P - Climb Align"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 0.75,
-        "y": 3.3
+        "y": 3.38
       },
       "prevControl": {
         "x": 0.5,
-        "y": 3.3
+        "y": 3.38
       },
       "nextControl": null,
       "isLocked": false,

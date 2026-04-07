@@ -100,10 +100,20 @@ public class CoordinationSubsystem extends SubsystemBase {
         double timeRemaining = HubTracker.timeRemainingInCurrentShift().isPresent() ? HubTracker.timeRemainingInCurrentShift().get() : -1;
         if(HubTracker.getCurrentShift().equals(Optional.of(HubTracker.Shift.TRANSITION))) {
             ledState = LEDState.AUTO_STATE;
-            if(timeRemaining <= 7) {
-                ledState = LEDState.SPEED_STATE;
-                if(timeRemaining <= 2) {
-                    ledState = LEDState.END_OF_ACTIVE;
+            if(HubTracker.getAutoWinner().equals(DriverStation.getAlliance())) {
+                if(timeRemaining <= 7) {
+                    ledState = LEDState.SPEED_STATE;
+                    if(timeRemaining <= 2) {
+                        ledState = LEDState.END_OF_ACTIVE;
+                    }
+                }
+            }
+            else {
+                if(timeRemaining <= 7) {
+                    ledState = LEDState.COME_BACK;
+                    if(timeRemaining <= 2) {
+                        ledState = LEDState.END_OF_ACTIVE;
+                    }
                 }
             }
         } else {
@@ -130,7 +140,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         if(IntakeSubsystem.getInstance().getJammed() || TransferSubsystem.getInstance().jammed()) {
             ledState = LEDState.JAMMED;
         }
-        LEDSubsystem.getInstance().setState(ledState);
+        // LEDSubsystem.getInstance().setState(ledState);
     }
 
     private void applyZone() {
@@ -225,7 +235,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TransferState transferState = TransferState.NO_RUN;
         IntakePos intakeAngleState = IntakePos.STORE;
         IntakeState intakeVelocState = IntakeState.IDLING;
-        LEDState ledState = LEDSubsystem.getInstance().getCurrentState();
+        // LEDState ledState = LEDSubsystem.getInstance().getCurrentState();
 
         switch (currentState) {
             case INIT:
@@ -233,7 +243,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.ZEROING;
                 intakeAngleState = IntakePos.STORE;
                 intakeVelocState = IntakeState.IDLING;
-                ledState = LEDState.INIT;
+                // ledState = LEDState.INIT;
                 break;
 
             case STORING:
@@ -321,7 +331,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                     intakeAngleState = IntakePos.TRENCH_STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
-                ledState = LEDState.SHOOTING_DEADZONE;
+                // ledState = LEDState.SHOOTING_DEADZONE;
                 break;
             case CLIMB:
                 turretState = TurretState.CLIMB;
@@ -331,7 +341,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 
                 intakeAngleState = IntakePos.CLIMB_STORE;
                 intakeVelocState = IntakeState.IDLING;
-                ledState = LEDState.SHOOTING_DEADZONE;
+                // ledState = LEDState.SHOOTING_DEADZONE;
                 break;
         }
 
@@ -340,7 +350,7 @@ public class CoordinationSubsystem extends SubsystemBase {
         TransferSubsystem.getInstance().setState(transferState);
         IntakeSubsystem.getInstance().setPos(intakeAngleState);
         IntakeSubsystem.getInstance().setState(intakeVelocState);
-        LEDSubsystem.getInstance().setState(ledState);
+        // LEDSubsystem.getInstance().setState(ledState);
     }
 
     private void publishLogs() {

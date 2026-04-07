@@ -24,6 +24,7 @@ import frc.robot.Constants.RobotConstants.LimelightConstants.FrontRight;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.FieldConstants.ImportantFieldPoses;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneConstantsWelded;
 import frc.robot.Constants.FieldConstants.ZoneConstants.ZoneTargets;
 import frc.robot.util.BezierCurve;
@@ -157,7 +158,7 @@ public class VisionSubsystem extends SubsystemBase {
     double loopOffset = 0;
 
     private boolean useCustomTarget = false;
-    private Translation2d customTarget = new Translation2d();
+    private Translation2d customTarget = ImportantFieldPoses.FERRY_MID_RIGHT_TARGET; //new Translation2d();
     
     private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
     // -------------------------
@@ -508,13 +509,13 @@ public class VisionSubsystem extends SubsystemBase {
         // Overall vision state
         Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Pose", lastVisionPose);
         // Logger.recordOutput("Rebuilt/Vision/Total/Last Fused Pose", lastFusedPose);
-        Logger.recordOutput("Rebuilt/Vision/Total/Last Target Pose", lastTargetPose);
+        // Logger.recordOutput("Rebuilt/Vision/Total/Last Target Pose", lastTargetPose);
         Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
         
         // Standard deviations
-        Logger.recordOutput("Rebuilt/Vision/Config/StdDev X", currentVisionStdDevX);
-        Logger.recordOutput("Rebuilt/Vision/Config/StdDev Y", currentVisionStdDevY);
-        Logger.recordOutput("Rebuilt/Vision/Config/StdDev Theta", currentVisionStdDevTheta);
+        // Logger.recordOutput("Rebuilt/Vision/Config/StdDev X", currentVisionStdDevX);
+        // Logger.recordOutput("Rebuilt/Vision/Config/StdDev Y", currentVisionStdDevY);
+        // Logger.recordOutput("Rebuilt/Vision/Config/StdDev Theta", currentVisionStdDevTheta);
 
         // Logger.recordOutput("Rebuilt/Vision/Operator Overriden Vision Trust", operatorForcedVisionTrust);
         
@@ -522,10 +523,10 @@ public class VisionSubsystem extends SubsystemBase {
         // Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
         // Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
 
-        Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
+        // Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
 
         // Logger.recordOutput("Rebuilt/Vision/Bump Measurement Count", bumpMeasurmentCount);
-        Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);
+        // Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);
         if (loopOffset > 5) {
             loopOffset = 0;
             Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
@@ -1038,8 +1039,24 @@ public class VisionSubsystem extends SubsystemBase {
         lastAdjustedTargetPose = currentTarget;
     }
 
-    public Command setCustomTarget(boolean value) {
-        return new InstantCommand(() -> useCustomTarget = value);
+    // public Command setUseCustomTarget(boolean value) {
+    //     return new InstantCommand(() -> useCustomTarget = value);
+    // }
+
+    public void setUseCustomTarget(boolean value) {
+        useCustomTarget = value;
+    }
+
+    public Command setUseCustomTarget() {
+        return new InstantCommand(() -> useCustomTarget = !useCustomTarget);
+    }
+
+    public Command setCustomTarget(Translation2d target) {
+        return new InstantCommand(() -> customTarget = target);
+    }
+
+    public boolean getUsingCustomTarget() {
+        return useCustomTarget;
     }
 
     public void setFerryTarget(String target) {

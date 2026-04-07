@@ -113,7 +113,7 @@ public class Robot extends LoggedRobot {
     VisionSubsystem.getInstance().setLLIMUModes(1);
     updateValuesOffset = 0;
     IntakeSubsystem.getInstance().init();
-    LEDSubsystem.getInstance().setState(LEDState.TEAM_UNIQUE_DISABLED);
+    // LEDSubsystem.getInstance().setState(LEDState.TEAM_UNIQUE_DISABLED);
     // SignalLogger.stop();
   }
 
@@ -169,6 +169,7 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    VisionSubsystem.getInstance().setUseCustomTarget(false);
     // SignalLogger.start();
   }
 

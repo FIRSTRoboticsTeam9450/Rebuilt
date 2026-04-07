@@ -70,11 +70,11 @@
       "rotationDegrees": 165.0
     },
     {
-      "waypointRelativePos": 1.8422174840085295,
+      "waypointRelativePos": 1.75,
       "rotationDegrees": 165.0
     },
     {
-      "waypointRelativePos": 2.0,
+      "waypointRelativePos": 1.91,
       "rotationDegrees": -155.0
     }
   ],
@@ -120,63 +120,8 @@
       }
     },
     {
-      "name": "SetFerryTargetBottom",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetFerryTargetBottom"
-        }
-      }
-    },
-    {
-      "name": "SetFire",
-      "waypointRelativePos": 0.38892640108034404,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetFire"
-        }
-      }
-    },
-    {
-      "name": "SetIntake",
-      "waypointRelativePos": 0.8021607022281996,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetIntake"
-        }
-      }
-    },
-    {
-      "name": "IntakePush",
-      "waypointRelativePos": 2.5,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "IntakePush"
-        }
-      }
-    },
-    {
-      "name": "SetIntake",
-      "waypointRelativePos": 2.55,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetIntake"
-        }
-      }
-    },
-    {
       "name": "ForceTrench",
-      "waypointRelativePos": 2.8,
+      "waypointRelativePos": 0.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",

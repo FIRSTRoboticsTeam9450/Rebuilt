@@ -9,12 +9,13 @@
     "Climb",
     "Ferry Only",
     "Half Sweep",
-    "Sit",
+    "Depot",
     "Outpost",
     "Preload Only",
     "Push",
     "Right Side Shoot & Ferry",
     "Shoot & Ferry",
+    "Sit",
     "Testing"
   ],
   "autoFolders": [
@@ -26,8 +27,9 @@
     "Emergancy Autos",
     "Ferry",
     "Half Sweep",
-    "Sit",
-    "Push"
+    "Depot",
+    "Push",
+    "Sit"
   ],
   "defaultMaxVel": 5.0,
   "defaultMaxAccel": 4.0,

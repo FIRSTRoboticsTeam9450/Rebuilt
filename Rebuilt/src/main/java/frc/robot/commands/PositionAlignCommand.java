@@ -113,7 +113,7 @@ public class PositionAlignCommand extends Command {
         currentFieldPose = drivetrain.getState().Pose;
 
         /* ---------- Scoot ---------- */
-        if (atSetpoint(0.025, 0.1)) {
+        if (atSetpoint(0.075, 0.25)) {
             offsetArr = calculateAlignPosition(targetPose, 0.35);
             pidX.setSetpoint(offsetArr[0]);
             pidY.setSetpoint(offsetArr[1]);
@@ -148,11 +148,11 @@ public class PositionAlignCommand extends Command {
         //Calculate how far in and to the side we wish to be relative to the Tower
         switch (alignSide) {
             case LEFT:
-                tagLeftOffset = -0.39; //-0.5
+                tagLeftOffset = -0.425; //-0.5
                 break;
 
             case RIGHT:
-                tagLeftOffset = 0.475; //0.5
+                tagLeftOffset = 0.425; //0.5
                 break;
 
             default:

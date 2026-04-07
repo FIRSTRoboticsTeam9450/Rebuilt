@@ -819,17 +819,17 @@ public class TurretSubsystem extends SubsystemBase {
 
         // State information
         Logger.recordOutput("Rebuilt/Turret/State/CurrentState", currentState);
-        Logger.recordOutput("Rebuilt/Turret/State/TargetMode", currentTargetMode);
+        // Logger.recordOutput("Rebuilt/Turret/State/TargetMode", currentTargetMode);
         
         // Position tracking
         Logger.recordOutput("Rebuilt/Turret/Pos/CurrentAngleDeg", cachedAngleDeg);
         Logger.recordOutput("Rebuilt/Turret/Target/ProfiledSetpointDeg", profiledSetpointDeg);
         
         // Velocity tracking
-        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentVelocityDegPerSec", 
-            cachedMotorVelocity * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION);
-        Logger.recordOutput("Rebuilt/Turret/Target/TargetVelocityDegPerSec", 
-            robotRelativeTargetVelocityDegPerSec);
+        // Logger.recordOutput("Rebuilt/Turret/Pos/CurrentVelocityDegPerSec", 
+            // cachedMotorVelocity * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION);
+        // Logger.recordOutput("Rebuilt/Turret/Target/TargetVelocityDegPerSec", 
+        //     robotRelativeTargetVelocityDegPerSec);
 
         //Debugging For Creating Velocity Safety Net
         // Logger.recordOutput("Rebuilt/Turret/Pos/Distance to Stop", degreesToStopWithCurrentVelocity);

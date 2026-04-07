@@ -65,17 +65,17 @@ public final class Constants {
         public static final double kElevatorStore = -55.4;
 
         public static final double kTelescopeStore = 0.5;
-        public static final double kTelescopeHandoff = 1;
-        public static final double kTelescopeL1Reach = 43.3;
-        public static final double kTelescopeL2AndL3Reach = 44.8;
-        public static final double kTelescopeAutoClimb = 12.5;
+        public static final double kTelescopeHandoff = 4.5;
+        public static final double kTelescopeL1Reach = 29.25;
+        public static final double kTelescopeL2AndL3Reach = 29.25;
+        public static final double kTelescopeAutoClimb = 4.5;
       }
 
     }
 
     public static final class IntakeConstants {
 
-      public static final double kAngleEncoderMagnetOffset = -0.701171875;
+      public static final double kAngleEncoderMagnetOffset = -0.365234375;
       public static final double kAngleRotorToSensorRatio = 36;//36:1
 
       public static final class DeviceIDs {
@@ -208,8 +208,8 @@ public final class Constants {
       public static final Translation2d BLUE_HUB_CENTER = new Translation2d(4.6256, 4.0345);
       public static final Translation2d RED_HUB_CENTER = new Translation2d(11.9154, 4.0345);
 
-      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,7.25); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
-      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,0.75); //(2.54, 1.8), (2.54, 6.1976)
+      public static final Translation2d FERRY_TOP_TARGET = new Translation2d(2.54,7.0); //  new Translation2d(2.54, 6.1976); // Used to be .455, 6.95, 2.112, 6.432
+      public static final Translation2d FERRY_BOTTOM_TARGET = new Translation2d(2.54,1.0); //(2.54, 1.8), (2.54, 6.1976)
       public static final Translation2d NEUTRAL_TARGET_BOTTOM = new Translation2d(2.396,  4.041);
       public static final Translation2d NEUTRAL_TARGET_TOP = new Translation2d(2.396,  4.041);
       public static final Translation2d FERRY_MID_RIGHT_TARGET = new Translation2d(3.418,  .5);
@@ -319,19 +319,19 @@ public final class Constants {
         public static final double FERRY_ZONE_MID_SECTION_1_X_HIGH = 5.98; 
         public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW = 3.653;
         public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH = 4.145;
-        
+         
         public static final double FERRY_ZONE_MID_SECTION_2_X_LOW = FERRY_ZONE_MID_SECTION_1_X_HIGH;
-        public static final double FERRY_ZONE_MID_SECTION_2_X_HIGH = 7.355; // TODO: Change to threshold value
+        public static final double FERRY_ZONE_MID_SECTION_2_X_HIGH = 6; // TODO: Change to threshold value
         public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
-        public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH = 5.08;
+        public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH = 5.2;
 
         public static final double FERRY_ZONE_PUSH_SECTION_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
         public static final double FERRY_ZONE_PUSH_SECTION_X_HIGH = FERRY_ZONE_MID_SECTION_1_X_HIGH;
         public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH;
-        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH = 5.08;
+        public static final double FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH = 5.2;
 
         public static final double FERRY_ZONE_LEFT_SECTION_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
-        public static final double FERRY_ZONE_LEFT_SECTION_X_HIGH = 6.433;
+        public static final double FERRY_ZONE_LEFT_SECTION_X_HIGH = 7.433; // Untested change check it later
         public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW = FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH;
         public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH = 5.8;
         

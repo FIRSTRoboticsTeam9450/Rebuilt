@@ -144,7 +144,7 @@ public class ClimberSubsystem extends SubsystemBase {
         telescopeConfig = new TalonFXConfiguration();
 
         telescopeConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
-        telescopeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        telescopeConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         Slot0Configs telescopeSlot0Configs = new Slot0Configs()
                                         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign)
@@ -305,6 +305,7 @@ public class ClimberSubsystem extends SubsystemBase {
             case HANDOFF:
                 switch (currentClimbLevel) {
                     case AUTO:
+                        setTelescopeTarget(ClimbPositions.kTelescopeAutoClimb);
                         break;
 
                     case L1:
@@ -332,7 +333,7 @@ public class ClimberSubsystem extends SubsystemBase {
             case END:
                 switch (currentClimbLevel) {
                         case AUTO:
-                            setTelescopeTarget(ClimbPositions.kTelescopeAutoClimb);
+                            setTelescopeTarget(ClimbPositions.kTelescopeL1Reach);
                             break;
                         case L1:
                             setElevatorTarget(ClimbPositions.kElevatorClimb);
@@ -384,12 +385,12 @@ public class ClimberSubsystem extends SubsystemBase {
         // Logger.recordOutput("Rebuilt/Climb/Elevator/Finished Zeroing", isElevatorZeroingDone);
         // Logger.recordOutput("Rebuilt/Climb/Elevator/Zeroing Request Output", elevatorZeroingRequest.Output);
 
-        Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
-        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
-        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Telescope/Supply Amps", telescopeClimbMotor.getSupplyCurrent().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Climb/Telescope/Finished Zeroing", isElevatorZeroingDone);
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/Supply Amps", telescopeClimbMotor.getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Climb/Telescope/Finished Zeroing", isElevatorZeroingDone);
 
         Logger.recordOutput("Rebuilt/Climb/CurrentState", currentClimbState);
         Logger.recordOutput("Rebuilt/Climb/Level", currentClimbLevel);
@@ -459,10 +460,13 @@ public class ClimberSubsystem extends SubsystemBase {
             setTelescopingRequestConstants(95, 1400);
         } else if (state == ClimbStates.HANDOFF) {
             setElevatorRequestConstants(95, 200);
-            setTelescopingRequestConstants(50, 300);
-        }else if (state == ClimbStates.END) {
+            setTelescopingRequestConstants(95, 300);
+        }else if (state == ClimbStates.END && currentClimbLevel != ClimbLevel.AUTO) {
             setElevatorRequestConstants(50, 200);
             setTelescopingRequestConstants(95, 200);
+        } else if (state == ClimbStates.END && currentClimbLevel == ClimbLevel.AUTO) {
+            setElevatorRequestConstants(50, 200);
+            setTelescopingRequestConstants(95, 250);
         } else {
             setElevatorRequestConstants(50, 200);
             setTelescopingRequestConstants(30, 200);
@@ -552,7 +556,7 @@ public class ClimberSubsystem extends SubsystemBase {
         //     (() -> currentClimbState == ClimbStates.END && currentClimbLevel == ClimbLevel.AUTO)
         // );
         return Commands.either(
-            new InstantCommand(() -> setClimbState(ClimbStates.INIT)),
+            new InstantCommand(() -> setClimbState(ClimbStates.END)),
             Commands.either(
                     new InstantCommand(() -> setClimbState(ClimbStates.STANDBY)).alongWith(new WaitCommand(0.6).andThen(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true))),
                     Commands.either(
@@ -564,9 +568,9 @@ public class ClimberSubsystem extends SubsystemBase {
                         ),
                         (() -> currentClimbState == ClimbStates.STANDBY)
                     ),
-                    (() -> currentClimbState == ClimbStates.INIT && currentClimbLevel == ClimbLevel.AUTO)
+                    (() -> (currentClimbState == ClimbStates.INIT || currentClimbState == ClimbStates.END) && currentClimbLevel == ClimbLevel.AUTO)
             ),
-            (() -> currentClimbState == ClimbStates.END && currentClimbLevel == ClimbLevel.AUTO)
+            (() -> currentClimbState == ClimbStates.HANDOFF && currentClimbLevel == ClimbLevel.AUTO)
         );
     }
 

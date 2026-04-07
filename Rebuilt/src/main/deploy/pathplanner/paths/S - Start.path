@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6,
-        "y": 4.0
+        "x": 3.6250213980028523,
+        "y": 2.6570328102710414
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.635818585470191,
-        "y": 2.8509333353215327
+        "x": 4.685991440798858,
+        "y": 2.6829101283880177
       },
       "isLocked": false,
       "linkedName": "AgainstHubStart"
     },
     {
       "anchor": {
-        "x": 6.2774465049928665,
-        "y": 2.4758915834522113
+        "x": 5.6,
+        "y": 2.6570328102710414
       },
       "prevControl": {
-        "x": 3.2774465049928665,
-        "y": 2.4758915834522117
+        "x": 4.474336661911554,
+        "y": 2.7087874465049935
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,23 +32,10 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.1,
-      "maxWaypointRelativePos": 0.4,
+      "minWaypointRelativePos": 0.8507765023632704,
+      "maxWaypointRelativePos": 0.9588116137744782,
       "constraints": {
         "maxVelocity": 1.0,
-        "maxAcceleration": 999.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.4,
-      "maxWaypointRelativePos": 0.6,
-      "constraints": {
-        "maxVelocity": 2.0,
         "maxAcceleration": 999.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -71,6 +58,17 @@
       }
     },
     {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.04051316677920573,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
       "name": "SetFire",
       "waypointRelativePos": 0.1,
       "endWaypointRelativePos": null,
@@ -83,7 +81,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 2.5,
+    "maxVelocity": 2.8,
     "maxAcceleration": 999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,

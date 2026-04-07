@@ -53,7 +53,7 @@
       "minWaypointRelativePos": 0.1776674937965204,
       "maxWaypointRelativePos": 0.39602977667492567,
       "constraints": {
-        "maxVelocity": 1.5,
+        "maxVelocity": 0.75,
         "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -65,32 +65,19 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "IncreaseShooterPower",
-      "waypointRelativePos": 0,
+      "name": "SetFire",
+      "waypointRelativePos": 0.33490884537474036,
       "endWaypointRelativePos": null,
       "command": {
-        "type": "sequential",
+        "type": "named",
         "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "IncreaseShooterPower"
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "IncreaseShooterPower"
-              }
-            }
-          ]
+          "name": "SetFire"
         }
       }
     },
     {
       "name": "ForceTrench",
-      "waypointRelativePos": 0.28,
+      "waypointRelativePos": 0.35,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -101,23 +88,12 @@
     },
     {
       "name": "SetIntake",
-      "waypointRelativePos": 0.28,
+      "waypointRelativePos": 0.35,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "SetIntake"
-        }
-      }
-    },
-    {
-      "name": "IntakePush",
-      "waypointRelativePos": 0.3,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "IntakePush"
         }
       }
     }

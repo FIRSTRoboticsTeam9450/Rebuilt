@@ -74,7 +74,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.0); // 0
 
     private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 0.052);
-    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 8.5); //8.5 is good efficent power
+    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 10);
 
     private double intakingTargetVolts = logIntakingTarget.get();
     
@@ -82,7 +82,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double storeRevolutions = 0.385;
     private double trenchStoreRevolutions = 0.23527;
     private double climbStoreRevolutions = 0.39;
-    private double pushingRevolutions = 0.027;
+    private double pushingRevolutions = 0.005;
 
     private double intakeSetpoint = 0;
 
