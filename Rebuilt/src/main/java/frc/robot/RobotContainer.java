@@ -52,7 +52,7 @@ public class RobotContainer {
   // public final static PDHSubsystem power = PDHSubsystem.getInstance();
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   public final static VisionSubsystem vision = VisionSubsystem.getInstance();
-  // public final static LEDSubsystem led = LEDSubsystem.getInstance();
+  public final static LEDSubsystem led = LEDSubsystem.getInstance();
   public final static CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
   public final static ClimberSubsystem climbSub = ClimberSubsystem.getInstance();
   public static TurretSubsystem turretSub = TurretSubsystem.getInstance();
