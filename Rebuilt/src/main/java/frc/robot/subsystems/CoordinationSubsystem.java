@@ -409,6 +409,10 @@ public class CoordinationSubsystem extends SubsystemBase {
         return new InstantCommand(() -> driverAllowingShooting = !driverAllowingShooting);
     }
 
+    public Command setFireCommand(boolean value) {
+        return new InstantCommand(() -> driverAllowingShooting = value);
+    }
+
     public Command setOverrideCommand(boolean value) {
         return new InstantCommand(() -> overrideTrench = value)
             .alongWith(new InstantCommand(() -> update = true));
@@ -416,6 +420,11 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     public Command setIntakeCommand() {
         return new InstantCommand(() -> shouldBeIntaking = !shouldBeIntaking)
+            .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState()));
+    }
+
+    public Command setIntakeCommand(boolean value) {
+        return new InstantCommand(() -> shouldBeIntaking = value)
             .andThen(new InstantCommand(() -> CoordinationSubsystem.getInstance().applyState()));
     }
 

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 9.32403876506104,
-        "y": 6.756759111665348
+        "x": 9.380973490458727,
+        "y": 7.189221286261709
       },
       "isLocked": false,
       "linkedName": "TopTrenchStart"
@@ -17,7 +17,7 @@
     {
       "anchor": {
         "x": 8.75,
-        "y": 5.0
+        "y": 4.5
       },
       "prevControl": {
         "x": 8.75,
@@ -41,10 +41,10 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.7562457798784636,
+      "minWaypointRelativePos": 0.6536124240378057,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.55,
+        "maxVelocity": 0.9,
         "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,

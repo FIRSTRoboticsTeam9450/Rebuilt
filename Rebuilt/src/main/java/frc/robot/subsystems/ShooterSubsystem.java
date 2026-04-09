@@ -133,6 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
+    private double wheelWareAdjustment = -0.5;
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
@@ -179,15 +180,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() {
 
-        shootingDistanceToVelocity.put(6.2, 51.0);
-        shootingDistanceToVelocity.put(5.684, 48.75);
-        shootingDistanceToVelocity.put(5.095, 44.75);
-        shootingDistanceToVelocity.put(4.101, 41.5);
-        shootingDistanceToVelocity.put(3.465, 40.5);
-        shootingDistanceToVelocity.put(3.0, 38.75);
-        shootingDistanceToVelocity.put(2.4, 36.5);
-        shootingDistanceToVelocity.put(1.73, 33.55);
-        shootingDistanceToVelocity.put(1.1, 30.0);
+        shootingDistanceToVelocity.put(6.2, 50.5 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(5.684, 47.75 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(5.095, 45.25 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(4.101, 42.5 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(3.465, 41.0 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(3.0, 38.75 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(2.4, 36.5 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(1.73, 33.55 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(1.1, 30.0 + wheelWareAdjustment);
 
         shootingDistanceToTime.put(5.095, 1.4525);
         shootingDistanceToTime.put(4.101, 1.374);
@@ -209,7 +210,7 @@ public class ShooterSubsystem extends SubsystemBase {
         ferryingDistanceToVelocity.put(4.59, 34.5 + 2.5);
         ferryingDistanceToVelocity.put(4.962, 35.72 + 2.5);
         ferryingDistanceToVelocity.put(7.622, 42.03 + 8);
-        ferryingDistanceToVelocity.put(11.26, 52.0 + 26);
+        ferryingDistanceToVelocity.put(11.26, 52.0 + 35);
         ferryingDistanceToVelocity.put(14.26, 100.0);
 
         // Ferrying Data Time

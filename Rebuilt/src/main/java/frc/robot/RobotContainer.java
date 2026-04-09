@@ -79,7 +79,7 @@ public class RobotContainer {
   public static boolean slewMode = false;
   private static final double scalarFactorForSpeed = 0.1;
 
-  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.8;
+  public static double maxSpeed = DEFAULT_MAX_SPEED * 1.0;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -105,12 +105,10 @@ public class RobotContainer {
   }
 
   private void configureAutos() {
-    autoChooser.addDefaultOption("Untested Full Sweep", drivetrain.getAutoPath("P - Top Start", false));
-    autoChooser.addOption("Normal Full Sweep", drivetrain.getAutoPath("ACAP - Top Start", false));
+    autoChooser.addDefaultOption("Full Sweep", drivetrain.getAutoPath("P - Top Start", false));
     autoChooser.addOption("Left Half Sweep", drivetrain.getAutoPath("HST - FPSC", false));
-    autoChooser.addOption("Right Half Sweep", drivetrain.getAutoPath("HSB - FPSC", false));
+    autoChooser.addOption("Right Push Half Sweep", drivetrain.getAutoPath("HSB - FPSC", false));
     autoChooser.addOption("Right Fery Half Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", false));
-    // autoChooser.addOption("Right Half Push", drivetrain.getAutoPath("HP - Bottom Start", false));
     
     autoChooser.addOption("Intake From Hub", drivetrain.getAutoPath("Sit", false));
 
@@ -118,7 +116,9 @@ public class RobotContainer {
     autoChooser.addOption("Preload +  Climb", drivetrain.getAutoPath("Preload Only", false));
     autoChooser.addOption("Preload + Return to Hub", drivetrain.getAutoPath("Preload + Return to Hub", false));
 
-    autoChooser.addOption("Depot", drivetrain.getAutoPath("Depot", false));
+    autoChooser.addOption("Hub Depot", drivetrain.getAutoPath("Depot", false)); 
+    autoChooser.addOption("Hub Depot", drivetrain.getAutoPath("Bump Depot", false));
+    autoChooser.addOption("LLDisruptor", drivetrain.getAutoPath("Left Lead Disruptor", false));
 
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
@@ -134,8 +134,14 @@ public class RobotContainer {
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() -> {
               
-                double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
-                double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
+                // double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
+                // double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
+                double driveX = DRIVER.getLeftY();
+                double driveY = DRIVER.getLeftX();
+                boolean xNegative = driveX < 0;
+                boolean yNegative = driveY < 0;
+                driveX = xNegative ? (Math.pow(driveX, 2) * -1.0) : Math.pow(driveX, 2);
+                driveY = yNegative ? (Math.pow(driveY, 2) * -1.0) : Math.pow(driveY, 2);
                 double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
                 double joyX = -DRIVER.getLeftX();
                 double joyY = DRIVER.getLeftY();
@@ -231,11 +237,11 @@ public class RobotContainer {
     );
 
     OPERATOR.leftBumper().onTrue(
-      CoordinationSubsystem.getInstance().setIntakeCommand()
+      CoordinationSubsystem.getInstance().setIntakeCommand().alongWith(CoordinationSubsystem.getInstance().setFireCommand())
     );
 
     OPERATOR.rightBumper().onTrue(
-      CoordinationSubsystem.getInstance().setFireCommand()
+      CoordinationSubsystem.getInstance().setFireCommand(false).alongWith(CoordinationSubsystem.getInstance().setIntakeCommand(false))
     );
     
     OPERATOR.rightStick().onTrue(

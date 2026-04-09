@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.45495555555555567,
-        "y": 6.968077777777778
+        "x": 0.375,
+        "y": 7.15
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5853111111111104,
-        "y": 7.016800000000001
+        "x": 2.375,
+        "y": 7.15
       },
       "isLocked": false,
       "linkedName": "D - Depot End"
     },
     {
       "anchor": {
-        "x": 1.5463333333333336,
-        "y": 5.720788888888889
+        "x": 2.45,
+        "y": 7.290308503724837
       },
       "prevControl": {
-        "x": 1.8702243604274758,
-        "y": 6.692461970171316
+        "x": 2.2282472917054443,
+        "y": 7.17487135041608
       },
       "nextControl": {
-        "x": 1.3027222222222226,
-        "y": 4.989955555555556
+        "x": 3.3370108331782222,
+        "y": 7.752057116959871
       },
       "isLocked": false,
       "linkedName": null
@@ -33,44 +33,31 @@
     {
       "anchor": {
         "x": 0.4,
-        "y": 4.23
+        "y": 7.65
       },
       "prevControl": {
-        "x": 0.34153333333333336,
-        "y": 5.019300000000001
+        "x": 2.9000000000000004,
+        "y": 7.65
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "D - Climb Lined Up"
+      "linkedName": "CA - FSC - Score End"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 90.0
+      "waypointRelativePos": 1.0533049040511684,
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.6138957816377173,
-      "maxWaypointRelativePos": 1.7965260545905724,
-      "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 4.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.7965260545905741,
+      "minWaypointRelativePos": 1.0,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 4.0,
+        "maxVelocity": 0.6,
+        "maxAcceleration": 999.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -81,31 +68,31 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "SetFerryTargetTop",
-      "waypointRelativePos": 0,
+      "name": "SetIntake",
+      "waypointRelativePos": 0.9,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "SetFerryTargetTop"
+          "name": "SetIntake"
         }
       }
     },
     {
-      "name": "ClimberUp",
-      "waypointRelativePos": 1.792555831265503,
+      "name": "SetFire",
+      "waypointRelativePos": 0.9,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "ClimberUp"
+          "name": "SetFire"
         }
       }
     }
   ],
   "globalConstraints": {
     "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxAcceleration": 999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -113,7 +100,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "Depot",
@@ -121,5 +108,5 @@
     "velocity": 0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

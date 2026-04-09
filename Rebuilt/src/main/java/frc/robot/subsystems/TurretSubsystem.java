@@ -824,6 +824,8 @@ public class TurretSubsystem extends SubsystemBase {
         // Position tracking
         Logger.recordOutput("Rebuilt/Turret/Pos/CurrentAngleDeg", cachedAngleDeg);
         Logger.recordOutput("Rebuilt/Turret/Target/ProfiledSetpointDeg", profiledSetpointDeg);
+
+        Logger.recordOutput("Rebuilt/Turret/Device/Motor Supply Amps", turretMotor.getSupplyCurrent().getValueAsDouble());
         
         // Velocity tracking
         // Logger.recordOutput("Rebuilt/Turret/Pos/CurrentVelocityDegPerSec", 

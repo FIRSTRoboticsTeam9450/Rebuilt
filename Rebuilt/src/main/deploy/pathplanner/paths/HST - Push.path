@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 8.75,
-        "y": 5.0
+        "y": 4.5
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.188366666666667,
-        "y": 3.2846777777777767
+        "x": 7.170213980028531,
+        "y": 2.584008559201142
       },
       "isLocked": false,
       "linkedName": "CA - FPSC - Ferry End"
@@ -48,16 +48,16 @@
     },
     {
       "anchor": {
-        "x": 0.58,
-        "y": 7.65
+        "x": 3.65,
+        "y": 7.6
       },
       "prevControl": {
-        "x": 4.042311111111111,
-        "y": 7.581788888888889
+        "x": 7.1123111111111115,
+        "y": 7.531788888888888
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "CA - FSC - Score End"
+      "linkedName": "CA - FPSC - Push End"
     }
   ],
   "rotationTargets": [
@@ -72,23 +72,15 @@
     {
       "waypointRelativePos": 1.4414937759336013,
       "rotationDegrees": 165.0
-    },
-    {
-      "waypointRelativePos": 2.0340248962655414,
-      "rotationDegrees": 165.0
-    },
-    {
-      "waypointRelativePos": 2.6082987551867243,
-      "rotationDegrees": 165.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 2.75,
-      "maxWaypointRelativePos": 3.0,
+      "minWaypointRelativePos": 2.7629979743416673,
+      "maxWaypointRelativePos": 2.9493585415259993,
       "constraints": {
-        "maxVelocity": 0.75,
+        "maxVelocity": 1.0,
         "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
@@ -98,11 +90,11 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.8188585607940395,
-      "maxWaypointRelativePos": 1.4263027295285404,
+      "minWaypointRelativePos": 0.785955435516549,
+      "maxWaypointRelativePos": 1.2883187035786579,
       "constraints": {
         "maxVelocity": 1.0,
-        "maxAcceleration": 4.0,
+        "maxAcceleration": 999.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -144,83 +136,19 @@
           "name": "SetFire"
         }
       }
-    },
-    {
-      "name": "ForceTrench",
-      "waypointRelativePos": 2.5,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "ForceTrench"
-        }
-      }
-    },
-    {
-      "name": "SetIntake",
-      "waypointRelativePos": 2.55,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "sequential",
-        "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "SetIntake"
-              }
-            },
-            {
-              "type": "wait",
-              "data": {
-                "waitTime": 0.08
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "SetIntake"
-              }
-            },
-            {
-              "type": "wait",
-              "data": {
-                "waitTime": 0.08
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "SetIntake"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "name": "SetFire",
-      "waypointRelativePos": 2.6,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetFire"
-        }
-      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 999.0,
+    "maxAcceleration": 999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 180.0
+    "velocity": 3.0,
+    "rotation": 165.0
   },
   "reversed": false,
   "folder": "Half Sweep",
@@ -228,5 +156,5 @@
     "velocity": 0,
     "rotation": -115.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

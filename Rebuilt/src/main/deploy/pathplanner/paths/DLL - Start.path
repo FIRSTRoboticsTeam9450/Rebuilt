@@ -3,40 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.524455555555555,
-        "y": 3.9862777777777776
+        "x": 4.4,
+        "y": 7.625
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.881322222219142,
-        "y": 4.444266666668269
+        "x": 5.4,
+        "y": 7.625
       },
       "isLocked": false,
-      "linkedName": "D - Start"
+      "linkedName": "TopTrenchStart"
     },
     {
       "anchor": {
-        "x": 0.4647000000000001,
-        "y": 4.80481111111111
+        "x": 8.7,
+        "y": 7.625
       },
       "prevControl": {
-        "x": 2.618222222219141,
-        "y": 4.775577777779377
+        "x": 7.699999999999999,
+        "y": 7.625
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "D - Depot Start"
+      "linkedName": "DLL - Middle Sit"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.9181141439205955,
-      "maxWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.36461850101282767,
       "constraints": {
-        "maxVelocity": 2.5,
-        "maxAcceleration": 4.0,
+        "maxVelocity": 999.0,
+        "maxAcceleration": 999.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -45,24 +45,36 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 999.0,
+    "maxAcceleration": 1.75,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 0.0
+    "velocity": 0,
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Depot",
+  "folder": "Disruptors",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

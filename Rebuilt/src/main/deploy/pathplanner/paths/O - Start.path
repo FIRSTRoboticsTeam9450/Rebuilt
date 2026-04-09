@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.6250213980028523,
-        "y": 2.6570328102710414
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
         "x": 2.396293331569365,
-        "y": 1.7966681557444728
+        "y": 3.1396353454734314
       },
       "isLocked": false,
       "linkedName": "AgainstHubStart"

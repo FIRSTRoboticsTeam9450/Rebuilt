@@ -1,0 +1,59 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 8.7,
+        "y": 5.141255349500714
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 10.7,
+        "y": 5.141255349500714
+      },
+      "isLocked": false,
+      "linkedName": "DLL - Ferry End"
+    },
+    {
+      "anchor": {
+        "x": 10.85,
+        "y": 1.7
+      },
+      "prevControl": {
+        "x": 10.85,
+        "y": 5.7
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "DLL - Push End"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 999.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Disruptors",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -140.0
+  },
+  "useDefaultConstraints": false
+}

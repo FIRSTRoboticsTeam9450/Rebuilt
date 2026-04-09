@@ -297,6 +297,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         m_field.setRobotPose(getState().Pose);
         Logger.recordOutput("Rebuilt/Drive/Pose 2D", driveState.Pose);
+
+        Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Volts", getModule(0).getDriveMotor().getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Supply Amps", getModule(0).getDriveMotor().getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Stator Amps", getModule(0).getDriveMotor().getTorqueCurrent().getValueAsDouble());
         //Logger.recordOutput("Rebuilt/Drive/Pigeon Data", pigeonDataArr);
         
         //Logger.recordOutput("Rebuilt/Drive/maxSpeed", RobotContainer.maxSpeed);

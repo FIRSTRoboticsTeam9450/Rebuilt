@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.881840228245363,
-        "y": 4.662524964336662
+        "x": 0.375,
+        "y": 7.15
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.881840228245363,
-        "y": 7.662524964336662
+        "x": 2.375,
+        "y": 7.15
       },
       "isLocked": false,
-      "linkedName": "CA - FSC - Ferry End"
+      "linkedName": "D - Depot End"
     },
     {
       "anchor": {
-        "x": 0.58,
+        "x": 2.6375,
+        "y": 7.4
+      },
+      "prevControl": {
+        "x": 2.6375,
+        "y": 7.1000000000000005
+      },
+      "nextControl": {
+        "x": 2.6375,
+        "y": 7.7
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.4,
         "y": 7.65
       },
       "prevControl": {
-        "x": 8.851739982028825,
-        "y": 7.505616241544354
+        "x": 2.4,
+        "y": 7.65
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,18 +46,22 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5219917012448131,
+      "waypointRelativePos": 0.15,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 1.0,
       "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.9062034739453949,
-      "maxWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.7346387575962209,
       "constraints": {
-        "maxVelocity": 1.0,
-        "maxAcceleration": 4.0,
+        "maxVelocity": 999.0,
+        "maxAcceleration": 999.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -63,41 +83,8 @@
       }
     },
     {
-      "name": "SetIntake",
-      "waypointRelativePos": 0.03473945409429195,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetIntake"
-        }
-      }
-    },
-    {
       "name": "SetFire",
-      "waypointRelativePos": 0.05062034739453889,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetFire"
-        }
-      }
-    },
-    {
-      "name": "ForceTrench",
-      "waypointRelativePos": 0.8466501240694674,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "ForceTrench"
-        }
-      }
-    },
-    {
-      "name": "SetFire",
-      "waypointRelativePos": 0.8665012406947763,
+      "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -108,7 +95,7 @@
     },
     {
       "name": "SetIntake",
-      "waypointRelativePos": 0.8684863523573212,
+      "waypointRelativePos": 0.20526671168129398,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -119,8 +106,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 4.0,
+    "maxVelocity": 0.7,
+    "maxAcceleration": 999.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -134,7 +121,7 @@
   "folder": "Half Sweep",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -115.0
+    "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

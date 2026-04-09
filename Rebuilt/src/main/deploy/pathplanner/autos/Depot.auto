@@ -5,34 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "SetFire"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.5
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SetFire"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "D - Start"
+            "pathName": "D - Hub Start"
           }
         },
         {
@@ -44,7 +19,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "D - Climb Start"
+            "pathName": "D - Score"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HST - 2nd Corner"
           }
         },
         {
