@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HST - Start"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HST - Push"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HST - Depot Sweep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HST - D - 1st Corner"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HST - 2nd Corner"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Half Sweep",
+  "choreoAuto": false
+}

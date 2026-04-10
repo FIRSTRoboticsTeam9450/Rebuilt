@@ -106,19 +106,20 @@ public class RobotContainer {
 
   private void configureAutos() {
     autoChooser.addDefaultOption("Full Sweep", drivetrain.getAutoPath("P - Top Start", false));
-    autoChooser.addOption("Left Half Sweep", drivetrain.getAutoPath("HST - FPSC", false));
+    autoChooser.addOption("Left Half Sweep + Depot", drivetrain.getAutoPath("HST - FPSD", false));
+    autoChooser.addOption("Left Half Sweep + Climb", drivetrain.getAutoPath("HST - FPSC", false));
     autoChooser.addOption("Right Push Half Sweep", drivetrain.getAutoPath("HSB - FPSC", false));
     autoChooser.addOption("Right Fery Half Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", false));
-    
-    autoChooser.addOption("Intake From Hub", drivetrain.getAutoPath("Sit", false));
+
+    autoChooser.addOption("Hub Depot", drivetrain.getAutoPath("Depot", false)); 
+    autoChooser.addOption("Bump Depot", drivetrain.getAutoPath("Bump Depot", false));
+    autoChooser.addOption("LLDisruptor", drivetrain.getAutoPath("Left Lead Disruptor", false));
 
     autoChooser.addOption("Preload + Outpost + Climb", drivetrain.getAutoPath("Outpost", false));
     autoChooser.addOption("Preload +  Climb", drivetrain.getAutoPath("Preload Only", false));
     autoChooser.addOption("Preload + Return to Hub", drivetrain.getAutoPath("Preload + Return to Hub", false));
-
-    autoChooser.addOption("Hub Depot", drivetrain.getAutoPath("Depot", false)); 
-    autoChooser.addOption("Hub Depot", drivetrain.getAutoPath("Bump Depot", false));
-    autoChooser.addOption("LLDisruptor", drivetrain.getAutoPath("Left Lead Disruptor", false));
+        
+    autoChooser.addOption("Intake From Hub", drivetrain.getAutoPath("Sit", false));
 
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));

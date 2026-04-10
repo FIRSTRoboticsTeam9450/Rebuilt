@@ -385,10 +385,10 @@ public class ClimberSubsystem extends SubsystemBase {
         // Logger.recordOutput("Rebuilt/Climb/Elevator/Finished Zeroing", isElevatorZeroingDone);
         // Logger.recordOutput("Rebuilt/Climb/Elevator/Zeroing Request Output", elevatorZeroingRequest.Output);
 
-        // Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
-        // Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
-        // Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Climb/Telescope/Supply Amps", telescopeClimbMotor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Climb/Telescope/Setpoint", currentTelescopeSetpoint);
+        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorPosition", getTelescopePosition());
+        Logger.recordOutput("Rebuilt/Climb/Telescope/MotorVoltage", telescopeClimbMotor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Climb/Telescope/Supply Amps", telescopeClimbMotor.getSupplyCurrent().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Climb/Telescope/Velocity", telescopeClimbMotor.getVelocity().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Climb/Telescope/Finished Zeroing", isElevatorZeroingDone);
 

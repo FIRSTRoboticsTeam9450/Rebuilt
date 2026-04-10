@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 0.5134222222173899,
-        "y": 0.425
+        "y": 0.45
       },
       "prevControl": {
         "x": 0.7634222222173899,
-        "y": 0.42499999999999993
+        "y": 0.44999999999999996
       },
       "nextControl": null,
       "isLocked": false,
@@ -65,19 +65,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "SetFire",
-      "waypointRelativePos": 0.33490884537474036,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "SetFire"
-        }
-      }
-    },
-    {
       "name": "ForceTrench",
-      "waypointRelativePos": 0.35,
+      "waypointRelativePos": 0.4138957816377124,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -88,12 +77,23 @@
     },
     {
       "name": "SetIntake",
-      "waypointRelativePos": 0.35,
+      "waypointRelativePos": 0.425806451612899,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "SetIntake"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.4297766749379596,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
         }
       }
     }

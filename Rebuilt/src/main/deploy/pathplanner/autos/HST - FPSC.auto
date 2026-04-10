@@ -19,19 +19,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HST - Depot Sweep"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "HST - 1st Corner"
+            "pathName": "HST - C - 1st Corner"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "HST - 2nd Corner"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HST - Climb"
           }
         }
       ]

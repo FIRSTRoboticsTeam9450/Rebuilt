@@ -1,0 +1,102 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.65,
+        "y": 7.6
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.6499999999999995,
+        "y": 7.6
+      },
+      "isLocked": false,
+      "linkedName": "CA - FPSC - Push End"
+    },
+    {
+      "anchor": {
+        "x": 0.4,
+        "y": 7.65
+      },
+      "prevControl": {
+        "x": 2.4,
+        "y": 7.65
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "CA - FSC - Score End"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0.35,
+      "constraints": {
+        "maxVelocity": 999.0,
+        "maxAcceleration": 999.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.1,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 0.7,
+    "maxAcceleration": 999.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Half Sweep",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 165.0
+  },
+  "useDefaultConstraints": false
+}

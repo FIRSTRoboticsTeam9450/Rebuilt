@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 9.32403876506104,
-        "y": 1.2932408883346511
+        "y": 1.2932408883346505
       },
       "isLocked": false,
       "linkedName": "BottomTrenchStart"
@@ -21,7 +21,7 @@
       },
       "prevControl": {
         "x": 8.75,
-        "y": -0.5
+        "y": 0.5
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 0.6,
-        "maxAcceleration": 4.0,
+        "maxAcceleration": 999.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -79,7 +79,7 @@
     },
     {
       "name": "ForceTrench",
-      "waypointRelativePos": 0.07245657568238138,
+      "waypointRelativePos": 0.13774476704928856,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",

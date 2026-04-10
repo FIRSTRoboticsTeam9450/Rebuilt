@@ -68,7 +68,7 @@
     },
     {
       "name": "ForceTrench",
-      "waypointRelativePos": 0.07245657568238138,
+      "waypointRelativePos": 0.17171215880892796,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -109,7 +109,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
+    "velocity": 0.9,
     "rotation": -115.0
   },
   "reversed": false,

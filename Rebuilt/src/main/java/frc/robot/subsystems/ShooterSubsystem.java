@@ -180,7 +180,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() {
 
-        shootingDistanceToVelocity.put(6.2, 50.5 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(6.2, 49.5 + wheelWareAdjustment);
         shootingDistanceToVelocity.put(5.684, 47.75 + wheelWareAdjustment);
         shootingDistanceToVelocity.put(5.095, 45.25 + wheelWareAdjustment);
         shootingDistanceToVelocity.put(4.101, 42.5 + wheelWareAdjustment);
@@ -339,11 +339,13 @@ public class ShooterSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointMotorRevs", targetHoodHeight);
         // Logger.recordOutput("Rebuilt/Shooter/Hood/angleSetpointDegrees", targetHoodHeight * degreesPerRev + degreesToZero);
         Logger.recordOutput("Rebuilt/Shooter/Hood/current motor revolutions", angleMotor.getPosition().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Shooter/Hood/Left Supply Amps", angleMotor.getSupplyCurrent().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
         // Logger.recordOutput("Rebuilt/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
 
         // Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/Left Supply Amps", shooterLeftMotor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor voltage", shooterLeftMotor.getMotorVoltage().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Shooter/Outtake/Left motor Position", shooterLeftMotor.getPosition().getValueAsDouble());

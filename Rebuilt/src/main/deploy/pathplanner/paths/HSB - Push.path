@@ -33,15 +33,15 @@
     {
       "anchor": {
         "x": 8.6,
-        "y": 0.4
+        "y": 0.5
       },
       "prevControl": {
         "x": 9.175140907607874,
-        "y": 0.4503183093456998
+        "y": 0.5503183093456998
       },
       "nextControl": {
         "x": 8.024859092392125,
-        "y": 0.34968169065430027
+        "y": 0.44968169065430014
       },
       "isLocked": false,
       "linkedName": null
@@ -49,15 +49,15 @@
     {
       "anchor": {
         "x": 6.116477777777778,
-        "y": 0.4
+        "y": 0.5
       },
       "prevControl": {
         "x": 7.607409622027385,
-        "y": 0.39999999999999986
+        "y": 0.49999999999999983
       },
       "nextControl": {
         "x": 4.283874434861168,
-        "y": 0.40000000000000024
+        "y": 0.5000000000000002
       },
       "isLocked": false,
       "linkedName": null
@@ -65,11 +65,11 @@
     {
       "anchor": {
         "x": 0.5134222222173899,
-        "y": 0.425
+        "y": 0.45
       },
       "prevControl": {
         "x": 3.9764051828746423,
-        "y": 0.42499999999999954
+        "y": 0.44999999999999957
       },
       "nextControl": null,
       "isLocked": false,
@@ -105,7 +105,7 @@
       "maxWaypointRelativePos": 4.0,
       "constraints": {
         "maxVelocity": 0.9,
-        "maxAcceleration": 4.0,
+        "maxAcceleration": 999.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -118,7 +118,7 @@
       "maxWaypointRelativePos": 1.85,
       "constraints": {
         "maxVelocity": 1.0,
-        "maxAcceleration": 4.0,
+        "maxAcceleration": 999.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -163,7 +163,7 @@
     },
     {
       "name": "ForceTrench",
-      "waypointRelativePos": 3.5,
+      "waypointRelativePos": 3.82,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -174,36 +174,12 @@
     },
     {
       "name": "SetIntake",
-      "waypointRelativePos": 3.55,
+      "waypointRelativePos": 3.82,
       "endWaypointRelativePos": null,
       "command": {
         "type": "sequential",
         "data": {
           "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "SetIntake"
-              }
-            },
-            {
-              "type": "wait",
-              "data": {
-                "waitTime": 0.08
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "SetIntake"
-              }
-            },
-            {
-              "type": "wait",
-              "data": {
-                "waitTime": 0.08
-              }
-            },
             {
               "type": "named",
               "data": {
@@ -216,7 +192,7 @@
     },
     {
       "name": "SetFire",
-      "waypointRelativePos": 3.6,
+      "waypointRelativePos": 3.82,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",

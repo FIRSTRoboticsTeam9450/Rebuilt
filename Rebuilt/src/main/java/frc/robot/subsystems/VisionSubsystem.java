@@ -522,8 +522,8 @@ public class VisionSubsystem extends SubsystemBase {
         // Fusion thresholds
         // Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
         // Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
-
-        // Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
+        
+        Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
 
         // Logger.recordOutput("Rebuilt/Vision/Bump Measurement Count", bumpMeasurmentCount);
         // Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);

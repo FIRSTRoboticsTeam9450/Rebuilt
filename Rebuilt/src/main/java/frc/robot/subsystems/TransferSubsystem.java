@@ -192,10 +192,10 @@ public class TransferSubsystem extends SubsystemBase {
 
         // Logger.recordOutput("Rebuilt/Transfer/Stalling", jammed());
 
-        // Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Transfer/Motor Veloc", motor.getVelocity().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Transfer/Motor Supply Amps", motor.getSupplyCurrent().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Transfer/Motor Stator Amps", motor.getTorqueCurrent().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Transfer/Motor Supply Amps", motor.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Transfer/Motor Stator Amps", motor.getTorqueCurrent().getValueAsDouble());
 
         Logger.recordOutput("Rebuilt/Transfer/Transfer Jammed", jammed());
     }

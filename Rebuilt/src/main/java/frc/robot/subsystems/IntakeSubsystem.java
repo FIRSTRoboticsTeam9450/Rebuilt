@@ -73,14 +73,14 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 3.5); // 0.1
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 0.052);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 0.06);
     private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 10);
 
     private double intakingTargetVolts = logIntakingTarget.get();
     
     private double intakeRevolutions = logIntakeTarget.get();
     private double storeRevolutions = 0.385;
-    private double trenchStoreRevolutions = 0.23527;
+    private double trenchStoreRevolutions = 0.21527;
     private double climbStoreRevolutions = 0.39;
     private double pushingRevolutions = 0.005;
 
@@ -250,6 +250,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         // Logger.recordOutput("Rebuilt/Intake/Angle/Motor Velocity", motorArm.getVelocity().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Intake/Angle/Is Zeroing", isZeroingDone);
         // Logger.recordOutput("Rebuilt/Intake/Angle/Zeroing Timer", zeroingTimer.get());
+        Logger.recordOutput("Rebuilt/Intake/Angle/Supply Amp Pull", motorArm.getSupplyCurrent().getValueAsDouble());
 
         Logger.recordOutput("Rebuilt/Intake/Angle/Encoder Absolute Pos", encoderArm.getAbsolutePosition().getValueAsDouble());
 
