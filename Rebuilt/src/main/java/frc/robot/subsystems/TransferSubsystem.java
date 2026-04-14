@@ -82,7 +82,7 @@ public class TransferSubsystem extends SubsystemBase {
         motorConfig.CurrentLimits.StatorCurrentLimitEnable = false;
         motorConfig.CurrentLimits.StatorCurrentLimit = 80;
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.SupplyCurrentLimit = 70;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 50;
         motorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
         
@@ -192,7 +192,7 @@ public class TransferSubsystem extends SubsystemBase {
 
         // Logger.recordOutput("Rebuilt/Transfer/Stalling", jammed());
 
-        Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Transfer/Motor Veloc", motor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Transfer/Motor Supply Amps", motor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Transfer/Motor Stator Amps", motor.getTorqueCurrent().getValueAsDouble());

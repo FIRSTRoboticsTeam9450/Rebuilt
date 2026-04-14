@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -149,6 +150,12 @@ public final class IntakeSubsystem extends SubsystemBase{
         IntakeConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         IntakeConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+        IntakeConfig.CurrentLimits.StatorCurrentLimitEnable = false;
+        IntakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        IntakeConfig.CurrentLimits.SupplyCurrentLimit = 40; //60
+        IntakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+        
+
         
         motorWheels.getConfigurator().apply(IntakeConfig);
         motorWheelsFollower.getConfigurator().apply(IntakeConfig);
@@ -248,19 +255,19 @@ public final class IntakeSubsystem extends SubsystemBase{
         Logger.recordOutput("Rebuilt/Intake/Angle/Target", currentPos == IntakePos.INTAKING ? logIntakeTarget.get() : storeRevolutions);
         // Logger.recordOutput("Rebuilt/Intake/Angle/Motor Voltage", motorArm.getMotorVoltage().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Intake/Angle/Motor Velocity", motorArm.getVelocity().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Intake/Angle/Is Zeroing", isZeroingDone);
+        Logger.recordOutput("Rebuilt/Intake/Angle/Is Zeroing", isZeroingDone);
         // Logger.recordOutput("Rebuilt/Intake/Angle/Zeroing Timer", zeroingTimer.get());
         Logger.recordOutput("Rebuilt/Intake/Angle/Supply Amp Pull", motorArm.getSupplyCurrent().getValueAsDouble());
 
         Logger.recordOutput("Rebuilt/Intake/Angle/Encoder Absolute Pos", encoderArm.getAbsolutePosition().getValueAsDouble());
 
         // Logger.recordOutput("Rebuilt/Intake/Wheels/Lead Motor Veloc", motorWheels.getVelocity().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Intake/Wheels/Lead Motor Voltage", motorWheels.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Lead Motor Voltage", motorWheels.getMotorVoltage().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Intake/Wheels/Lead Motor Supply Amp Pull", motorWheels.getSupplyCurrent().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Intake/Wheels/Follower Motor Veloc", motorWheelsFollower.getVelocity().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Intake/Wheels/Follower Motor Voltage", motorWheelsFollower.getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Intake/Wheels/Follower Motor Supply Amp Pull", motorWheels.getSupplyCurrent().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Intake/Angle/Temp", motorArm.getDeviceTemp().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Follower Motor Voltage", motorWheelsFollower.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Wheels/Follower Motor Supply Amp Pull", motorWheelsFollower.getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Intake/Angle/Temp", motorArm.getDeviceTemp().getValueAsDouble());
         
         Logger.recordOutput("Rebuilt/Intake/Intake Jammed", jammed);
     }

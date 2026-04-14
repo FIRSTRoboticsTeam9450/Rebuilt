@@ -362,12 +362,12 @@ public class CoordinationSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Coord/Intakeing", shouldBeIntaking);
         Logger.recordOutput("Rebuilt/Coord/Firing", driverAllowingShooting);
 
-        Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
-        Logger.recordOutput("Rebuilt/Coord/Driver Allows Shooting", driverAllowingShooting);
-        Logger.recordOutput("Rebuilt/Coord/Subsystems good to fire?", areShooterAndTurretReady());
+        // Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
+        // Logger.recordOutput("Rebuilt/Coord/Driver Allows Shooting", driverAllowingShooting);
+        // Logger.recordOutput("Rebuilt/Coord/Subsystems good to fire?", areShooterAndTurretReady());
         // Logger.recordOutput("Rebuilt/Coord/Is Shooter Ready?", isShooterReady());
         // Logger.recordOutput("Rebuilt/Coord/Is Turret Ready?", isTurretReady());
-        Logger.recordOutput("Rebuilt/Coord/OverridingTrench?", overrideTrench);
+        // Logger.recordOutput("Rebuilt/Coord/OverridingTrench?", overrideTrench);
 
         if(logDebuggingToggle.get()) {
         }

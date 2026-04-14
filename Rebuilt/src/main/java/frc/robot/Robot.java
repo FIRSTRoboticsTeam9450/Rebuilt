@@ -15,11 +15,13 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
@@ -59,6 +61,8 @@ public class Robot extends LoggedRobot {
     m_robotContainer = new RobotContainer();
 
     Logger.start();
+
+    RobotController.setBrownoutVoltage(6.8); //RoboRio 1: 6.3, Default: 6.8, DANGER, VERY SCARY, IS A VERY BIG NUCLEAR OPTION
     // SignalLogger.setPath("/home/lvuser/logs/");
   }
 
@@ -147,7 +151,7 @@ public class Robot extends LoggedRobot {
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     IntakeSubsystem.getInstance().init();
-
+    RobotContainer.drivetrain.setStatorCurrentLimit(50);
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(m_autonomousCommand);
@@ -166,6 +170,7 @@ public class Robot extends LoggedRobot {
     // this line or comment it out.
     CoordinationSubsystem.getInstance().setHardTrenchOverride(false);
     IntakeSubsystem.getInstance().init();
+    RobotContainer.drivetrain.setStatorCurrentLimit(30);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

@@ -510,7 +510,7 @@ public class VisionSubsystem extends SubsystemBase {
         Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Pose", lastVisionPose);
         // Logger.recordOutput("Rebuilt/Vision/Total/Last Fused Pose", lastFusedPose);
         // Logger.recordOutput("Rebuilt/Vision/Total/Last Target Pose", lastTargetPose);
-        Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
+        // Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
         
         // Standard deviations
         // Logger.recordOutput("Rebuilt/Vision/Config/StdDev X", currentVisionStdDevX);
@@ -522,8 +522,8 @@ public class VisionSubsystem extends SubsystemBase {
         // Fusion thresholds
         // Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
         // Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
-        
-        Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
+
+        // Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
 
         // Logger.recordOutput("Rebuilt/Vision/Bump Measurement Count", bumpMeasurmentCount);
         // Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);
@@ -534,7 +534,7 @@ public class VisionSubsystem extends SubsystemBase {
             loopOffset++;
         }
 
-        Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
+        // Logger.recordOutput("Rebuilt/Vision/Distance From target", getDistanceToTarget(getTargetRelativeToBot()));
 
         // for (LimelightObject limelight : LIMELIGHT_LIST) {
         //     String llName = limelight.getName();

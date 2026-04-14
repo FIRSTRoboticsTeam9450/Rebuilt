@@ -79,7 +79,7 @@ public class RobotContainer {
   public static boolean slewMode = false;
   private static final double scalarFactorForSpeed = 0.1;
 
-  public static double maxSpeed = DEFAULT_MAX_SPEED * 1.0;
+  public static double maxSpeed = DEFAULT_MAX_SPEED * 0.8;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
 
   private final CommandXboxController DRIVER = new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
@@ -286,6 +286,11 @@ public class RobotContainer {
     // DRIVER.a().whileTrue(shooterSub.sysIdQuasistatic(Direction.kReverse));
     // DRIVER.b().whileTrue(shooterSub.sysIdDynamic(Direction.kForward));
     // DRIVER.x().whileTrue(shooterSub.sysIdDynamic(Direction.kReverse));
+    // DRIVER.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+    // DRIVER.a().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    // DRIVER.b().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+    // DRIVER.x().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+    
       
     /* =============================== DISABLED KEYBINDS ======================== */
 

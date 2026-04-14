@@ -133,7 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
-    private double wheelWareAdjustment = -0.5;
+    private double wheelWareAdjustment = -.5;
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
@@ -343,7 +343,7 @@ public class ShooterSubsystem extends SubsystemBase {
         // Logger.recordOutput("Rebuilt/Shooter/Hood/current degrees", angleMotor.getPosition().getValueAsDouble() * degreesPerRev + degreesToZero);
         // Logger.recordOutput("Rebuilt/Shooter/Hood/Is at Goal?", isAngleWithinTolerance());
 
-        // Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
+        Logger.recordOutput("Rebuilt/Shooter/Outtake/currentState", currentShooterState);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/velocitySetpoint", targetShooterVeloc + manualShift);
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left Supply Amps", shooterLeftMotor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Shooter/Outtake/Left current velocity", shooterLeftMotor.getVelocity().getValueAsDouble());
@@ -399,7 +399,7 @@ public class ShooterSubsystem extends SubsystemBase {
                 // if (TurretSubsystem.getInstance().getCurrentState() == TurretSubsystem.TurretState.INIT && TurretSubsystem.getInstance().isAtProfiledGoal(10)) {
                     // angleMotor.setVoltage(-0.6);
                 // } else {
-                    angleMotor.setControl(new VoltageOut(-.6));
+                    angleMotor.setControl(new VoltageOut(-1.0));
                 // }
                 break;
 

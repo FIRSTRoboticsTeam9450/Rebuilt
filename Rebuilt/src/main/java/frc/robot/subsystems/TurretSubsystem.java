@@ -282,8 +282,8 @@ public class TurretSubsystem extends SubsystemBase {
         motorConfig.CurrentLimits.StatorCurrentLimit = 80;
         
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
-        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 30;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 25;
+        motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 15;
         motorConfig.CurrentLimits.SupplyCurrentLowerTime = 0.5;
 
         motorConfig.Voltage.PeakForwardVoltage = 7;
@@ -346,7 +346,7 @@ public class TurretSubsystem extends SubsystemBase {
         // Convert RPS to degrees/sec
         double currentVelocityDegPerSec = cachedMotorVelocity 
             * TurretConstants.DEGREE_CHANGE_PER_MOTOR_REVOLUTION;
-        Logger.recordOutput("Rebuilt/Turret/Pos/CurrentVelocityDegPerSec", currentVelocityDegPerSec);
+        // Logger.recordOutput("Rebuilt/Turret/Pos/CurrentVelocityDegPerSec", currentVelocityDegPerSec);
 
         // Calculate stopping distance: v² / (2a)
         double maxDeceleration = currentRateLimit;

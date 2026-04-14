@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9947503566333802,
+        "x": 1.99475035663338,
         "y": 7.224379457917262
       },
       "isLocked": false,
@@ -32,27 +32,27 @@
     },
     {
       "anchor": {
-        "x": 0.375,
+        "x": 0.425,
         "y": 4.9
       },
       "prevControl": {
-        "x": 0.375,
+        "x": 0.425,
         "y": 4.65
       },
       "nextControl": {
-        "x": 0.375,
-        "y": 5.149999999999999
+        "x": 0.425,
+        "y": 5.15
       },
       "isLocked": false,
       "linkedName": "D - Depot Start"
     },
     {
       "anchor": {
-        "x": 0.375,
+        "x": 0.425,
         "y": 7.15
       },
       "prevControl": {
-        "x": 0.37499999999999994,
+        "x": 0.4249999999999998,
         "y": 6.15
       },
       "nextControl": null,

@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -35,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.RobotContainer;
+import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -58,7 +60,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
-    // private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
+    private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     // private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
@@ -80,20 +82,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final Field2d m_field = new Field2d();
 
     /* SysId routine for characterizing steer. This is used to find PID gains for the steer motors. */
-    // private final SysIdRoutine m_sysIdRoutineSteer = new SysIdRoutine(
-    //     new SysIdRoutine.Config(
-    //         null,        // Use default ramp rate (1 V/s)
-    //         Volts.of(7), // Use dynamic voltage of 7 V
-    //         null,        // Use default timeout (10 s)
-    //         // Log state with SignalLogger class
-    //         state -> Logger.recordOutput("Rebuilt/SYSID/SysIdSteer_State", state.toString())
-    //     ),
-    //     new SysIdRoutine.Mechanism(
-    //         volts -> setControl(m_steerCharacterization.withVolts(volts)),
-    //         null,
-    //         this
-    //     )
-    // );
+    private final SysIdRoutine m_sysIdRoutineSteer = new SysIdRoutine(
+        new SysIdRoutine.Config(
+            null,        // Use default ramp rate (1 V/s)
+            Volts.of(7), // Use dynamic voltage of 7 V
+            null,        // Use default timeout (10 s)
+            // Log state with SignalLogger class
+            state -> Logger.recordOutput("Rebuilt/SYSID/SysIdSteer_State", state.toString())
+        ),
+        new SysIdRoutine.Mechanism(
+            volts -> setControl(m_steerCharacterization.withVolts(volts)),
+            null,
+            this
+        )
+    );
 
     /*
      * SysId routine for characterizing rotation.
@@ -123,7 +125,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     // );
 
     /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineSteer;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -297,17 +299,42 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         m_field.setRobotPose(getState().Pose);
         Logger.recordOutput("Rebuilt/Drive/Pose 2D", driveState.Pose);
+        
+        // Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Volts", getModule(0).getDriveMotor().getMotorVoltage().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Supply Amps", getModule(0).getDriveMotor().getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Stator Amps", getModule(0).getDriveMotor().getTorqueCurrent().getValueAsDouble());
 
-        Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Volts", getModule(0).getDriveMotor().getMotorVoltage().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Supply Amps", getModule(0).getDriveMotor().getSupplyCurrent().getValueAsDouble());
-        Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Stator Amps", getModule(0).getDriveMotor().getTorqueCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/FL/Steer/Motor Position", getModule(0).getSteerMotor().getPosition().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/FL/Steer/Target Position", getModule(0).getTargetState().angle.getRotations());
+        // Logger.recordOutput("Rebuilt/Drive/FL/Steer/Motor Supply Amps", getModule(0).getSteerMotor().getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/FL/Steer/Motor Stator Amps", getModule(0).getSteerMotor().getTorqueCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Supply Amps", getModule(0).getDriveMotor().getSupplyCurrent().getValueAsDouble());
+
+        // Logger.recordOutput("Rebuilt/Drive/FR/Steer/Motor Position", getModule(1).getSteerMotor().getPosition().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/FR/Steer/Target Position", getModule(1).getTargetState().angle.getRotations());
+        // Logger.recordOutput("Rebuilt/Drive/FR/Steer/Motor Supply Amps", getModule(1).getSteerMotor().getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/FR/Steer/Motor Stator Amps", getModule(1).getSteerMotor().getTorqueCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/FR/Drive/Motor Supply Amps", getModule(1).getDriveMotor().getSupplyCurrent().getValueAsDouble());
+
+        // Logger.recordOutput("Rebuilt/Drive/BL/Steer/Motor Position", getModule(2).getSteerMotor().getPosition().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/BL/Steer/Target Position", getModule(2).getTargetState().angle.getRotations());
+        // Logger.recordOutput("Rebuilt/Drive/BL/Steer/Motor Supply Amps", getModule(2).getSteerMotor().getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/BL/Steer/Motor Stator Amps", getModule(2).getSteerMotor().getTorqueCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/BL/Drive/Motor Supply Amps", getModule(2).getDriveMotor().getSupplyCurrent().getValueAsDouble());
+
+        // Logger.recordOutput("Rebuilt/Drive/BR/Steer/Motor Position", getModule(3).getSteerMotor().getPosition().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/BR/Steer/Target Position", getModule(3).getTargetState().angle.getRotations());
+        // Logger.recordOutput("Rebuilt/Drive/BR/Steer/Motor Supply Amps", getModule(3).getSteerMotor().getSupplyCurrent().getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/Drive/BR/Steer/Motor Stator Amps", getModule(3).getSteerMotor().getTorqueCurrent().getValueAsDouble());  
+        // Logger.recordOutput("Rebuilt/Drive/BR/Drive/Motor Supply Amps", getModule(3).getDriveMotor().getSupplyCurrent().getValueAsDouble());   
+
         //Logger.recordOutput("Rebuilt/Drive/Pigeon Data", pigeonDataArr);
         
         //Logger.recordOutput("Rebuilt/Drive/maxSpeed", RobotContainer.maxSpeed);
         //Logger.recordOutput("Rebuilt/Drive/maxRotationSpeed", RobotContainer.maxAngularRate);
         //Logger.recordOutput("Rebuilt/Drive/CurrentRotationSpeed", driveState.Speeds.omegaRadiansPerSecond);
-        //Logger.recordOutput("Rebuilt/Drive/currentXSpeed", driveState.Speeds.vxMetersPerSecond);
-        //Logger.recordOutput("Rebuilt/Drive/currentYSpeed", driveState.Speeds.vyMetersPerSecond);
+        // Logger.recordOutput("Rebuilt/Drive/currentXSpeed", driveState.Speeds.vxMetersPerSecond);
+        // Logger.recordOutput("Rebuilt/Drive/currentYSpeed", driveState.Speeds.vyMetersPerSecond);
         //Logger.recordOutput("Rebuilt/Drive/slow mode", RobotContainer.slewMode);
         //Logger.recordOutput("Rebuilt/Drive/FL Swerve Module Drive Speed", getModule(0).getDriveMotor().getVelocity().getValueAsDouble());
         //Logger.recordOutput("Rebuilt/Drive/FL Swerve Module Steer Angle", getModule(0).getSteerMotor().getPosition().getValueAsDouble());
@@ -318,9 +345,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         //Logger.recordOutput("Rebuilt/Drive/BL Swerve Module Drive Speed", getModule(2).getDriveMotor().getVelocity().getValueAsDouble());
         //Logger.recordOutput("Rebuilt/Drive/BL Swerve Module Steer Angle", getModule(2).getSteerMotor().getPosition().getValueAsDouble());
 
-        //Logger.recordOutput("Rebuilt/SYSID/Motor Position", getModule(0).getDriveMotor().getPosition(true).getValueAsDouble());
-        //Logger.recordOutput("Rebuilt/SYSID/Motor Velocity", getModule(0).getDriveMotor().getVelocity(true).getValueAsDouble());
-        //Logger.recordOutput("Rebuilt/SYSID/Motor Voltage", getModule(0).getDriveMotor().getMotorVoltage(true).getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/SYSID/Motor Position", getModule(0).getDriveMotor().getPosition(true).getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/SYSID/Motor Velocity", getModule(0).getDriveMotor().getVelocity(true).getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/SYSID/Motor Voltage", getModule(0).getDriveMotor().getMotorVoltage(true).getValueAsDouble());
+
+        // Logger.recordOutput("Rebuilt/SYSID/Steer Motor Position", getModule(0).getSteerMotor().getPosition(true).getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/SYSID/Steer Motor Velocity", getModule(0).getSteerMotor().getVelocity(true).getValueAsDouble());
+        // Logger.recordOutput("Rebuilt/SYSID/Steer Motor Voltage", getModule(0).getSteerMotor().getMotorVoltage(true).getValueAsDouble());
         
     }
 
@@ -380,5 +411,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             arrList.add(getModule(i).getSteerMotor());
         }
         return arrList;
+    }
+
+    public void setStatorCurrentLimit(double statorCurrentLimit) {
+        CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
+                                        .withStatorCurrentLimit(statorCurrentLimit)
+                                        .withSupplyCurrentLimit(70)
+                                        .withSupplyCurrentLimitEnable(true)
+                                        .withSupplyCurrentLowerLimit(40)
+                                        .withSupplyCurrentLowerTime(1);
+        for(int i = 0; i < 4; i++) {
+            getModule(i).getDriveMotor().getConfigurator().apply(currentLimits);
+        }
     }
 }
