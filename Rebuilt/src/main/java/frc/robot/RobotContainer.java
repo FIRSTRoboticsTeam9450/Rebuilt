@@ -179,9 +179,15 @@ public class RobotContainer {
                 }
                 double xUsed = speed * Math.cos(rotation);
                 double yUsed = speed * Math.sin(rotation);
+                
+                // double rotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
+                double rotate = DRIVER.getRightX();
+                boolean xRotatePositive = rotate > 0;
+                rotate = xRotatePositive ? (Math.pow(rotate, 2) * -1.0) * maxAngularRate : Math.pow(rotate, 2) * maxAngularRate;
+
                 return drive.withVelocityX(slewMode ? driveX : yUsed) // Drive forward with negative Y (forward)
                     .withVelocityY(slewMode ? driveY : xUsed) // Drive left with negative X (left)
-                    .withRotationalRate(slewMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(slewMode ? driveRotate : rotate); // Drive counterclockwise with negative X (left)
                 
                 // return drive.withVelocityX(slewMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
                 //     .withVelocityY(slewMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
@@ -197,12 +203,22 @@ public class RobotContainer {
       new PositionAlignCommand(drivetrain, AlignPos.RIGHT)
     );
 
+    // DRIVER.leftTrigger().onTrue(
+    //     new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slewMode = true))
+    //     // new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED).alongWith(new InstantCommand(() -> slewMode = true))
+    // ).onFalse(
+    //   new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slewMode = false))
+    // );
+
     DRIVER.leftTrigger().onTrue(
-        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slewMode = true))
+        CoordinationSubsystem.getInstance().setFastTransferCommand(true).andThen(
+        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slewMode = false)))
         // new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED).alongWith(new InstantCommand(() -> slewMode = true))
     ).onFalse(
-      new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slewMode = false))
+      CoordinationSubsystem.getInstance().setFastTransferCommand(false).andThen(
+      new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slewMode = false)))
     );
+
 
 
     // DRIVER.rightTrigger().onTrue(

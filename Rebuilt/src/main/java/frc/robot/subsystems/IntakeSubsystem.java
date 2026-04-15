@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.geometry.CoordinateSystem;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -74,8 +75,8 @@ public final class IntakeSubsystem extends SubsystemBase{
     private LoggedNetworkNumber logMMKD = new LoggedNetworkNumber("/Tuning/Intake/Angle/kD", 3.5); // 0.1
     private LoggedNetworkNumber logMMKG = new LoggedNetworkNumber("/Tuning/Intake/Angle/kG", 0.0); // 0
 
-    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 0.06);
-    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 10);
+    private LoggedNetworkNumber logIntakeTarget = new LoggedNetworkNumber("/Tuning/Intake/Angle/Intaking Target", 0.052);
+    private LoggedNetworkNumber logIntakingTarget = new LoggedNetworkNumber("/Tuning/Intake/Wheels/Target", 5);
 
     private double intakingTargetVolts = logIntakingTarget.get();
     
@@ -99,6 +100,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     private double jamCount = 0;
 
     private boolean reversing = false;
+    private boolean fastIntaking = false;
 
     public IntakeSubsystem() {
         configureEncoder();
@@ -152,7 +154,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
         IntakeConfig.CurrentLimits.StatorCurrentLimitEnable = false;
         IntakeConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        IntakeConfig.CurrentLimits.SupplyCurrentLimit = 40; //60
+        IntakeConfig.CurrentLimits.SupplyCurrentLimit = 80; //60
         IntakeConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         
 
@@ -243,7 +245,15 @@ public final class IntakeSubsystem extends SubsystemBase{
                 if(reversing) {
                     intakingTargetVolts = -intakingTargetVolts;
                 }
-                motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts));
+
+                if(CoordinationSubsystem.getInstance().isFastTransfer()) {
+                    motorWheels.setControl(voltageRequest.withOutput(10));
+                }
+                else {
+                    motorWheels.setControl(voltageRequest.withOutput(intakingTargetVolts));
+
+                }
+                
                 break;
         }
     }

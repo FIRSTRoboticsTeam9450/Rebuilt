@@ -32,6 +32,7 @@ public class TransferSubsystem extends SubsystemBase {
         HOLD,
         RUN_IN,
         SLOW_RUN_IN,
+        FAST_RUN_IN,
         RUN_OUT,
         NO_RUN
     }
@@ -117,14 +118,16 @@ public class TransferSubsystem extends SubsystemBase {
                 //         voltageRequest.Output = -12;
                 //     }
                 // } else {
-                    voltageRequest.Output = 12;
+                    voltageRequest.Output = 8;
                 // }
                 break;
             
             case SLOW_RUN_IN:
                 voltageRequest.Output = 4.5;
                 break;
-
+            case FAST_RUN_IN:
+                voltageRequest.Output = 12;
+                break;
             case RUN_OUT: // Move fuel out
                 double voltage = -12 / (stateTimer.get() * 1.23);
                 voltage = MathUtil.clamp(voltage, -12, -4);
@@ -192,7 +195,7 @@ public class TransferSubsystem extends SubsystemBase {
 
         // Logger.recordOutput("Rebuilt/Transfer/Stalling", jammed());
 
-        // Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Transfer/Motor Voltage", motor.getMotorVoltage().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Transfer/Motor Veloc", motor.getVelocity().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Transfer/Motor Supply Amps", motor.getSupplyCurrent().getValueAsDouble());
         Logger.recordOutput("Rebuilt/Transfer/Motor Stator Amps", motor.getTorqueCurrent().getValueAsDouble());

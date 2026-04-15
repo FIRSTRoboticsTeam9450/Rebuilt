@@ -51,7 +51,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean shouldBeIntaking = false;
     private boolean rejecting = false;
     private boolean autoRejecting = false;
-    private boolean fastTransfer = true;
+    private boolean fastTransfer = false;
     private boolean intakePushing = false;
 
     private boolean overrideTrench = false;
@@ -289,10 +289,10 @@ public class CoordinationSubsystem extends SubsystemBase {
                 shooterHoodState = AngleState.AIMING;
                 shooterVelocState = ShooterState.SHOOTING;
                 if (!rejecting && !autoRejecting) {
-                    if (DriverStation.isAutonomous() || fastTransfer) {
+                    if (DriverStation.isAutonomous() || !fastTransfer) {
                         transferState = TransferState.RUN_IN;
                     } else {
-                        transferState = TransferState.SLOW_RUN_IN;
+                        transferState = TransferState.FAST_RUN_IN;
                     }
                     if (shouldBeIntaking) {
                         intakeAngleState = IntakePos.INTAKING;
@@ -405,6 +405,10 @@ public class CoordinationSubsystem extends SubsystemBase {
         return (driverAllowingShooting && areShooterAndTurretReady());
     }
 
+    public boolean isFastTransfer() {
+        return fastTransfer;
+    }
+
     public Command setFireCommand() {
         return new InstantCommand(() -> driverAllowingShooting = !driverAllowingShooting);
     }
@@ -434,12 +438,12 @@ public class CoordinationSubsystem extends SubsystemBase {
     }
 
     public Command setFastTransferCommand(boolean value) {
-        return new InstantCommand(() -> fastTransfer = true)
+        return new InstantCommand(() -> fastTransfer = value)
             .alongWith(new InstantCommand(() -> update = true));
     }
 
     public Command setFastTransferCommand() {
-        return new InstantCommand(() -> fastTransfer = true)
+        return new InstantCommand(() -> fastTransfer = !fastTransfer)
             .alongWith(new InstantCommand(() -> update = true));
     }
 

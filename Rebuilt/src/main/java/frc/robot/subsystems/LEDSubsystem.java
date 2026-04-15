@@ -109,7 +109,7 @@ public class LEDSubsystem extends SubsystemBase{
     private void configureCANdle() {
         CANdleConfiguration candleConfig = new CANdleConfiguration();
         candleConfig.CANdleFeatures.StatusLedWhenActive = StatusLedWhenActiveValue.Disabled;
-        candleConfig.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.DisableLEDs;
+        candleConfig.LED.LossOfSignalBehavior = LossOfSignalBehaviorValue.KeepRunning;
         candleConfig.LED.BrightnessScalar = 1;
         candleConfig.LED.StripType = StripTypeValue.RGB;
         
