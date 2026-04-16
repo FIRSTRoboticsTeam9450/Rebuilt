@@ -1,4 +1,4 @@
-// Copyright (c) FIRST and other WPILib contributors.
+// Copyright (c) FIRST and other WPILib contributors
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
@@ -210,12 +210,20 @@ public class RobotContainer {
     //   new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slewMode = false))
     // );
 
+    // DRIVER.leftTrigger().onTrue(
+    //     CoordinationSubsystem.getInstance().setFastTransferCommand(true).andThen(
+    //     new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slewMode = false)))
+    //     // new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED).alongWith(new InstantCommand(() -> slewMode = true))
+    // ).onFalse(
+    //   CoordinationSubsystem.getInstance().setFastTransferCommand(false).andThen(
+    //   new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slewMode = false)))
+    // );
     DRIVER.leftTrigger().onTrue(
-        CoordinationSubsystem.getInstance().setFastTransferCommand(true).andThen(
-        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slewMode = false)))
+        CoordinationSubsystem.getInstance().setFastTransferCommand(false).andThen(
+        new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED).alongWith(new InstantCommand(() -> slewMode = false)))
         // new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED).alongWith(new InstantCommand(() -> slewMode = true))
     ).onFalse(
-      CoordinationSubsystem.getInstance().setFastTransferCommand(false).andThen(
+      CoordinationSubsystem.getInstance().setFastTransferCommand(true).andThen(
       new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slewMode = false)))
     );
 

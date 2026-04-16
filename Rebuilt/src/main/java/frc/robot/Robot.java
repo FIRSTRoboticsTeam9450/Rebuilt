@@ -15,6 +15,7 @@ import com.pathplanner.lib.pathfinding.Pathfinding;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
@@ -40,7 +41,7 @@ public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
-
+  public static PowerDistribution PDH;
   private final Field2d field2d = new Field2d();
 
   // sendableBuilder used to send the field2d to the network table which Elastic will look at to get the feild 2d
@@ -58,6 +59,8 @@ public class Robot extends LoggedRobot {
     Logger.recordMetadata("Rebuilt", "main");
     Logger.addDataReceiver(new NT4Publisher());
 
+
+    PDH = new PowerDistribution();
     m_robotContainer = new RobotContainer();
 
     Logger.start();
@@ -170,7 +173,7 @@ public class Robot extends LoggedRobot {
     // this line or comment it out.
     CoordinationSubsystem.getInstance().setHardTrenchOverride(false);
     IntakeSubsystem.getInstance().init();
-    RobotContainer.drivetrain.setStatorCurrentLimit(30);
+    RobotContainer.drivetrain.setStatorCurrentLimit(52.5);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
