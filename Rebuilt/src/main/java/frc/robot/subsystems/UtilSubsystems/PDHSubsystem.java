@@ -22,8 +22,9 @@ public class PDHSubsystem extends SubsystemBase {
   private final ModuleType TYPE = PDH.getType();
   private final PowerDistributionVersion VERSION_NUMBERS = PDH.getVersion();
   
-  private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("Tuning/Debugging Toggles/PDH", false);
-  private final LoggedNetworkBoolean logDebuggingToggleSecondary = new LoggedNetworkBoolean("Tuning/Debugging Toggles/PDH Secondary", false); // For less important values (like firmware versions)
+  private final LoggedNetworkBoolean logDebuggingToggleMatch = new LoggedNetworkBoolean("Tuning/Debugging Toggles/PDH Match", true);
+  private final LoggedNetworkBoolean logDebuggingToggleNonMatch = new LoggedNetworkBoolean("Tuning/Debugging Toggles/PDH Non-Match", false);
+  private final LoggedNetworkBoolean logDebuggingToggleDetails = new LoggedNetworkBoolean("Tuning/Debugging Toggles/PDH Extra Details", false); // For less important values (like firmware versions)
 
   /** Creates a new PowerSubsystem. */
   public PDHSubsystem() {
@@ -35,16 +36,17 @@ public class PDHSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (logDebuggingToggle.get()) {
+    if (logDebuggingToggleMatch.get()) {
       Logger.recordOutput("Rebuilt/PDH/BatteryVoltage", getBatteryVoltage());
-
+    }
+    if (logDebuggingToggleNonMatch.get()) {
       // Doesn't use the method to calculate total current draw because this reduces vendordep method calls (already getting all channels)
       double[] currents = getAllCurrentAmpPulls(); double currentsSum = 0.0;
       for (double current : currents) currentsSum += current;
       Logger.recordOutput("Rebuilt/PDH/AmpPulls", currents);
       Logger.recordOutput("Rebuilt/PDH/CalculatedTotalAmpPull", currentsSum);
     }
-    if (logDebuggingToggleSecondary.get()) {
+    if (logDebuggingToggleDetails.get()) {
       Logger.recordOutput("Rebuilt/PDH/Info/CanId", getCanId());
       Logger.recordOutput("Rebuilt/PDH/Info/IsREV", isREV());
       Logger.recordOutput("Rebuilt/PDH/Info/NumChannels", getNumChannels());

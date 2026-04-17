@@ -14,12 +14,13 @@ import frc.robot.util.LoggingUtils;
 public class BatterySubsystem extends SubsystemBase {
   private static BatterySubsystem INSTANCE;
 
-  private boolean LOG_ON_LOAD = false;
+  private boolean DEBUG_LOG_ON_LOAD = false;
 
   private final BattFuelGaugeFixed BFG = new BattFuelGaugeFixed(80);
 
-  private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("Tuning/Debugging Toggles/Battery", false);
-  private final LoggedNetworkBoolean logDebuggingToggleSecondary = new LoggedNetworkBoolean("Tuning/Debugging Toggles/Battery Secondary", false); // For less important values (like firmware versions)
+  private final LoggedNetworkBoolean logDebuggingToggleMatch = new LoggedNetworkBoolean("Tuning/Debugging Toggles/Battery Match", true);
+  private final LoggedNetworkBoolean logDebuggingToggleNonMatch = new LoggedNetworkBoolean("Tuning/Debugging Toggles/Battery Non-Match", false);
+  private final LoggedNetworkBoolean logDebuggingToggleDetails = new LoggedNetworkBoolean("Tuning/Debugging Toggles/Battery Extra Details", false); // For less important values (like firmware versions)
 
   /** Creates a new BatterySubsystem. */
   public BatterySubsystem() {
@@ -31,71 +32,73 @@ public class BatterySubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (LOG_ON_LOAD) {
+    if (DEBUG_LOG_ON_LOAD) {
       BFG.saveLog("");
-      LOG_ON_LOAD = false;
+      DEBUG_LOG_ON_LOAD = false; // If this line is removed, this will make a log every time periodic() runs...
     }
 
     // No indents = Not shown on BFG screen. One indent = Partially shown on BFG screen. Two indents = Shown on BFG screen. (From base indent level)
-    if (logDebuggingToggle.get()) {
-      Logger.recordOutput("TankDrive/BatterySubsystem/Connected_Bool", BFG.isConnected());
-          Logger.recordOutput("TankDrive/BatterySubsystem/Nickname_Str", BFG.getNickname());
-          Logger.recordOutput("TankDrive/BatterySubsystem/Manufacturer_Enum", BFG.getManufacturer());
-          float capacityAh = BFG.getCapacityAh();
-          Logger.recordOutput("TankDrive/BatterySubsystem/Capacity_Ah", capacityAh);
-          Logger.recordOutput("TankDrive/BatterySubsystem/RatedCapacity_Ah", BFG.getRatedCapacityAh());
-          Logger.recordOutput("TankDrive/BatterySubsystem/Age_Days", BFG.getBatteryAgeDays()); // Not actually in days, don't know why. Returns 4.3e16
-          Logger.recordOutput("TankDrive/BatterySubsystem/NumCycles_Num", BFG.getNumCycles());
-
-          Logger.recordOutput("TankDrive/BatterySubsystem/Voltage_V", BFG.getVoltage());
-          Logger.recordOutput("TankDrive/BatterySubsystem/Current_A", BFG.getCurrent());
-        Logger.recordOutput("TankDrive/BatterySubsystem/State_Enum", BFG.getBatteryState());
-          float effectiveCapacityAh = BFG.getEffectiveCapacityAh();
-          Logger.recordOutput("TankDrive/BatterySubsystem/EffectiveCapacity_Ah", effectiveCapacityAh);
-          float effectiveCapacityPct = effectiveCapacityAh / capacityAh * 100.0F;
-          Logger.recordOutput("TankDrive/BatterySubsystem/EffectiveCapacity_Pct", effectiveCapacityPct);
-      float depthOfDischargeAh = BFG.getDodAh();
-      Logger.recordOutput("TankDrive/BatterySubsystem/DepthOfDischarge_Ah", depthOfDischargeAh);
-      Logger.recordOutput("TankDrive/BatterySubsystem/DepthOfDischarge_Wh", BFG.getDodWh());
-        float stateOfChargeAh = effectiveCapacityAh - depthOfDischargeAh; // Labeled as "remaining charge" in docs
-        Logger.recordOutput("TankDrive/BatterySubsystem/StateOfCharge_Ah", stateOfChargeAh);
-        float stateOfChargePct = BFG.getRemainingChargePct();
-        Logger.recordOutput("TankDrive/BatterySubsystem/StateOfCharge_Pct", stateOfChargePct);
-
-
-          Logger.recordOutput("TankDrive/BatterySubsystem/CurrentCycle/MinVoltage_V", BFG.getCycleMinVoltage());
-      Logger.recordOutput("TankDrive/BatterySubsystem/CurrentCycle/MaxVoltage_V", BFG.getCycleMaxVoltage());
-      Logger.recordOutput("TankDrive/BatterySubsystem/CurrentCycle/MinCurrent_A", BFG.getCycleMinCurrent());
-          Logger.recordOutput("TankDrive/BatterySubsystem/CurrentCycle/MaxCurrent_A", BFG.getCycleMaxCurrent());
-      Logger.recordOutput("TankDrive/BatterySubsystem/CurrentCycle/StartingVoltage_V", BFG.getCycleStartingVoltage());
-          Logger.recordOutput("TankDrive/BatterySubsystem/CurrentCycle/RmsDischargeCurrent_A", BFG.getCycleRmsDischargeCurrent());
-      Logger.recordOutput("TankDrive/BatterySubsystem/CurrentCycle/MinDepthOfDischarge_Ah", BFG.getCycleMinDodAh());
-      Logger.recordOutput("TankDrive/BatterySubsystem/CurrentCycle/MinDepthOfDischarge_Wh", BFG.getCycleMinDodWh()); // Returns the same value as the current cycle min depth of discharge in amp-hours, but shouldn't
-      Logger.recordOutput("TankDrive/BatterySubsystem/CurrentCycle/MaxDepthOfDischarge_Ah", BFG.getCycleMaxDodAh());
-      Logger.recordOutput("TankDrive/BatterySubsystem/CurrentCycle/MaxDepthOfDischarge_Wh", BFG.getCycleMaxDodWh());
-        LoggingUtils.logSecondsAsTime("TankDrive/BatterySubsystem/CurrentCycle/ChargeTime_Time", (int) BFG.getCycleChargeTime());
-        LoggingUtils.logSecondsAsTime("TankDrive/BatterySubsystem/CurrentCycle/DischargeTime_Time", (int) BFG.getCycleDischargeTime());
-
-
-          Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/MinVoltage_V", BFG.getMatchMinVoltage());
-      Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/MaxVoltage_V", BFG.getMatchMaxVoltage());
-      Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/MinCurrent_A", BFG.getMatchMinCurrent());
-          Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/MaxCurrent_A", BFG.getMatchMaxCurrent());
-          Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/StartingVoltage_V", BFG.getMatchStartingVoltage());
-          Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/RmsDischargeCurrent_A", BFG.getMatchRmsDischargeCurrent());
-      Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/MinDepthOfDischarge_Ah", BFG.getMatchMinDodAh());
-      Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/MaxDepthOfDischarge_Ah", BFG.getMatchMaxDodAh());
-      LoggingUtils.logSecondsAsTime("TankDrive/BatterySubsystem/LastMatch/ChargeTime_Time", (int) BFG.getMatchChargeTime());
-      LoggingUtils.logSecondsAsTime("TankDrive/BatterySubsystem/LastMatch/DischargeTime_Time", (int) BFG.getMatchDischargeTime());
-          LoggingUtils.logSecondsAsTime("TankDrive/BatterySubsystem/LastMatch/Duration_Time", (int) BFG.getMatchDuration()); // Labeled as "active time" on webpage
-      Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/StartingCharge_Ah", BFG.getMatchStartingCharge()); // Webpage calls this "Starting depth of discharge"
-      Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/StartingCharge_Wh", BFG.getMatchStartingEnergy()); // Webpage calls this "Starting depth of discharge"
-      Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/EndingCharge_Ah", BFG.getMatchEndingCharge()); // Webpage calls this "Ending depth of discharge"
-      Logger.recordOutput("TankDrive/BatterySubsystem/LastMatch/EndingCharge_Wh", BFG.getMatchEndingEnergy()); // Webpage calls this "Ending depth of discharge"
+    if (logDebuggingToggleMatch.get()) { // TODO: Logs here (don't put very many)
     }
-    if (logDebuggingToggleSecondary.get()) {
-      Logger.recordOutput("TankDrive/BatterySubsystem/SerialNumber_Num", BFG.getSerialNumber());
-      Logger.recordOutput("TankDrive/BatterySubsystem/FirmwareVersion_Num", BFG.getFirmwareVersion());
+    if (logDebuggingToggleNonMatch.get()) {
+      Logger.recordOutput("Rebuilt/Battery/Connected_Bool", BFG.isConnected());
+          Logger.recordOutput("Rebuilt/Battery/Nickname_Str", BFG.getNickname());
+          Logger.recordOutput("Rebuilt/Battery/Manufacturer_Enum", BFG.getManufacturer());
+          float capacityAh = BFG.getCapacityAh();
+          Logger.recordOutput("Rebuilt/Battery/Capacity_Ah", capacityAh);
+          Logger.recordOutput("Rebuilt/Battery/RatedCapacity_Ah", BFG.getRatedCapacityAh());
+          Logger.recordOutput("Rebuilt/Battery/Age_Days", BFG.getBatteryAgeDays()); // Not actually in days, don't know why. Returns 4.3e16
+          Logger.recordOutput("Rebuilt/Battery/NumCycles_Num", BFG.getNumCycles());
+
+          Logger.recordOutput("Rebuilt/Battery/Voltage_V", BFG.getVoltage());
+          Logger.recordOutput("Rebuilt/Battery/Current_A", BFG.getCurrent());
+        Logger.recordOutput("Rebuilt/Battery/State_Enum", BFG.getBatteryState());
+          float effectiveCapacityAh = BFG.getEffectiveCapacityAh();
+          Logger.recordOutput("Rebuilt/Battery/EffectiveCapacity_Ah", effectiveCapacityAh);
+          float effectiveCapacityPct = effectiveCapacityAh / capacityAh * 100.0F;
+          Logger.recordOutput("Rebuilt/Battery/EffectiveCapacity_Pct", effectiveCapacityPct);
+      float depthOfDischargeAh = BFG.getDodAh();
+      Logger.recordOutput("Rebuilt/Battery/DepthOfDischarge_Ah", depthOfDischargeAh);
+      Logger.recordOutput("Rebuilt/Battery/DepthOfDischarge_Wh", BFG.getDodWh());
+        float stateOfChargeAh = effectiveCapacityAh - depthOfDischargeAh; // Labeled as "remaining charge" in docs
+        Logger.recordOutput("Rebuilt/Battery/StateOfCharge_Ah", stateOfChargeAh);
+        float stateOfChargePct = BFG.getRemainingChargePct();
+        Logger.recordOutput("Rebuilt/Battery/StateOfCharge_Pct", stateOfChargePct);
+
+
+          Logger.recordOutput("Rebuilt/Battery/CurrentCycle/MinVoltage_V", BFG.getCycleMinVoltage());
+      Logger.recordOutput("Rebuilt/Battery/CurrentCycle/MaxVoltage_V", BFG.getCycleMaxVoltage());
+      Logger.recordOutput("Rebuilt/Battery/CurrentCycle/MinCurrent_A", BFG.getCycleMinCurrent());
+          Logger.recordOutput("Rebuilt/Battery/CurrentCycle/MaxCurrent_A", BFG.getCycleMaxCurrent());
+      Logger.recordOutput("Rebuilt/Battery/CurrentCycle/StartingVoltage_V", BFG.getCycleStartingVoltage());
+          Logger.recordOutput("Rebuilt/Battery/CurrentCycle/RmsDischargeCurrent_A", BFG.getCycleRmsDischargeCurrent());
+      Logger.recordOutput("Rebuilt/Battery/CurrentCycle/MinDepthOfDischarge_Ah", BFG.getCycleMinDodAh());
+      Logger.recordOutput("Rebuilt/Battery/CurrentCycle/MinDepthOfDischarge_Wh", BFG.getCycleMinDodWh()); // Returns the same value as the current cycle min depth of discharge in amp-hours, but shouldn't
+      Logger.recordOutput("Rebuilt/Battery/CurrentCycle/MaxDepthOfDischarge_Ah", BFG.getCycleMaxDodAh());
+      Logger.recordOutput("Rebuilt/Battery/CurrentCycle/MaxDepthOfDischarge_Wh", BFG.getCycleMaxDodWh());
+        LoggingUtils.logSecondsAsTime("Rebuilt/Battery/CurrentCycle/ChargeTime_Time", (int) BFG.getCycleChargeTime());
+        LoggingUtils.logSecondsAsTime("Rebuilt/Battery/CurrentCycle/DischargeTime_Time", (int) BFG.getCycleDischargeTime());
+
+
+          Logger.recordOutput("Rebuilt/Battery/LastMatch/MinVoltage_V", BFG.getMatchMinVoltage());
+      Logger.recordOutput("Rebuilt/Battery/LastMatch/MaxVoltage_V", BFG.getMatchMaxVoltage());
+      Logger.recordOutput("Rebuilt/Battery/LastMatch/MinCurrent_A", BFG.getMatchMinCurrent());
+          Logger.recordOutput("Rebuilt/Battery/LastMatch/MaxCurrent_A", BFG.getMatchMaxCurrent());
+          Logger.recordOutput("Rebuilt/Battery/LastMatch/StartingVoltage_V", BFG.getMatchStartingVoltage());
+          Logger.recordOutput("Rebuilt/Battery/LastMatch/RmsDischargeCurrent_A", BFG.getMatchRmsDischargeCurrent());
+      Logger.recordOutput("Rebuilt/Battery/LastMatch/MinDepthOfDischarge_Ah", BFG.getMatchMinDodAh());
+      Logger.recordOutput("Rebuilt/Battery/LastMatch/MaxDepthOfDischarge_Ah", BFG.getMatchMaxDodAh());
+      LoggingUtils.logSecondsAsTime("Rebuilt/Battery/LastMatch/ChargeTime_Time", (int) BFG.getMatchChargeTime());
+      LoggingUtils.logSecondsAsTime("Rebuilt/Battery/LastMatch/DischargeTime_Time", (int) BFG.getMatchDischargeTime());
+          LoggingUtils.logSecondsAsTime("Rebuilt/Battery/LastMatch/Duration_Time", (int) BFG.getMatchDuration()); // Labeled as "active time" on webpage
+      Logger.recordOutput("Rebuilt/Battery/LastMatch/StartingCharge_Ah", BFG.getMatchStartingCharge()); // Webpage calls this "Starting depth of discharge"
+      Logger.recordOutput("Rebuilt/Battery/LastMatch/StartingCharge_Wh", BFG.getMatchStartingEnergy()); // Webpage calls this "Starting depth of discharge"
+      Logger.recordOutput("Rebuilt/Battery/LastMatch/EndingCharge_Ah", BFG.getMatchEndingCharge()); // Webpage calls this "Ending depth of discharge"
+      Logger.recordOutput("Rebuilt/Battery/LastMatch/EndingCharge_Wh", BFG.getMatchEndingEnergy()); // Webpage calls this "Ending depth of discharge"
+    }
+    if (logDebuggingToggleDetails.get()) {
+      Logger.recordOutput("Rebuilt/Battery/SerialNumber_Num", BFG.getSerialNumber());
+      Logger.recordOutput("Rebuilt/Battery/FirmwareVersion_Num", BFG.getFirmwareVersion());
     }
 
 
