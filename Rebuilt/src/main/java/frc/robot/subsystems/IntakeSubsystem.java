@@ -34,6 +34,7 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     //List the states the intake will use
     public enum IntakePos {
+        DISABLED,
         HOLD_ON_FOR_TRENCH,
         ZEROING,
         PUSH_BAR,
@@ -50,7 +51,7 @@ public final class IntakeSubsystem extends SubsystemBase{
     }
 
     //Set the current state of the robot to be idle
-    private IntakePos currentPos = IntakePos.STORE;
+    private IntakePos currentPos = IntakePos.DISABLED;
     private IntakeState currentState = IntakeState.IDLING;
 
     private Timer zeroingTimer = new Timer();
@@ -63,8 +64,8 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-    private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 95); //45
-    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 120); //30
+    private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 30); //95
+    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 45); //120
 
 
     private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.275); // .145
@@ -118,12 +119,12 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private void configureMotors() {
         motorConfig.MotorOutput.NeutralMode = RobotConstants.DEFAULT_NEUTRAL_MODE_VALUE;
-        motorConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        motorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
 
         motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        motorConfig.CurrentLimits.StatorCurrentLimit = 40;
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         motorConfig.CurrentLimits.SupplyCurrentLimit = 60;
         motorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
@@ -190,6 +191,10 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     private void applyState() {
         switch (currentPos) {
+            case DISABLED:
+                motorArm.stopMotor();;
+                break;
+
             case HOLD_ON_FOR_TRENCH:
                 motorArm.stopMotor();
                 break;
@@ -314,6 +319,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         return currentPos;
     }
     public void setPos(IntakePos pos) {
+        if (currentPos == IntakePos.DISABLED) return;
         if (currentPos == IntakePos.ZEROING) return;
         if (pos == IntakePos.ZEROING) {
             isZeroingDone = false;

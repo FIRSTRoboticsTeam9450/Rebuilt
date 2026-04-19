@@ -170,7 +170,7 @@ public class ShooterSubsystem extends SubsystemBase {
                     (state) -> Logger.recordOutput("Rebuilt/Shooter/Outtake/SysID/State", state.toString())
                 ),
                 new SysIdRoutine.Mechanism(
-                    (volts) -> shooterLeftMotor.setControl(m_voltReq.withOutput(volts.in(Volt))),
+                    (volts) -> shooterRightMotor.setControl(m_voltReq.withOutput(volts.in(Volt))),
                     null,
                     this
                 )
@@ -283,10 +283,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
         shooterLeftMotor.getConfigurator().apply(shooterMotorsConfig);
 
-        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        shooterMotorsConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         shooterRightMotor.getConfigurator().apply(shooterMotorsConfig);
 
-        shooterRightMotor.setControl(new Follower(shooterLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
+        // shooterRightMotor.setControl(new Follower(shooterLeftMotor.getDeviceID(), MotorAlignmentValue.Opposed));
     }
 
     public boolean autoZeroing() {
@@ -380,15 +380,15 @@ public class ShooterSubsystem extends SubsystemBase {
     public void applyState() {
         switch (currentShooterState) {
             case SHOOTING:
-                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
+                shooterRightMotor.setControl(outtakeVRequest.withVelocity(getShooterVeloc()));
                 break;
 
             case NOT_SHOOTING:
-                shooterLeftMotor.setVoltage(0);
+                shooterRightMotor.setVoltage(0);
                 break;
             
             case HOLD_IN:
-                shooterLeftMotor.setControl(outtakeVRequest.withVelocity(-10));
+                shooterRightMotor.setControl(outtakeVRequest.withVelocity(-10));
                 break;
 
             default:

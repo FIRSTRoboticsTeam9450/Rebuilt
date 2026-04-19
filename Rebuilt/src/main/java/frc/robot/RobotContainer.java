@@ -196,12 +196,12 @@ public class RobotContainer {
             )
         );
         
-    DRIVER.leftBumper().whileTrue(
-      new PositionAlignCommand(drivetrain, AlignPos.LEFT)
-    );
-    DRIVER.rightBumper().whileTrue(
-      new PositionAlignCommand(drivetrain, AlignPos.RIGHT)
-    );
+    // DRIVER.leftBumper().whileTrue(
+    //   new PositionAlignCommand(drivetrain, AlignPos.LEFT)
+    // );
+    // DRIVER.rightBumper().whileTrue(
+    //   new PositionAlignCommand(drivetrain, AlignPos.RIGHT)
+    // );
 
     // DRIVER.leftTrigger().onTrue(
     //     new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slewMode = true))
@@ -227,6 +227,14 @@ public class RobotContainer {
       new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * 1).alongWith(new InstantCommand(() -> slewMode = false)))
     );
 
+    DRIVER.leftBumper().onTrue(
+      CoordinationSubsystem.getInstance().setIntakeCommand().alongWith(CoordinationSubsystem.getInstance().setFireCommand())
+    );
+
+    DRIVER.rightStick().onTrue(
+      CoordinationSubsystem.getInstance().setForceTrenchCommand()
+    );
+
 
 
     // DRIVER.rightTrigger().onTrue(
@@ -242,6 +250,9 @@ public class RobotContainer {
     );
 
     DRIVER.y().onTrue(new ResetIMU(drivetrain));
+
+    DRIVER.povLeft().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
+    DRIVER.povRight().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
 
     DRIVER.back().onTrue(
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)

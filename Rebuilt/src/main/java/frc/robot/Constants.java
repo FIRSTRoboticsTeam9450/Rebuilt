@@ -37,7 +37,7 @@ public final class Constants {
     public static final String RIO_BUS_NAME = "Rio";
 
     public static final CANBus DRIVEBASE_CANBUS = new CANBus(DRIVEBASE_CANBUS_NAME);
-    public static final CANBus MAIN_SYSTEMS_CANBUS = new CANBus(MAIN_SYSTEMS_CANBUS_NAME);
+    public static final CANBus MAIN_SYSTEMS_CANBUS = new CANBus(DRIVEBASE_CANBUS_NAME); //Temporarily set to same as drivebase canbus due to only have 1 canivore on robot.
     public static final CANBus RIO_BUS = new CANBus(RIO_BUS_NAME);
 
     public static final boolean ENABLE_FOC = true;
