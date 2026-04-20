@@ -180,9 +180,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() {
 
-        shootingDistanceToVelocity.put(6.2, 49.5 + wheelWareAdjustment);
-        shootingDistanceToVelocity.put(5.684, 47.75 + wheelWareAdjustment);
-        shootingDistanceToVelocity.put(5.095, 45.25 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(6.2, 51.5 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(5.684, 49.75 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(5.095, 46.0 + wheelWareAdjustment);
         shootingDistanceToVelocity.put(4.101, 42.5 + wheelWareAdjustment);
         shootingDistanceToVelocity.put(3.465, 41.0 + wheelWareAdjustment);
         shootingDistanceToVelocity.put(3.0, 38.75 + wheelWareAdjustment);
@@ -211,7 +211,7 @@ public class ShooterSubsystem extends SubsystemBase {
         ferryingDistanceToVelocity.put(4.962, 35.72 + 2.5);
         ferryingDistanceToVelocity.put(7.622, 42.03 + 8);
         ferryingDistanceToVelocity.put(11.26, 52.0 + 35);
-        ferryingDistanceToVelocity.put(14.26, 100.0);
+        ferryingDistanceToVelocity.put(14.26, 110.0);
 
         // Ferrying Data Time
         ferryingDistanceToTime.put(4.59, 1.41);
@@ -484,7 +484,7 @@ public class ShooterSubsystem extends SubsystemBase {
         else {
             targetShooterVeloc = logTuningShooterVelocity.get();
         }
-        targetShooterVeloc = MathUtil.clamp(targetShooterVeloc, 0, 95);
+        targetShooterVeloc = MathUtil.clamp(targetShooterVeloc, 0, 100);
         return targetShooterVeloc + manualShift;
     }
 
@@ -605,7 +605,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public boolean isVelocityWithinTolerance(double tolerance) {
-        return Math.abs(targetShooterVeloc + manualShift - shooterLeftMotor.getVelocity().getValueAsDouble()) < tolerance;
+        double shooterVeloc = shooterLeftMotor.getVelocity().getValueAsDouble();
+        if (targetShooterVeloc >= 75) {
+            return true;
+        }
+        return Math.abs(targetShooterVeloc + manualShift - shooterVeloc) < tolerance;
     }
 
     public boolean isShooterReady() { //TODO: Add back at some point ¯\_(ツ)_/¯

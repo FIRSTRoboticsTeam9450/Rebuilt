@@ -333,7 +333,7 @@ public final class Constants {
         public static final double FERRY_ZONE_LEFT_SECTION_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
         public static final double FERRY_ZONE_LEFT_SECTION_X_HIGH = 7.433; // Untested change check it later
         public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW = FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH;
-        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH = 5.8;
+        public static final double FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH = 6.8;
         
         // LEFT SIDE POINTS
         public static final double FERRY_ZONE_LEFT_NORMAL_SECTION_Y_LOW = 0;

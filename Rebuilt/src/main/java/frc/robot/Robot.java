@@ -116,7 +116,7 @@ public class Robot extends LoggedRobot {
   public void disabledInit() {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
-    VisionSubsystem.getInstance().setThrottle(0);
+    VisionSubsystem.getInstance().setThrottle(100);
     VisionSubsystem.getInstance().setLLIMUModes(1);
     updateValuesOffset = 0;
     IntakeSubsystem.getInstance().init();
@@ -154,7 +154,7 @@ public class Robot extends LoggedRobot {
     VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     IntakeSubsystem.getInstance().init();
-    RobotContainer.drivetrain.setStatorCurrentLimit(50);
+    RobotContainer.drivetrain.setStatorCurrentLimit(60);
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(m_autonomousCommand);
@@ -173,7 +173,7 @@ public class Robot extends LoggedRobot {
     // this line or comment it out.
     CoordinationSubsystem.getInstance().setHardTrenchOverride(false);
     IntakeSubsystem.getInstance().init();
-    RobotContainer.drivetrain.setStatorCurrentLimit(52.5);
+    RobotContainer.drivetrain.setStatorCurrentLimit(40);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }

@@ -321,13 +321,19 @@ public class CoordinationSubsystem extends SubsystemBase {
                 // } else {
                 //     transferState = TransferState.HOLD;
                 // }
-                if (shouldBeIntaking) {
-                    intakeAngleState = IntakePos.INTAKING;
-                    intakeVelocState = IntakeState.INTAKING;
-                } else if (intakePushing) {
-                    intakeAngleState = IntakePos.PUSH_BAR;
-                    intakeVelocState = IntakeState.IDLING;
+                if (!rejecting && !autoRejecting) {
+                    if (shouldBeIntaking) {
+                        intakeAngleState = IntakePos.INTAKING;
+                        intakeVelocState = IntakeState.INTAKING;
+                    } else if (intakePushing) {
+                        intakeAngleState = IntakePos.PUSH_BAR;
+                        intakeVelocState = IntakeState.IDLING;
+                    } else {
+                        intakeAngleState = IntakePos.TRENCH_STORE;
+                        intakeVelocState = IntakeState.IDLING;
+                    }
                 } else {
+                    transferState = TransferState.RUN_OUT;
                     intakeAngleState = IntakePos.TRENCH_STORE;
                     intakeVelocState = IntakeState.IDLING;
                 }
