@@ -321,7 +321,7 @@ public final class Constants {
         public static final double FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH = 4.145;
          
         public static final double FERRY_ZONE_MID_SECTION_2_X_LOW = FERRY_ZONE_MID_SECTION_1_X_HIGH;
-        public static final double FERRY_ZONE_MID_SECTION_2_X_HIGH = 6; // TODO: Change to threshold value
+        public static final double FERRY_ZONE_MID_SECTION_2_X_HIGH = 7.433; // TODO: Change to threshold value
         public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
         public static final double FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH = 5.2;
 
@@ -342,7 +342,7 @@ public final class Constants {
         public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH;
         public static final double FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
         
-        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH = FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
+        public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW;
         public static final double FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW = 8.078 - FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH;
 
         public static final double FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH = 8.078 - FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW;

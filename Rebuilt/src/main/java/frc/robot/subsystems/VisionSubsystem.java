@@ -855,12 +855,10 @@ public class VisionSubsystem extends SubsystemBase {
         Pose2d turretPose = TurretSubsystem.getInstance().getTurretPose();
         double turretX = turretPose.getX();
         double turretY = turretPose.getY();
-        double numToAddToShootOverNetZone = 0.834;
-        double numToSubtractToShootOverNetZone = 0;
         if(currentX > ZoneConstantsWelded.MAJOR_ZONE_X_LOW && currentX < ZoneConstantsWelded.MAJOR_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MAJOR_ZONE_Y_LOW && currentY < ZoneConstantsWelded.MAJOR_ZONE_Y_HIGH) { // CHANGE DURING COMP TO WELDED
             currentZone = ZoneState.SHOOTING_ZONE;
             currentTarget = ZoneTargets.SHOOTING_TARGET;
-            currentFerryZone = "none";
+            currentFerryZone = "Shooting";
         }
         
         if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH) {
@@ -869,17 +867,15 @@ public class VisionSubsystem extends SubsystemBase {
             currentFerryZone = "Normal";
         }
         if(!ferryingTop && FieldConstants.isBlueAlliance) {
-            numToAddToShootOverNetZone = 0.834;
-            numToSubtractToShootOverNetZone = 0;
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryMidTarget;
                 currentFerryZone = "Right Mid Section 1";
             }
             else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = ferryMidTarget;
-                currentFerryZone = "Right Mid Section 2";
+                currentZone = ZoneState.SHOOT_OVER_NET;
+                currentTarget = neutralTarget;
+                currentFerryZone = "Right Mid Section 2 (shoot over net...)";
             }
 
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH) {
@@ -896,17 +892,15 @@ public class VisionSubsystem extends SubsystemBase {
 
         }
         else if(ferryingTop && !FieldConstants.isBlueAlliance) {
-            numToAddToShootOverNetZone = 0;
-            numToSubtractToShootOverNetZone = -0.834;
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryMidTarget;
                 currentFerryZone = "Right Mid Section 1";
             }
             else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = ferryMidTarget;
-                currentFerryZone = "Right Mid Section 2";
+                currentZone = ZoneState.SHOOT_OVER_NET;
+                currentTarget = neutralTarget;
+                currentFerryZone = "Right Mid Section 2 (shoot over net...)";
             }
 
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH) {
@@ -923,18 +917,15 @@ public class VisionSubsystem extends SubsystemBase {
 
         }
         else if(ferryingTop && FieldConstants.isBlueAlliance) {
-            // System.out.println("SAVE MY SOUL");
-            numToAddToShootOverNetZone = 0.834;
-            numToSubtractToShootOverNetZone = 0;
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryMidTarget;
                 currentFerryZone = "Left Mid Section 1";
             }
             else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = ferryMidTarget;
-                currentFerryZone = "Left Mid Section 2";
+                currentZone = ZoneState.SHOOT_OVER_NET;
+                currentTarget = neutralTarget;
+                currentFerryZone = "Left Mid Section 2 (shoot over net...)";
             }
 
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH) {
@@ -951,17 +942,15 @@ public class VisionSubsystem extends SubsystemBase {
 
         }
         else if(!ferryingTop && !FieldConstants.isBlueAlliance) {
-            numToAddToShootOverNetZone = 0;
-            numToSubtractToShootOverNetZone = -0.834;
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryMidTarget;
                 currentFerryZone = "Left Mid Section 1";
             }
             else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = ferryMidTarget;
-                currentFerryZone = "Left Mid Section 2";
+                currentZone = ZoneState.SHOOT_OVER_NET;
+                currentTarget = neutralTarget;
+                currentFerryZone = "Left Mid Section 2 (shoot over net...)";
             }
 
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH) {
@@ -979,7 +968,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
         
 
-        if(currentX > ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_V2_Y_LOW - numToSubtractToShootOverNetZone && currentY < ZoneConstantsWelded.FERRY_ZONE_V2_Y_HIGH + numToAddToShootOverNetZone) {
+        if(currentX > ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_V2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_V2_Y_HIGH) {
             currentZone = ZoneState.SHOOT_OVER_NET;
             currentTarget = neutralTarget;
             currentFerryZone = "Shoot Over Net";
