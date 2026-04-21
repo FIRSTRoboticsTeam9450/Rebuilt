@@ -868,8 +868,8 @@ public class VisionSubsystem extends SubsystemBase {
         }
         if(!ferryingTop && FieldConstants.isBlueAlliance) {
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = ferryMidTarget;
+                currentZone = ZoneState.SHOOT_OVER_NET;
+                currentTarget = neutralTarget;
                 currentFerryZone = "Right Mid Section 1";
             }
             else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH) {
@@ -891,10 +891,10 @@ public class VisionSubsystem extends SubsystemBase {
             }
 
         }
-        else if(ferryingTop && !FieldConstants.isBlueAlliance) {
+        else if(!ferryingTop && !FieldConstants.isBlueAlliance) {
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = ferryMidTarget;
+                currentZone = ZoneState.SHOOT_OVER_NET;
+                currentTarget = neutralTarget;
                 currentFerryZone = "Right Mid Section 1";
             }
             else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH) {
@@ -918,8 +918,8 @@ public class VisionSubsystem extends SubsystemBase {
         }
         else if(ferryingTop && FieldConstants.isBlueAlliance) {
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = ferryMidTarget;
+                currentZone = ZoneState.SHOOT_OVER_NET;
+                currentTarget = neutralTarget;
                 currentFerryZone = "Left Mid Section 1";
             }
             else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH) {
@@ -941,7 +941,7 @@ public class VisionSubsystem extends SubsystemBase {
             }
 
         }
-        else if(!ferryingTop && !FieldConstants.isBlueAlliance) {
+        else if(ferryingTop && !FieldConstants.isBlueAlliance) {
             if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH) {
                 currentZone = ZoneState.FERRY_ZONE_TOP;
                 currentTarget = ferryMidTarget;
