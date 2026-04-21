@@ -63,8 +63,8 @@ public final class IntakeSubsystem extends SubsystemBase{
 
     TalonFXConfiguration motorConfig = new TalonFXConfiguration();
 
-    private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 95); //45
-    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 120); //30
+    private LoggedNetworkNumber logMMVeloc = new LoggedNetworkNumber("/Tuning/Intake/Angle/Velocity", 30); //95
+    private LoggedNetworkNumber logMMAccel = new LoggedNetworkNumber("/Tuning/Intake/Angle/Acceleration", 45); //120
 
 
     private LoggedNetworkNumber logMMKS = new LoggedNetworkNumber("/Tuning/Intake/Angle/kS", 0.275); // .145
@@ -123,9 +123,9 @@ public final class IntakeSubsystem extends SubsystemBase{
         motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
 
         motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.StatorCurrentLimit = 80;
+        motorConfig.CurrentLimits.StatorCurrentLimit = 40;
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.SupplyCurrentLimit = 60;
+        motorConfig.CurrentLimits.SupplyCurrentLimit = 40;
         motorConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         motorConfig.CurrentLimits.SupplyCurrentLowerLimit = 20;
 

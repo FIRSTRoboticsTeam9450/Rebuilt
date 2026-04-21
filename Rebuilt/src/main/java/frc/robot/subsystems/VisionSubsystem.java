@@ -147,7 +147,7 @@ public class VisionSubsystem extends SubsystemBase {
     Translation2d ferryTarget = ZoneTargets.FERRY_TOP_TARGET;
     Translation2d neutralTarget = ZoneTargets.NEUTRAL_TOP_TARGET;
     Translation2d ferryMidTarget = ZoneTargets.FERRY_MID_LEFT_TARGET;
-    boolean ferryingTop = false;
+    boolean ferryingTop = true;
 
     private ChassisSpeeds prevRobotVelocity = new ChassisSpeeds(0, 0, 0);
     private double prevTimeStamp = 0;
@@ -508,6 +508,7 @@ public class VisionSubsystem extends SubsystemBase {
     private void publishLogs() {
         // Overall vision state
         Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Pose", lastVisionPose);
+        Logger.recordOutput("Rebuilt/Vision/Ferrying Top", ferryingTop);
         // Logger.recordOutput("Rebuilt/Vision/Total/Last Fused Pose", lastFusedPose);
         // Logger.recordOutput("Rebuilt/Vision/Total/Last Target Pose", lastTargetPose);
         // Logger.recordOutput("Rebuilt/Vision/Total/Last Vision Timestamp", lastVisionTimestamp);
@@ -523,10 +524,10 @@ public class VisionSubsystem extends SubsystemBase {
         // Logger.recordOutput("Rebuilt/Vision/Config/Max Translation Diff", maxTranslationDiff);
         // Logger.recordOutput("Rebuilt/Vision/Config/Max Rotation Diff", Math.toDegrees(maxRotationDiff));
 
-        // Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
+        Logger.recordOutput("Rebuilt/Vision/CurrentZone", currentZone);
 
         // Logger.recordOutput("Rebuilt/Vision/Bump Measurement Count", bumpMeasurmentCount);
-        // Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);
+        Logger.recordOutput("Rebuilt/Vision/CurrentFerryZone", currentFerryZone);
         if (loopOffset > 5) {
             loopOffset = 0;
             Logger.recordOutput("Rebuilt/Vision/CurrentTarget", getCurrentBotPoseAllianceUnspecific().plus(new Transform2d(getAdjustedCurrentTarget(), new Rotation2d())));
@@ -854,35 +855,35 @@ public class VisionSubsystem extends SubsystemBase {
         Pose2d turretPose = TurretSubsystem.getInstance().getTurretPose();
         double turretX = turretPose.getX();
         double turretY = turretPose.getY();
-
         if(currentX > ZoneConstantsWelded.MAJOR_ZONE_X_LOW && currentX < ZoneConstantsWelded.MAJOR_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MAJOR_ZONE_Y_LOW && currentY < ZoneConstantsWelded.MAJOR_ZONE_Y_HIGH) { // CHANGE DURING COMP TO WELDED
             currentZone = ZoneState.SHOOTING_ZONE;
             currentTarget = ZoneTargets.SHOOTING_TARGET;
-            currentFerryZone = "none";
+            currentFerryZone = "Shooting";
         }
         
-        if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH) {
+        if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_TOP_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_TOP_SECTION_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_TOP;
-            currentTarget = ferryTarget;
+            currentTarget = ZoneTargets.FERRY_TOP_TARGET;
             currentFerryZone = "Normal";
         }
         
-        if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH) {
-            currentZone = ZoneState.FERRY_ZONE_TOP;
-            currentTarget = ferryTarget;
+        if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_BOTTOM_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_BOTTOM_SECTION_Y_HIGH) {
+            currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+            currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
             currentFerryZone = "Normal";
-        }
-        // Comment out if dont want shoot over net
-        if(currentX > ZoneConstantsWelded.FERRY_ZONE_PUSH_V2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_PUSH_V2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_V2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_V2_Y_HIGH) {
-            currentZone = ZoneState.CLIMB_DEADZONE;
-            currentTarget = neutralTarget;
-            currentFerryZone = "Push Section V2";
         }
 
         if(currentX > ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_V2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_V2_Y_HIGH) {
             currentZone = ZoneState.SHOOT_OVER_NET;
             currentTarget = neutralTarget;
             currentFerryZone = "Shoot Over Net";
+        }
+
+        // Comment out if dont want shoot over net
+        if(currentX > ZoneConstantsWelded.FERRY_ZONE_PUSH_V2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_PUSH_V2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_V2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_V2_Y_HIGH) {
+            currentZone = ZoneState.CLIMB_DEADZONE;
+            currentTarget = neutralTarget;
+            currentFerryZone = "Push Section V2";
         }
 
         // else if(currentX > ZoneConstantsWelded.MID_ZONE_X_LOW && currentX < ZoneConstantsWelded.MID_ZONE_X_HIGH && currentY > ZoneConstantsWelded.MID_ZONE_1_Y_LOW && currentY < ZoneConstantsWelded.MID_ZONE_1_Y_HIGH) {

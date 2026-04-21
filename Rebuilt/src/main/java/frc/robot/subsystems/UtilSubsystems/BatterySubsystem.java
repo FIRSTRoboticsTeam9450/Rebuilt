@@ -14,7 +14,7 @@ import frc.robot.util.LoggingUtils;
 public class BatterySubsystem extends SubsystemBase {
   private static BatterySubsystem INSTANCE;
 
-  private boolean DEBUG_LOG_ON_LOAD = false;
+  private boolean LOG_ON_LOAD = false;
 
   private final BattFuelGaugeFixed BFG = new BattFuelGaugeFixed(80);
 
@@ -32,10 +32,16 @@ public class BatterySubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (DEBUG_LOG_ON_LOAD) {
+    if (LOG_ON_LOAD) {
       BFG.saveLog("");
-      DEBUG_LOG_ON_LOAD = false; // If this line is removed, this will make a log every time periodic() runs...
+      LOG_ON_LOAD = false;
     }
+    float effectiveCapacityAh = BFG.getEffectiveCapacityAh();
+    float depthOfDischargeAh = BFG.getDodAh();
+    float stateOfChargeAh = effectiveCapacityAh - depthOfDischargeAh; // Labeled as "remaining charge" in docs
+    Logger.recordOutput("TankDrive/BatterySubsystem/StateOfCharge_Ah", stateOfChargeAh);
+    float stateOfChargePct = BFG.getRemainingChargePct();
+    Logger.recordOutput("TankDrive/BatterySubsystem/StateOfCharge_Pct", stateOfChargePct);
 
     // No indents = Not shown on BFG screen. One indent = Partially shown on BFG screen. Two indents = Shown on BFG screen. (From base indent level)
     if (logDebuggingToggleMatch.get()) { // TODO: Logs here (don't put very many)
@@ -50,20 +56,20 @@ public class BatterySubsystem extends SubsystemBase {
           Logger.recordOutput("Rebuilt/Battery/Age_Days", BFG.getBatteryAgeDays()); // Not actually in days, don't know why. Returns 4.3e16
           Logger.recordOutput("Rebuilt/Battery/NumCycles_Num", BFG.getNumCycles());
 
-          Logger.recordOutput("Rebuilt/Battery/Voltage_V", BFG.getVoltage());
-          Logger.recordOutput("Rebuilt/Battery/Current_A", BFG.getCurrent());
-        Logger.recordOutput("Rebuilt/Battery/State_Enum", BFG.getBatteryState());
-          float effectiveCapacityAh = BFG.getEffectiveCapacityAh();
-          Logger.recordOutput("Rebuilt/Battery/EffectiveCapacity_Ah", effectiveCapacityAh);
-          float effectiveCapacityPct = effectiveCapacityAh / capacityAh * 100.0F;
-          Logger.recordOutput("Rebuilt/Battery/EffectiveCapacity_Pct", effectiveCapacityPct);
-      float depthOfDischargeAh = BFG.getDodAh();
-      Logger.recordOutput("Rebuilt/Battery/DepthOfDischarge_Ah", depthOfDischargeAh);
-      Logger.recordOutput("Rebuilt/Battery/DepthOfDischarge_Wh", BFG.getDodWh());
-        float stateOfChargeAh = effectiveCapacityAh - depthOfDischargeAh; // Labeled as "remaining charge" in docs
-        Logger.recordOutput("Rebuilt/Battery/StateOfCharge_Ah", stateOfChargeAh);
-        float stateOfChargePct = BFG.getRemainingChargePct();
-        Logger.recordOutput("Rebuilt/Battery/StateOfCharge_Pct", stateOfChargePct);
+          Logger.recordOutput("TankDrive/BatterySubsystem/Voltage_V", BFG.getVoltage());
+          Logger.recordOutput("TankDrive/BatterySubsystem/Current_A", BFG.getCurrent());
+        Logger.recordOutput("TankDrive/BatterySubsystem/State_Enum", BFG.getBatteryState());
+      //     float effectiveCapacityAh = BFG.getEffectiveCapacityAh();
+      //     Logger.recordOutput("TankDrive/BatterySubsystem/EffectiveCapacity_Ah", effectiveCapacityAh);
+      //     float effectiveCapacityPct = effectiveCapacityAh / capacityAh * 100.0F;
+      //     Logger.recordOutput("TankDrive/BatterySubsystem/EffectiveCapacity_Pct", effectiveCapacityPct);
+      // float depthOfDischargeAh = BFG.getDodAh();
+      // Logger.recordOutput("TankDrive/BatterySubsystem/DepthOfDischarge_Ah", depthOfDischargeAh);
+      // Logger.recordOutput("TankDrive/BatterySubsystem/DepthOfDischarge_Wh", BFG.getDodWh());
+      //   float stateOfChargeAh = effectiveCapacityAh - depthOfDischargeAh; // Labeled as "remaining charge" in docs
+      //   Logger.recordOutput("TankDrive/BatterySubsystem/StateOfCharge_Ah", stateOfChargeAh);
+      //   float stateOfChargePct = BFG.getRemainingChargePct();
+      //   Logger.recordOutput("TankDrive/BatterySubsystem/StateOfCharge_Pct", stateOfChargePct);
 
 
           Logger.recordOutput("Rebuilt/Battery/CurrentCycle/MinVoltage_V", BFG.getCycleMinVoltage());
