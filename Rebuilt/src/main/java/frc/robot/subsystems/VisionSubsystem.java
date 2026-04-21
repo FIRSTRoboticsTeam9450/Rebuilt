@@ -861,112 +861,17 @@ public class VisionSubsystem extends SubsystemBase {
             currentFerryZone = "Shooting";
         }
         
-        if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH) {
+        if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_TOP_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_TOP_SECTION_Y_HIGH) {
             currentZone = ZoneState.FERRY_ZONE_TOP;
-            currentTarget = ferryTarget;
+            currentTarget = ZoneTargets.FERRY_TOP_TARGET;
             currentFerryZone = "Normal";
         }
-        if(!ferryingTop && FieldConstants.isBlueAlliance) {
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH) {
-                currentZone = ZoneState.SHOOT_OVER_NET;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Right Mid Section 1";
-            }
-            else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH) {
-                currentZone = ZoneState.SHOOT_OVER_NET;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Right Mid Section 2 (shoot over net...)";
-            }
-
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Right Left Section";
-            }
-            
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH) {
-                currentZone = ZoneState.CLIMB_DEADZONE;
-                currentTarget = ferryMidTarget;
-                currentFerryZone = "Right Push Section";
-            }
-
-        }
-        else if(!ferryingTop && !FieldConstants.isBlueAlliance) {
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_1_Y_HIGH) {
-                currentZone = ZoneState.SHOOT_OVER_NET;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Right Mid Section 1";
-            }
-            else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_MID_SECTION_2_Y_HIGH) {
-                currentZone = ZoneState.SHOOT_OVER_NET;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Right Mid Section 2 (shoot over net...)";
-            }
-
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_LEFT_SECTION_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Right Left Section";
-            }
-
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_RIGHT_PUSH_SECTION_Y_HIGH) {
-                currentZone = ZoneState.CLIMB_DEADZONE;
-                currentTarget = ferryMidTarget;
-                currentFerryZone = "Right Push Section";
-            }
-
-        }
-        else if(ferryingTop && FieldConstants.isBlueAlliance) {
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH) {
-                currentZone = ZoneState.SHOOT_OVER_NET;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Left Mid Section 1";
-            }
-            else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH) {
-                currentZone = ZoneState.SHOOT_OVER_NET;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Left Mid Section 2 (shoot over net...)";
-            }
-
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Left Left Section";
-            }
-
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH) {
-                currentZone = ZoneState.CLIMB_DEADZONE;
-                currentTarget = ferryMidTarget;
-                currentFerryZone = "Left Push Section";
-            }
-
-        }
-        else if(ferryingTop && !FieldConstants.isBlueAlliance) {
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_1_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_1_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = ferryMidTarget;
-                currentFerryZone = "Left Mid Section 1";
-            }
-            else if(currentX > ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_MID_SECTION_2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_MID_SECTION_2_Y_HIGH) {
-                currentZone = ZoneState.SHOOT_OVER_NET;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Left Mid Section 2 (shoot over net...)";
-            }
-
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_LEFT_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_LEFT_SECTION_Y_HIGH) {
-                currentZone = ZoneState.FERRY_ZONE_TOP;
-                currentTarget = neutralTarget;
-                currentFerryZone = "Left Left Section";
-            }
-
-            if(currentX > ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_PUSH_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_LEFT_PUSH_SECTION_Y_HIGH) {
-                currentZone = ZoneState.CLIMB_DEADZONE;
-                currentTarget = ferryMidTarget;
-                currentFerryZone = "Left Push Section";
-            }
-
-        }
         
+        if(currentX > ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_NORMAL_SECTION_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_BOTTOM_SECTION_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_BOTTOM_SECTION_Y_HIGH) {
+            currentZone = ZoneState.FERRY_ZONE_BOTTOM;
+            currentTarget = ZoneTargets.FERRY_BOTTOM_TARGET;
+            currentFerryZone = "Normal";
+        }
 
         if(currentX > ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_LOW && currentX < ZoneConstantsWelded.FERRY_ZONE_SHOOT_OVER_V2_X_HIGH && currentY > ZoneConstantsWelded.FERRY_ZONE_V2_Y_LOW && currentY < ZoneConstantsWelded.FERRY_ZONE_V2_Y_HIGH) {
             currentZone = ZoneState.SHOOT_OVER_NET;

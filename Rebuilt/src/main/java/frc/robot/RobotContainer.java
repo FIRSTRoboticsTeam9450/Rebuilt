@@ -77,7 +77,7 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
   public static boolean slewMode = false;
-  private static final double scalarFactorForSpeed = 0.08;
+  private static final double scalarFactorForSpeed = 0.15;
 
   public static double maxSpeed = DEFAULT_MAX_SPEED * 0.8;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;

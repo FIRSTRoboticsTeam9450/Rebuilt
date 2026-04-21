@@ -312,8 +312,13 @@ public final class Constants {
         // RIGHT SIDE POINTS
         public static final double FERRY_ZONE_NORMAL_SECTION_X_LOW = 4.764;
         public static final double FERRY_ZONE_NORMAL_SECTION_X_HIGH = 16.499;
-        public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW = 0;
-        public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH = 8.065;
+        // public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_LOW = 0;
+        // public static final double FERRY_ZONE_RIGHT_NORMAL_SECTION_Y_HIGH = 8.065;
+        public static final double FERRY_ZONE_BOTTOM_SECTION_Y_LOW = 0;
+        public static final double FERRY_ZONE_BOTTOM_SECTION_Y_HIGH = 4.029;
+
+        public static final double FERRY_ZONE_TOP_SECTION_Y_LOW = 4.029;
+        public static final double FERRY_ZONE_TOP_SECTION_Y_HIGH = 8.05;
         
         public static final double FERRY_ZONE_MID_SECTION_1_X_LOW = FERRY_ZONE_NORMAL_SECTION_X_LOW;
         public static final double FERRY_ZONE_MID_SECTION_1_X_HIGH = 5.98; 

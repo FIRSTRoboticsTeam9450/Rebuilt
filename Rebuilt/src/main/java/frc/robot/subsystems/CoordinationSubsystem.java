@@ -51,7 +51,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     private boolean shouldBeIntaking = false;
     private boolean rejecting = false;
     private boolean autoRejecting = false;
-    private boolean fastTransfer = false;
+    private boolean fastTransfer = true;
     private boolean intakePushing = false;
 
     private boolean overrideTrench = false;

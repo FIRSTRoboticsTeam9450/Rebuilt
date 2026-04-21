@@ -133,7 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
-    private double wheelWareAdjustment = -.5;
+    private double wheelWareAdjustment = 1.5;
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
