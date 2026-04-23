@@ -39,7 +39,7 @@ import frc.robot.Constants.RobotConstants.TurretConstants;
  * 
  * <p>Physical Constraints:
  * <ul>
- *   <li>Range: -135° to +135° (270° total)</li>
+ *   <li>Range: -30° to +30° (60° total)</li>
  *   <li>Gear Ratio: {@link TurretConstants#DEGREE_CHANGE_PER_MOTOR_REVOLUTION} degrees per motor revolution</li>
  * </ul>
  */
@@ -257,9 +257,10 @@ public class TurretSubsystem extends SubsystemBase {
         if (Math.abs(x) > 0.5 || Math.abs(y) > 0.5) {
             double angleRadians = Math.atan2(y, x) + (Math.PI / 2);
             double angleDegrees = Math.toDegrees(angleRadians);
-            if (angleDegrees < 0) angleDegrees += 360;
+            if (angleDegrees > 180) angleDegrees -= 360;
 
-            robotRelativeTargetAngleDeg = findBestWrappedAngle(angleDegrees);
+            if (angleDegrees >= -150 && angleDegrees <= 150)
+                robotRelativeTargetAngleDeg = MathUtil.clamp(angleDegrees, -30, 30);
         }
 
         robotRelativeTargetVelocityDegPerSec = calculateVelocityUpdated();
@@ -381,50 +382,6 @@ public class TurretSubsystem extends SubsystemBase {
     }
     
     // ========================= Helper Methods =========================
-    
-    /**
-     * Finds the best equivalent angle considering wrapping and physical limits.
-     * Chooses the angle that requires the least turret rotation.
-     * 
-     * <p>With 270° range (-135° to +135°), the turret can nearly complete a full rotation,
-     * so we check multiple wrapped versions to find the shortest path.
-     * 
-     * @param targetDegrees Target angle in degrees (robot-relative)
-     * @return Best wrapped angle within [-135°, +135°]
-     */
-    private double findBestWrappedAngle(double targetDegrees) {
-        double currentAngle = cachedAngleDeg;
-        
-        double bestAngle = targetDegrees;
-        double minDistance = Double.POSITIVE_INFINITY;
-        
-        // Check wrapped versions: -720°, -360°, 0°, +360°, +720°
-        // With 270° range, wrapping becomes more important
-        for (int wraps = -2; wraps <= 2; wraps++) {
-            double wrappedAngle = targetDegrees + (wraps * 360.0);
-            
-            // Skip if outside physical limits
-            if (wrappedAngle < MIN_ANGLE_DEG || wrappedAngle > MAX_ANGLE_DEG) {
-                continue;
-            }
-            
-            // Calculate travel distance for this option
-            double distance = Math.abs(currentAngle - wrappedAngle);
-            
-            // Update if this is the shortest path found so far
-            if (distance < minDistance) {
-                bestAngle = wrappedAngle;
-                minDistance = distance;
-            }
-        }
-
-        // If no valid angle found (all out of range), clamp to nearest limit
-        if (minDistance == Double.POSITIVE_INFINITY) {
-            bestAngle = MathUtil.clamp(targetDegrees, MIN_ANGLE_DEG, MAX_ANGLE_DEG);
-        }
-        
-        return bestAngle;
-    }
     
     /**
      * Updates tunable parameters if they've changed.
