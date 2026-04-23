@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -17,23 +16,14 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.Constants.AlignPos;
-import frc.robot.commands.PositionAlignCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.CoordinationSubsystem.AbsoluteStates;
-import frc.robot.subsystems.IntakeSubsystem.IntakePos;
-import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.UtilSubsystems.BatterySubsystem;
 import frc.robot.subsystems.UtilSubsystems.PDHSubsystem;
@@ -41,9 +31,6 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.ClimberSubsystem.ClimbLevel;
-import frc.robot.subsystems.ClimberSubsystem.ClimbStates;
 import frc.robot.util.BezierCurve;
 
 
@@ -51,10 +38,8 @@ public class RobotContainer {
   public final static BatterySubsystem battery = BatterySubsystem.getInstance();
   public final static PDHSubsystem power = PDHSubsystem.getInstance();
   public final static CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-  public final static VisionSubsystem vision = VisionSubsystem.getInstance();
   public final static LEDSubsystem led = LEDSubsystem.getInstance();
   public final static CoordinationSubsystem coordSub = CoordinationSubsystem.getInstance();
-  public final static ClimberSubsystem climbSub = ClimberSubsystem.getInstance();
   public static TurretSubsystem turretSub = TurretSubsystem.getInstance();
   public static ShooterSubsystem shooterSub = ShooterSubsystem.getInstance();
   public static TransferSubsystem transferSub = TransferSubsystem.getInstance();
@@ -77,7 +62,7 @@ public class RobotContainer {
   private static final double DEFAULT_MAX_ANGULAR_RATE = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
   public static boolean slewMode = false;
-  private static final double scalarFactorForSpeed = 0.1;
+  // private static final double scalarFactorForSpeed = 0.1;
 
   public static double maxSpeed = DEFAULT_MAX_SPEED * 0.8;
   public static double maxAngularRate = DEFAULT_MAX_ANGULAR_RATE * 1;
@@ -93,9 +78,6 @@ public class RobotContainer {
   public LoggedDashboardChooser<Command> autoChooser;
 
   public RobotContainer() {
-
-    TurretSubsystem.getInstance().setDriverController(DRIVER);
-
     configureBindings();
 
     registeredCommands();
@@ -107,7 +89,6 @@ public class RobotContainer {
   private void configureAutos() {
     autoChooser.addDefaultOption("Full Sweep", drivetrain.getAutoPath("P - Top Start", false));
     autoChooser.addOption("Left Half Sweep + Depot", drivetrain.getAutoPath("HST - FPSD", false));
-    autoChooser.addOption("Left Half Sweep + Climb", drivetrain.getAutoPath("HST - FPSC", false));
     autoChooser.addOption("Right Push Half Sweep", drivetrain.getAutoPath("HSB - FPSC", false));
     autoChooser.addOption("Right Fery Half Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", false));
 
@@ -115,13 +96,10 @@ public class RobotContainer {
     autoChooser.addOption("Bump Depot", drivetrain.getAutoPath("Bump Depot", false));
     autoChooser.addOption("LLDisruptor", drivetrain.getAutoPath("Left Lead Disruptor", false));
 
-    autoChooser.addOption("Preload + Outpost + Climb", drivetrain.getAutoPath("Outpost", false));
-    autoChooser.addOption("Preload +  Climb", drivetrain.getAutoPath("Preload Only", false));
     autoChooser.addOption("Preload + Return to Hub", drivetrain.getAutoPath("Preload + Return to Hub", false));
         
     autoChooser.addOption("Intake From Hub", drivetrain.getAutoPath("Sit", false));
 
-    // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
     // autoChooser.addOption("Slip Test", drivetrain.getAutoPath("Slip Testing", false));
     // autoChooser.addOption("Drive Test", drivetrain.getAutoPath("Drive Straight", false));
@@ -130,71 +108,68 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-
     drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() -> {
-              
-                // double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
-                // double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
-                double driveX = DRIVER.getLeftY();
-                double driveY = DRIVER.getLeftX();
-                boolean xNegative = driveX < 0;
-                boolean yNegative = driveY < 0;
-                driveX = xNegative ? (Math.pow(driveX, 2) * -1.0) : Math.pow(driveX, 2);
-                driveY = yNegative ? (Math.pow(driveY, 2) * -1.0) : Math.pow(driveY, 2);
-                double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
-                double joyX = -DRIVER.getLeftX();
-                double joyY = DRIVER.getLeftY();
-                double speed = driveBezier.getOutput(Math.hypot(joyX, joyY)) * maxSpeed;
-                double rotation = Math.atan(joyY/joyX);
-                if(joyY < 0 && joyX < 0) {
-                  rotation = Math.PI - rotation;
-                }
-                else if(joyY > 0 && joyX < 0) {
-                  rotation = Math.PI - rotation;
-                }
-                else if(joyY < 0 && joyX > 0) {
-                  rotation *= -1;
-                }
-                else if(joyY > 0 && joyX > 0){
-                  rotation *= -1;
-                }
-                else if(joyY > 0 && joyX == 0) {
-                  rotation = -Math.PI/2;
-                }
-                else if(joyY < 0 && joyX == 0) {
-                  rotation = Math.PI/2;
-                }
-                else if(joyY == 0 && joyX < 0) {
-                  rotation = Math.PI;
-                } else if (joyY == 0 && joyX > 0) {
-                  rotation = 0;
-                }
-                else if(joyY == 0 && joyX > 0) {
-                  rotation = 0;
-                }
-                else if(joyY == 0 && joyX == 0) {
-                  rotation = 0;
-                }
-                double xUsed = speed * Math.cos(rotation);
-                double yUsed = speed * Math.sin(rotation);
-                
-                // double rotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
-                double rotate = DRIVER.getRightX();
-                boolean xRotatePositive = rotate > 0;
-                rotate = xRotatePositive ? (Math.pow(rotate, 2) * -1.0) * maxAngularRate : Math.pow(rotate, 2) * maxAngularRate;
+      // Drivetrain will execute this command periodically
+      drivetrain.applyRequest(() -> {
+        // double driveX = driveXAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed);
+        // double driveY = driveYAccelLimiter.calculate(-driveBezier.getOutput(DRIVER.getLeftX())  * maxSpeed);
+        double driveX = DRIVER.getLeftY();
+        double driveY = DRIVER.getLeftX();
+        boolean xNegative = driveX < 0;
+        boolean yNegative = driveY < 0;
+        driveX = xNegative ? (Math.pow(driveX, 2) * -1.0) : Math.pow(driveX, 2);
+        driveY = yNegative ? (Math.pow(driveY, 2) * -1.0) : Math.pow(driveY, 2);
+        double driveRotate = rotationAccelLimiter.calculate(-rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate);
+        double joyX = -DRIVER.getLeftX();
+        double joyY = DRIVER.getLeftY();
+        double speed = driveBezier.getOutput(Math.hypot(joyX, joyY)) * maxSpeed;
+        double rotation = Math.atan(joyY/joyX);
+        if(joyY < 0 && joyX < 0) {
+          rotation = Math.PI - rotation;
+        }
+        else if(joyY > 0 && joyX < 0) {
+          rotation = Math.PI - rotation;
+        }
+        else if(joyY < 0 && joyX > 0) {
+          rotation *= -1;
+        }
+        else if(joyY > 0 && joyX > 0){
+          rotation *= -1;
+        }
+        else if(joyY > 0 && joyX == 0) {
+          rotation = -Math.PI/2;
+        }
+        else if(joyY < 0 && joyX == 0) {
+          rotation = Math.PI/2;
+        }
+        else if(joyY == 0 && joyX < 0) {
+          rotation = Math.PI;
+        } else if (joyY == 0 && joyX > 0) {
+          rotation = 0;
+        }
+        else if(joyY == 0 && joyX > 0) {
+          rotation = 0;
+        }
+        else if(joyY == 0 && joyX == 0) {
+          rotation = 0;
+        }
+        double xUsed = speed * Math.cos(rotation);
+        double yUsed = speed * Math.sin(rotation);
+        
+        // double rotate = -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate;
+        double rotate = DRIVER.getRightX();
+        boolean xRotatePositive = rotate > 0;
+        rotate = xRotatePositive ? (Math.pow(rotate, 2) * -1.0) * maxAngularRate : Math.pow(rotate, 2) * maxAngularRate;
 
-                return drive.withVelocityX(slewMode ? driveX : yUsed) // Drive forward with negative Y (forward)
-                    .withVelocityY(slewMode ? driveY : xUsed) // Drive left with negative X (left)
-                    .withRotationalRate(slewMode ? driveRotate : rotate); // Drive counterclockwise with negative X (left)
-                
-                // return drive.withVelocityX(slewMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
-                //     .withVelocityY(slewMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
-                //     .withRotationalRate(slewMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
-            }
-            )
-        );
+        return drive.withVelocityX(slewMode ? driveX : yUsed) // Drive forward with negative Y (forward)
+            .withVelocityY(slewMode ? driveY : xUsed) // Drive left with negative X (left)
+            .withRotationalRate(slewMode ? driveRotate : rotate); // Drive counterclockwise with negative X (left)
+        
+        // return drive.withVelocityX(slewMode ? driveX : -driveBezier.getOutput(DRIVER.getLeftY())  * maxSpeed) // Drive forward with negative Y (forward)
+        //     .withVelocityY(slewMode ? driveY : (-driveBezier.getOutput(DRIVER.getLeftX()) * maxSpeed)) // Drive left with negative X (left)
+        //     .withRotationalRate(slewMode ? driveRotate : -rotateBezier.getOutput(DRIVER.getRightX()) * maxAngularRate); // Drive counterclockwise with negative X (left)
+      })
+    );
         
     // DRIVER.leftBumper().whileTrue(
     //   new PositionAlignCommand(drivetrain, AlignPos.LEFT)
@@ -251,9 +226,6 @@ public class RobotContainer {
 
     DRIVER.y().onTrue(new ResetIMU(drivetrain));
 
-    DRIVER.povLeft().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
-    DRIVER.povRight().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
-
     DRIVER.back().onTrue(
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)
     );
@@ -284,35 +256,13 @@ public class RobotContainer {
       CoordinationSubsystem.getInstance().setForceTrenchCommand()
     );
 
-    OPERATOR.x().onTrue(CoordinationSubsystem.getInstance().increaseManualAdjust());
-    OPERATOR.y().onTrue(CoordinationSubsystem.getInstance().resetManualAdjust());
-    OPERATOR.b().onTrue(CoordinationSubsystem.getInstance().decreaseManualAdjust());
+    OPERATOR.povUp().onTrue(CoordinationSubsystem.getInstance().increaseManualAdjust(2.5).ignoringDisable(true));
+    OPERATOR.povDown().onTrue(CoordinationSubsystem.getInstance().decreaseManualAdjust(2.5).ignoringDisable(true));
+    OPERATOR.back().onTrue(CoordinationSubsystem.getInstance().resetManualAdjust().ignoringDisable(true));
 
-    OPERATOR.a().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setForceClimberDownCommand()).alongWith(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true)));
+    OPERATOR.a().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.PREPARING_FOR_SHOOTING, true));
 
     OPERATOR.b().and(OPERATOR.x()).and(OPERATOR.y()).onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.INIT, true));
-
-    OPERATOR.leftStick().onTrue(CoordinationSubsystem.getInstance().setShiftingCommand(false)).onFalse(CoordinationSubsystem.getInstance().setShiftingCommand(true));
-
-    OPERATOR.povUp().onTrue(
-      Commands.either(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.STORING)), ClimberSubsystem.getInstance().setClimbStateAndLevelCommand(), (() -> DriverStation.isTest()))
-    );
-
-    OPERATOR.povDown().onTrue(
-      VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(true)
-    ).onFalse(
-      VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(false)
-    );
-
-    OPERATOR.povRight().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
-    // OPERATOR.povRight().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.INIT))));
-    // OPERATOR.povLeft().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new WaitCommand(0.15)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)))));
-    // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
-    OPERATOR.povLeft().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
-    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
-
-    OPERATOR.back().onTrue(ClimberSubsystem.getInstance().setForceClimberUpCommand());
-    OPERATOR.start().onTrue(ClimberSubsystem.getInstance().setForceClimberDownCommand());
 
     /* ================ TEST ONLY KEYBINDS ============== */
     
@@ -328,10 +278,6 @@ public class RobotContainer {
     
       
     /* =============================== DISABLED KEYBINDS ======================== */
-
-    // DRIVER.x().onTrue(new InstantCommand(() ->VisionSubsystem.getInstance().setFerryTarget(2)));
-    // DRIVER.y().onTrue(new InstantCommand(() ->VisionSubsystem.getInstance().setFerryTarget(0)));
-    // DRIVER.b().onTrue(new InstantCommand(() ->VisionSubsystem.getInstance().setFerryTarget(1)));
     
     // DRIVER.povDown().whileTrue(
     //     CoordinationSubsystem.getInstance().setTenchManeuveringKeybind(TrenchLocationWRTBlueOrigin.CLOSE_LEFT)
@@ -353,18 +299,6 @@ public class RobotContainer {
     //   ).onFalse(
     //     new InstantCommand(() -> CommandScheduler.getInstance().cancelAll())
     //   );
-
-    
-    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.INIT))));
-    // OPERATOR.povUp().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.HANDOFF))));
-    // OPERATOR.povRight().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.L2)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.END))));
-
-    
-    // OPERATOR.b().onTrue(climbSub.GoToNextLevel());
-    // OPERATOR.povLeft().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB));
-    // OPERATOR.povRight().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.INIT))));
-    // OPERATOR.povDown().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.END)));
-
   }
 
 
@@ -385,21 +319,10 @@ public class RobotContainer {
     NamedCommands.registerCommand("SetHardTrenchOverrideTrue", CoordinationSubsystem.getInstance().setHardTrenchOverride(true));
     NamedCommands.registerCommand("SetHardTrenchOverrideFalse", CoordinationSubsystem.getInstance().setHardTrenchOverride(false));
 
-    NamedCommands.registerCommand("SetFerryTargetBottom", new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
-    NamedCommands.registerCommand("SetFerryTargetTop", new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
-
     NamedCommands.registerCommand("LowerShooterPower", new InstantCommand(() -> ShooterSubsystem.getInstance().subtractManualVelocityShift()));
     NamedCommands.registerCommand("IncreaseShooterPower", new InstantCommand(() -> ShooterSubsystem.getInstance().addManualVelocityShift(.25)));
-    
-    NamedCommands.registerCommand("LeftTurretAngle", new InstantCommand(() -> TurretSubsystem.getInstance().increaseManualAdjust()));
-    NamedCommands.registerCommand("RightTurretAngle", new InstantCommand(() -> TurretSubsystem.getInstance().decreaseManualAdjust()));
-
-    NamedCommands.registerCommand("ClimberUp", CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new WaitCommand(0.15)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)))));
-    NamedCommands.registerCommand("ClimberDown", new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
-    // NamedCommands.registerCommand("ClimberDown", new InstantCommand());
 
     NamedCommands.registerCommand("ForceTrench", CoordinationSubsystem.getInstance().setForceTrenchCommand());
-    NamedCommands.registerCommand("UseCustomTarget", VisionSubsystem.getInstance().setUseCustomTarget());
   }
 
   public Command getAutonomousCommand() {

@@ -7,16 +7,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 
 public class Concert extends SubsystemBase {
-    
-
     private static Concert INSTANCE;
 
     public static Concert getInstance() {
@@ -34,7 +30,6 @@ public class Concert extends SubsystemBase {
     private Orchestra concertHall = new Orchestra();
 
     private void addAllInstruments() {
-        addInstrument(ClimberSubsystem.getInstance().getMotors());
         addInstrument(RobotContainer.drivetrain.getMotors());
         addInstrument(IntakeSubsystem.getInstance().getMotors());
         addInstrument(ShooterSubsystem.getInstance().getMotors());

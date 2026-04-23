@@ -22,13 +22,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoordinationSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.LEDSubsystem.LEDState;
 import frc.robot.util.LocalADStarAK;
 
@@ -115,9 +113,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledInit() {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
-    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().disabledStdDev);
-    VisionSubsystem.getInstance().setThrottle(0);
-    VisionSubsystem.getInstance().setLLIMUModes(1);
     updateValuesOffset = 0;
     IntakeSubsystem.getInstance().init();
     LEDSubsystem.getInstance().setState(LEDState.TEAM_UNIQUE_DISABLED);
@@ -134,7 +129,6 @@ public class Robot extends LoggedRobot {
     } else if (updateValuesOffset == 30) {
       IntakeSubsystem.getInstance().updateConstants();
     } else if (updateValuesOffset == 15) {
-      // ClimberSubsystem.getInstance().updateClimberConstants();
     }
     updateValuesOffset++;
   }
@@ -142,16 +136,11 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledExit() {
     FieldConstants.isBlueAlliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Blue;
-    VisionSubsystem.getInstance().setThrottle(0);
-    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
-    VisionSubsystem.getInstance().setLLIMUModes(0);
-    // VisionSubsystem.getInstance().setLLIMUAssistAlpha(0.01);
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    VisionSubsystem.getInstance().setVisionMeasurementStdDevs(VisionSubsystem.getInstance().enabledMT2StdDev);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     IntakeSubsystem.getInstance().init();
     RobotContainer.drivetrain.setStatorCurrentLimit(50);
@@ -177,7 +166,6 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    VisionSubsystem.getInstance().setUseCustomTarget(false);
     // SignalLogger.start();
   }
 
