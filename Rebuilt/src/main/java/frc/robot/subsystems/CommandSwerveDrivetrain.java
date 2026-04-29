@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -21,6 +22,8 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -62,6 +65,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     // private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
+    // Standard deviations for vision measurements (for filtering/fusion)
+    public Vector<N3> disabledStdDev = VecBuilder.fill(3, 3, 999999);
+    public Vector<N3> enabledMT2StdDev = VecBuilder.fill(0.3, 0.3, 999999);
+    public Vector<N3> enabledMT1StdDev = VecBuilder.fill(999999, 999999, 1);
+    private Vector<N3> badOdomStdDev = VecBuilder.fill(0, 0, 999999);
+
+    public double defaultVisionStdDevX = enabledMT2StdDev.get(0);
+    public double defaultVisionStdDevY = enabledMT2StdDev.get(1);
+    public double defaultVisionStdDevTheta = enabledMT2StdDev.get(2);
+    public double currentVisionStdDevX = 0;
+    public double currentVisionStdDevY = 0;
+    private double currentVisionStdDevTheta = 0.0;
+
+    int bumpMeasurmentCount = 0;
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -353,6 +371,48 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // Logger.recordOutput("Rebuilt/SYSID/Steer Motor Velocity", getModule(0).getSteerMotor().getVelocity(true).getValueAsDouble());
         // Logger.recordOutput("Rebuilt/SYSID/Steer Motor Voltage", getModule(0).getSteerMotor().getMotorVoltage(true).getValueAsDouble());
         
+    }
+
+    private void updateVision() {
+        Pose2d robotPoseData = getState().Pose;
+        Pigeon2 pigeonData = getPigeon2();
+
+        double robotTranslationX = robotPoseData.getX();
+        double robotTranslationY = robotPoseData.getY();
+
+        double robotYaw = robotPoseData.getRotation().getDegrees();
+        double robotYawRate = pigeonData.getAngularVelocityZDevice().getValueAsDouble();
+        double robotRoll = Math.abs(pigeonData.getRoll().getValueAsDouble());
+        double robotPitch = Math.abs(pigeonData.getPitch().getValueAsDouble());
+
+        boolean odomPoseOutsideField = false;
+        boolean bumpDetected = false;
+
+        if (robotTranslationX < 0 || robotTranslationX > 16.575 || robotTranslationY < 0 || robotTranslationY > 8.1) {
+            odomPoseOutsideField = true;
+        }
+
+        if (robotRoll > 6 || robotPitch > 6) {
+            bumpDetected = true;
+            bumpMeasurmentCount = 0;
+        }
+
+        if (odomPoseOutsideField) {
+                odomPoseOutsideField = false;
+                setVisionMeasurementStdDevs(badOdomStdDev);
+            } else if (bumpDetected || bumpMeasurmentCount <= 5) {
+                if (bumpDetected) {
+                    bumpDetected = false;
+                    setVisionMeasurementStdDevs(badOdomStdDev);
+                } else {
+                    double stdDev = 0.4 * bumpMeasurmentCount;
+                    setVisionMeasurementStdDevs(stdDev, stdDev, badOdomStdDev.get(2));
+                    setVisionMeasurementStdDevs(badOdomStdDev);
+                    bumpMeasurmentCount++;
+                }
+            } else {
+                setVisionMeasurementStdDevs(defaultVisionStdDevX, defaultVisionStdDevY, defaultVisionStdDevTheta);
+            }
     }
 
     private void startSimThread() {
