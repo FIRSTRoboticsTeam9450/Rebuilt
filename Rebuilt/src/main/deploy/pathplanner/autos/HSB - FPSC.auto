@@ -31,13 +31,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "P - Cimb Lineup"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "P - Climb"
+            "pathName": "HSB - Back out"
           }
         }
       ]

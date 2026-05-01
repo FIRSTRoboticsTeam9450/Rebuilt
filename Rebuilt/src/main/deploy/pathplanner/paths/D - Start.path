@@ -1,0 +1,122 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.4,
+        "y": 7.625
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 9.380973490458727,
+        "y": 7.189221286261709
+      },
+      "isLocked": false,
+      "linkedName": "TopTrenchStart"
+    },
+    {
+      "anchor": {
+        "x": 8.75,
+        "y": 4.5
+      },
+      "prevControl": {
+        "x": 8.75,
+        "y": 7.0
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "D - Start End"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.10234541577825362,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 0.7100213219616167,
+      "rotationDegrees": -115.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.6536124240378057,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 0.9,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "ForceTrench",
+      "waypointRelativePos": 0.17171215880892796,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ForceTrench"
+        }
+      }
+    },
+    {
+      "name": "SetFire",
+      "waypointRelativePos": 0.2014888337469053,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetFire"
+        }
+      }
+    },
+    {
+      "name": "SetIntake",
+      "waypointRelativePos": 0.2054590570719642,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "SetIntake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 9999999.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0.9,
+    "rotation": -115.0
+  },
+  "reversed": false,
+  "folder": "Depot",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": false
+}

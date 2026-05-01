@@ -112,6 +112,7 @@ public class RobotContainer {
     autoChooser.addOption("Right Fery Half Sweep", drivetrain.getAutoPath("FO - 2 Sweeps", false));
 
     autoChooser.addOption("Hub Depot", drivetrain.getAutoPath("Depot", false)); 
+    autoChooser.addOption("Hub Depot With Bump", drivetrain.getAutoPath("Depot with Bump", false)); 
     autoChooser.addOption("Bump Depot", drivetrain.getAutoPath("Bump Depot", false));
     autoChooser.addOption("LLDisruptor", drivetrain.getAutoPath("Left Lead Disruptor", false));
 
@@ -120,6 +121,8 @@ public class RobotContainer {
     autoChooser.addOption("Preload + Return to Hub", drivetrain.getAutoPath("Preload + Return to Hub", false));
         
     autoChooser.addOption("Intake From Hub", drivetrain.getAutoPath("Sit", false));
+
+    autoChooser.addOption("CMP - Long Ferry", drivetrain.getAutoPath("CMP - Long Ferry", false));
 
     // autoChooser.addOption("Climb Test", drivetrain.getAutoPath("Climb Only", false));
     // autoChooser.addOption("Spin Test", drivetrain.getAutoPath("Spin Testing", false));
@@ -293,11 +296,12 @@ public class RobotContainer {
       VisionSubsystem.getInstance().setOperatorOverrideVisionTrustCommand(false)
     );
 
-    OPERATOR.povRight().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("bottom")));
+    OPERATOR.povRight().onTrue(coordSub.setStateCommand(AbsoluteStates.EMERGENCY, true));
+    OPERATOR.povLeft().onTrue(coordSub.setStateCommand(AbsoluteStates.DEFENSE, true));
     // OPERATOR.povRight().onTrue(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbLevel(ClimbLevel.L1)).alongWith(new InstantCommand(() -> ClimberSubsystem.getInstance().setClimbState(ClimbStates.INIT))));
     // OPERATOR.povLeft().onTrue(CoordinationSubsystem.getInstance().setStateCommand(AbsoluteStates.CLIMB, false).alongWith(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new WaitCommand(0.15)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.INIT)))));
     // OPERATOR.povRight().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.END))));
-    OPERATOR.povLeft().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
+    // OPERATOR.povLeft().onTrue(new InstantCommand(() -> VisionSubsystem.getInstance().setFerryTarget("top")));
     // OPERATOR.povLeft().onTrue(new InstantCommand(() -> climbSub.setClimbLevel(ClimbLevel.AUTO)).alongWith(new InstantCommand(() -> climbSub.setClimbState(ClimbStates.HANDOFF))));
 
     OPERATOR.back().onTrue(ClimberSubsystem.getInstance().setForceClimberUpCommand());

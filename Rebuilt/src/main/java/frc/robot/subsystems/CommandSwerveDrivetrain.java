@@ -301,12 +301,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Logger.recordOutput("Rebuilt/Drive/Pose 2D", driveState.Pose);
         
         // Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Volts", getModule(0).getDriveMotor().getMotorVoltage().getValueAsDouble());
-        // Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Supply Amps", getModule(0).getDriveMotor().getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Supply Amps", getModule(0).getDriveMotor().getSupplyCurrent().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Stator Amps", getModule(0).getDriveMotor().getTorqueCurrent().getValueAsDouble());
 
         // Logger.recordOutput("Rebuilt/Drive/FL/Steer/Motor Position", getModule(0).getSteerMotor().getPosition().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Drive/FL/Steer/Target Position", getModule(0).getTargetState().angle.getRotations());
-        // Logger.recordOutput("Rebuilt/Drive/FL/Steer/Motor Supply Amps", getModule(0).getSteerMotor().getSupplyCurrent().getValueAsDouble());
+        Logger.recordOutput("Rebuilt/Drive/FL/Steer/Motor Supply Amps", getModule(0).getSteerMotor().getSupplyCurrent().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Drive/FL/Steer/Motor Stator Amps", getModule(0).getSteerMotor().getTorqueCurrent().getValueAsDouble());
         // Logger.recordOutput("Rebuilt/Drive/FL/Drive/Motor Supply Amps", getModule(0).getDriveMotor().getSupplyCurrent().getValueAsDouble());
 

@@ -27,12 +27,6 @@
           "data": {
             "pathName": "HST - 2nd Corner"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "D - Climb"
-          }
         }
       ]
     }

@@ -1,0 +1,89 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.4,
+        "y": 7.0
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 0.6790777777777779,
+        "y": 6.968077777777778
+      },
+      "isLocked": false,
+      "linkedName": "CA - FSC - Score End 2"
+    },
+    {
+      "anchor": {
+        "x": 1.361188888888889,
+        "y": 5.974144444444444
+      },
+      "prevControl": {
+        "x": 1.5073555555555558,
+        "y": 7.728144444444444
+      },
+      "nextControl": {
+        "x": 1.2826558458830093,
+        "y": 5.031747928373886
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.4,
+        "y": 4.912000000000001
+      },
+      "prevControl": {
+        "x": 1.6925,
+        "y": 4.9314888888888895
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.6595275590551114,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 1.3345323741007193,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 0.5,
+        "maxAcceleration": 4.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Depot",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

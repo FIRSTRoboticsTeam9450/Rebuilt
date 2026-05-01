@@ -40,6 +40,8 @@ public class CoordinationSubsystem extends SubsystemBase {
         PREPARING_FOR_SHOOTING,
         SHOOTING,
         TRENCH,
+        EMERGENCY,
+        DEFENSE,
         CLIMB
     }
 
@@ -145,7 +147,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private void applyZone() {
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
-            if(currentState != AbsoluteStates.INIT) {
+            if(currentState != AbsoluteStates.INIT || currentState != AbsoluteStates.EMERGENCY || currentState != AbsoluteStates.DEFENSE) {
 
                 previousZone = currentZone;
                 update = false;
@@ -244,6 +246,20 @@ public class CoordinationSubsystem extends SubsystemBase {
                 intakeAngleState = IntakePos.STORE;
                 intakeVelocState = IntakeState.IDLING;
                 ledState = LEDState.INIT;
+                break;
+            case EMERGENCY:
+                turretState = TurretState.EMERGENCY;
+                intakeAngleState = IntakePos.TRENCH_STORE;
+                intakeVelocState = IntakeState.IDLING;
+                shooterVelocState = ShooterState.NOT_SHOOTING;
+                break;
+
+            case DEFENSE:
+                turretState = TurretState.EMERGENCY;
+                intakeAngleState = IntakePos.DEFENSE;
+                intakeVelocState = IntakeState.IDLING;
+                shooterVelocState = ShooterState.NOT_SHOOTING;
+                shooterHoodState = AngleState.STORING;
                 break;
 
             case STORING:
@@ -367,6 +383,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Rebuilt/Coord/Intakeing", shouldBeIntaking);
         Logger.recordOutput("Rebuilt/Coord/Firing", driverAllowingShooting);
+        Logger.recordOutput("Rebuilt/Coord/Supercharged", fastTransfer);
 
         // Logger.recordOutput("Rebuilt/Coord/Current State", currentState);
         // Logger.recordOutput("Rebuilt/Coord/Driver Allows Shooting", driverAllowingShooting);
@@ -591,7 +608,7 @@ public class CoordinationSubsystem extends SubsystemBase {
     // }
 
     public void setState(AbsoluteStates state, boolean forceStateChange) {
-        if (currentState != AbsoluteStates.CLIMB || forceStateChange) {
+        if (currentState != AbsoluteStates.CLIMB || currentState != AbsoluteStates.EMERGENCY || forceStateChange) {
             currentState = state;
             applyState();
         }

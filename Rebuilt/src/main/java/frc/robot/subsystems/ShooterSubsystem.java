@@ -133,7 +133,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final LoggedNetworkBoolean logDebuggingToggle = new LoggedNetworkBoolean("/Tuning/Debugging Toggles/Shooter", false);
 
     private double manualShift = 0; // For manually adjusting shooter velocity on the fly, added to getShooterVeloc()
-    private double wheelWareAdjustment = 1.5;
+    private double wheelWareAdjustment = 1.5 - 3.5;
 
     // Timer
     private Timer switchSlotBackTimer = new Timer();
@@ -180,9 +180,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void addData() {
 
-        shootingDistanceToVelocity.put(6.2, 51.5 + wheelWareAdjustment);
-        shootingDistanceToVelocity.put(5.684, 49.75 + wheelWareAdjustment);
-        shootingDistanceToVelocity.put(5.095, 46.0 + wheelWareAdjustment);
+        shootingDistanceToVelocity.put(6.2, 51.5 + wheelWareAdjustment - .25);
+        shootingDistanceToVelocity.put(5.684, 49.75 + wheelWareAdjustment + .5);
+        shootingDistanceToVelocity.put(5.095, 46.0 + wheelWareAdjustment + .75);
         shootingDistanceToVelocity.put(4.101, 42.5 + wheelWareAdjustment);
         shootingDistanceToVelocity.put(3.465, 41.0 + wheelWareAdjustment);
         shootingDistanceToVelocity.put(3.0, 38.75 + wheelWareAdjustment);

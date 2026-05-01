@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 0.4,
-        "y": 7.65
+        "y": 7.75
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4,
-        "y": 7.65
+        "x": 2.4,
+        "y": 7.75
       },
       "isLocked": false,
       "linkedName": "CA - FSC - Score End"
@@ -20,7 +20,7 @@
         "y": 7.0
       },
       "prevControl": {
-        "x": 1.4,
+        "x": 1.15,
         "y": 7.0
       },
       "nextControl": null,
@@ -35,7 +35,7 @@
       "minWaypointRelativePos": 0.6501240694788937,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.7,
+        "maxVelocity": 0.4,
         "maxAcceleration": 4.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,

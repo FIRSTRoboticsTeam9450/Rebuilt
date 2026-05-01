@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.CoordinateSystem;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -40,6 +41,7 @@ public final class IntakeSubsystem extends SubsystemBase{
         STORE,
         CLIMB_STORE,
         TRENCH_STORE,
+        DEFENSE,
         INTAKING
     }
 
@@ -140,6 +142,16 @@ public final class IntakeSubsystem extends SubsystemBase{
         slot0Configs.kG = logMMKG.get();
         slot0Configs.GravityType = GravityTypeValue.Arm_Cosine;
 
+        // var slot1Configs = motorConfig.Slot1;
+        // slot1Configs.kS = logMMKS.get();
+        // slot1Configs.kV = logMMKV.get();
+        // slot1Configs.kA = logMMKA.get();
+        // slot1Configs.kP = logMMKP.get();
+        // slot1Configs.kI = logMMKI.get();
+        // slot1Configs.kD = logMMKD.get();
+        // slot1Configs.kG = logMMKG.get();
+        // slot1Configs.GravityType = GravityTypeValue.Arm_Cosine;
+
         motorConfig.Feedback.FeedbackRemoteSensorID = encoderArm.getDeviceID();
         motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
         motorConfig.Feedback.RotorToSensorRatio = IntakeConstants.kAngleRotorToSensorRatio;
@@ -202,32 +214,39 @@ public final class IntakeSubsystem extends SubsystemBase{
                 break;
 
             case PUSH_BAR:
-                motorArm.setControl(request.withPosition(pushingRevolutions));
+                motorArm.setControl(request.withPosition(pushingRevolutions).withSlot(0));
                 intakeSetpoint = pushingRevolutions;
                 break;
 
             case TRENCH_STORE:
-                motorArm.setControl(request.withPosition(trenchStoreRevolutions));
+                motorArm.setControl(request.withPosition(trenchStoreRevolutions).withSlot(0));
                 intakeSetpoint = trenchStoreRevolutions;
                 break;
 
             case STORE:
-                motorArm.setControl(request.withPosition(storeRevolutions));
+                motorArm.setControl(request.withPosition(storeRevolutions).withSlot(0));
                 intakeSetpoint = storeRevolutions;
                 break;
 
             case CLIMB_STORE:
-                motorArm.setControl(request.withPosition(climbStoreRevolutions));
+                motorArm.setControl(request.withPosition(climbStoreRevolutions).withSlot(0));
                 intakeSetpoint = climbStoreRevolutions;
                 break;
-            
+
+            case DEFENSE:
+                if(TurretSubsystem.getInstance().isAtProfiledGoal()) {
+                    motorArm.setControl(request.withPosition(.511));
+                }
+
+                break;
+
             case INTAKING:
-                motorArm.setControl(request.withPosition(intakeRevolutions));
+                motorArm.setControl(request.withPosition(intakeRevolutions).withSlot(0));
                 intakeSetpoint = intakeRevolutions;
                 break;
 
             default:
-                motorArm.setControl(request.withPosition(storeRevolutions));
+                motorArm.setControl(request.withPosition(storeRevolutions).withSlot(0));
                 intakeSetpoint = storeRevolutions;
                 break;
         }
@@ -318,6 +337,16 @@ public final class IntakeSubsystem extends SubsystemBase{
         if (pos == IntakePos.ZEROING) {
             isZeroingDone = false;
             zeroingTimer.restart();
+        }
+        if(pos == IntakePos.DEFENSE) { // TODO: FIND A GOOD VALUE 
+            motorConfig.MotionMagic.MotionMagicAcceleration = 20;
+            motorConfig.MotionMagic.MotionMagicCruiseVelocity = 10;
+            motorArm.getConfigurator().apply(motorConfig);
+        }
+        if(pos != IntakePos.DEFENSE && currentPos == IntakePos.DEFENSE) {
+            motorConfig.MotionMagic.MotionMagicAcceleration = logMMAccel.get();
+            motorConfig.MotionMagic.MotionMagicCruiseVelocity = logMMVeloc.get();
+            motorArm.getConfigurator().apply(motorConfig);
         }
         reachedSetpoint = false;
         currentPos = pos;

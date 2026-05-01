@@ -124,6 +124,9 @@ public class TurretSubsystem extends SubsystemBase {
         /** Moving to safe storage position (0°) */
         STORING,
 
+        /**  If hood flips off */
+        EMERGENCY,
+
         CLIMB
     }
     
@@ -568,6 +571,11 @@ public class TurretSubsystem extends SubsystemBase {
                         MAX_ANGLE_DEG
                     );
                     
+                    commandTurret(profiledSetpointDeg, 0.0, 0.0);
+                    break;
+                
+                case EMERGENCY:
+                    profiledSetpointDeg = 90;
                     commandTurret(profiledSetpointDeg, 0.0, 0.0);
                     break;
 
