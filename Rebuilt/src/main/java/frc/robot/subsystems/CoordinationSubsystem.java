@@ -147,7 +147,7 @@ public class CoordinationSubsystem extends SubsystemBase {
 
     private void applyZone() {
         if(currentZone != previousZone || update || previousGoodToShoot != goodToFire()) {
-            if(currentState != AbsoluteStates.INIT || currentState != AbsoluteStates.EMERGENCY || currentState != AbsoluteStates.DEFENSE) {
+            if(currentState != AbsoluteStates.CLIMB && currentState != AbsoluteStates.EMERGENCY && currentState != AbsoluteStates.DEFENSE) {
 
                 previousZone = currentZone;
                 update = false;
@@ -260,6 +260,7 @@ public class CoordinationSubsystem extends SubsystemBase {
                 intakeVelocState = IntakeState.IDLING;
                 shooterVelocState = ShooterState.NOT_SHOOTING;
                 shooterHoodState = AngleState.STORING;
+                drivetrain.setStatorCurrentLimit(70);
                 break;
 
             case STORING:
@@ -608,7 +609,12 @@ public class CoordinationSubsystem extends SubsystemBase {
     // }
 
     public void setState(AbsoluteStates state, boolean forceStateChange) {
-        if (currentState != AbsoluteStates.CLIMB || currentState != AbsoluteStates.EMERGENCY || forceStateChange) {
+        if (forceStateChange) {
+            shouldBeIntaking = false;
+            forceTrench = false;
+        }
+        if (currentState == AbsoluteStates.DEFENSE && state != AbsoluteStates.DEFENSE && forceStateChange) drivetrain.setStatorCurrentLimit(30);
+        if ((currentState != AbsoluteStates.CLIMB && currentState != AbsoluteStates.EMERGENCY && currentState != AbsoluteStates.DEFENSE) || forceStateChange) {
             currentState = state;
             applyState();
         }

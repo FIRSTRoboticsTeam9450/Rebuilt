@@ -31,19 +31,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "P - Cimb Lineup"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.1
+            "pathName": "HSB - Push Back"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "P - Climb"
+            "pathName": "HSB - Turn Around"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HSB - Final Sweep"
           }
         }
       ]

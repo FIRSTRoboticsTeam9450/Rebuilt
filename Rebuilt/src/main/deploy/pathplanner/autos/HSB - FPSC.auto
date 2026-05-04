@@ -31,7 +31,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HSB - Back out"
+            "pathName": "HSB - Push Back"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HSB - Turn Around"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HSB - Final Sweep"
           }
         }
       ]

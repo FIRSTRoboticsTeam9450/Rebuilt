@@ -29,39 +29,12 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 1,
-      "maxWaypointRelativePos": 1.5,
-      "constraints": {
-        "maxVelocity": 0.55,
-        "maxAcceleration": 1.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
-      "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.35,
-      "maxWaypointRelativePos": 0.8,
-      "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 4.0,
-        "maxAngularVelocity": 540.0,
-        "maxAngularAcceleration": 720.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    }
-  ],
+  "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.6,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 999.0,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -74,7 +47,7 @@
   "reversed": false,
   "folder": "Push",
   "idealStartingState": {
-    "velocity": 4.0,
+    "velocity": 0.0,
     "rotation": 180.0
   },
   "useDefaultConstraints": false

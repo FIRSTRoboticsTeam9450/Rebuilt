@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.45,
+        "y": 2.85
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 0.45,
+        "y": 2.6
+      },
+      "isLocked": false,
+      "linkedName": "P - Corner End 2"
+    },
+    {
+      "anchor": {
+        "x": 0.45,
+        "y": 1.75
+      },
+      "prevControl": {
+        "x": 0.44999999999999996,
+        "y": 2.0
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "HSB - Push Back End"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.0,
+    "maxAcceleration": 4.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.0,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": "Half Sweep",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": false
+}

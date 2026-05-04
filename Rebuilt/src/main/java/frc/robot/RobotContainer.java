@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.AlignPos;
+import frc.robot.commands.DriveBrakeCommand;
 import frc.robot.commands.PositionAlignCommand;
 import frc.robot.commands.ResetIMU;
 import frc.robot.generated.TunerConstants;
@@ -199,12 +200,12 @@ public class RobotContainer {
             )
         );
         
-    DRIVER.leftBumper().whileTrue(
-      new PositionAlignCommand(drivetrain, AlignPos.LEFT)
-    );
-    DRIVER.rightBumper().whileTrue(
-      new PositionAlignCommand(drivetrain, AlignPos.RIGHT)
-    );
+    // DRIVER.leftBumper().whileTrue(
+    //   new PositionAlignCommand(drivetrain, AlignPos.LEFT)
+    // );
+    // DRIVER.rightBumper().whileTrue(
+    //   new PositionAlignCommand(drivetrain, AlignPos.RIGHT)
+    // );
 
     // DRIVER.leftTrigger().onTrue(
     //     new InstantCommand(() -> maxSpeed = DEFAULT_MAX_SPEED * scalarFactorForSpeed).alongWith(new InstantCommand(() -> slewMode = true))
@@ -245,6 +246,8 @@ public class RobotContainer {
     );
 
     DRIVER.y().onTrue(new ResetIMU(drivetrain));
+
+    DRIVER.rightBumper().whileTrue(new DriveBrakeCommand(drivetrain));
 
     DRIVER.back().onTrue(
       new InstantCommand(() -> {IntakeSubsystem.getInstance().zeroEncoders(); ShooterSubsystem.getInstance().zeroEncoder();}).ignoringDisable(true)

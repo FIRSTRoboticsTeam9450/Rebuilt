@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 0.45,
-        "y": 3.0
+        "y": 2.85
       },
       "prevControl": null,
       "nextControl": {
         "x": 0.45,
-        "y": 3.25
+        "y": 3.1
       },
       "isLocked": false,
       "linkedName": "P - Corner End 2"

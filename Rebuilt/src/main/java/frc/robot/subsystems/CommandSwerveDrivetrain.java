@@ -11,6 +11,7 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -352,7 +353,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // Logger.recordOutput("Rebuilt/SYSID/Steer Motor Position", getModule(0).getSteerMotor().getPosition(true).getValueAsDouble());
         // Logger.recordOutput("Rebuilt/SYSID/Steer Motor Velocity", getModule(0).getSteerMotor().getVelocity(true).getValueAsDouble());
         // Logger.recordOutput("Rebuilt/SYSID/Steer Motor Voltage", getModule(0).getSteerMotor().getMotorVoltage(true).getValueAsDouble());
+     
         
+
     }
 
     private void startSimThread() {
@@ -402,6 +405,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Matrix<N3, N1> visionMeasurementStdDevs
     ) {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
+    }
+
+    public void setSteerRotationForDefense() {
+        SwerveRequest.SwerveDriveBrake testRequest = new SwerveRequest.SwerveDriveBrake().withSteerRequestType(SteerRequestType.Position);
+        this.setControl(testRequest);
     }
 
     public ArrayList<TalonFX> getMotors() {
